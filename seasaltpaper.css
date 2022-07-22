@@ -1,72 +1,761 @@
-/**
- *------
- * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
- * SeaSaltPaper implementation : © <Your name here> <Your email address here>
- *
- * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
- * See http://en.boardgamearena.com/#!doc/Studio for more information.
- * -----
- *
- * seasaltpaper.css
- *
- * SeaSaltPaper stylesheet
- *
- */
+.player-board {
+  background-color: white;
+}
+.player-board.spectator-mode * {
+  background: white !important;
+}
 
-/*
-    This is the CSS stylesheet of your game User Interface.
-    
-    Styles defined on this file will be applied to the HTML elements you define in your
-    HTML template (seasaltpaper_seasaltpaper.tpl), and to HTML elements you create dynamically
-    (in seasaltpaper.js).
-    
-    Usually, you are using CSS to:
-    
-    1°) define the overall layout of your game
-        (ex: place the board on the top left, place player's hand beside, place the deck on the right, ...).
+/*#player-tables {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
 
-    2°) create your CSS-sprites:
-        All images of your games should be gathered into a small number of image files. Then, using
-        background-image and background-position CSS properties, you create HTML blocks that can 
-        display these images correctly (see example below).
-    
-    3°) ... anything else:
-        It is really easy to add and remove CSS classes dynamically from your Javascript with
-        dojo.addClass and dojo.removeClass. It is also easy to check if an element has a class
-        (dojo.hasClass) or to get all elements with a specific class (dojo.query). This is why,
-        very often, using CSS classes for the logic of your user interface allow you to do complex
-        thing easily.
-        
-        
-     Note: on the production platform, this file will be compressed and comments will be removed.
-           Consequently, don't hesitate to put as many comments as necessary.
-*/
+  .player-table {
+    margin: 20px;
+  }
+}*/
+.player-table {
+  width: 700px;
+  height: 700px;
+  position: relative;
+  font-size: 16pt;
+}
+.player-table.eliminated {
+  filter: grayscale(1);
+}
+.player-table .first-player-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.player-table .top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 77px;
+}
+.player-table .top[data-type="1"] {
+  background: url("img/score-pad-top-1.png");
+}
+.player-table .top[data-type="2"] {
+  background: url("img/score-pad-top-2.png");
+}
+.player-table .top[data-type="3"] {
+  background: url("img/score-pad-top-3.png");
+}
+.player-table .top[data-type="4"] {
+  background: url("img/score-pad-top-4.png");
+}
+.player-table .top[data-type="5"] {
+  background: url("img/score-pad-top-5.png");
+}
+.player-table .top .checkmark {
+  position: absolute;
+  text-align: center;
+  top: 31px;
+  width: 15px;
+  height: 14px;
+  font-size: 20pt;
+  margin-top: -12px;
+  margin-left: -3px;
+}
+.player-table .top .checkmark[data-number="1"] {
+  left: 75px;
+}
+.player-table .top .checkmark[data-number="2"] {
+  left: 175px;
+}
+.player-table .top .checkmark[data-number="3"] {
+  left: 275px;
+}
+.player-table .top .checkmark[data-number="4"] {
+  left: 375px;
+}
+.player-table .top .checkmark[data-number="5"] {
+  left: 475px;
+}
+.player-table .top .checkmark[data-number="6"] {
+  left: 575px;
+}
+.player-table .top .checkmark[data-number="7"] {
+  left: 121px;
+}
+.player-table .top .checkmark[data-number="8"] {
+  left: 221px;
+}
+.player-table .top .checkmark[data-number="9"] {
+  left: 321px;
+}
+.player-table .top .checkmark[data-number="10"] {
+  left: 421px;
+}
+.player-table .top .checkmark[data-number="11"] {
+  left: 521px;
+}
+.player-table .top .checkmark[data-number="12"] {
+  left: 621px;
+}
+.player-table .main {
+  position: absolute;
+  top: 77px;
+  left: 0;
+  width: 100%;
+  height: 623px;
+  background: url("img/score-pad.png");
+}
+.player-table .main .block {
+  position: absolute;
+}
+.player-table .main .block.old-ladies {
+  top: 60px;
+  left: 20px;
+  width: 115px;
+  height: 442px;
+}
+.player-table .main .block.old-ladies .checkmark {
+  left: 34px;
+}
+.player-table .main .block.old-ladies .checkmark[data-number="1"] {
+  top: 71px;
+}
+.player-table .main .block.old-ladies .checkmark[data-number="2"] {
+  top: 112px;
+}
+.player-table .main .block.old-ladies .checkmark[data-number="3"] {
+  top: 153px;
+}
+.player-table .main .block.old-ladies .checkmark[data-number="4"] {
+  top: 194px;
+}
+.player-table .main .block.old-ladies .checkmark[data-number="5"] {
+  top: 235px;
+}
+.player-table .main .block.old-ladies .checkmark[data-number="6"] {
+  top: 276px;
+}
+.player-table .main .block.old-ladies .checkmark[data-number="7"] {
+  top: 317px;
+}
+.player-table .main .block.old-ladies .checkmark[data-number="8"] {
+  top: 358px;
+}
+.player-table .main .block.old-ladies .total {
+  top: 401px;
+  left: 72px;
+  font-size: 22pt;
+}
+.player-table .main .block.students {
+  top: 60px;
+  left: 157px;
+  width: 244px;
+  height: 188px;
+}
+.player-table .main .block.students .checkmark.students[data-number="1"] {
+  top: 73px;
+  left: 28px;
+}
+.player-table .main .block.students .checkmark.students[data-number="2"] {
+  top: 73px;
+  left: 58px;
+}
+.player-table .main .block.students .checkmark.students[data-number="3"] {
+  top: 73px;
+  left: 88px;
+}
+.player-table .main .block.students .checkmark.students[data-number="4"] {
+  top: 103px;
+  left: 28px;
+}
+.player-table .main .block.students .checkmark.students[data-number="5"] {
+  top: 103px;
+  left: 58px;
+}
+.player-table .main .block.students .checkmark.students[data-number="6"] {
+  top: 103px;
+  left: 88px;
+}
+.player-table .main .block.students .checkmark.internships[data-number="1"] {
+  top: 133px;
+  left: 28px;
+}
+.player-table .main .block.students .checkmark.internships[data-number="2"] {
+  top: 133px;
+  left: 58px;
+}
+.player-table .main .block.students .checkmark.internships[data-number="3"] {
+  top: 133px;
+  left: 88px;
+}
+.player-table .main .block.students .checkmark.schools[data-number="1"] {
+  top: 79px;
+  left: 141px;
+}
+.player-table .main .block.students .checkmark.schools[data-number="2"] {
+  top: 79px;
+  left: 172px;
+}
+.player-table .main .block.students .checkmark.schools[data-number="3"] {
+  top: 110px;
+  left: 141px;
+}
+.player-table .main .block.students .checkmark.schools[data-number="4"] {
+  top: 110px;
+  left: 172px;
+}
+.player-table .main .block.students .special {
+  top: 29px;
+}
+.player-table .main .block.students .subtotal {
+  top: 93px;
+}
+.player-table .main .block.tourists {
+  top: 244px;
+  left: 157px;
+  width: 244px;
+  height: 252px;
+}
+.player-table .main .block.tourists .checkmark.monument {
+  width: 12px;
+  height: 11px;
+  top: 53px;
+  font-size: 12pt;
+  margin-top: -5px;
+}
+.player-table .main .block.tourists .checkmark.monument[data-number="1"].light {
+  left: 65px;
+}
+.player-table .main .block.tourists .checkmark.monument[data-number="1"].dark {
+  left: 111px;
+}
+.player-table .main .block.tourists .checkmark.monument[data-number="2"].light {
+  left: 77px;
+}
+.player-table .main .block.tourists .checkmark.monument[data-number="2"].dark {
+  left: 123px;
+}
+.player-table .main .block.tourists .checkmark.monument[data-number="3"].light {
+  left: 89px;
+}
+.player-table .main .block.tourists .checkmark.monument[data-number="3"].dark {
+  left: 135px;
+}
+.player-table .main .block.tourists .checkmark.tourists[data-row="1"][data-number="1"] {
+  top: 75px;
+  left: 33px;
+}
+.player-table .main .block.tourists .checkmark.tourists[data-row="1"][data-number="2"] {
+  top: 75px;
+  left: 73px;
+}
+.player-table .main .block.tourists .checkmark.tourists[data-row="1"][data-number="3"] {
+  top: 75px;
+  left: 113px;
+}
+.player-table .main .block.tourists .checkmark.tourists[data-row="1"][data-number="4"] {
+  top: 75px;
+  left: 153px;
+}
+.player-table .main .block.tourists .checkmark.tourists[data-row="2"][data-number="1"] {
+  top: 119px;
+  left: 33px;
+}
+.player-table .main .block.tourists .checkmark.tourists[data-row="2"][data-number="2"] {
+  top: 119px;
+  left: 73px;
+}
+.player-table .main .block.tourists .checkmark.tourists[data-row="2"][data-number="3"] {
+  top: 119px;
+  left: 113px;
+}
+.player-table .main .block.tourists .checkmark.tourists[data-row="2"][data-number="4"] {
+  top: 119px;
+  left: 153px;
+}
+.player-table .main .block.tourists .checkmark.tourists[data-row="3"][data-number="1"] {
+  top: 163px;
+  left: 33px;
+}
+.player-table .main .block.tourists .checkmark.tourists[data-row="3"][data-number="2"] {
+  top: 163px;
+  left: 73px;
+}
+.player-table .main .block.tourists .checkmark.tourists[data-row="3"][data-number="3"] {
+  top: 163px;
+  left: 113px;
+}
+.player-table .main .block.tourists .checkmark.tourists[data-row="3"][data-number="4"] {
+  top: 163px;
+  left: 153px;
+}
+.player-table .main .block.tourists .special {
+  top: 31px;
+  right: 7px;
+}
+.player-table .main .block.tourists .special[data-style] {
+  right: 35px;
+  width: 18px;
+  height: 16px;
+  margin-right: 3px;
+  margin-top: -6px;
+}
+.player-table .main .block.tourists .special[data-style=Light] {
+  top: 28px;
+}
+.player-table .main .block.tourists .special[data-style=Dark] {
+  top: 45px;
+}
+.player-table .main .block.tourists .subtotal[data-number="1"] {
+  top: 75px;
+}
+.player-table .main .block.tourists .subtotal[data-number="2"] {
+  top: 119px;
+}
+.player-table .main .block.tourists .subtotal[data-number="3"] {
+  top: 163px;
+}
+.player-table .main .block.businessmen {
+  top: 61px;
+  left: 423px;
+  width: 244px;
+  height: 252px;
+}
+.player-table .main .block.businessmen .special {
+  top: 31px;
+  right: 7px;
+}
+.player-table .main .block.businessmen .checkmark[data-row="1"][data-number="1"] {
+  top: 75px;
+  left: 29px;
+}
+.player-table .main .block.businessmen .checkmark[data-row="1"][data-number="2"] {
+  top: 75px;
+  left: 83px;
+}
+.player-table .main .block.businessmen .checkmark[data-row="1"][data-number="3"] {
+  top: 75px;
+  left: 137px;
+}
+.player-table .main .block.businessmen .checkmark[data-row="2"][data-number="1"] {
+  top: 119px;
+  left: 29px;
+}
+.player-table .main .block.businessmen .checkmark[data-row="2"][data-number="2"] {
+  top: 119px;
+  left: 83px;
+}
+.player-table .main .block.businessmen .checkmark[data-row="2"][data-number="3"] {
+  top: 119px;
+  left: 137px;
+}
+.player-table .main .block.businessmen .checkmark[data-row="3"][data-number="1"] {
+  top: 163px;
+  left: 29px;
+}
+.player-table .main .block.businessmen .checkmark[data-row="3"][data-number="2"] {
+  top: 163px;
+  left: 83px;
+}
+.player-table .main .block.businessmen .checkmark[data-row="3"][data-number="3"] {
+  top: 163px;
+  left: 137px;
+}
+.player-table .main .block.businessmen .subtotal[data-number="1"] {
+  top: 75px;
+}
+.player-table .main .block.businessmen .subtotal[data-number="2"] {
+  top: 119px;
+}
+.player-table .main .block.businessmen .subtotal[data-number="3"] {
+  top: 163px;
+}
+.player-table .main .block.common-objectives {
+  top: 315px;
+  left: 423px;
+  width: 111px;
+  height: 181px;
+}
+.player-table .main .block.common-objectives .subtotal {
+  right: 37px;
+}
+.player-table .main .block.common-objectives .subtotal[data-number="1"] {
+  top: 64px;
+}
+.player-table .main .block.common-objectives .subtotal[data-number="2"] {
+  top: 109px;
+}
+.player-table .main .block.personal-objective {
+  top: 315px;
+  left: 556px;
+  width: 111px;
+  height: 181px;
+}
+.player-table .main .block.turn-zones {
+  top: 4px;
+  left: 312px;
+  width: 355px;
+  height: 64px;
+}
+.player-table .main .block.turn-zones .checkmark {
+  top: 8px;
+  width: 21px;
+  height: 21px;
+}
+.player-table .main .block.turn-zones .checkmark[data-number="1"] {
+  left: 112px;
+}
+.player-table .main .block.turn-zones .checkmark[data-number="2"] {
+  left: 152px;
+}
+.player-table .main .block.turn-zones .checkmark[data-number="3"] {
+  left: 192px;
+}
+.player-table .main .block.turn-zones .checkmark[data-number="4"] {
+  left: 232px;
+}
+.player-table .main .block.turn-zones .checkmark[data-number="5"] {
+  left: 272px;
+}
+.player-table .main .block.traffic-jam {
+  top: 502px;
+  left: 11px;
+  width: 523px;
+  height: 104px;
+}
+.player-table .main .block.traffic-jam .checkmark {
+  width: 12px;
+  height: 12px;
+  font-size: 12pt;
+  margin-top: -13px;
+}
+.player-table .main .block.traffic-jam .checkmark[data-number="1"] {
+  top: 12px;
+  left: 82px;
+}
+.player-table .main .block.traffic-jam .checkmark[data-number="2"] {
+  top: 12px;
+  left: 148px;
+}
+.player-table .main .block.traffic-jam .checkmark[data-number="3"] {
+  top: 12px;
+  left: 214px;
+}
+.player-table .main .block.traffic-jam .checkmark[data-number="4"] {
+  top: 12px;
+  left: 280px;
+}
+.player-table .main .block.traffic-jam .checkmark[data-number="5"] {
+  top: 12px;
+  left: 346px;
+}
+.player-table .main .block.traffic-jam .checkmark[data-number="6"] {
+  top: 12px;
+  left: 412px;
+}
+.player-table .main .block.traffic-jam .checkmark[data-number="7"] {
+  top: 48px;
+  left: 414px;
+}
+.player-table .main .block.traffic-jam .checkmark[data-number="8"] {
+  top: 48px;
+  left: 348px;
+}
+.player-table .main .block.traffic-jam .checkmark[data-number="9"] {
+  top: 48px;
+  left: 282px;
+}
+.player-table .main .block.traffic-jam .checkmark[data-number="10"] {
+  top: 48px;
+  left: 216px;
+}
+.player-table .main .block.traffic-jam .checkmark[data-number="11"] {
+  top: 48px;
+  left: 150px;
+}
+.player-table .main .block.traffic-jam .checkmark[data-number="12"] {
+  top: 48px;
+  left: 84px;
+}
+.player-table .main .block.traffic-jam .checkmark[data-number="13"] {
+  top: 48px;
+  left: 18px;
+}
+.player-table .main .block.traffic-jam .checkmark[data-number="14"] {
+  top: 83px;
+  left: 18px;
+}
+.player-table .main .block.traffic-jam .checkmark[data-number="15"] {
+  top: 83px;
+  left: 84px;
+}
+.player-table .main .block.traffic-jam .checkmark[data-number="16"] {
+  top: 83px;
+  left: 150px;
+}
+.player-table .main .block.traffic-jam .checkmark[data-number="17"] {
+  top: 83px;
+  left: 216px;
+}
+.player-table .main .block.traffic-jam .checkmark[data-number="18"] {
+  top: 83px;
+  left: 282px;
+}
+.player-table .main .block.traffic-jam .checkmark[data-number="19"] {
+  top: 83px;
+  left: 348px;
+}
+.player-table .main .block .checkmark {
+  position: absolute;
+  text-align: center;
+  width: 28px;
+  height: 27px;
+  font-size: 22pt;
+  margin-top: -8px;
+}
+.player-table .main .block .subtotal, .player-table .main .block .special {
+  position: absolute;
+  text-align: center;
+  width: 28px;
+  height: 27px;
+  right: 7px;
+}
+.player-table .main .block .total {
+  position: absolute;
+  text-align: center;
+  bottom: 0;
+  right: 0;
+  width: 43px;
+  height: 41px;
+  font-size: 22pt;
+}
+.player-table .main .score.total {
+  position: absolute;
+  text-align: center;
+  bottom: 16px;
+  right: 29px;
+  width: 103px;
+  height: 41px;
+  font-size: 40pt;
+  margin-bottom: 15px;
+  margin-right: 7px;
+}
+.player-table .name {
+  position: absolute;
+  top: 99px;
+  left: 62px;
+  width: 133px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+}
+.player-table [data-unvalidated=true] {
+  color: red;
+}
 
+#firstPlayerTableToken {
+  width: 64px;
+  height: 64px;
+}
 
-/* Note: you must not use any @import directive */
+html, .mode_3d #game_play_area_background {
+  background: black;
+}
 
+#zoom-wrapper {
+  position: relative;
+}
+#zoom-wrapper #zoom-controls {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+#zoom-wrapper #zoom-controls button {
+  width: 40px;
+  height: 40px;
+  background: url("img/zoom.svg");
+  background-size: auto 220%;
+}
+#zoom-wrapper #zoom-controls button:not(.disabled) {
+  cursor: pointer;
+}
+#zoom-wrapper #zoom-controls button.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+#zoom-wrapper #zoom-controls #zoom-in {
+  background-position: 6% 94%;
+}
+#zoom-wrapper #zoom-controls #zoom-out {
+  background-position: 82% 94%;
+}
+#zoom-wrapper #full-table {
+  transform-origin: left top;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
 
-/********* You can start writing your CSS below this line: **********/
+.first-player-token {
+  position: relative;
+  background: url("img/first-player.png");
+  background-size: contain;
+}
 
+.shape {
+  background: url("img/shapes.png");
+  width: 101px;
+  height: 31px;
+  display: inline-block;
+  background-size: auto 500%;
+  vertical-align: middle;
+}
+.shape[data-shape="[0,1]"] {
+  background-position-x: 0%;
+  margin: 0 -30px;
+}
+.shape[data-shape="[0,2]"] {
+  background-position-x: 20%;
+  margin: 0 -35px;
+}
+.shape[data-shape="[0,0]"] {
+  background-position-x: 40%;
+  margin: 0 -18px;
+}
+.shape[data-shape="[0]"] {
+  background-position-x: 60%;
+  margin: 0 -35px;
+}
+.shape[data-shape="[0,1,1]"] {
+  background-position-x: 80%;
+  margin: 0 -25px;
+}
+.shape[data-shape="[0,2,2]"] {
+  background-position-x: 100%;
+  margin: 0 -15px;
+}
+.shape[data-step="0"] {
+  background-position-y: 0%;
+}
+.shape[data-step="1"] {
+  background-position-y: 25%;
+}
+.shape[data-step="2"] {
+  background-position-y: 50%;
+}
+.shape[data-step="3"] {
+  background-position-y: 75%;
+}
+.shape[data-step="4"] {
+  background-position-y: 100%;
+}
 
-/*
-    Example of CSS sprites (a black token and a white token, 20x20px each, embedded in the same "tokens.png" 40x20px image):
+#round-panel {
+  position: absolute;
+  background: url("img/round-number.png");
+  width: 120px;
+  height: 37px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding-left: 16px;
+  box-sizing: border-box;
+  font-weight: bold;
+  font-size: 85%;
+  color: white;
+}
 
-    .white_token {
-        background-image: url('img/tokens.png');
-        background-position: 0px 0px;
-    }
-    .black_token {
-        background-image: url('img/tokens.png');
-        background-position: -20px 0px;
-    }
-    .token {
-        width: 20px;
-        height: 20px;
-        background-repeat: none;
-    }
-*/
+#page-title .ticket {
+  display: inline-block;
+  width: 42px;
+  height: 60px;
+  background: url("img/tickets.png");
+  background-size: auto 100%;
+  border-radius: 4px;
+  transform-origin: center;
+  transform: rotate(90deg);
+  vertical-align: middle;
+  margin: -10px 10px;
+}
+#page-title .ticket[data-ticket="1"] {
+  background-position-x: 8.3333333333%;
+}
+#page-title .ticket[data-ticket="2"] {
+  background-position-x: 16.6666666667%;
+}
+#page-title .ticket[data-ticket="3"] {
+  background-position-x: 25%;
+}
+#page-title .ticket[data-ticket="4"] {
+  background-position-x: 33.3333333333%;
+}
+#page-title .ticket[data-ticket="5"] {
+  background-position-x: 41.6666666667%;
+}
+#page-title .ticket[data-ticket="6"] {
+  background-position-x: 50%;
+}
+#page-title .ticket[data-ticket="7"] {
+  background-position-x: 58.3333333333%;
+}
+#page-title .ticket[data-ticket="8"] {
+  background-position-x: 66.6666666667%;
+}
+#page-title .ticket[data-ticket="9"] {
+  background-position-x: 75%;
+}
+#page-title .ticket[data-ticket="10"] {
+  background-position-x: 83.3333333333%;
+}
+#page-title .ticket[data-ticket="11"] {
+  background-position-x: 91.6666666667%;
+}
+#page-title .ticket[data-ticket="12"] {
+  background-position-x: 100%;
+}
 
+.map-icon {
+  display: inline-block;
+  position: relative;
+  width: 32px;
+  height: 32px;
+  background-image: url("img/map-icons.png");
+  background-size: auto 100%;
+  vertical-align: middle;
+}
+.map-icon[data-element="0"] {
+  background-position: 0% 0%;
+}
+.map-icon[data-element="20"] {
+  background-position: 12.5% 0%;
+}
+.map-icon[data-element="30"] {
+  background-position: 25% 0%;
+}
+.map-icon[data-element="32"] {
+  background-position: 37.5% 0%;
+}
+.map-icon[data-element="40"] {
+  background-position: 50% 0%;
+}
+.map-icon[data-element="41"] {
+  background-position: 62.5% 0%;
+}
+.map-icon[data-element="42"] {
+  background-position: 75% 0%;
+}
+.map-icon[data-element="50"] {
+  background-position: 87.5% 0%;
+}
+.map-icon[data-element="51"] {
+  background-position: 100% 0%;
+}
 
-
-
+.tooltip-section:not(:first-child) {
+  margin-top: 2em;
+}
+.tooltip-section .map-icon {
+  width: 24px;
+  height: 24px;
+}

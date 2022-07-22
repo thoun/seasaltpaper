@@ -5,9 +5,20 @@
  */
 define('ST_BGA_GAME_SETUP', 1);
 
-define('ST_MULTIPLAYER_PLACE_SHAPE', 20);
+define('ST_PLAYER_TAKE_CARDS', 20);
 
-define('ST_NEXT_SHAPE', 30);
+define('ST_PLAYER_CHOOSE_CARD', 30);
+
+define('ST_PLAYER_PUT_DISCARD_PILE', 35);
+
+define('ST_PLAYER_PLAY_CARDS', 40);
+define('ST_PLAYER_CHOOSE_DISCARD_PILE', 45);
+define('ST_PLAYER_CHOOSE_DISCARD_CARD', 46);
+define('ST_PLAYER_CHOOSE_OPPONENT', 50);
+
+define('ST_NEXT_PLAYER', 75);
+
+define('ST_END_ROUND', 80);
 
 define('ST_END_SCORE', 90);
 

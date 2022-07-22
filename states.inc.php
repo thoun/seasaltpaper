@@ -49,63 +49,170 @@
 
 //    !! It is not a good idea to modify this file when a game is running !!
 
- 
-$machinestates = array(
+require_once("modules/php/constants.inc.php");
+
+$basicGameStates = [
 
     // The initial state. Please do not modify.
-    1 => array(
+    ST_BGA_GAME_SETUP => [
         "name" => "gameSetup",
-        "description" => "",
+        "description" => clienttranslate("Game setup"),
         "type" => "manager",
         "action" => "stGameSetup",
-        "transitions" => array( "" => 2 )
-    ),
-    
-    // Note: ID=2 => your first state
-
-    2 => array(
-    		"name" => "playerTurn",
-    		"description" => clienttranslate('${actplayer} must play a card or pass'),
-    		"descriptionmyturn" => clienttranslate('${you} must play a card or pass'),
-    		"type" => "activeplayer",
-    		"possibleactions" => array( "playCard", "pass" ),
-    		"transitions" => array( "playCard" => 2, "pass" => 2 )
-    ),
-    
-/*
-    Examples:
-    
-    2 => array(
-        "name" => "nextPlayer",
-        "description" => '',
-        "type" => "game",
-        "action" => "stNextPlayer",
-        "updateGameProgression" => true,   
-        "transitions" => array( "endGame" => 99, "nextPlayer" => 10 )
-    ),
-    
-    10 => array(
-        "name" => "playerTurn",
-        "description" => clienttranslate('${actplayer} must play a card or pass'),
-        "descriptionmyturn" => clienttranslate('${you} must play a card or pass'),
-        "type" => "activeplayer",
-        "possibleactions" => array( "playCard", "pass" ),
-        "transitions" => array( "playCard" => 2, "pass" => 2 )
-    ), 
-
-*/    
+        "transitions" => [ "" => ST_PLAYER_TAKE_CARDS ]
+    ],
    
     // Final state.
-    // Please do not modify (and do not overload action/args methods).
-    99 => array(
+    // Please do not modify.
+    ST_END_GAME => [
         "name" => "gameEnd",
         "description" => clienttranslate("End of game"),
         "type" => "manager",
         "action" => "stGameEnd",
-        "args" => "argGameEnd"
-    )
-
-);
-
+        "args" => "argGameEnd",
+    ],
+];
 
 
+$playerActionsGameStates = [
+
+    ST_PLAYER_TAKE_CARDS => [
+        "name" => "takeCards",
+        "description" => clienttranslate('${actplayer} must take two cards from deck or one card from a discard pile'),
+        "descriptionmyturn" => clienttranslate('${you} must take two cards from deck or one card from a discard pile'),
+        "descriptionNoDiscard" => clienttranslate('${actplayer} must take two cards from deck'),
+        "descriptionmyturnNoDiscard" => clienttranslate('${you} must take two cards from deck'),
+        "type" => "activeplayer",
+        //"args" => "argTakeCards",
+        "possibleactions" => [ 
+            "takeCardsFromDeck",
+            "takeCardFromDiscard",
+        ],
+        "transitions" => [
+            "playCards" => ST_PLAYER_PLAY_CARDS,
+            "chooseCard" => ST_PLAYER_CHOOSE_CARD,
+        ]
+    ],
+
+    ST_PLAYER_CHOOSE_CARD => [
+        "name" => "chooseCard",
+        "description" => clienttranslate('${actplayer} must choose a card to keep'),
+        "descriptionmyturn" => clienttranslate('${you} must choose a card to keep'),
+        "type" => "activeplayer",
+        "possibleactions" => [ 
+            "chooseCard",
+        ],
+        "transitions" => [
+            "nextPlayer" => ST_NEXT_PLAYER,
+        ]
+    ],
+
+    ST_PLAYER_PUT_DISCARD_PILE => [
+        "name" => "putDiscardPile",
+        "description" => clienttranslate('${actplayer} must choose a discard pile for the other card'),
+        "descriptionmyturn" => clienttranslate('${you} must choose a discard pile for the other card'),
+        "type" => "activeplayer",
+        "possibleactions" => [ 
+            "putDiscardPile",
+        ],
+        "transitions" => [
+            "playCards" => ST_PLAYER_PLAY_CARDS,
+        ]
+    ],
+
+    ST_PLAYER_PLAY_CARDS => [
+        "name" => "playCards",
+        "description" => clienttranslate('${actplayer} may play cards duo'),
+        "descriptionmyturn" => clienttranslate('${you} may play cards duo'),
+        "type" => "activeplayer",
+        "possibleactions" => [ 
+            "playCards",
+            "endRound",
+            "immediateEndRound",
+        ],
+        "transitions" => [
+            "chooseDiscardPile" => ST_PLAYER_CHOOSE_DISCARD_PILE,
+            "chooseOpponent" => ST_PLAYER_CHOOSE_OPPONENT,
+            "playCards" => ST_PLAYER_PLAY_CARDS,
+            "endTurn" => ST_NEXT_PLAYER,
+            "immediateEndRound" => ST_END_ROUND,
+        ]
+    ],
+
+    ST_PLAYER_CHOOSE_DISCARD_PILE => [
+        "name" => "chooseDiscardPile",
+        "description" => clienttranslate('${actplayer} must choose a discard pile'),
+        "descriptionmyturn" => clienttranslate('${you} must choose a discard pile'),
+        "type" => "activeplayer",
+        "possibleactions" => [ 
+            "chooseDiscardPile",
+        ],
+        "transitions" => [
+            "chooseCard" => ST_PLAYER_CHOOSE_DISCARD_CARD,
+        ]
+    ],
+
+    ST_PLAYER_CHOOSE_DISCARD_CARD => [
+        "name" => "chooseDiscardCard",
+        "description" => clienttranslate('${actplayer} must choose a card'),
+        "descriptionmyturn" => clienttranslate('${you} must choose a card'),
+        "type" => "activeplayer",
+        "possibleactions" => [ 
+            "chooseDiscardCard",
+        ],
+        "transitions" => [
+            "playCards" => ST_PLAYER_PLAY_CARDS,
+        ]
+    ],
+
+    ST_PLAYER_CHOOSE_OPPONENT => [
+        "name" => "chooseOpponent",
+        "description" => clienttranslate('${actplayer} must choose an opponent to steal'),
+        "descriptionmyturn" => clienttranslate('${you} must choose an opponent to steal'),
+        "type" => "activeplayer",
+        "possibleactions" => [ 
+            "chooseOpponent",
+        ],
+        "transitions" => [
+            "playCards" => ST_PLAYER_PLAY_CARDS,
+        ]
+    ],
+];
+
+$gameGameStates = [
+
+    ST_NEXT_PLAYER => [
+        "name" => "nextPlayer",
+        "description" => "",
+        "type" => "game",
+        "action" => "stNextPlayer",
+        "updateGameProgression" => true,
+        "transitions" => [
+            "nextPlayer" => ST_PLAYER_TAKE_CARDS, 
+            "endRound" => ST_END_ROUND,
+        ],
+    ],
+
+    ST_END_ROUND => [
+        "name" => "endRound",
+        "description" => "",
+        "type" => "game",
+        "action" => "stEndRound",
+        "transitions" => [
+            "newRound" => ST_PLAYER_TAKE_CARDS,
+            "endScore" => ST_END_SCORE,
+        ],
+    ],
+
+    ST_END_SCORE => [
+        "name" => "endScore",
+        "description" => "",
+        "type" => "game",
+        "action" => "stEndScore",
+        "transitions" => [
+            "endGame" => ST_END_GAME,
+        ],
+    ],
+];
+ 
+$machinestates = $basicGameStates + $playerActionsGameStates + $gameGameStates;

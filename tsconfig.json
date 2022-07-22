@@ -1,0 +1,28 @@
+{
+    "rootDir": ".", 
+    "compilerOptions": {
+      "target": "es5",
+      "module": "none",
+      "lib": ["dom", "esnext"],  
+      "sourceMap": false,
+      "outFile": "seasaltpaper.js",
+    },
+    "files": [
+        "src/framework.d.ts",
+        "src/counter.d.ts",
+        "src/seasaltpaper.d.ts",
+        "src/slide-utils.ts",
+        "src/player-table-block/block.ts",
+        "src/player-table-block/old-ladies.ts",
+        "src/player-table-block/students.ts",
+        "src/player-table-block/tourists.ts",
+        "src/player-table-block/businessmen.ts",
+        "src/player-table-block/common-objectives.ts",
+        "src/player-table-block/personal-objective.ts",
+        "src/player-table-block/turn-zones.ts",
+        "src/player-table-block/traffic-jam.ts",
+        "src/player-table.ts",
+        "src/seasaltpaper.ts",
+        "src/define.ts"
+    ]
+}

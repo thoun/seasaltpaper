@@ -1,0 +1,246 @@
+&.old-ladies {
+  top: 60px;
+  left: 20px;
+  width: 115px;
+  height: 442px;
+
+  .checkmark {
+    left: 34px;
+
+    @for $i from 1 through 8 {
+      &[data-number="#{$i}"] {
+        top: #{30 + $i*41}px;
+      }
+    }
+  }
+
+  .total {
+    top: 401px;
+    left: 72px;
+    font-size: 22pt;
+  }
+}
+
+&.students {
+  top: 60px;
+  left: 157px;
+  width: 244px;
+  height: 188px;
+
+  .checkmark.students {
+    @for $i from 0 through 5 {
+      &[data-number="#{$i+1}"] {
+        top: #{73 + floor($i / 3) * 30}px;
+        left: #{28 + ($i % 3) * 30}px;
+      }
+    }
+  }
+
+  .checkmark.internships {
+    @for $i from 0 through 2 {
+      &[data-number="#{$i+1}"] {
+        top: 133px;
+        left: #{28 + $i * 30}px;
+      }
+    }
+  }
+
+  .checkmark.schools {
+    @for $i from 0 through 3 {
+      &[data-number="#{$i+1}"] {
+        top: #{79 + floor($i / 2) * 31}px;
+        left: #{141 + ($i % 2) * 31}px;
+      }
+    }
+  }
+
+  .special {
+    top: 29px;
+  }
+
+  .subtotal {
+    top: 93px;
+  }
+}
+
+&.tourists {
+  top: 244px;
+  left: 157px;
+  width: 244px;
+  height: 252px;
+
+  .checkmark.monument {
+    width: 12px;
+    height: 11px;
+    top: 53px;
+    font-size: 12pt;
+    margin-top: -5px;
+
+    @for $i from 0 through 2 {
+      &[data-number="#{$i+1}"] {
+        &.light {
+          left: #{65 + $i * 12}px;
+        }
+        &.dark {
+          left: #{111 + $i * 12}px;
+        }
+      }
+    }
+  }
+
+  .checkmark.tourists {
+    @for $row from 0 through 2 {
+      @for $i from 0 through 3 {
+        &[data-row="#{$row+1}"][data-number="#{$i+1}"] {
+          top: #{75 + $row * 44}px;
+          left: #{33 + $i * 40}px;
+        }
+      }
+    }
+  }
+
+  .special {
+    top: 31px;
+    right: 7px;
+
+    &[data-style] {
+      right: 35px;
+      width: 18px;
+      height: 16px;
+      margin-right: 3px;
+      margin-top: -6px;
+    }
+    &[data-style="Light"] {
+      top: 28px;
+    }
+    &[data-style="Dark"] {
+      top: 45px;
+    }
+  }
+
+  .subtotal {
+    &[data-number="1"] {
+      top: 75px;
+    }
+    &[data-number="2"] {
+      top: 119px;
+    }
+    &[data-number="3"] {
+      top: 163px;
+    }
+  }
+}
+
+&.businessmen {
+  top: 61px;
+  left: 423px;
+  width: 244px;
+  height: 252px;
+
+  .special {
+    top: 31px;
+    right: 7px;
+  }
+
+  .checkmark {
+    @for $row from 0 through 2 {
+      @for $i from 0 through 2 {
+        &[data-row="#{$row+1}"][data-number="#{$i+1}"] {
+          top: #{75 + $row * 44}px;
+          left: #{29 + $i * 54}px;
+        }
+      }
+    }
+  }
+
+  .subtotal {
+    &[data-number="1"] {
+      top: 75px;
+    }
+    &[data-number="2"] {
+      top: 119px;
+    }
+    &[data-number="3"] {
+      top: 163px;
+    }
+  }
+}
+
+&.common-objectives {
+  top: 315px;
+  left: 423px;
+  width: 111px;
+  height: 181px;
+
+  .subtotal {
+    right: 37px;
+
+    &[data-number="1"] {
+      top: 64px;
+    }
+    &[data-number="2"] {
+      top: 109px;
+    }
+  }
+}
+
+&.personal-objective {
+  top: 315px;
+  left: 556px;
+  width: 111px;
+  height: 181px;
+}
+
+&.turn-zones {
+  top: 4px;
+  left: 312px;
+  width: 355px;
+  height: 64px;
+
+  .checkmark {
+    top: 8px;
+    width: 21px;
+    height: 21px;
+
+    @for $i from 0 through 4 {
+      &[data-number="#{$i+1}"] {
+        left: #{112 + $i*40}px;
+      }
+    }
+  }
+}
+
+&.traffic-jam {
+  top: 502px;
+  left: 11px;
+  width: 523px;
+  height: 104px;
+
+  .checkmark {
+    width: 12px;
+    height: 12px;
+    font-size: 12pt;
+    margin-top: -13px;
+
+    @for $i from 0 through 5 {
+      &[data-number="#{$i+1}"] {
+        top: 12px;
+        left: #{82 + $i*66}px;
+      }
+    }
+
+    @for $i from 6 through 12 {
+      &[data-number="#{$i+1}"] {
+        top: 48px;
+        left: #{810 - $i*66}px;
+      }
+    }
+
+    @for $i from 13 through 18 {
+      &[data-number="#{$i+1}"] {
+        top: 83px;
+        left: #{-840 + $i*66}px;
+      }
+    }
+  }
+}

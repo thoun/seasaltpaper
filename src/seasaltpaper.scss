@@ -1,0 +1,200 @@
+@import 'playerboards';
+@import 'player-table';
+
+html, .mode_3d #game_play_area_background {
+  background: black;
+}
+
+#zoom-wrapper {
+  position: relative;
+
+  #zoom-controls {
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    button {
+      width: 40px;
+      height: 40px;
+      background: url('img/zoom.svg');
+      background-size: auto 220%;
+
+      &:not(.disabled) {
+        cursor: pointer;
+      }
+
+      &.disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+    }
+
+    #zoom-in {
+      background-position: 6% 94%;
+    }
+    #zoom-out {
+      background-position: 82% 94%;
+    }
+  }
+
+  #full-table {
+    transform-origin: left top;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+}
+
+.first-player-token {
+    position: relative;
+    background: url('img/first-player.png');
+    background-size: contain;
+}
+
+.shape {
+  background: url('img/shapes.png'); // ratio 3,258
+  width: 101px;
+  height: 31px;
+  display: inline-block;
+  background-size: auto 500%;
+  vertical-align: middle;
+
+  &[data-shape="[0,1]"] {
+    background-position-x: 0%;
+    margin: 0 -30px;
+  }
+  &[data-shape="[0,2]"] {
+    background-position-x: 20%;
+    margin: 0 -35px;
+  }
+  &[data-shape="[0,0]"] {
+    background-position-x: 40%;
+    margin: 0 -18px;
+  }
+  &[data-shape="[0]"] {
+    background-position-x: 60%;
+    margin: 0 -35px;
+  }
+  &[data-shape="[0,1,1]"] {
+    background-position-x: 80%;
+    margin: 0 -25px;
+  }
+  &[data-shape="[0,2,2]"] {
+    background-position-x: 100%;
+    margin: 0 -15px;
+  }
+
+  &[data-step="0"] {
+    background-position-y: 0%;
+  }
+
+  &[data-step="1"] {
+    background-position-y: 25%;
+  }
+  &[data-step="2"] {
+    background-position-y: 50%;
+  }
+  &[data-step="3"] {
+    background-position-y: 75%;
+  }
+  &[data-step="4"] {
+    background-position-y: 100%;
+  }
+}
+
+#round-panel {
+  position: absolute;
+  background: url('img/round-number.png');
+  width: 120px;
+  height: 37px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding-left: 16px;
+  box-sizing: border-box;
+  font-weight: bold;
+  font-size: 85%;
+  color: white;
+}
+
+#page-title {
+  .ticket {
+    display: inline-block;
+    width: 42px;
+    height: 60px;
+    background: url('img/tickets.png');
+    background-size: auto 100%;
+    border-radius: 4px;
+    transform-origin: center;
+    transform: rotate(90deg);
+    vertical-align: middle;
+    margin: -10px 10px;
+
+    @for $i from 1 through 12 {
+      &[data-ticket="#{$i}"] {
+        background-position-x: #{$i * 100% / 12};
+      }
+    }
+  }
+}
+
+.map-icon {
+  display: inline-block;
+  position: relative;
+  width: 32px;
+  height: 32px;
+  background-image: url('img/map-icons.png');
+  background-size: auto 100%;
+  vertical-align: middle;
+
+  // green light
+  &[data-element="0"] {
+    background-position: #{0 * 100% / 8} 0%;
+  }
+  
+  // old lady
+  &[data-element="20"] {
+    background-position: #{1 * 100% / 8} 0%;
+  }
+  
+  // student
+  &[data-element="30"] {
+    background-position: #{2 * 100% / 8} 0%;
+  }
+  &[data-element="32"] {
+    background-position: #{3 * 100% / 8} 0%;
+  }
+  
+  // tourist
+  &[data-element="40"] {
+    background-position: #{4 * 100% / 8} 0%;
+  }
+  &[data-element="41"] {
+    background-position: #{5 * 100% / 8} 0%;
+  }
+  &[data-element="42"] {
+    background-position: #{6 * 100% / 8} 0%;
+  }
+  
+  // businessman
+  &[data-element="50"] {
+    background-position: #{7 * 100% / 8} 0%;
+  }
+  &[data-element="51"] {
+    background-position: #{8 * 100% / 8} 0%;
+  }
+}
+
+.tooltip-section {
+  &:not(:first-child) {
+    margin-top: 2em;
+  }
+
+  .map-icon {
+    width: 24px;
+    height: 24px;
+  }
+}
