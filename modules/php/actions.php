@@ -54,20 +54,67 @@ trait ActionTrait {
         // TODO notif card in hand
         // TODO notif new card on discard top
 
-        /*$mapElements = $this->MAP_POSITIONS[$this->getMap()][$position];
-        $ticketNumber = $this->array_find($mapElements, fn($element) => $element >= 1 && $element <= 12);
+        $this->gamestate->nextState('playCards');
+    }
 
-        if ($ticketNumber === null || !$this->array_some($tickets, fn($ticket) => $ticket->type == $ticketNumber)) {
-            throw new BgaUserException("Invalid departure");
+    public function chooseCard(int $cardId) {
+        $this->checkAction('chooseCard'); 
+        
+        $playerId = $this->getActivePlayerId();
+
+        $card = $this->getCardFromDb($this->cards->getCard($cardId));
+        if ($card->location != 'pick') {
+            throw new BgaUserException("Cannot pick this card");
         }
 
-        $this->DbQuery("UPDATE player SET `player_departure_position` = $position WHERE `player_id` = $playerId");
+        $this->cards->moveCard($card->id, 'hand'.$playerId);
+
+        // TODO notif card in hand
+
+        // TODO auto-place if 1 or 2 discard piles empty
+        $this->gamestate->nextState('putDiscardPile');
+    }
+
+    public function putDiscardPile(int $discardNumber) {
+        $this->checkAction('putDiscardPile'); 
         
-        self::notifyAllPlayers('log', clienttranslate('${player_name} has chose the position for its departure pawn'), [
-            'playerId' => $playerId,
-            'player_name' => $this->getPlayerName($playerId),
-        ]);*/
+        $playerId = $this->getActivePlayerId();
+        
+        if (!in_array($discardNumber, [1, 2])) {
+            throw new BgaUserException("Invalid discard number");
+        }
+
+        $card = $this->getCardsFromDb($this->cards->getCardsInLocation('pick'))[0];
+        if ($card == null) {
+            throw new BgaUserException("No card in pick");
+        }
+
+        $this->cards->moveCard($card->id, 'discard'.$discardNumber, intval($this->cards->countCardInLocation('discard'.$discardNumber)) + 1);
+
+        // TODO notif new card on discard top
 
         $this->gamestate->nextState('playCards');
+    }
+
+    public function endTurn() {
+        $this->checkAction('endTurn'); 
+        
+        $this->gamestate->nextState('endTurn');
+    }
+
+    public function endRound() {
+        $this->checkAction('endRound'); 
+
+        // TODO
+        
+        $this->gamestate->nextState('endTurn');
+    }
+
+    public function immediateEndRound() {
+        $this->checkAction('endTurn'); 
+
+        // TODO
+        
+        $this->gamestate->nextState('immediateEndRound');
     }
 }

@@ -11,27 +11,23 @@ trait StateTrait {
         The action method of state X is called everytime the current game state is set to X.
     */
 
-    function stPlaceShape() {
-        $this->gamestate->setAllPlayersMultiactive();
-    }
+    
 
-    function stNextShape() {
-        $remainingShapes = intval($this->shapes->countCardInLocation('deck'));
+    function stNextPlayer() {
+        $playerId = $this->getActivePlayerId();
 
-        if ($remainingShapes == 0) {
-            $this->gamestate->nextState('endScore');
-            return;
+        $this->giveExtraTime($playerId);
+
+        //self::incStat(1, 'turnNumber');
+        //self::incStat(1, 'turnNumber', $playerId);
+
+        $endScore = false; // TODO $this->getRemainingCardCountOnTable() === 0;
+
+        if (!$endScore) {
+            $this->activeNextPlayer();
         }
 
-        if ($remainingShapes % 6 == 0) {
-            // TODO LOG new pile
-        }
-
-        $newShape = $this->shapes->pickCardsForLocation(1, 'deck', 'current');
-        
-        // TODO Log new shape
-
-        $this->gamestate->nextState('next');
+        $this->gamestate->nextState($endScore ? 'endScore' : 'nextPlayer');
     }
 
     function computeStats(int $playerId) {

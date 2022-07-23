@@ -21,5 +21,27 @@ trait ArgsTrait {
             'canTakeFromDiscard' => $canTakeFromDiscard,
         ];
     }
+
+    function argChooseCard() {        
+        $playerId = $this->getActivePlayerId();
+
+        $cards = $this->getCardsFromDb($this->cards->getCardsInLocation('pick'));
+    
+        return [
+            '_private' => [
+                $playerId => [
+                    'cards' => $cards,
+                ]
+            ]
+        ];
+    }
+   
+    function argPlayCards() {
+        $canCallEndRound = false; // TODO
+    
+        return [
+            'canCallEndRound' => $canCallEndRound,
+        ];
+    }
     
 }

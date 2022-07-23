@@ -254,7 +254,29 @@ var Stacks = /** @class */ (function () {
             return game.cards.createMoveOrUpdateCard(gamedatas["discardTopCard".concat(number)], "discard".concat(number));
         });
         document.getElementById('deck').addEventListener('click', function () { return _this.game.takeCardsFromDeck(); });
+        [1, 2].forEach(function (number) {
+            return document.getElementById("discard".concat(number)).addEventListener('click', function () {
+                if (gamedatas.gamestate.name === 'putDiscardPile') {
+                    _this.game.putDiscardPile(number);
+                }
+            });
+        });
     }
+    Stacks.prototype.makeDeckSelectable = function (selectable) {
+        // TODO
+    };
+    Stacks.prototype.makeDiscardSelectable = function (canTakeFromDiscard) {
+        // TODO
+    };
+    Stacks.prototype.showPickCards = function (show, cards) {
+        var _this = this;
+        var pickDiv = document.getElementById('pick');
+        pickDiv.innerHTML = cards ? '' : 'TODO opponent is choosing';
+        pickDiv.dataset.visible = show.toString();
+        cards === null || cards === void 0 ? void 0 : cards.forEach(function (card) {
+            return _this.game.cards.createMoveOrUpdateCard(card, "pick");
+        });
+    };
     return Stacks;
 }());
 var PlayerTableBlock = /** @class */ (function () {
@@ -661,6 +683,9 @@ var SeaSaltPaper = /** @class */ (function () {
         this.roundNumberCounter = new ebg.counter();
         this.roundNumberCounter.create("round-number-counter");
         this.roundNumberCounter.setValue(gamedatas.roundNumber);
+        gamedatas.handCards.forEach(function (card) {
+            return _this.cards.createMoveOrUpdateCard(card, "my-hand");
+        });
         this.setupNotifications();
         this.setupPreferences();
         document.getElementById('zoom-out').addEventListener('click', function () { return _this.zoomOut(); });
@@ -682,11 +707,11 @@ var SeaSaltPaper = /** @class */ (function () {
     SeaSaltPaper.prototype.onEnteringState = function (stateName, args) {
         log('Entering state: ' + stateName, args.args);
         switch (stateName) {
-            case 'placeRoute':
-                this.onEnteringPlaceRoute(args.args);
+            case 'takeCards':
+                this.onEnteringTakeCards(args.args);
                 break;
-            case 'endScore':
-                this.onEnteringShowScore();
+            case 'chooseCard':
+                this.onEnteringChooseCard(args.args);
                 break;
         }
     };
@@ -697,41 +722,37 @@ var SeaSaltPaper = /** @class */ (function () {
         this.gamedatas.gamestate.descriptionmyturn = "".concat(originalState['descriptionmyturn' + property]);
         this.updatePageTitle();
     };
-    SeaSaltPaper.prototype.onEnteringPlaceRoute = function (args) {
-        if (args.canConfirm) {
-            this.setGamestateDescription('Confirm');
+    SeaSaltPaper.prototype.onEnteringTakeCards = function (args) {
+        if (!args.canTakeFromDiscard.length) {
+            this.setGamestateDescription('NoDiscard');
         }
-        var currentPositionIntersection = document.getElementById("intersection".concat(args.currentPosition));
-        currentPositionIntersection.classList.add('glow');
-        currentPositionIntersection.style.setProperty('--background-lighter', "#".concat(this.getPlayerColor(this.getActivePlayerId()), "66"));
-        currentPositionIntersection.style.setProperty('--background-darker', "#".concat(this.getPlayerColor(this.getActivePlayerId()), "CC"));
+        if (this.isCurrentPlayerActive()) {
+            this.stacks.makeDeckSelectable(args.canTakeFromDeck);
+            this.stacks.makeDiscardSelectable(args.canTakeFromDiscard);
+        }
     };
-    SeaSaltPaper.prototype.onEnteringShowScore = function () {
-        var _this = this;
-        Object.keys(this.gamedatas.players).forEach(function (playerId) { var _a; return (_a = _this.scoreCtrl[playerId]) === null || _a === void 0 ? void 0 : _a.setValue(0); });
-        this.gamedatas.hiddenScore = false;
+    SeaSaltPaper.prototype.onEnteringChooseCard = function (args) {
+        var _a;
+        this.stacks.showPickCards(true, (_a = args._private) === null || _a === void 0 ? void 0 : _a.cards);
     };
     SeaSaltPaper.prototype.onLeavingState = function (stateName) {
         log('Leaving state: ' + stateName);
         switch (stateName) {
-            case 'placeDeparturePawn':
-                this.onLeavingPlaceDeparturePawn();
+            case 'takeCards':
+                this.onLeavingTakeCards();
                 break;
-            case 'placeRoute':
-                this.onLeavingPlaceRoute();
+            case 'chooseCard':
+                this.onLeavingChooseCard();
                 break;
         }
     };
-    SeaSaltPaper.prototype.onLeavingPlaceDeparturePawn = function () {
-        Array.from(document.getElementsByClassName('intersection')).forEach(function (element) { return element.classList.remove('selectable'); });
+    SeaSaltPaper.prototype.onLeavingTakeCards = function () {
+        this.stacks.makeDeckSelectable(false);
+        this.stacks.makeDiscardSelectable([]);
     };
-    SeaSaltPaper.prototype.onLeavingPlaceRoute = function () {
-        document.querySelectorAll('.intersection.glow').forEach(function (element) { return element.classList.remove('glow'); });
+    SeaSaltPaper.prototype.onLeavingChooseCard = function () {
+        this.stacks.showPickCards(false);
     };
-    /*private onLeavingStepEvolution() {
-            const playerId = this.getPlayerId();
-            this.getPlayerTable(playerId)?.unhighlightHiddenEvolutions();
-    }*/
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
     //                        action status bar (ie: the HTML links in the status bar).
     //
@@ -739,34 +760,17 @@ var SeaSaltPaper = /** @class */ (function () {
         var _this = this;
         if (this.isCurrentPlayerActive()) {
             switch (stateName) {
-                case 'placeDeparturePawn':
-                    var placeDeparturePawnArgs_1 = args;
-                    placeDeparturePawnArgs_1._private.positions.forEach(function (position, index) {
-                        document.getElementById("intersection".concat(position)).classList.add('selectable');
-                        var ticketDiv = "<div class=\"ticket\" data-ticket=\"".concat(placeDeparturePawnArgs_1._private.tickets[index], "\"></div>");
-                        _this.addActionButton("placeDeparturePawn".concat(position, "_button"), dojo.string.substitute(_("Start at ${ticket}"), { ticket: ticketDiv }), function () { return _this.placeDeparturePawn(position); });
-                    });
-                    break;
-                case 'placeRoute':
-                    this.addActionButton("confirmTurn_button", _("Confirm turn"), function () { return _this.confirmTurn(); });
-                    var placeRouteArgs = args;
-                    if (placeRouteArgs.canConfirm) {
-                        this.startActionTimer("confirmTurn_button", 8);
-                    }
-                    else {
-                        dojo.addClass("confirmTurn_button", "disabled");
-                    }
-                    this.addActionButton("cancelLast_button", _("Cancel last marker"), function () { return _this.cancelLast(); }, null, null, 'gray');
-                    this.addActionButton("resetTurn_button", _("Reset the whole turn"), function () { return _this.resetTurn(); }, null, null, 'gray');
-                    if (!placeRouteArgs.canCancel) {
-                        dojo.addClass("cancelLast_button", "disabled");
-                        dojo.addClass("resetTurn_button", "disabled");
+                case 'playCards':
+                    var playCardsArgs = args;
+                    this.addActionButton("endTurn_button", _("End turn"), function () { return _this.endTurn(); });
+                    this.addActionButton("endRound_button", _('End round ("LAST CHANCE")'), function () { return _this.endRound(); }, null, null, 'red');
+                    this.addActionButton("immediateEndRound_button", _('End round ("STOP")'), function () { return _this.immediateEndRound(); }, null, null, 'red');
+                    if (!playCardsArgs.canCallEndRound) {
+                        dojo.addClass("endRound_button", "disabled");
+                        dojo.addClass("immediateEndRound_button", "disabled");
                     }
                     break;
             }
-        }
-        else {
-            this.onLeavingPlaceDeparturePawn();
         }
     };
     ///////////////////////////////////////////////////
@@ -952,11 +956,19 @@ var SeaSaltPaper = /** @class */ (function () {
         }
     };
     SeaSaltPaper.prototype.onCardClick = function (card) {
-        if (this.gamedatas.gamestate.name === 'takeCards') {
-            var discardDiv = document.getElementById("card-".concat(card.id)).parentElement;
-            if (discardDiv.dataset.discard) {
-                this.takeCardFromDiscard(Number(discardDiv.dataset.discard));
-            }
+        switch (this.gamedatas.gamestate.name) {
+            case 'takeCards':
+                var discardDiv = document.getElementById("card-".concat(card.id)).parentElement;
+                if (discardDiv.dataset.discard) {
+                    this.takeCardFromDiscard(Number(discardDiv.dataset.discard));
+                }
+                break;
+            case 'chooseCard':
+                var pickDiv = document.getElementById("card-".concat(card.id)).parentElement;
+                if (pickDiv.id == 'pick') {
+                    this.chooseCard(card.id);
+                }
+                break;
         }
     };
     SeaSaltPaper.prototype.takeCardsFromDeck = function () {
@@ -972,6 +984,40 @@ var SeaSaltPaper = /** @class */ (function () {
         this.takeAction('takeCardFromDiscard', {
             discardNumber: discardNumber
         });
+    };
+    SeaSaltPaper.prototype.chooseCard = function (id) {
+        if (!this.checkAction('chooseCard')) {
+            return;
+        }
+        this.takeAction('chooseCard', {
+            id: id
+        });
+    };
+    SeaSaltPaper.prototype.putDiscardPile = function (discardNumber) {
+        if (!this.checkAction('putDiscardPile')) {
+            return;
+        }
+        this.takeAction('putDiscardPile', {
+            discardNumber: discardNumber
+        });
+    };
+    SeaSaltPaper.prototype.endTurn = function () {
+        if (!this.checkAction('endTurn')) {
+            return;
+        }
+        this.takeAction('endTurn');
+    };
+    SeaSaltPaper.prototype.endRound = function () {
+        if (!this.checkAction('endRound')) {
+            return;
+        }
+        this.takeAction('endRound');
+    };
+    SeaSaltPaper.prototype.immediateEndRound = function () {
+        if (!this.checkAction('immediateEndRound')) {
+            return;
+        }
+        this.takeAction('immediateEndRound');
     };
     SeaSaltPaper.prototype.placeRoute = function (from, to) {
         var _this = this;

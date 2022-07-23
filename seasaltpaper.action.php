@@ -85,6 +85,14 @@
         self::ajaxResponse();
     }
 
+    public function endTurn() {
+        self::setAjaxMode();
+
+        $this->game->endTurn();
+
+        self::ajaxResponse();
+    }
+
     public function endRound() {
         self::setAjaxMode();
 

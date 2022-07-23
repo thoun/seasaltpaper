@@ -13,10 +13,18 @@
 .discard-stack {
     display: inline-block;
     position: relative;
-    width: 149px;
-    height: 208px;
+    width: 159px;
+    height: 218px;
     margin: 5px;
     border-radius: 10px;
     border: 1px solid white;
     background-color: #FFFFFF33;
+}
+
+#pick {
+    border: 1px solid green; // TEMP
+
+    &[data-visible="false"] {
+        display: none;
+    }
 }

@@ -91,17 +91,13 @@ trait UtilTrait {
         $this->cards->createCards($cards, 'deck');
         $this->cards->shuffle('deck');
     }
+    
+    function getTotalRoundNumber() {
+        return 6 - count($this->getPlayersIds());
+    }
 
-    function setupCommonObjectives() {
-        $commonObjectives = [1, 2, 3, 4, 5, 6];
-
-        for ($i = 1; $i <= 2; $i++) {
-            $commonObjectiveIndex = bga_rand(0, count($commonObjectives) - 1);
-            $commonObjective = array_splice($commonObjectives, $commonObjectiveIndex, 1)[0];
-            $commonObjectives = array_values($commonObjectives);
-
-            $this->DbQuery("INSERT INTO common_objectives(`id`, `number`) VALUES ($commonObjective, $i)");
-        }
+    function getHandCount(int $playerId) {
+        return intval($this->cards->countCardInLocation('hand'.$playerId));
     }
 
     function getPlacedRoutes(/*int | null*/ $playerId = null) {

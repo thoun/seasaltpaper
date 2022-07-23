@@ -11,14 +11,8 @@ interface Card {
 }
 
 interface SeaSaltPaperPlayer extends Player {
-    playerNo: number;
-    sheetType: number;
-    departurePosition: number;
-    personalObjective?: number;
-    personalObjectiveLetters?: number[];
-    personalObjectivePositions?: number[];
-    scoreSheets: ScoreSheets;
-    markers: PlacedRoute[];
+    //playerNo: number;
+    handCount: number;
 }
 
 interface SeaSaltPaperGamedatas {
@@ -34,6 +28,7 @@ interface SeaSaltPaperGamedatas {
     tablespeed: string;
 
     // Add here variables you set up in getAllDatas
+    handCards: Card[];
     roundNumber: number;
     remainingCardsInDeck: number;
     discardTopCard1: Card;
@@ -48,25 +43,22 @@ interface SeaSaltPaperGame extends Game {
 
     takeCardsFromDeck(): void;
     onCardClick(card: Card): void;
-    placeDeparturePawn(position: number): void;
-    placeRoute(from: number, to: number): void;
-    isVisibleScoring(): boolean;
-    getTooltip(element: number): string;
+    putDiscardPile(discardNumber: number): void;
 }
 
-interface EnteringPlaceDeparturePawnArgs {
+interface EnteringTakeCardsArgs {
+    canTakeFromDeck: boolean;
+    canTakeFromDiscard: number[];
+}
+
+interface EnteringChooseCardArgs {
     _private?: {
-        tickets: number[];
-        positions: number[];
-    };
+        cards: Card[];
+    }
 }
 
-interface EnteringPlaceRouteArgs {
-    playerId: number;
-    canConfirm: boolean;
-    canCancel: boolean;
-    currentPosition: number;
-    possibleRoutes: PossibleRoute[];
+interface EnteringPlayCardsArgs {
+    canCallEndRound: boolean;
 }
 
 interface NotifNewRoundArgs {

@@ -126,8 +126,14 @@ class SeaSaltPaper extends Table {
         // Note: you can retrieve some extra field you added for "player" table in "dbmodel.sql" if you need it.
         $sql = "SELECT player_id id, player_score score FROM player ";
         $result['players'] = self::getCollectionFromDb( $sql );
+
+        foreach($result['players'] as $playerId => &$player) {
+            $player['handCount'] = $this->getHandCount($playerId);
+        }
   
         // TODO: Gather all information about current game situation (visible by player $current_player_id).
+        $result['handCards'] = $this->getCardsFromDb($this->cards->getCardsInLocation('hand'.$currentPlayerId));
+
         $result['roundNumber'] = intval($this->getGameStateValue(ROUND_NUMBER));
         $result['remainingCardsInDeck'] = intval($this->cards->countCardInLocation('deck'));
         $result['discardTopCard1'] = $this->getCardFromDb($this->cards->getCardOnTop('discard1'));
@@ -147,9 +153,12 @@ class SeaSaltPaper extends Table {
         (see states.inc.php)
     */
     function getGameProgression() {
-        // TODO: compute and return the game progression
+        $roundNumber = intval($this->getGameStateValue(ROUND_NUMBER));
+        $totalRoundNumber = $this->getTotalRoundNumber();
 
-        return 0;
+        $inRoundProgression = (58 - intval($this->cards->countCardInLocation('deck'))) / 58;
+
+        return 100 * ($roundNumber-1 + $inRoundProgression) / $totalRoundNumber;
     }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -175,7 +184,7 @@ class SeaSaltPaper extends Table {
         if ($state['type'] === "activeplayer") {
             switch ($statename) {
                 default:
-                    $this->gamestate->nextState( "zombiePass" );
+                    $this->gamestate->nextState("zombiePass");
                 	break;
             }
 

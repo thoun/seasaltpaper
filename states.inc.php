@@ -83,7 +83,8 @@ $playerActionsGameStates = [
         "descriptionNoDiscard" => clienttranslate('${actplayer} must take two cards from deck'),
         "descriptionmyturnNoDiscard" => clienttranslate('${you} must take two cards from deck'),
         "type" => "activeplayer",
-        "args" => "argTakeCards",
+        "args" => "argTakeCards",        
+        "updateGameProgression" => true,
         "possibleactions" => [ 
             "takeCardsFromDeck",
             "takeCardFromDiscard",
@@ -91,6 +92,7 @@ $playerActionsGameStates = [
         "transitions" => [
             "playCards" => ST_PLAYER_PLAY_CARDS,
             "chooseCard" => ST_PLAYER_CHOOSE_CARD,
+            "zombiePass" => ST_NEXT_PLAYER,
         ]
     ],
 
@@ -99,11 +101,13 @@ $playerActionsGameStates = [
         "description" => clienttranslate('${actplayer} must choose a card to keep'),
         "descriptionmyturn" => clienttranslate('${you} must choose a card to keep'),
         "type" => "activeplayer",
+        "args" => "argChooseCard",  
         "possibleactions" => [ 
             "chooseCard",
         ],
         "transitions" => [
-            "nextPlayer" => ST_NEXT_PLAYER,
+            "putDiscardPile" => ST_PLAYER_PUT_DISCARD_PILE,
+            "zombiePass" => ST_NEXT_PLAYER,
         ]
     ],
 
@@ -112,11 +116,13 @@ $playerActionsGameStates = [
         "description" => clienttranslate('${actplayer} must choose a discard pile for the other card'),
         "descriptionmyturn" => clienttranslate('${you} must choose a discard pile for the other card'),
         "type" => "activeplayer",
+        "args" => "argChooseCard",  
         "possibleactions" => [ 
             "putDiscardPile",
         ],
         "transitions" => [
             "playCards" => ST_PLAYER_PLAY_CARDS,
+            "zombiePass" => ST_NEXT_PLAYER,
         ]
     ],
 
@@ -124,9 +130,12 @@ $playerActionsGameStates = [
         "name" => "playCards",
         "description" => clienttranslate('${actplayer} may play cards duo'),
         "descriptionmyturn" => clienttranslate('${you} may play cards duo'),
-        "type" => "activeplayer",
+        "type" => "activeplayer",    
+        "args" => "argPlayCards",     
+        "updateGameProgression" => true,
         "possibleactions" => [ 
             "playCards",
+            "endTurn",
             "endRound",
             "immediateEndRound",
         ],
@@ -136,6 +145,7 @@ $playerActionsGameStates = [
             "playCards" => ST_PLAYER_PLAY_CARDS,
             "endTurn" => ST_NEXT_PLAYER,
             "immediateEndRound" => ST_END_ROUND,
+            "zombiePass" => ST_NEXT_PLAYER,
         ]
     ],
 
@@ -149,6 +159,7 @@ $playerActionsGameStates = [
         ],
         "transitions" => [
             "chooseCard" => ST_PLAYER_CHOOSE_DISCARD_CARD,
+            "zombiePass" => ST_NEXT_PLAYER,
         ]
     ],
 
@@ -162,6 +173,7 @@ $playerActionsGameStates = [
         ],
         "transitions" => [
             "playCards" => ST_PLAYER_PLAY_CARDS,
+            "zombiePass" => ST_NEXT_PLAYER,
         ]
     ],
 
@@ -175,6 +187,7 @@ $playerActionsGameStates = [
         ],
         "transitions" => [
             "playCards" => ST_PLAYER_PLAY_CARDS,
+            "zombiePass" => ST_NEXT_PLAYER,
         ]
     ],
 ];
@@ -186,7 +199,6 @@ $gameGameStates = [
         "description" => "",
         "type" => "game",
         "action" => "stNextPlayer",
-        "updateGameProgression" => true,
         "transitions" => [
             "nextPlayer" => ST_PLAYER_TAKE_CARDS, 
             "endRound" => ST_END_ROUND,

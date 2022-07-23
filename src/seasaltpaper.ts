@@ -77,6 +77,10 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.roundNumberCounter.create(`round-number-counter`);
         this.roundNumberCounter.setValue(gamedatas.roundNumber);
 
+        gamedatas.handCards.forEach(card => 
+            this.cards.createMoveOrUpdateCard(card, `my-hand`)
+        );
+
         this.setupNotifications();
         this.setupPreferences();
 
@@ -105,11 +109,11 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         log('Entering state: ' + stateName, args.args);
 
         switch (stateName) {
-            case 'placeRoute':
-                this.onEnteringPlaceRoute(args.args);
+            case 'takeCards':
+                this.onEnteringTakeCards(args.args);
                 break;
-            case 'endScore':
-                this.onEnteringShowScore();
+            case 'chooseCard':
+                this.onEnteringChooseCard(args.args);
                 break;
         }
     }
@@ -121,47 +125,42 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         (this as any).updatePageTitle();
     }
     
-    private onEnteringPlaceRoute(args: EnteringPlaceRouteArgs) {
-        if (args.canConfirm) {
-            this.setGamestateDescription('Confirm');
+    private onEnteringTakeCards(args: EnteringTakeCardsArgs) {
+        if (!args.canTakeFromDiscard.length) {
+            this.setGamestateDescription('NoDiscard');
         }
 
-        const currentPositionIntersection = document.getElementById(`intersection${args.currentPosition}`);
-        currentPositionIntersection.classList.add('glow');
-        currentPositionIntersection.style.setProperty('--background-lighter', `#${this.getPlayerColor((this as any).getActivePlayerId())}66`);
-        currentPositionIntersection.style.setProperty('--background-darker', `#${this.getPlayerColor((this as any).getActivePlayerId())}CC`);
+        if ((this as any).isCurrentPlayerActive()) {
+            this.stacks.makeDeckSelectable(args.canTakeFromDeck);
+            this.stacks.makeDiscardSelectable(args.canTakeFromDiscard);
+        }
     }
-
-    onEnteringShowScore() {
-        Object.keys(this.gamedatas.players).forEach(playerId => (this as any).scoreCtrl[playerId]?.setValue(0));
-        this.gamedatas.hiddenScore = false;
+    
+    private onEnteringChooseCard(args: EnteringChooseCardArgs) {
+        this.stacks.showPickCards(true, args._private?.cards);
     }
 
     public onLeavingState(stateName: string) {
         log( 'Leaving state: '+stateName );
 
         switch (stateName) {
-            case 'placeDeparturePawn':
-                this.onLeavingPlaceDeparturePawn();
+            case 'takeCards':
+                this.onLeavingTakeCards();
                 break;
-            case 'placeRoute':                
-                this.onLeavingPlaceRoute();
+            case 'chooseCard':
+                this.onLeavingChooseCard();
                 break;
         }
     }
 
-    private onLeavingPlaceDeparturePawn() {
-        Array.from(document.getElementsByClassName('intersection')).forEach(element => element.classList.remove('selectable'));
+    private onLeavingTakeCards() {
+        this.stacks.makeDeckSelectable(false);
+        this.stacks.makeDiscardSelectable([]);
     }
-    
-    private onLeavingPlaceRoute() {
-        document.querySelectorAll('.intersection.glow').forEach(element => element.classList.remove('glow'));
+
+    private onLeavingChooseCard() {
+        this.stacks.showPickCards(false);
     }
-    
-    /*private onLeavingStepEvolution() {
-            const playerId = this.getPlayerId();
-            this.getPlayerTable(playerId)?.unhighlightHiddenEvolutions();
-    }*/
 
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
     //                        action status bar (ie: the HTML links in the status bar).
@@ -169,37 +168,19 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     public onUpdateActionButtons(stateName: string, args: any) {
         if ((this as any).isCurrentPlayerActive()) {
             switch (stateName) {
-                case 'placeDeparturePawn':
-                    const placeDeparturePawnArgs = args as EnteringPlaceDeparturePawnArgs;
-                    placeDeparturePawnArgs._private.positions.forEach((position, index) => {
-                        document.getElementById(`intersection${position}`).classList.add('selectable');
-                        
-                        const ticketDiv = `<div class="ticket" data-ticket="${placeDeparturePawnArgs._private.tickets[index]}"></div>`;
-                        (this as any).addActionButton(`placeDeparturePawn${position}_button`, dojo.string.substitute(_("Start at ${ticket}"), {ticket: ticketDiv}), () => this.placeDeparturePawn(position));
-                    });
-                    break;
-                case 'placeRoute':
-                    (this as any).addActionButton(`confirmTurn_button`, _("Confirm turn"), () => this.confirmTurn());
-                    const placeRouteArgs = args as EnteringPlaceRouteArgs;
-                    if (placeRouteArgs.canConfirm) {
-                        this.startActionTimer(`confirmTurn_button`, 8);
-                    } else {
-                        dojo.addClass(`confirmTurn_button`, `disabled`);
-                    }
-                    (this as any).addActionButton(`cancelLast_button`, _("Cancel last marker"), () => this.cancelLast(), null, null, 'gray');
-                    (this as any).addActionButton(`resetTurn_button`, _("Reset the whole turn"), () => this.resetTurn(), null, null, 'gray');
-                    if (!placeRouteArgs.canCancel) {
-                        dojo.addClass(`cancelLast_button`, `disabled`);
-                        dojo.addClass(`resetTurn_button`, `disabled`);
+                case 'playCards':
+                    const playCardsArgs = args as EnteringPlayCardsArgs;
+                    (this as any).addActionButton(`endTurn_button`, _("End turn"), () => this.endTurn());
+                    (this as any).addActionButton(`endRound_button`, _('End round ("LAST CHANCE")'), () => this.endRound(), null, null, 'red');
+                    (this as any).addActionButton(`immediateEndRound_button`, _('End round ("STOP")'), () => this.immediateEndRound(), null, null, 'red');
+                    if (!playCardsArgs.canCallEndRound) {
+                        dojo.addClass(`endRound_button`, `disabled`);
+                        dojo.addClass(`immediateEndRound_button`, `disabled`);
                     }
                     break;
             }
-
-        } else {
-            this.onLeavingPlaceDeparturePawn();
         }
-    } 
-    
+    }
 
     ///////////////////////////////////////////////////
     //// Utility methods
@@ -415,11 +396,19 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
     
     public onCardClick(card: Card): void {
-        if (this.gamedatas.gamestate.name === 'takeCards') {
-            const discardDiv = document.getElementById(`card-${card.id}`).parentElement;
-            if (discardDiv.dataset.discard) {
-                this.takeCardFromDiscard(Number(discardDiv.dataset.discard));
-            }
+        switch (this.gamedatas.gamestate.name) {
+            case 'takeCards':
+                const discardDiv = document.getElementById(`card-${card.id}`).parentElement;
+                if (discardDiv.dataset.discard) {
+                    this.takeCardFromDiscard(Number(discardDiv.dataset.discard));
+                }
+                break;
+            case 'chooseCard':
+                const pickDiv = document.getElementById(`card-${card.id}`).parentElement;
+                if (pickDiv.id == 'pick') {
+                    this.chooseCard(card.id);
+                }
+                break;
         }
     }
 
@@ -441,9 +430,53 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         });
     }
 
+    public chooseCard(id: number) {
+        if(!(this as any).checkAction('chooseCard')) {
+            return;
+        }
+
+        this.takeAction('chooseCard', {
+            id
+        });
+    }
+
+    public putDiscardPile(discardNumber: number) {
+        if(!(this as any).checkAction('putDiscardPile')) {
+            return;
+        }
+
+        this.takeAction('putDiscardPile', {
+            discardNumber
+        });
+    }
+
+    public endTurn() {
+        if(!(this as any).checkAction('endTurn')) {
+            return;
+        }
+
+        this.takeAction('endTurn');
+    }
+
+    public endRound() {
+        if(!(this as any).checkAction('endRound')) {
+            return;
+        }
+
+        this.takeAction('endRound');
+    }
+
+    public immediateEndRound() {
+        if(!(this as any).checkAction('immediateEndRound')) {
+            return;
+        }
+
+        this.takeAction('immediateEndRound');
+    }
+
     public placeRoute(from: number, to: number) {
 
-        const args: EnteringPlaceRouteArgs = this.gamedatas.gamestate.args;
+        const args: EnteringTakeCardsArgs = this.gamedatas.gamestate.args;
         const route = args.possibleRoutes?.find(r => (r.from === from && r.to === to) || (r.from === to && r.to === from));
         if (!route) {
             return;
