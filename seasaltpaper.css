@@ -1,10 +1,242 @@
-.player-board {
-  background-color: white;
+/*
+ * Colors
+ */
+.card {
+  display: inline-block;
+  position: relative;
+  width: 149px;
+  height: 208px;
+  margin: 5px;
+  border-radius: 10px;
+  font-family: "garden-nation-title";
+  color: #ffeab9;
+  text-align: center;
 }
-.player-board.spectator-mode * {
-  background: white !important;
+.card[data-side=back] .card-sides {
+  transform: rotateY(180deg);
+}
+.card .card-sides {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.5s;
+}
+.card .card-sides .card-side {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transform-style: preserve-3d;
+  -webkit-backface-visibility: hidden; /* Safari */
+  backface-visibility: hidden;
+  transform-origin: center center;
+  border-radius: 5px;
+  box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.5);
+  background-size: auto 100%;
+}
+.card .card-sides .card-side.front {
+  background-image: url("img/cards.jpg");
+}
+.card .card-sides .card-side.front > * {
+  pointer-events: none;
+  user-select: none;
+}
+.card .card-sides .card-side.back {
+  background-image: url("img/card-back.jpg");
+  transform: rotateY(180deg);
+}
+.card.selectable {
+  cursor: pointer;
+  box-shadow: 0 0 10px 10px white;
+}
+.card.selectable .card-side {
+  box-shadow: unset;
+}
+.card.selected {
+  box-shadow: 0 0 10px 10px #48232b;
+}
+.card.selected .card-side {
+  box-shadow: unset;
+}
+.card[data-category="1"] .front {
+  background-position-x: 0%;
+}
+.card[data-category="2"][data-family="1"][data-color="1"][data-index="0"] .front {
+  background-position-x: 1.8518518519%;
+}
+.card[data-category="2"][data-family="1"][data-color="1"][data-index="1"] .front {
+  background-position-x: 3.7037037037%;
+}
+.card[data-category="2"][data-family="1"][data-color="2"][data-index="0"] .front {
+  background-position-x: 5.5555555556%;
+}
+.card[data-category="2"][data-family="1"][data-color="2"][data-index="1"] .front {
+  background-position-x: 7.4074074074%;
+}
+.card[data-category="2"][data-family="1"][data-color="3"][data-index="0"] .front {
+  background-position-x: 9.2592592593%;
+}
+.card[data-category="2"][data-family="1"][data-color="4"][data-index="0"] .front {
+  background-position-x: 11.1111111111%;
+}
+.card[data-category="2"][data-family="1"][data-color="4"][data-index="1"] .front {
+  background-position-x: 12.962962963%;
+}
+.card[data-category="2"][data-family="1"][data-color="5"][data-index="0"] .front {
+  background-position-x: 14.8148148148%;
+}
+.card[data-category="2"][data-family="1"][data-color="7"][data-index="0"] .front {
+  background-position-x: 16.6666666667%;
+}
+.card[data-category="2"][data-family="2"][data-color="1"][data-index="0"] .front {
+  background-position-x: 18.5185185185%;
+}
+.card[data-category="2"][data-family="2"][data-color="1"][data-index="1"] .front {
+  background-position-x: 20.3703703704%;
+}
+.card[data-category="2"][data-family="2"][data-color="2"][data-index="0"] .front {
+  background-position-x: 22.2222222222%;
+}
+.card[data-category="2"][data-family="2"][data-color="2"][data-index="1"] .front {
+  background-position-x: 24.0740740741%;
+}
+.card[data-category="2"][data-family="2"][data-color="3"][data-index="0"] .front {
+  background-position-x: 25.9259259259%;
+}
+.card[data-category="2"][data-family="2"][data-color="3"][data-index="1"] .front {
+  background-position-x: 27.7777777778%;
+}
+.card[data-category="2"][data-family="2"][data-color="4"][data-index="0"] .front {
+  background-position-x: 29.6296296296%;
+}
+.card[data-category="2"][data-family="2"][data-color="4"][data-index="1"] .front {
+  background-position-x: 31.4814814815%;
+}
+.card[data-category="2"][data-family="3"][data-color="1"][data-index="0"] .front {
+  background-position-x: 33.3333333333%;
+}
+.card[data-category="2"][data-family="3"][data-color="1"][data-index="1"] .front {
+  background-position-x: 35.1851851852%;
+}
+.card[data-category="2"][data-family="3"][data-color="2"][data-index="0"] .front {
+  background-position-x: 37.037037037%;
+}
+.card[data-category="2"][data-family="3"][data-color="3"][data-index="0"] .front {
+  background-position-x: 38.8888888889%;
+}
+.card[data-category="2"][data-family="3"][data-color="3"][data-index="1"] .front {
+  background-position-x: 40.7407407407%;
+}
+.card[data-category="2"][data-family="3"][data-color="4"][data-index="0"] .front {
+  background-position-x: 42.5925925926%;
+}
+.card[data-category="2"][data-family="3"][data-color="5"][data-index="0"] .front {
+  background-position-x: 44.4444444444%;
+}
+.card[data-category="2"][data-family="4"][data-color="1"][data-index="0"] .front {
+  background-position-x: 46.2962962963%;
+}
+.card[data-category="2"][data-family="4"][data-color="2"][data-index="0"] .front {
+  background-position-x: 48.1481481481%;
+}
+.card[data-category="2"][data-family="4"][data-color="3"][data-index="0"] .front {
+  background-position-x: 50%;
+}
+.card[data-category="2"][data-family="4"][data-color="4"][data-index="0"] .front {
+  background-position-x: 51.8518518519%;
+}
+.card[data-category="2"][data-family="4"][data-color="8"][data-index="0"] .front {
+  background-position-x: 53.7037037037%;
+}
+.card[data-category="2"][data-family="5"][data-color="1"][data-index="0"] .front {
+  background-position-x: 55.5555555556%;
+}
+.card[data-category="2"][data-family="5"][data-color="2"][data-index="0"] .front {
+  background-position-x: 57.4074074074%;
+}
+.card[data-category="2"][data-family="5"][data-color="3"][data-index="0"] .front {
+  background-position-x: 59.2592592593%;
+}
+.card[data-category="2"][data-family="5"][data-color="5"][data-index="0"] .front {
+  background-position-x: 61.1111111111%;
+}
+.card[data-category="2"][data-family="5"][data-color="6"][data-index="0"] .front {
+  background-position-x: 62.962962963%;
+}
+.card[data-category="3"][data-family="1"][data-color="1"][data-index="0"] .front {
+  background-position-x: 64.8148148148%;
+}
+.card[data-category="3"][data-family="1"][data-color="2"][data-index="0"] .front {
+  background-position-x: 66.6666666667%;
+}
+.card[data-category="3"][data-family="1"][data-color="3"][data-index="0"] .front {
+  background-position-x: 68.5185185185%;
+}
+.card[data-category="3"][data-family="1"][data-color="4"][data-index="0"] .front {
+  background-position-x: 70.3703703704%;
+}
+.card[data-category="3"][data-family="1"][data-color="5"][data-index="0"] .front {
+  background-position-x: 72.2222222222%;
+}
+.card[data-category="3"][data-family="1"][data-color="7"][data-index="0"] .front {
+  background-position-x: 74.0740740741%;
+}
+.card[data-category="3"][data-family="2"][data-color="2"][data-index="0"] .front {
+  background-position-x: 75.9259259259%;
+}
+.card[data-category="3"][data-family="2"][data-color="4"][data-index="0"] .front {
+  background-position-x: 77.7777777778%;
+}
+.card[data-category="3"][data-family="2"][data-color="5"][data-index="0"] .front {
+  background-position-x: 79.6296296296%;
+}
+.card[data-category="3"][data-family="2"][data-color="6"][data-index="0"] .front {
+  background-position-x: 81.4814814815%;
+}
+.card[data-category="3"][data-family="2"][data-color="7"][data-index="0"] .front {
+  background-position-x: 83.3333333333%;
+}
+.card[data-category="3"][data-family="3"][data-color="6"][data-index="0"] .front {
+  background-position-x: 85.1851851852%;
+}
+.card[data-category="3"][data-family="3"][data-color="8"][data-index="0"] .front {
+  background-position-x: 87.037037037%;
+}
+.card[data-category="3"][data-family="3"][data-color="9"][data-index="0"] .front {
+  background-position-x: 88.8888888889%;
+}
+.card[data-category="3"][data-family="4"][data-color="9"][data-index="0"] .front {
+  background-position-x: 90.7407407407%;
+}
+.card[data-category="3"][data-family="4"][data-color="10"][data-index="0"] .front {
+  background-position-x: 92.5925925926%;
+}
+.card[data-category="4"][data-family="1"] .front {
+  background-position-x: 94.4444444444%;
+}
+.card[data-category="4"][data-family="2"] .front {
+  background-position-x: 96.2962962963%;
+}
+.card[data-category="4"][data-family="3"] .front {
+  background-position-x: 98.1481481481%;
+}
+.card[data-category="4"][data-family="4"] .front {
+  background-position-x: 100%;
 }
 
+/*.player-board {
+  background-color: white;
+
+  &.spectator-mode {
+    * {
+      background: white !important;
+    }
+  }
+}*/
 /*#player-tables {
   display: flex;
   justify-content: center;
@@ -557,10 +789,10 @@
   height: 64px;
 }
 
+/*
 html, .mode_3d #game_play_area_background {
   background: black;
-}
-
+}*/
 #zoom-wrapper {
   position: relative;
 }

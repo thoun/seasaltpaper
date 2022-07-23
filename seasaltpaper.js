@@ -99,6 +99,153 @@ function slideToObjectTicketSlot2(game, object, destinationId, keepTransform) {
         }
     });
 }
+var Cards = /** @class */ (function () {
+    function Cards(game) {
+        this.game = game;
+    }
+    // gameui.cards.debugSeeAllCards()
+    Cards.prototype.debugSeeAllCards = function () {
+        var _this = this;
+        document.querySelectorAll('.card').forEach(function (card) { return card.remove(); });
+        var html = "<div id=\"all-cards\">";
+        html += "</div>";
+        dojo.place(html, 'full-table', 'before');
+        [1, 2, 3, 4, 5, 6].forEach(function (subType) {
+            var card = {
+                id: 10 + subType,
+                type: 1,
+                subType: subType,
+                name: _this.getTitle(1, subType)
+            };
+            _this.createMoveOrUpdateCard(card, "all-cards");
+        });
+        [2, 3, 4, 5, 6].forEach(function (type) {
+            return [1, 2, 3].forEach(function (subType) {
+                var card = {
+                    id: 10 * type + subType,
+                    type: type,
+                    subType: subType,
+                    name: _this.getTitle(type, subType)
+                };
+                _this.createMoveOrUpdateCard(card, "all-cards");
+            });
+        });
+    };
+    Cards.prototype.debugSeeAllCardsFromGamedatas = function (cards) {
+        var _this = this;
+        document.querySelectorAll('.card').forEach(function (card) { return card.remove(); });
+        var html = "<div id=\"all-cards\">";
+        html += "</div>";
+        dojo.place(html, 'full-table', 'before');
+        cards.forEach(function (card) { return _this.createMoveOrUpdateCard(card, "all-cards"); });
+    };
+    Cards.prototype.createMoveOrUpdateCard = function (card, destinationId, init, from) {
+        var _this = this;
+        if (init === void 0) { init = false; }
+        if (from === void 0) { from = null; }
+        var existingDiv = document.getElementById("card-".concat(card.id));
+        var side = 'front'; //(card.type ? 0 : 1)
+        if (existingDiv) {
+            this.game.removeTooltip("card-".concat(card.id));
+            var oldType = Number(existingDiv.dataset.type);
+            if (init) {
+                document.getElementById(destinationId).appendChild(existingDiv);
+            }
+            else {
+                slideToObjectAndAttach(this.game, existingDiv, destinationId);
+            }
+            existingDiv.dataset.side = '' + side;
+            if (!oldType && true /*card.type*/) {
+                this.setVisibleInformations(existingDiv, card);
+            }
+            //this.game.setTooltip(existingDiv.id, this.getTooltip(card.type, card.subType));
+        }
+        else {
+            var div = document.createElement('div');
+            div.id = "card-".concat(card.id);
+            div.classList.add('card');
+            div.dataset.id = '' + card.id;
+            div.dataset.side = '' + side;
+            div.innerHTML = "\n                <div class=\"card-sides\">\n                    <div class=\"card-side front\">\n                    </div>\n                    <div class=\"card-side back\">\n                    </div>\n                </div>\n            ";
+            document.getElementById(destinationId).appendChild(div);
+            div.addEventListener('click', function () { return _this.game.onCardClick(card); });
+            if (from) {
+                var fromCardId = document.getElementById(from).children[0].id;
+                slideFromObject(this.game, div, fromCardId);
+            }
+            if (true /*card.type*/) {
+                this.setVisibleInformations(div, card);
+            }
+            //this.game.setTooltip(div.id, this.getTooltip(card.type, card.subType));
+        }
+    };
+    Cards.prototype.setVisibleInformations = function (div, card) {
+        div.dataset.category = '' + card.category;
+        div.dataset.family = '' + card.family;
+        div.dataset.color = '' + card.color;
+        div.dataset.index = '' + card.index;
+    };
+    Cards.prototype.getTitle = function (type, subType) {
+        switch (type) {
+            case 1:
+                switch (subType) {
+                    case 1:
+                    case 2: return _('Infirmary');
+                    case 3:
+                    case 4: return _('Sacred Place');
+                    case 5:
+                    case 6: return _('Fortress');
+                }
+            case 2:
+                switch (subType) {
+                    case 1: return _('Herbalist');
+                    case 2: return _('House');
+                    case 3: return _('Prison');
+                }
+            case 3:
+                switch (subType) {
+                    case 1: return _('Forge');
+                    case 2: return _('Terraced Houses');
+                    case 3: return _('Outpost');
+                }
+            case 4:
+                switch (subType) {
+                    case 1: return _('Windmill');
+                    case 2: return _('Sanctuary');
+                    case 3: return _('Bunker');
+                }
+            case 5:
+                switch (subType) {
+                    case 1: return _('Power Station');
+                    case 2: return _('Apartments');
+                    case 3: return _('Radio Tower');
+                }
+            case 6:
+                switch (subType) {
+                    case 1: return _('Water Reservoir');
+                    case 2: return _('Temple');
+                    case 3: return _('Air Base');
+                }
+        }
+    };
+    Cards.prototype.getTooltip = function (type, subType) {
+        if (!type) {
+            return _('Common projects deck');
+        }
+        return "<h3 class=\"title\">".concat(this.getTitle(type, subType), "</h3><div>").concat(this.getTooltipDescription(type), "</div>");
+    };
+    Cards.prototype.getTooltipDescription = function (type) {
+        switch (type) {
+            case 1: return _('Construct a building with at least 2 floors on an area adjacent to an unoccupied area, respecting the indicated land types (1 copy each).');
+            case 2: return _('Construct a building with at least 2 floors on the indicated land type in one of the 6 outside territories (1 copy each).');
+            case 3: return _('Construct 2 buildings with at least 1 floor on 2 adjacent areas of the indicated land type (1 copy each).');
+            case 4: return _('Construct 2 buildings, 1 with at least 2 floors and 1 with at least 1 floor, on 2 adjacent areas, respecting the indicated land type (1 copy each).');
+            case 5: return _('Construct a building with at least 3 floors on the indicated land type in the central territory (1 copy each).');
+            case 6: return _('Construct 3 buildings, 1 with at least 2 floors adjacent to 2 buildings with at least 1 floor respecting the indicated land types (1 copy each).');
+        }
+    };
+    return Cards;
+}());
 var PlayerTableBlock = /** @class */ (function () {
     function PlayerTableBlock(playerId) {
         this.playerId = playerId;
@@ -478,7 +625,6 @@ var SeaSaltPaper = /** @class */ (function () {
     function SeaSaltPaper() {
         this.zoom = 1;
         this.playersTables = [];
-        this.registeredTablesByPlayerId = [];
         var zoomStr = localStorage.getItem(LOCAL_STORAGE_ZOOM_KEY);
         if (zoomStr) {
             this.zoom = Number(zoomStr);
@@ -498,23 +644,13 @@ var SeaSaltPaper = /** @class */ (function () {
     */
     SeaSaltPaper.prototype.setup = function (gamedatas) {
         var _this = this;
-        var players = Object.values(gamedatas.players);
-        // ignore loading of some pictures
-        if (players.length > 3) {
-            this.dontPreloadImage("map-small-no-grid.jpg");
-        }
-        else {
-            this.dontPreloadImage("map-big-no-grid.jpg");
-        }
-        this.dontPreloadImage("map-small.jpg");
-        this.dontPreloadImage("map-big.jpg");
-        this.dontPreloadImage("map-small-no-grid-no-building.jpg");
-        this.dontPreloadImage("map-big-no-grid-no-building.jpg");
-        this.dontPreloadImage("map-small-no-building.jpg");
-        this.dontPreloadImage("map-big-no-building.jpg");
         log("Starting game setup");
         this.gamedatas = gamedatas;
         log('gamedatas', gamedatas);
+        this.cards = new Cards(this);
+        // TODOTEMP
+        //this.gamedatas.cards.forEach(card => document.getElementById('full-table').innerHTML += `<hr><pre>${JSON.stringify(card)}</pre>`);
+        //this.cards.debugSeeAllCardsFromGamedatas(this.gamedatas.cards);
         this.createPlayerTables(gamedatas);
         Object.values(gamedatas.players).forEach(function (player) {
             //this.highlightObjectiveLetters(player);
@@ -747,7 +883,6 @@ var SeaSaltPaper = /** @class */ (function () {
         var table = new PlayerTable(this, gamedatas.players[playerId]);
         table.setRound(gamedatas.validatedTickets, gamedatas.currentTicket);
         this.playersTables.push(table);
-        this.registeredTablesByPlayerId[playerId] = [table];
     };
     SeaSaltPaper.prototype.placeFirstPlayerToken = function (playerId) {
         var firstPlayerBoardToken = document.getElementById('firstPlayerBoardToken');
@@ -818,54 +953,6 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.positionReached = function (position, playerMarkers) {
         return playerMarkers.some(function (marker) { return marker.from == position || marker.to == position; });
-    };
-    SeaSaltPaper.prototype.highlightObjectiveLetters = function (player) {
-        var _this = this;
-        if (player.personalObjective) {
-            var lettersPositions = player.personalObjectivePositions;
-            lettersPositions.forEach(function (lettersPosition) {
-                var reached = _this.positionReached(lettersPosition, player.markers).toString();
-                var mapLetter = document.querySelector(".objective-letter[data-position=\"".concat(lettersPosition, "\"]"));
-                var panelLetter = document.querySelector(".letter[data-player-id=\"".concat(player.id, "\"][data-position=\"").concat(lettersPosition, "\"]"));
-                if (mapLetter) {
-                    mapLetter.dataset.reached = reached;
-                }
-                if (panelLetter) {
-                    panelLetter.dataset.reached = reached;
-                }
-            });
-        }
-    };
-    SeaSaltPaper.prototype.setObjectivesCounters = function (playerId, scoreSheet) {
-        if (playerId === this.getPlayerId()) {
-            [1, 2].forEach(function (objectiveNumber) {
-                var span = document.getElementById("common-objective-".concat(objectiveNumber, "-counter"));
-                var objective = COMMON_OBJECTIVES[Number(span.dataset.type)];
-                var checked = 0;
-                switch (objective[0]) {
-                    case 20: //OLD_LADY
-                        checked = scoreSheet.oldLadies.checked;
-                        break;
-                    case 30: //STUDENT
-                        checked = scoreSheet.students.checkedStudents + scoreSheet.students.checkedInternships;
-                        break;
-                    case 40: //TOURIST
-                        checked = scoreSheet.tourists.checkedTourists.reduce(function (a, b) { return a + b; }, 0);
-                        break;
-                    case 50: //BUSINESSMAN
-                        checked = scoreSheet.businessmen.checkedBusinessmen.reduce(function (a, b) { return a + b; }, 0);
-                        break;
-                    case 41: //MONUMENT_LIGHT
-                        checked = scoreSheet.tourists.checkedMonumentsLight;
-                        break;
-                    case 42: //MONUMENT_DARK
-                        checked = scoreSheet.tourists.checkedMonumentsDark;
-                        break;
-                }
-                span.innerHTML = checked.toString();
-                span.dataset.reached = (checked >= objective[1]).toString();
-            });
-        }
     };
     SeaSaltPaper.prototype.placeDeparturePawn = function (position) {
         if (!this.checkAction('placeDeparturePawn')) {
@@ -987,17 +1074,15 @@ var SeaSaltPaper = /** @class */ (function () {
         this.placeFirstPlayerToken(notif.args.playerId);
     };
     SeaSaltPaper.prototype.notif_updateScoreSheet = function (notif) {
-        var _this = this;
         var playerId = notif.args.playerId;
-        this.registeredTablesByPlayerId[playerId].forEach(function (table) { return table.updateScoreSheet(notif.args.scoreSheets, !_this.gamedatas.hiddenScore); });
         this.setNewScore(playerId, notif.args.scoreSheets.current.total);
-        this.setObjectivesCounters(playerId, notif.args.scoreSheets.current);
+        //this.setObjectivesCounters(playerId, notif.args.scoreSheets.current);
     };
     SeaSaltPaper.prototype.notif_placedRoute = function (notif) {
         var playerId = notif.args.playerId;
         this.gamedatas.players[notif.args.playerId].markers.push(notif.args.marker);
         var player = this.gamedatas.players[notif.args.playerId];
-        this.highlightObjectiveLetters(player);
+        //this.highlightObjectiveLetters(player);
     };
     SeaSaltPaper.prototype.notif_confirmTurn = function (notif) {
         //notif.args.markers.forEach(marker => this.tableCenter.setMarkerValidated(notif.args.playerId, marker));
@@ -1011,7 +1096,7 @@ var SeaSaltPaper = /** @class */ (function () {
             }
         });
         var player = this.gamedatas.players[notif.args.playerId];
-        this.highlightObjectiveLetters(player);
+        //this.highlightObjectiveLetters(player);
     };
     SeaSaltPaper.prototype.notif_playerEliminated = function (notif) {
         var playerId = Number(notif.args.who_quits);
@@ -1028,7 +1113,7 @@ var SeaSaltPaper = /** @class */ (function () {
         player.personalObjectiveLetters = notif.args.personalObjectiveLetters;
         player.personalObjectivePositions = notif.args.personalObjectivePositions;
         this.showPersonalObjective(playerId);
-        this.highlightObjectiveLetters(player);
+        //this.highlightObjectiveLetters(player);
     };
     /* This enable to inject translatable styled things to logs or action bar */
     /* @Override */

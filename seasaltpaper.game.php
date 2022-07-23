@@ -98,7 +98,7 @@ class SeaSaltPaper extends Table {
         //self::initStat( 'player', 'player_teststat1', 0 );  // Init a player statistics (for all players)
 
         // TODO: setup the initial game situation here
-       
+        $this->setupCards();
 
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
@@ -126,6 +126,7 @@ class SeaSaltPaper extends Table {
         $result['players'] = self::getCollectionFromDb( $sql );
   
         // TODO: Gather all information about current game situation (visible by player $current_player_id).
+        $result['cards'] = $this->getCardsFromDb($this->cards->getCardsInLocation('deck', null, 'type'));
   
         return $result;
     }

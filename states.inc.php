@@ -83,7 +83,7 @@ $playerActionsGameStates = [
         "descriptionNoDiscard" => clienttranslate('${actplayer} must take two cards from deck'),
         "descriptionmyturnNoDiscard" => clienttranslate('${you} must take two cards from deck'),
         "type" => "activeplayer",
-        //"args" => "argTakeCards",
+        "args" => "argTakeCards",
         "possibleactions" => [ 
             "takeCardsFromDeck",
             "takeCardFromDiscard",

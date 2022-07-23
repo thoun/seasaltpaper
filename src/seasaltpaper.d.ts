@@ -2,83 +2,12 @@
  * Your game interfaces
  */
 
-interface CommonObjective {
+interface Card {
     id: number;
-    number: number;
-    completed: boolean;
-}
-
-interface PossibleRoute {
-    from: number;
-    to: number;
-    trafficJam: number;
-    useTurnZone: boolean;
-    isElimination: boolean;
-}
-
-interface PlacedRoute {
-    from: number;
-    to: number;
-    validated: boolean;
-}
-
-interface SimpleZoneScoreSheet {
-    checked: number;
-
-    total: number;
-}
-
-interface StudentsScoreSheet {
-    checkedStudents: number;
-    checkedInternships: number;
-    checkedSchools: number;
-    specialSchool: number;
-
-    subTotal: number;
-    total: number;
-}
-
-interface TouristsScoreSheet {
-    checkedTourists: number[];
-    checkedMonumentsLight: number;
-    checkedMonumentsDark: number; 
-    specialMonumentLight: number;
-    specialMonumentDark: number;
-    specialMonumentMax: number;
-
-    subTotals: number[];
-    total: number;
-}
-
-interface BusinessmenScoreSheet {
-    checkedBusinessmen: number[];
-    specialOffice: number;
-
-    subTotals: number[];
-    total: number;
-}
-
-interface ObjectivesScoreSheet {
-    subTotals: number[];
-    total: number;
-}
-
-interface ScoreSheet {
-    oldLadies: SimpleZoneScoreSheet;
-    students: StudentsScoreSheet;
-    tourists: TouristsScoreSheet;
-    businessmen: BusinessmenScoreSheet;
-    commonObjectives: ObjectivesScoreSheet;
-    personalObjective: ObjectivesScoreSheet;
-    turnZones: SimpleZoneScoreSheet;
-    trafficJam: SimpleZoneScoreSheet;
-
-    total: number;
-}
-
-interface ScoreSheets {
-    validated: ScoreSheet;
-    current: ScoreSheet;
+    category: number;
+    family: number;
+    color: number;
+    index: number;
 }
 
 interface SeaSaltPaperPlayer extends Player {

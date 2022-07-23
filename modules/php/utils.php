@@ -67,10 +67,6 @@ trait UtilTrait {
     function getPlayerName(int $playerId) {
         return self::getUniqueValueFromDB("SELECT player_name FROM player WHERE player_id = $playerId");
     }
-    
-    function isEliminated(int $playerId) {
-        return boolval(self::getUniqueValueFromDB("SELECT player_eliminated FROM player WHERE player_id = $playerId"));
-    }
 
     function getCardFromDb(array $dbCard) {
         if (!$dbCard || !array_key_exists('id', $dbCard)) {
@@ -79,20 +75,24 @@ trait UtilTrait {
         if (!$dbCard || !array_key_exists('location', $dbCard)) {
             throw new \Error('location doesn\'t exists '.json_encode($dbCard));
         }
-        return new Shape($dbCard);
+        return new CARD($dbCard, $this->CARDS);
     }
 
     function getCardsFromDb(array $dbCards) {
         return array_map(fn($dbCard) => $this->getCardFromDb($dbCard), array_values($dbCards));
     }
 
-    function setupShapes() {
-        $shapes = [];
-        for ($i = 1; $i <= 18; $i++) {
-            $shapes[] = [ 'type' => $i, 'type_arg' => null, 'nbr' => 1 ];
+    function setupCards() {
+        $cards = [];
+        foreach ($this->CARDS as $cardType) {
+            for ($index = 0; $index < $cardType->number; $index++) {
+                $type = $cardType->category * 10 + $cardType->family;
+                $typeArg = $cardType->color * 10 + $index;
+                $cards[] = [ 'type' => $type, 'type_arg' => $typeArg, 'nbr' => 1 ];
+            }
         }
-        $this->shapes->createCards($shapes, 'deck');
-        $this->shapes->shuffle('deck');
+        $this->cards->createCards($cards, 'deck');
+        $this->cards->shuffle('deck');
     }
 
     function setupCommonObjectives() {

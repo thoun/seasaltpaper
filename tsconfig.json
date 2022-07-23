@@ -12,6 +12,7 @@
         "src/counter.d.ts",
         "src/seasaltpaper.d.ts",
         "src/slide-utils.ts",
+        "src/cards.ts",
         "src/player-table-block/block.ts",
         "src/player-table-block/old-ladies.ts",
         "src/player-table-block/students.ts",

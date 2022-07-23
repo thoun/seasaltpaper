@@ -43,7 +43,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
     private gamedatas: SeaSaltPaperGamedatas;
     private playersTables: PlayerTable[] = [];
-    private registeredTablesByPlayerId: PlayerTable[][] = [];
+    private cards: Cards;
     private roundNumberCounter: Counter;
 
     constructor() {
@@ -67,25 +67,18 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     */
 
     public setup(gamedatas: SeaSaltPaperGamedatas) {
-        const players = Object.values(gamedatas.players);
-        // ignore loading of some pictures
-        if (players.length > 3) {
-            (this as any).dontPreloadImage(`map-small-no-grid.jpg`);
-        } else {
-            (this as any).dontPreloadImage(`map-big-no-grid.jpg`);
-        }
-        (this as any).dontPreloadImage(`map-small.jpg`);
-        (this as any).dontPreloadImage(`map-big.jpg`);
-        (this as any).dontPreloadImage(`map-small-no-grid-no-building.jpg`);
-        (this as any).dontPreloadImage(`map-big-no-grid-no-building.jpg`);
-        (this as any).dontPreloadImage(`map-small-no-building.jpg`);
-        (this as any).dontPreloadImage(`map-big-no-building.jpg`);
-
         log( "Starting game setup" );
         
         this.gamedatas = gamedatas;
 
         log('gamedatas', gamedatas);
+
+        this.cards = new Cards(this);
+
+        // TODOTEMP
+        //this.gamedatas.cards.forEach(card => document.getElementById('full-table').innerHTML += `<hr><pre>${JSON.stringify(card)}</pre>`);
+        //this.cards.debugSeeAllCardsFromGamedatas(this.gamedatas.cards);
+
         this.createPlayerTables(gamedatas);
         Object.values(gamedatas.players).forEach(player => {
             //this.highlightObjectiveLetters(player);
@@ -363,7 +356,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         const table = new PlayerTable(this, gamedatas.players[playerId]);
         table.setRound(gamedatas.validatedTickets, gamedatas.currentTicket);
         this.playersTables.push(table);
-        this.registeredTablesByPlayerId[playerId] = [table];
     }
 
     private placeFirstPlayerToken(playerId: number) {
@@ -438,58 +430,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
     private positionReached(position: number, playerMarkers: PlacedRoute[]) {
         return playerMarkers.some(marker => marker.from == position || marker.to == position);
-    }
-
-    private highlightObjectiveLetters(player: SeaSaltPaperPlayer) {
-        if (player.personalObjective) {
-            const lettersPositions = player.personalObjectivePositions;
-            lettersPositions.forEach(lettersPosition => {
-                const reached = this.positionReached(lettersPosition, player.markers).toString();
-                const mapLetter = document.querySelector(`.objective-letter[data-position="${lettersPosition}"]`) as HTMLDivElement;
-                const panelLetter = document.querySelector(`.letter[data-player-id="${player.id}"][data-position="${lettersPosition}"]`) as HTMLDivElement;
-                if (mapLetter) {
-                    mapLetter.dataset.reached = reached;
-                }
-                if (panelLetter) {
-                    panelLetter.dataset.reached = reached;
-                }
-            });
-        }
-    }
-
-    private setObjectivesCounters(playerId: number, scoreSheet: ScoreSheet) {
-        if (playerId === this.getPlayerId()) {
-            [1, 2].forEach(objectiveNumber => {
-                const span = document.getElementById(`common-objective-${objectiveNumber}-counter`);
-                const objective = COMMON_OBJECTIVES[Number(span.dataset.type)];
-                let checked = 0;
-
-                switch (objective[0]) {
-                    case 20: //OLD_LADY
-                        checked = scoreSheet.oldLadies.checked;
-                        break;
-                    case 30: //STUDENT
-                        checked = scoreSheet.students.checkedStudents + scoreSheet.students.checkedInternships;
-                        break;
-                    case 40: //TOURIST
-                        checked = scoreSheet.tourists.checkedTourists.reduce((a, b) => a + b, 0);
-                        break;
-                    case 50: //BUSINESSMAN
-                        checked = scoreSheet.businessmen.checkedBusinessmen.reduce((a, b) => a + b, 0);
-                        break;
-
-                        case 41: //MONUMENT_LIGHT
-                        checked = scoreSheet.tourists.checkedMonumentsLight;
-                        break;
-                    case 42: //MONUMENT_DARK
-                        checked = scoreSheet.tourists.checkedMonumentsDark;
-                        break;
-                }
-
-                span.innerHTML = checked.toString();
-                span.dataset.reached = (checked >= objective[1]).toString();
-            });
-        }
     }
 
     public placeDeparturePawn(position: number) {
@@ -628,17 +568,16 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     notif_updateScoreSheet(notif: Notif<NotifUpdateScoreSheetArgs>) {
-        const playerId = notif.args.playerId;
-        this.registeredTablesByPlayerId[playerId].forEach(table => table.updateScoreSheet(notif.args.scoreSheets, !this.gamedatas.hiddenScore));        
+        const playerId = notif.args.playerId;      
         this.setNewScore(playerId, notif.args.scoreSheets.current.total);
-        this.setObjectivesCounters(playerId, notif.args.scoreSheets.current);
+        //this.setObjectivesCounters(playerId, notif.args.scoreSheets.current);
     }
 
     notif_placedRoute(notif: Notif<NotifPlacedRouteArgs>) {
         const playerId = notif.args.playerId;
         this.gamedatas.players[notif.args.playerId].markers.push(notif.args.marker);
         const player = this.gamedatas.players[notif.args.playerId];
-        this.highlightObjectiveLetters(player);
+        //this.highlightObjectiveLetters(player);
     }
 
     notif_confirmTurn(notif: Notif<NotifConfirmTurnArgs>) {
@@ -653,7 +592,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             }
         });
         const player = this.gamedatas.players[notif.args.playerId];
-        this.highlightObjectiveLetters(player);
+        //this.highlightObjectiveLetters(player);
     }
 
     notif_playerEliminated(notif: Notif<any>) {
@@ -674,7 +613,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         player.personalObjectivePositions = notif.args.personalObjectivePositions;
 
         this.showPersonalObjective(playerId);
-        this.highlightObjectiveLetters(player);
+        //this.highlightObjectiveLetters(player);
     }
     
 

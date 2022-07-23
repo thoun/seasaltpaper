@@ -12,10 +12,13 @@ trait ArgsTrait {
         game state.
     */
    
-    function argPlaceShape() {
+    function argTakeCards() {
         // TODO
+        $canTakeFromDiscard = [1, 2];
     
-        return [];
+        return [
+            'canTakeFromDiscard' => $canTakeFromDiscard,
+        ];
     }
     
 }
