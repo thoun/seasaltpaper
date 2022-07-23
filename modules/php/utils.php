@@ -68,12 +68,9 @@ trait UtilTrait {
         return self::getUniqueValueFromDB("SELECT player_name FROM player WHERE player_id = $playerId");
     }
 
-    function getCardFromDb(array $dbCard) {
-        if (!$dbCard || !array_key_exists('id', $dbCard)) {
-            throw new \Error('card doesn\'t exists '.json_encode($dbCard));
-        }
-        if (!$dbCard || !array_key_exists('location', $dbCard)) {
-            throw new \Error('location doesn\'t exists '.json_encode($dbCard));
+    function getCardFromDb(/*array|null*/ $dbCard) {
+        if ($dbCard == null) {
+            return null;
         }
         return new CARD($dbCard, $this->CARDS);
     }

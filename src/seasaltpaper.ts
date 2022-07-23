@@ -11,17 +11,6 @@ const ZOOM_LEVELS = [0.5, 0.625, 0.75, 0.875, 1, 1.25, 1.5];
 const ZOOM_LEVELS_MARGIN = [-100, -60, -33, -14, 0, 20, 33.34];
 const LOCAL_STORAGE_ZOOM_KEY = 'SeaSaltPaper-zoom';
 
-const COMMON_OBJECTIVES = [
-    null,
-    [20, 5],
-    [30, 5],
-    [40, 5],
-    [50, 5],
-    [41, 3],
-    [42, 3],
-  ];
-
-
 function formatTextIcons(rawText: string) {
     if (!rawText) {
         return '';
@@ -40,10 +29,11 @@ function formatTextIcons(rawText: string) {
 
 class SeaSaltPaper implements SeaSaltPaperGame {
     public zoom: number = 1;
+    public cards: Cards;
 
     private gamedatas: SeaSaltPaperGamedatas;
+    private stacks: Stacks;
     private playersTables: PlayerTable[] = [];
-    private cards: Cards;
     private roundNumberCounter: Counter;
 
     constructor() {
@@ -74,11 +64,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         log('gamedatas', gamedatas);
 
         this.cards = new Cards(this);
-
-        // TODOTEMP
-        //this.gamedatas.cards.forEach(card => document.getElementById('full-table').innerHTML += `<hr><pre>${JSON.stringify(card)}</pre>`);
-        //this.cards.debugSeeAllCardsFromGamedatas(this.gamedatas.cards);
-
+        this.stacks = new Stacks(this, this.gamedatas);
         this.createPlayerTables(gamedatas);
         Object.values(gamedatas.players).forEach(player => {
             //this.highlightObjectiveLetters(player);
@@ -86,7 +72,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         });
 
         //this.placeFirstPlayerToken(gamedatas.firstPlayerTokenPlayerId);
-        document.getElementById('round-panel').innerHTML = `${_('Round')}&nbsp;<span id="round-number-counter"></span>&nbsp;/&nbsp;12`;
+        document.getElementById('round-panel').innerHTML = `${_('Round')}&nbsp;<span id="round-number-counter"></span>&nbsp;/&nbsp;${6 - Object.keys(gamedatas.players).length}`;
         this.roundNumberCounter = new ebg.counter();
         this.roundNumberCounter.create(`round-number-counter`);
         this.roundNumberCounter.setValue(gamedatas.roundNumber);
@@ -427,18 +413,31 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             }
         }
     }
-
-    private positionReached(position: number, playerMarkers: PlacedRoute[]) {
-        return playerMarkers.some(marker => marker.from == position || marker.to == position);
+    
+    public onCardClick(card: Card): void {
+        if (this.gamedatas.gamestate.name === 'takeCards') {
+            const discardDiv = document.getElementById(`card-${card.id}`).parentElement;
+            if (discardDiv.dataset.discard) {
+                this.takeCardFromDiscard(Number(discardDiv.dataset.discard));
+            }
+        }
     }
 
-    public placeDeparturePawn(position: number) {
-        if(!(this as any).checkAction('placeDeparturePawn')) {
+    public takeCardsFromDeck() {
+        if(!(this as any).checkAction('takeCardsFromDeck')) {
             return;
         }
 
-        this.takeAction('placeDeparturePawn', {
-            position
+        this.takeAction('takeCardsFromDeck');
+    }
+
+    public takeCardFromDiscard(discardNumber: number) {
+        if(!(this as any).checkAction('takeCardFromDiscard')) {
+            return;
+        }
+
+        this.takeAction('takeCardFromDiscard', {
+            discardNumber
         });
     }
 

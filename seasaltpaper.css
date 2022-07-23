@@ -8,8 +8,6 @@
   height: 208px;
   margin: 5px;
   border-radius: 10px;
-  font-family: "garden-nation-title";
-  color: #ffeab9;
   text-align: center;
 }
 .card[data-side=back] .card-sides {
@@ -57,7 +55,7 @@
   box-shadow: unset;
 }
 .card.selected {
-  box-shadow: 0 0 10px 10px #48232b;
+  box-shadow: 0 0 10px 10px orange;
 }
 .card.selected .card-side {
   box-shadow: unset;
@@ -226,6 +224,29 @@
 }
 .card[data-category="4"][data-family="4"] .front {
   background-position-x: 100%;
+}
+
+#deck {
+  display: inline-block;
+  position: relative;
+  width: 149px;
+  height: 208px;
+  margin: 5px;
+  border-radius: 10px;
+  background-image: url("img/card-back.jpg");
+  background-size: auto 100%;
+  box-shadow: 3px 3px 0px 0px #333, 5px 5px 3px black;
+}
+
+.discard-stack {
+  display: inline-block;
+  position: relative;
+  width: 149px;
+  height: 208px;
+  margin: 5px;
+  border-radius: 10px;
+  border: 1px solid white;
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 /*.player-board {

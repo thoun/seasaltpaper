@@ -26,6 +26,11 @@ define('ST_END_GAME', 99);
 define('END_SCORE', 100);
 
 /*
+ * Constants
+ */
+define('ROUND_NUMBER', 10);
+
+/*
  * Cards
  */
 // Category

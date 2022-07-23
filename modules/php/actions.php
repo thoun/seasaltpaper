@@ -11,12 +11,12 @@ trait ActionTrait {
         (note: each method below must match an input method in nicodemus.action.php)
     */
 
-    public function placeShape(int $x, int $y, int $rotation) {
-        self::checkAction('placeDeparturePawn'); 
+    public function takeCardsFromDeck() {
+        $this->checkAction('takeCardsFromDeck'); 
         
-        $playerId = self::getCurrentPlayerId();
+        $playerId = $this->getActivePlayerId();
 
-        $shape = $this->getCurrentShape();
+        $cards = $this->getCardsFromDb($this->cards->pickCardsForLocation(2, 'deck', 'pick'));
 
         /*$mapElements = $this->MAP_POSITIONS[$this->getMap()][$position];
         $ticketNumber = $this->array_find($mapElements, fn($element) => $element >= 1 && $element <= 12);
@@ -32,14 +32,42 @@ trait ActionTrait {
             'player_name' => $this->getPlayerName($playerId),
         ]);*/
 
-        $this->gamestate->setPlayerNonMultiactive($playerId, 'next');
+        $this->gamestate->nextState('chooseCard');
     }
 
-    public function cancelPlaceShape() {
-        $playerId = intval($this->getCurrentPlayerId());
+    public function takeCardFromDiscard(int $discardNumber) {
+        $this->checkAction('takeCardFromDiscard'); 
+        
+        $playerId = $this->getActivePlayerId();
+        
+        if (!in_array($discardNumber, [1, 2])) {
+            throw new BgaUserException("Invalid discard number");
+        }
 
-        // TODO
+        $card = $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber));
+        if ($card == null) {
+            throw new BgaUserException("No card in that discard");
+        }
 
-        $this->gamestate->setPlayersMultiactive([$playerId], 'next', false);
+        $this->cards->moveCard($card->id, 'hand'.$playerId);
+
+        // TODO notif card in hand
+        // TODO notif new card on discard top
+
+        /*$mapElements = $this->MAP_POSITIONS[$this->getMap()][$position];
+        $ticketNumber = $this->array_find($mapElements, fn($element) => $element >= 1 && $element <= 12);
+
+        if ($ticketNumber === null || !$this->array_some($tickets, fn($ticket) => $ticket->type == $ticketNumber)) {
+            throw new BgaUserException("Invalid departure");
+        }
+
+        $this->DbQuery("UPDATE player SET `player_departure_position` = $position WHERE `player_id` = $playerId");
+        
+        self::notifyAllPlayers('log', clienttranslate('${player_name} has chose the position for its departure pawn'), [
+            'playerId' => $playerId,
+            'player_name' => $this->getPlayerName($playerId),
+        ]);*/
+
+        $this->gamestate->nextState('playCards');
     }
 }

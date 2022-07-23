@@ -42,8 +42,6 @@ $ORANGE: 10;
     height: 208px;
     margin: 5px;
     border-radius: 10px;
-    font-family: 'garden-nation-title';
-    color: #ffeab9;
     text-align: center;
 
     &[data-side="back"] {
@@ -102,7 +100,7 @@ $ORANGE: 10;
     }    
 
     &.selected {
-        box-shadow: 0 0 10px 10px #48232b;
+        box-shadow: 0 0 10px 10px orange;
 
         .card-side {
             box-shadow: unset;

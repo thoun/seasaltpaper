@@ -43,7 +43,7 @@ class SeaSaltPaper extends Table {
         parent::__construct();
         
         self::initGameStateLabels([
-            //    "my_first_global_variable" => 10,
+            ROUND_NUMBER => ROUND_NUMBER,
             //    "my_second_global_variable" => 11,
             //      ...
             //    "my_first_game_variant" => 100,
@@ -90,7 +90,7 @@ class SeaSaltPaper extends Table {
         /************ Start the game initialization *****/
 
         // Init global values with their initial values
-        //self::setGameStateInitialValue( 'my_first_global_variable', 0 );
+        $this->setGameStateInitialValue(ROUND_NUMBER, 1);
         
         // Init game statistics
         // (note: statistics used in this file must be defined in your stats.inc.php file)
@@ -99,6 +99,8 @@ class SeaSaltPaper extends Table {
 
         // TODO: setup the initial game situation here
         $this->setupCards();
+        $this->cards->pickCardForLocation('deck', 'discard1');
+        $this->cards->pickCardForLocation('deck', 'discard2');
 
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
@@ -126,7 +128,10 @@ class SeaSaltPaper extends Table {
         $result['players'] = self::getCollectionFromDb( $sql );
   
         // TODO: Gather all information about current game situation (visible by player $current_player_id).
-        $result['cards'] = $this->getCardsFromDb($this->cards->getCardsInLocation('deck', null, 'type'));
+        $result['roundNumber'] = intval($this->getGameStateValue(ROUND_NUMBER));
+        $result['remainingCardsInDeck'] = intval($this->cards->countCardInLocation('deck'));
+        $result['discardTopCard1'] = $this->getCardFromDb($this->cards->getCardOnTop('discard1'));
+        $result['discardTopCard2'] = $this->getCardFromDb($this->cards->getCardOnTop('discard2'));
   
         return $result;
     }

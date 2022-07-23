@@ -35,22 +35,19 @@ interface SeaSaltPaperGamedatas {
 
     // Add here variables you set up in getAllDatas
     roundNumber: number;
-    commonObjectives: CommonObjective[];
-    firstPlayerTokenPlayerId: number;
-    validatedTickets: number[];
-    currentTicket: number | null;
-    round: number;
-    map: 'small' | 'big';
-    hiddenScore: boolean;
-    
-    MAP_POSITIONS: { [position: number]: number[] };
-    MAP_ROUTES: { [position: number]: number[] };
+    remainingCardsInDeck: number;
+    discardTopCard1: Card;
+    discardTopCard2: Card;
 }
 
 interface SeaSaltPaperGame extends Game {
+    cards: Cards;
+
     getPlayerId(): number;
     getPlayerColor(playerId: number): string;
 
+    takeCardsFromDeck(): void;
+    onCardClick(card: Card): void;
     placeDeparturePawn(position: number): void;
     placeRoute(from: number, to: number): void;
     isVisibleScoring(): boolean;

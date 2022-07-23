@@ -1,0 +1,22 @@
+#deck {
+    display: inline-block;
+    position: relative;
+    width: 149px;
+    height: 208px;
+    margin: 5px;
+    border-radius: 10px;
+    background-image: url('img/card-back.jpg');
+    background-size: auto 100%;
+    box-shadow: 3px 3px 0px 0px #333, 5px 5px 3px black;
+}
+
+.discard-stack {
+    display: inline-block;
+    position: relative;
+    width: 149px;
+    height: 208px;
+    margin: 5px;
+    border-radius: 10px;
+    border: 1px solid white;
+    background-color: #FFFFFF33;
+}

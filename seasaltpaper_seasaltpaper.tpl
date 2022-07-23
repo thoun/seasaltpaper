@@ -2,6 +2,12 @@
 
 <div id="zoom-wrapper">
     <div id="full-table">
+        <div id="deck"></div>
+        <div id="discards">
+                <div id="discard1" class="discard-stack" data-discard="1"></div>
+                <div id="discard2" class="discard-stack" data-discard="2"></div>
+        </div>
+
         <div id="map">
             <div id="round-panel"></div>
             <div id="map-elements">

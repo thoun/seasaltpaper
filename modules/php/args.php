@@ -13,10 +13,11 @@ trait ArgsTrait {
     */
    
     function argTakeCards() {
-        // TODO
+        $canTakeFromDeck = intval($this->cards->countCardInLocation('deck')) > 0;
         $canTakeFromDiscard = [1, 2];
     
         return [
+            'canTakeFromDeck' => $canTakeFromDeck,
             'canTakeFromDiscard' => $canTakeFromDiscard,
         ];
     }

@@ -246,6 +246,17 @@ var Cards = /** @class */ (function () {
     };
     return Cards;
 }());
+var Stacks = /** @class */ (function () {
+    function Stacks(game, gamedatas) {
+        var _this = this;
+        this.game = game;
+        [1, 2].filter(function (number) { return gamedatas["discardTopCard".concat(number)]; }).forEach(function (number) {
+            return game.cards.createMoveOrUpdateCard(gamedatas["discardTopCard".concat(number)], "discard".concat(number));
+        });
+        document.getElementById('deck').addEventListener('click', function () { return _this.game.takeCardsFromDeck(); });
+    }
+    return Stacks;
+}());
 var PlayerTableBlock = /** @class */ (function () {
     function PlayerTableBlock(playerId) {
         this.playerId = playerId;
@@ -597,15 +608,6 @@ var ANIMATION_MS = 500;
 var ZOOM_LEVELS = [0.5, 0.625, 0.75, 0.875, 1, 1.25, 1.5];
 var ZOOM_LEVELS_MARGIN = [-100, -60, -33, -14, 0, 20, 33.34];
 var LOCAL_STORAGE_ZOOM_KEY = 'SeaSaltPaper-zoom';
-var COMMON_OBJECTIVES = [
-    null,
-    [20, 5],
-    [30, 5],
-    [40, 5],
-    [50, 5],
-    [41, 3],
-    [42, 3],
-];
 function formatTextIcons(rawText) {
     if (!rawText) {
         return '';
@@ -648,16 +650,14 @@ var SeaSaltPaper = /** @class */ (function () {
         this.gamedatas = gamedatas;
         log('gamedatas', gamedatas);
         this.cards = new Cards(this);
-        // TODOTEMP
-        //this.gamedatas.cards.forEach(card => document.getElementById('full-table').innerHTML += `<hr><pre>${JSON.stringify(card)}</pre>`);
-        //this.cards.debugSeeAllCardsFromGamedatas(this.gamedatas.cards);
+        this.stacks = new Stacks(this, this.gamedatas);
         this.createPlayerTables(gamedatas);
         Object.values(gamedatas.players).forEach(function (player) {
             //this.highlightObjectiveLetters(player);
             //this.setObjectivesCounters(Number(player.id), player.scoreSheets.current);
         });
         //this.placeFirstPlayerToken(gamedatas.firstPlayerTokenPlayerId);
-        document.getElementById('round-panel').innerHTML = "".concat(_('Round'), "&nbsp;<span id=\"round-number-counter\"></span>&nbsp;/&nbsp;12");
+        document.getElementById('round-panel').innerHTML = "".concat(_('Round'), "&nbsp;<span id=\"round-number-counter\"></span>&nbsp;/&nbsp;").concat(6 - Object.keys(gamedatas.players).length);
         this.roundNumberCounter = new ebg.counter();
         this.roundNumberCounter.create("round-number-counter");
         this.roundNumberCounter.setValue(gamedatas.roundNumber);
@@ -951,15 +951,26 @@ var SeaSaltPaper = /** @class */ (function () {
             }
         }
     };
-    SeaSaltPaper.prototype.positionReached = function (position, playerMarkers) {
-        return playerMarkers.some(function (marker) { return marker.from == position || marker.to == position; });
+    SeaSaltPaper.prototype.onCardClick = function (card) {
+        if (this.gamedatas.gamestate.name === 'takeCards') {
+            var discardDiv = document.getElementById("card-".concat(card.id)).parentElement;
+            if (discardDiv.dataset.discard) {
+                this.takeCardFromDiscard(Number(discardDiv.dataset.discard));
+            }
+        }
     };
-    SeaSaltPaper.prototype.placeDeparturePawn = function (position) {
-        if (!this.checkAction('placeDeparturePawn')) {
+    SeaSaltPaper.prototype.takeCardsFromDeck = function () {
+        if (!this.checkAction('takeCardsFromDeck')) {
             return;
         }
-        this.takeAction('placeDeparturePawn', {
-            position: position
+        this.takeAction('takeCardsFromDeck');
+    };
+    SeaSaltPaper.prototype.takeCardFromDiscard = function (discardNumber) {
+        if (!this.checkAction('takeCardFromDiscard')) {
+            return;
+        }
+        this.takeAction('takeCardFromDiscard', {
+            discardNumber: discardNumber
         });
     };
     SeaSaltPaper.prototype.placeRoute = function (from, to) {
