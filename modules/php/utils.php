@@ -87,11 +87,6 @@ trait UtilTrait {
         $this->cards->createCards($cards, 'deck');
         $this->cards->shuffle('deck');
     }
-
-    function initRoundDiscard() {
-        $this->cards->pickCardForLocation('deck', 'discard1');
-        $this->cards->pickCardForLocation('deck', 'discard2');
-    }
     
     function getTotalRoundNumber() {
         return 6 - count($this->getPlayersIds());
@@ -126,6 +121,20 @@ trait UtilTrait {
 
             // TODO notif $handCards
         }
+    }
+
+    function getPlayerScore(int $playerId) {
+        return intval($this->getUniqueValueFromDB("SELECT player_score FROM player where `player_id` = $playerId"));
+    }
+
+    function incPlayerScore(int $playerId, int $amount, $message = '', $args = []) {
+        $this->DbQuery("UPDATE player SET `player_score` = `player_score` + $amount WHERE player_id = $playerId");
+            
+        $this->notifyAllPlayers('score', $message, [
+            'playerId' => $playerId,
+            'player_name' => $this->getPlayerName($playerId),
+            'newScore' => $this->getPlayerScore($playerId),
+        ] + $args);
     }
 
 }

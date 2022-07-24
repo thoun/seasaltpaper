@@ -45,6 +45,7 @@ class SeaSaltPaper extends Table {
         self::initGameStateLabels([
             ROUND_NUMBER => ROUND_NUMBER,
             FOUR_SIRENS => FOUR_SIRENS,
+            END_ROUND_TYPE => END_ROUND_TYPE,
             LAST_CHANCE_CALLER => LAST_CHANCE_CALLER,
         ]);  
 
@@ -87,8 +88,10 @@ class SeaSaltPaper extends Table {
         /************ Start the game initialization *****/
 
         // Init global values with their initial values
-        $this->setGameStateInitialValue(ROUND_NUMBER, 1);
+        $this->setGameStateInitialValue(ROUND_NUMBER, 0);
         $this->setGameStateInitialValue(FOUR_SIRENS, 0);
+        $this->setGameStateInitialValue(END_ROUND_TYPE, 0);
+        $this->setGameStateInitialValue(LAST_CHANCE_CALLER, 0);
         
         // Init game statistics
         // (note: statistics used in this file must be defined in your stats.inc.php file)
@@ -97,7 +100,6 @@ class SeaSaltPaper extends Table {
 
         // TODO: setup the initial game situation here
         $this->setupCards();
-        $this->initRoundDiscard();
 
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();

@@ -148,37 +148,30 @@ trait ActionTrait {
         $this->gamestate->nextState('endTurn');
     }
 
-    public function endRound() {
-        $this->checkAction('endRound'); 
-
+    private function applyEndRound(int $type, string $announcement) {
         $playerId = $this->getActivePlayerId();
 
-        $this->setGameStateValue(LAST_CHANCE_CALLER, 1);
+        $this->setGameStateValue(END_ROUND_TYPE, $type);
 
         self::notifyAllPlayers('annouceLastChance', clienttranslate('${player_name} announces ${announcement}!'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
-            'announcement' => _('LAST CHANCE'),
+            'announcement' => $announcement,
             'i18n' => ['announcement'],
         ]);
         
         $this->gamestate->nextState('endTurn');
     }
 
+    public function endRound() {
+        $this->checkAction('endRound');
+
+        $this->applyEndRound(LAST_CHANCE, _('LAST CHANCE'));
+    }
+
     public function immediateEndRound() {
         $this->checkAction('endTurn');
 
-        $playerId = $this->getActivePlayerId();
-
-        $this->setGameStateValue(LAST_CHANCE_CALLER, 0);
-
-        self::notifyAllPlayers('log', clienttranslate('${player_name} announces ${announcement}!'), [
-            'playerId' => $playerId,
-            'player_name' => $this->getPlayerName($playerId),
-            'announcement' => _('STOP'),
-            'i18n' => ['announcement'],
-        ]);
-        
-        $this->gamestate->nextState('immediateEndRound');
+        $this->applyEndRound(STOP, _('STOP'));
     }
 }

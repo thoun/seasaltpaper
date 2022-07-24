@@ -521,9 +521,11 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         //log( 'notifications subscriptions setup' );
 
         const notifs = [
+            ['cardInDiscardFromDeck', ANIMATION_MS],
             ['cardInHandFromDiscard', ANIMATION_MS],
             ['cardInHandFromPick', ANIMATION_MS],
             ['cardInDiscardFromPick', ANIMATION_MS],
+            ['endRound', ANIMATION_MS],
         ];
     
         notifs.forEach((notif) => {
@@ -531,6 +533,10 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             (this as any).notifqueue.setSynchronous(notif[0], notif[1]);
         });
     }
+
+    notif_cardInDiscardFromDeck(notif: Notif<NotifCardInHandFromDiscardArgs>) {
+        this.cards.createMoveOrUpdateCard(notif.args.card, `discard${notif.args.discardId}`, true, 'deck');
+    } 
 
     notif_cardInHandFromDiscard(notif: Notif<NotifCardInHandFromDiscardArgs>) {
         if (notif.args.playerId == this.getPlayerId()) {
@@ -563,17 +569,33 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         }
     }
 
+    notif_score(notif: Notif<NotifScoreArgs>) {
+        (this as any).scoreCtrl[notif.args.playerId]?.toValue(notif.args.newScore);
+    }
+
+    notif_endRound() {
+        document.getElementById(`my-hand`).innerHTML = ''; // animate cards to deck?
+        [1, 2].forEach(discardNumber => {
+            const currentCardDiv = document.getElementById(`discard${discardNumber}`).firstElementChild;
+            currentCardDiv?.parentElement.removeChild(currentCardDiv); // animate cards to deck?
+        });
+    }
+
     /* This enable to inject translatable styled things to logs or action bar */
     /* @Override */
     public format_string_recursive(log: string, args: any) {
         try {
             if (log && args && !args.processed) {
-                if (args.discardNumber && args.discardNumber[0] != '<') {
-                    args.discardNumber = `<strong>${args.discardNumber}</strong>`;
-                }
                 if (args.announcement && args.announcement[0] != '<') {
                     args.announcement = `<strong style="color: darkred;">${_(args.announcement)}</strong>`;
                 }
+
+                ['discardNumber', 'roundPoints', 'cardsPoints', 'colorBonus'].forEach(field => {
+                    if (args[field] && args[field][0] != '<') {
+                        args[field] = `<strong>${args[field]}</strong>`;
+                    }
+                })
+
             }
         } catch (e) {
             console.error(log,args,"Exception thrown", e.stack);

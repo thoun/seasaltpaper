@@ -5,6 +5,8 @@
  */
 define('ST_BGA_GAME_SETUP', 1);
 
+define('ST_NEW_ROUND', 10);
+
 define('ST_PLAYER_TAKE_CARDS', 20);
 
 define('ST_PLAYER_CHOOSE_CARD', 30);
@@ -30,7 +32,8 @@ define('END_SCORE', 100);
  */
 define('ROUND_NUMBER', 10);
 define('FOUR_SIRENS', 11);
-define('LAST_CHANCE_CALLER', 12);
+define('END_ROUND_TYPE', 12); /* : */ define('STOP', 1); define('LAST_CHANCE', 2); define('EMPTY_DECK', 3);
+define('LAST_CHANCE_CALLER', 13);
 
 /*
  * Cards

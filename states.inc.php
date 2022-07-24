@@ -147,7 +147,6 @@ $playerActionsGameStates = [
             "chooseOpponent" => ST_PLAYER_CHOOSE_OPPONENT,
             "playCards" => ST_PLAYER_PLAY_CARDS,
             "endTurn" => ST_NEXT_PLAYER,
-            "immediateEndRound" => ST_END_ROUND,
             "zombiePass" => ST_NEXT_PLAYER,
         ]
     ],
@@ -197,13 +196,23 @@ $playerActionsGameStates = [
 
 $gameGameStates = [
 
+    ST_NEW_ROUND => [
+        "name" => "newRound",
+        "description" => "",
+        "type" => "game",
+        "action" => "stNewRound",
+        "transitions" => [
+            "start" => ST_PLAYER_TAKE_CARDS,
+        ],
+    ],
+
     ST_NEXT_PLAYER => [
         "name" => "nextPlayer",
         "description" => "",
         "type" => "game",
         "action" => "stNextPlayer",
         "transitions" => [
-            "nextPlayer" => ST_PLAYER_TAKE_CARDS, 
+            "newTurn" => ST_PLAYER_TAKE_CARDS, 
             "endRound" => ST_END_ROUND,
         ],
     ],
@@ -214,7 +223,7 @@ $gameGameStates = [
         "type" => "game",
         "action" => "stEndRound",
         "transitions" => [
-            "newRound" => ST_PLAYER_TAKE_CARDS,
+            "newRound" => ST_NEW_ROUND,
             "endScore" => ST_END_SCORE,
         ],
     ],

@@ -14,7 +14,12 @@ trait ArgsTrait {
    
     function argTakeCards() {
         $canTakeFromDeck = intval($this->cards->countCardInLocation('deck')) > 0;
-        $canTakeFromDiscard = [1, 2];
+        $canTakeFromDiscard = [];
+        foreach([1, 2] as $discardNumber) {
+            if (intval($this->cards->countCardInLocation('discard'.$discardNumber)) > 0) {
+                $canTakeFromDiscard[] = $discardNumber;
+            }
+        }
     
         return [
             'canTakeFromDeck' => $canTakeFromDeck,
@@ -40,10 +45,10 @@ trait ArgsTrait {
         $playerId = $this->getActivePlayerId();
 
         $totalPoints = $this->getCardsPoints($playerId)->totalPoints;
-        $canCallEndRound = $totalPoints >= 7;
+        $canCallEndRound = $totalPoints >= 7 && intval($this->getGameStateValue(END_ROUND_TYPE)) == 0;
     
         return [
-            'totalPoints' => $totalPoints,
+            'totalPoints' => $totalPoints, // TODO remove
             'canCallEndRound' => $canCallEndRound,
         ];
     }

@@ -1,103 +1,45 @@
-function slideToObjectAndAttach(game, object, destinationId, zoom) {
-    if (zoom === void 0) { zoom = 1; }
+function slideToObjectAndAttach(game, object, destinationId, changeSide) {
+    if (changeSide === void 0) { changeSide = false; }
     var destination = document.getElementById(destinationId);
     if (destination.contains(object)) {
-        return Promise.resolve(true);
+        return;
     }
-    return new Promise(function (resolve) {
-        var originalZIndex = Number(object.style.zIndex);
+    var originBR = object.getBoundingClientRect();
+    destination.appendChild(object);
+    if (document.visibilityState !== 'hidden' && !game.instantaneousMode) {
+        var destinationBR = object.getBoundingClientRect();
+        var deltaX = destinationBR.left - originBR.left;
+        var deltaY = destinationBR.top - originBR.top;
         object.style.zIndex = '10';
-        var objectCR = object.getBoundingClientRect();
-        var destinationCR = destination.getBoundingClientRect();
-        var deltaX = destinationCR.left - objectCR.left;
-        var deltaY = destinationCR.top - objectCR.top;
-        var attachToNewParent = function () {
-            object.style.top = 'unset';
-            object.style.left = 'unset';
-            object.style.position = 'relative';
-            object.style.zIndex = originalZIndex ? '' + originalZIndex : 'unset';
-            object.style.transform = 'unset';
-            object.style.transition = 'unset';
-            destination.appendChild(object);
-        };
-        if (document.visibilityState === 'hidden' || game.instantaneousMode) {
-            // if tab is not visible, we skip animation (else they could be delayed or cancelled by browser)
-            attachToNewParent();
-        }
-        else {
-            object.style.transition = "transform 0.5s ease-in";
-            object.style.transform = "translate(".concat(deltaX / zoom, "px, ").concat(deltaY / zoom, "px)");
-            var securityTimeoutId_1 = null;
-            var transitionend_1 = function () {
-                attachToNewParent();
-                object.removeEventListener('transitionend', transitionend_1);
-                object.removeEventListener('transitioncancel', transitionend_1);
-                resolve(true);
-                if (securityTimeoutId_1) {
-                    clearTimeout(securityTimeoutId_1);
-                }
-            };
-            object.addEventListener('transitionend', transitionend_1);
-            object.addEventListener('transitioncancel', transitionend_1);
-            // security check : if transition fails, we force tile to destination
-            securityTimeoutId_1 = setTimeout(function () {
-                if (!destination.contains(object)) {
-                    attachToNewParent();
-                    object.removeEventListener('transitionend', transitionend_1);
-                    object.removeEventListener('transitioncancel', transitionend_1);
-                    resolve(true);
-                }
-            }, 700);
-        }
-    });
+        object.style.transform = "translate(".concat(-deltaX, "px, ").concat(-deltaY, "px)");
+        setTimeout(function () {
+            object.style.transition = "transform 0.5s linear";
+            object.style.transform = null;
+        });
+        setTimeout(function () {
+            object.style.zIndex = null;
+            object.style.transition = null;
+        }, 600);
+    }
 }
-function slideToObjectTicketSlot2(game, object, destinationId, keepTransform) {
-    var destination = document.getElementById(destinationId);
-    if (destination.contains(object)) {
-        return Promise.resolve(true);
-    }
-    return new Promise(function (resolve) {
-        var originalZIndex = Number(object.style.zIndex);
+function slideFromObject(game, object, fromId) {
+    var from = document.getElementById(fromId);
+    var originBR = from.getBoundingClientRect();
+    if (document.visibilityState !== 'hidden' && !game.instantaneousMode) {
+        var destinationBR = object.getBoundingClientRect();
+        var deltaX = destinationBR.left - originBR.left;
+        var deltaY = destinationBR.top - originBR.top;
         object.style.zIndex = '10';
-        var slot1left = Number(window.getComputedStyle(document.getElementById('ticket-slot-1')).left.match(/\d+/)[0]);
-        var slot2left = Number(window.getComputedStyle(document.getElementById('ticket-slot-2')).left.match(/\d+/)[0]);
-        var deltaX = slot2left - slot1left;
-        var attachToNewParent = function () {
-            object.style.zIndex = originalZIndex ? '' + originalZIndex : 'unset';
-            object.style.transform = keepTransform !== null && keepTransform !== void 0 ? keepTransform : 'unset';
-            object.style.transition = 'unset';
-            destination.appendChild(object);
-        };
-        if (document.visibilityState === 'hidden' || game.instantaneousMode) {
-            // if tab is not visible, we skip animation (else they could be delayed or cancelled by browser)
-            attachToNewParent();
-        }
-        else {
-            object.style.transition = "transform 0.5s ease-in";
-            object.style.transform = "translateX(".concat(deltaX, "px) ").concat(keepTransform !== null && keepTransform !== void 0 ? keepTransform : '');
-            var securityTimeoutId_2 = null;
-            var transitionend_2 = function () {
-                attachToNewParent();
-                object.removeEventListener('transitionend', transitionend_2);
-                object.removeEventListener('transitioncancel', transitionend_2);
-                resolve(true);
-                if (securityTimeoutId_2) {
-                    clearTimeout(securityTimeoutId_2);
-                }
-            };
-            object.addEventListener('transitionend', transitionend_2);
-            object.addEventListener('transitioncancel', transitionend_2);
-            // security check : if transition fails, we force tile to destination
-            securityTimeoutId_2 = setTimeout(function () {
-                if (!destination.contains(object)) {
-                    attachToNewParent();
-                    object.removeEventListener('transitionend', transitionend_2);
-                    object.removeEventListener('transitioncancel', transitionend_2);
-                    resolve(true);
-                }
-            }, 700);
-        }
-    });
+        object.style.transform = "translate(".concat(-deltaX, "px, ").concat(-deltaY, "px)");
+        setTimeout(function () {
+            object.style.transition = "transform 0.5s linear";
+            object.style.transform = null;
+        });
+        setTimeout(function () {
+            object.style.zIndex = null;
+            object.style.transition = null;
+        }, 600);
+    }
 }
 var Cards = /** @class */ (function () {
     function Cards(game) {
@@ -170,7 +112,7 @@ var Cards = /** @class */ (function () {
             document.getElementById(destinationId).appendChild(div);
             div.addEventListener('click', function () { return _this.game.onCardClick(card); });
             if (from) {
-                var fromCardId = document.getElementById(from).children[0].id;
+                var fromCardId = document.getElementById(from) /*.children[0]*/.id;
                 slideFromObject(this.game, div, fromCardId);
             }
             if (true /*card.type*/) {
@@ -1064,14 +1006,19 @@ var SeaSaltPaper = /** @class */ (function () {
         //log( 'notifications subscriptions setup' );
         var _this = this;
         var notifs = [
+            ['cardInDiscardFromDeck', ANIMATION_MS],
             ['cardInHandFromDiscard', ANIMATION_MS],
             ['cardInHandFromPick', ANIMATION_MS],
             ['cardInDiscardFromPick', ANIMATION_MS],
+            ['endRound', ANIMATION_MS],
         ];
         notifs.forEach(function (notif) {
             dojo.subscribe(notif[0], _this, "notif_".concat(notif[0]));
             _this.notifqueue.setSynchronous(notif[0], notif[1]);
         });
+    };
+    SeaSaltPaper.prototype.notif_cardInDiscardFromDeck = function (notif) {
+        this.cards.createMoveOrUpdateCard(notif.args.card, "discard".concat(notif.args.discardId), true, 'deck');
     };
     SeaSaltPaper.prototype.notif_cardInHandFromDiscard = function (notif) {
         if (notif.args.playerId == this.getPlayerId()) {
@@ -1101,17 +1048,30 @@ var SeaSaltPaper = /** @class */ (function () {
             setTimeout(function () { return currentCardDiv.parentElement.removeChild(currentCardDiv); }, 500);
         }
     };
+    SeaSaltPaper.prototype.notif_score = function (notif) {
+        var _a;
+        (_a = this.scoreCtrl[notif.args.playerId]) === null || _a === void 0 ? void 0 : _a.toValue(notif.args.newScore);
+    };
+    SeaSaltPaper.prototype.notif_endRound = function () {
+        document.getElementById("my-hand").innerHTML = ''; // animate cards to deck?
+        [1, 2].forEach(function (discardNumber) {
+            var currentCardDiv = document.getElementById("discard".concat(discardNumber)).firstElementChild;
+            currentCardDiv === null || currentCardDiv === void 0 ? void 0 : currentCardDiv.parentElement.removeChild(currentCardDiv); // animate cards to deck?
+        });
+    };
     /* This enable to inject translatable styled things to logs or action bar */
     /* @Override */
     SeaSaltPaper.prototype.format_string_recursive = function (log, args) {
         try {
             if (log && args && !args.processed) {
-                if (args.discardNumber && args.discardNumber[0] != '<') {
-                    args.discardNumber = "<strong>".concat(args.discardNumber, "</strong>");
-                }
                 if (args.announcement && args.announcement[0] != '<') {
                     args.announcement = "<strong style=\"color: darkred;\">".concat(_(args.announcement), "</strong>");
                 }
+                ['discardNumber', 'roundPoints', 'cardsPoints', 'colorBonus'].forEach(function (field) {
+                    if (args[field] && args[field][0] != '<') {
+                        args[field] = "<strong>".concat(args[field], "</strong>");
+                    }
+                });
             }
         }
         catch (e) {

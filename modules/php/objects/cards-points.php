@@ -12,9 +12,10 @@ function array_find_key(array $array, callable $fn) {
 class CardsPoints {
     public int $visiblePoints;
     public int $totalPoints;
+    public int $colorBonus;
 
     public function __construct(array $tableCards, array $handCards) {
-        $this->visiblePoints = $this->getPoints($tableCards);
+        $this->visiblePoints = $this->getPoints($tableCards); // visible before total, for colorBonus
         $this->totalPoints = $this->getPoints($tableCards + $handCards);
     }
 
@@ -28,31 +29,30 @@ class CardsPoints {
 
         // Sirens
         $sirenCount = count($sirenCards);
-        if ($sirenCount > 0) {
-            $numberByColor = [];
-            foreach($cards as $card) {
-                if ($card->color > 0) {
-                    if (array_key_exists($card->color, $numberByColor)) {
-                        $numberByColor[$card->color]++;
-                    } else {
-                        $numberByColor[$card->color] = 1;
-                    }
+        $numberByColor = [];
+        foreach($cards as $card) {
+            if ($card->color > 0) {
+                if (array_key_exists($card->color, $numberByColor)) {
+                    $numberByColor[$card->color]++;
+                } else {
+                    $numberByColor[$card->color] = 1;
                 }
             }
+        }
+        $this->colorBonus = count($numberByColor) > 0 ? max($numberByColor) : 0;
 
-            while ($sirenCount > 0) {
-                if (count($numberByColor) == 0) {
-                    break;
-                }
-
-                $maxColor = max($numberByColor);
-                $points += $maxColor;
-
-                $maxColorIndex = array_find_key($numberByColor, fn($val) => $val == $maxColor);
-                unset($numberByColor[$maxColorIndex]);
-
-                $sirenCount--;
+        while ($sirenCount > 0) {
+            if (count($numberByColor) == 0) {
+                break;
             }
+
+            $maxColor = count($numberByColor) > 0 ? max($numberByColor) : 0;
+            $points += $maxColor;
+
+            $maxColorIndex = array_find_key($numberByColor, fn($val) => $val == $maxColor);
+            unset($numberByColor[$maxColorIndex]);
+
+            $sirenCount--;
         }
 
         // Pairs

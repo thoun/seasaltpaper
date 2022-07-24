@@ -78,7 +78,7 @@ class Cards {
             div.addEventListener('click', () => this.game.onCardClick(card));
 
             if (from) {
-                const fromCardId = document.getElementById(from).children[0].id;
+                const fromCardId = document.getElementById(from)/*.children[0]*/.id;
                 slideFromObject(this.game, div, fromCardId);
             }
 

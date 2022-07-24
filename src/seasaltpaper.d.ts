@@ -78,3 +78,8 @@ interface NotifCardInDiscardFromPickArgs {
     card: Card;
     discardId: number;
 }
+
+interface NotifScoreArgs {
+    playerId: number;
+    newScore: number;
+}
