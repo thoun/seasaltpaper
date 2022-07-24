@@ -21,13 +21,58 @@ trait StateTrait {
         //self::incStat(1, 'turnNumber');
         //self::incStat(1, 'turnNumber', $playerId);
 
-        $endScore = false; // TODO $this->getRemainingCardCountOnTable() === 0;
+        $lastChanceCaller = intval($this->getGameStateValue(LAST_CHANCE_CALLER));
 
-        if (!$endScore) {
-            $this->activeNextPlayer();
+        if ($lastChanceCaller > 0) {
+            $this->revealHand($playerId);
         }
 
-        $this->gamestate->nextState($endScore ? 'endScore' : 'nextPlayer');
+        $newPlayerId = $this->activeNextPlayer();
+        if ($lastChanceCaller == $newPlayerId) {
+            $this->activeNextPlayer();
+            $this->gamestate->nextState('endRound');
+            return;
+        } else if ($lastChanceCaller == 1) {
+            $this->setGameStateValue(LAST_CHANCE_CALLER, $playerId);
+        }
+        $this->gamestate->nextState('nextPlayer');
+
+        $emptyDeck = intval($this->cards->countCardInLocation('deck')) === 0;
+
+        if (!$emptyDeck) {
+            $this->setGameStateValue(LAST_CHANCE_CALLER, -1);
+        }
+
+        $this->gamestate->nextState($emptyDeck ? 'endRound' : 'nextPlayer');
+    }
+
+    function stEndRound() {
+        $lastChanceCaller = intval($this->getGameStateValue(LAST_CHANCE_CALLER));
+        if ($lastChanceCaller >= 0) { // we didn't reach the end of the deck pile, so we count scores
+
+            $lastChanceBet = $lastChanceCaller > 0;
+            
+
+        } else {
+            self::notifyAllPlayers('log', clienttranslate('The round ends immediately without scoring because the deck is empty'), []);
+        }
+
+        $this->setGameStateValue(LAST_CHANCE_CALLER, 0);
+
+        $roundNumber = intval($this->getGameStateValue(ROUND_NUMBER));
+        $totalRoundNumber = $this->getTotalRoundNumber();
+        $lastRound = $roundNumber >= $totalRoundNumber;
+
+        if (!$lastRound) {
+            $this->cards->moveAllCardsInLocation(null, 'deck');
+            $this->cards->shuffle('deck');
+
+            $this->initRoundDiscard();
+
+            // TODO notif
+        }
+
+        $this->gamestate->nextState($lastRound ? 'endScore' : 'newRound');
     }
 
     function computeStats(int $playerId) {

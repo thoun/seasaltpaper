@@ -151,15 +151,33 @@ trait ActionTrait {
     public function endRound() {
         $this->checkAction('endRound'); 
 
-        // TODO
+        $playerId = $this->getActivePlayerId();
+
+        $this->setGameStateValue(LAST_CHANCE_CALLER, 1);
+
+        self::notifyAllPlayers('annouceLastChance', clienttranslate('${player_name} announces ${announcement}!'), [
+            'playerId' => $playerId,
+            'player_name' => $this->getPlayerName($playerId),
+            'announcement' => _('LAST CHANCE'),
+            'i18n' => ['announcement'],
+        ]);
         
         $this->gamestate->nextState('endTurn');
     }
 
     public function immediateEndRound() {
-        $this->checkAction('endTurn'); 
+        $this->checkAction('endTurn');
 
-        // TODO
+        $playerId = $this->getActivePlayerId();
+
+        $this->setGameStateValue(LAST_CHANCE_CALLER, 0);
+
+        self::notifyAllPlayers('log', clienttranslate('${player_name} announces ${announcement}!'), [
+            'playerId' => $playerId,
+            'player_name' => $this->getPlayerName($playerId),
+            'announcement' => _('STOP'),
+            'i18n' => ['announcement'],
+        ]);
         
         $this->gamestate->nextState('immediateEndRound');
     }

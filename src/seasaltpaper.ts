@@ -571,6 +571,9 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                 if (args.discardNumber && args.discardNumber[0] != '<') {
                     args.discardNumber = `<strong>${args.discardNumber}</strong>`;
                 }
+                if (args.announcement && args.announcement[0] != '<') {
+                    args.announcement = `<strong style="color: darkred;">${_(args.announcement)}</strong>`;
+                }
             }
         } catch (e) {
             console.error(log,args,"Exception thrown", e.stack);

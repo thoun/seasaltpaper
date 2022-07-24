@@ -1109,6 +1109,9 @@ var SeaSaltPaper = /** @class */ (function () {
                 if (args.discardNumber && args.discardNumber[0] != '<') {
                     args.discardNumber = "<strong>".concat(args.discardNumber, "</strong>");
                 }
+                if (args.announcement && args.announcement[0] != '<') {
+                    args.announcement = "<strong style=\"color: darkred;\">".concat(_(args.announcement), "</strong>");
+                }
             }
         }
         catch (e) {

@@ -45,6 +45,7 @@ class SeaSaltPaper extends Table {
         self::initGameStateLabels([
             ROUND_NUMBER => ROUND_NUMBER,
             FOUR_SIRENS => FOUR_SIRENS,
+            LAST_CHANCE_CALLER => LAST_CHANCE_CALLER,
         ]);  
 
         $this->cards = self::getNew("module.common.deck");
@@ -96,8 +97,7 @@ class SeaSaltPaper extends Table {
 
         // TODO: setup the initial game situation here
         $this->setupCards();
-        $this->cards->pickCardForLocation('deck', 'discard1');
-        $this->cards->pickCardForLocation('deck', 'discard2');
+        $this->initRoundDiscard();
 
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();

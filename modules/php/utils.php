@@ -56,10 +56,6 @@ trait UtilTrait {
         return true;
     }
 
-    function getFirstPlayerId() {
-        return intval(self::getGameStateValue(FIRST_PLAYER));
-    }
-
     function getPlayersIds() {
         return array_keys($this->loadPlayersBasicInfos());
     }
@@ -91,6 +87,11 @@ trait UtilTrait {
         $this->cards->createCards($cards, 'deck');
         $this->cards->shuffle('deck');
     }
+
+    function initRoundDiscard() {
+        $this->cards->pickCardForLocation('deck', 'discard1');
+        $this->cards->pickCardForLocation('deck', 'discard2');
+    }
     
     function getTotalRoundNumber() {
         return 6 - count($this->getPlayersIds());
@@ -115,6 +116,16 @@ trait UtilTrait {
         $sirenCards = array_values(array_filter($cards, fn($card) => $card->category == SIREN));
 
         return count($sirenCards) >= 4;
+    }
+
+    function revealHand(int $playerId) {
+        $handCards = $this->getCardsFromDb($this->cards->getCardsInLocation('hand'.$playerId));
+
+        if (count($handCards) > 0) {
+            $this->cards->moveAllCardsInLocation('hand'.$playerId, 'table'.$playerId);
+
+            // TODO notif $handCards
+        }
     }
 
 }
