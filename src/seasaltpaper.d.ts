@@ -11,7 +11,7 @@ interface Card {
 }
 
 interface SeaSaltPaperPlayer extends Player {
-    //playerNo: number;
+    playerNo: number;
     handCount: number;
 }
 

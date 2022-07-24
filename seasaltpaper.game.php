@@ -44,7 +44,6 @@ class SeaSaltPaper extends Table {
         
         self::initGameStateLabels([
             ROUND_NUMBER => ROUND_NUMBER,
-            FOUR_SIRENS => FOUR_SIRENS,
             END_ROUND_TYPE => END_ROUND_TYPE,
             LAST_CHANCE_CALLER => LAST_CHANCE_CALLER,
         ]);  
@@ -89,7 +88,6 @@ class SeaSaltPaper extends Table {
 
         // Init global values with their initial values
         $this->setGameStateInitialValue(ROUND_NUMBER, 0);
-        $this->setGameStateInitialValue(FOUR_SIRENS, 0);
         $this->setGameStateInitialValue(END_ROUND_TYPE, 0);
         $this->setGameStateInitialValue(LAST_CHANCE_CALLER, 0);
         
@@ -123,10 +121,11 @@ class SeaSaltPaper extends Table {
     
         // Get information about players
         // Note: you can retrieve some extra field you added for "player" table in "dbmodel.sql" if you need it.
-        $sql = "SELECT player_id id, player_score score FROM player ";
+        $sql = "SELECT player_id id, player_score score, player_no playerNo FROM player ";
         $result['players'] = self::getCollectionFromDb( $sql );
 
         foreach($result['players'] as $playerId => &$player) {
+            $player['playerNo'] = intval($player['playerNo']);
             $player['handCount'] = $this->getHandCount($playerId);
         }
   

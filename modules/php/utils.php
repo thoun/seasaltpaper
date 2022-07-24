@@ -137,4 +137,14 @@ trait UtilTrait {
         ] + $args);
     }
 
+    function setPlayerScore(int $playerId, int $amount, $message = '', $args = []) {
+        $this->DbQuery("UPDATE player SET `player_score` = $amount WHERE player_id = $playerId");
+            
+        $this->notifyAllPlayers('score', $message, [
+            'playerId' => $playerId,
+            'player_name' => $this->getPlayerName($playerId),
+            'newScore' => $amount,
+        ] + $args);
+    }
+
 }

@@ -616,11 +616,6 @@ var SeaSaltPaper = /** @class */ (function () {
         this.cards = new Cards(this);
         this.stacks = new Stacks(this, this.gamedatas);
         this.createPlayerTables(gamedatas);
-        Object.values(gamedatas.players).forEach(function (player) {
-            //this.highlightObjectiveLetters(player);
-            //this.setObjectivesCounters(Number(player.id), player.scoreSheets.current);
-        });
-        //this.placeFirstPlayerToken(gamedatas.firstPlayerTokenPlayerId);
         document.getElementById('round-panel').innerHTML = "".concat(_('Round'), "&nbsp;<span id=\"round-number-counter\"></span>&nbsp;/&nbsp;").concat(6 - Object.keys(gamedatas.players).length);
         this.roundNumberCounter = new ebg.counter();
         this.roundNumberCounter.create("round-number-counter");
@@ -635,10 +630,6 @@ var SeaSaltPaper = /** @class */ (function () {
         if (this.zoom !== 1) {
             this.setZoom(this.zoom);
         }
-        if (Number(gamedatas.gamestate.id) >= 90) { // score or end
-            this.onEnteringShowScore();
-        }
-        this.addTooltips();
         log("Ending game setup");
     };
     ///////////////////////////////////////////////////
@@ -718,9 +709,6 @@ var SeaSaltPaper = /** @class */ (function () {
     ///////////////////////////////////////////////////
     //// Utility methods
     ///////////////////////////////////////////////////
-    SeaSaltPaper.prototype.isVisibleScoring = function () {
-        return !this.gamedatas.hiddenScore;
-    };
     SeaSaltPaper.prototype.getPlayerId = function () {
         return Number(this.player_id);
     };
@@ -771,7 +759,7 @@ var SeaSaltPaper = /** @class */ (function () {
             var prefId = +match[1];
             var prefValue = +e.target.value;
             _this.prefs[prefId].value = prefValue;
-            _this.onPreferenceChange(prefId, prefValue);
+            //this.onPreferenceChange(prefId, prefValue);
         };
         // Call onPreferenceChange() when any value changes
         dojo.query(".preference_control").connect("onchange", onchange);
@@ -782,35 +770,6 @@ var SeaSaltPaper = /** @class */ (function () {
         }
         catch (e) { }
     };
-    SeaSaltPaper.prototype.onPreferenceChange = function (prefId, prefValue) {
-        switch (prefId) {
-            case 204:
-                document.getElementsByTagName('html')[0].dataset.noBuilding = (prefValue == 2).toString();
-                break;
-            case 205:
-                document.getElementsByTagName('html')[0].dataset.noGrid = (prefValue == 2).toString();
-                break;
-        }
-    };
-    SeaSaltPaper.prototype.expandObjectiveClick = function () {
-        var wrappers = document.querySelectorAll(".personal-objective-wrapper");
-        var expanded = this.prefs[203].value == '1';
-        wrappers.forEach(function (wrapper) { return wrapper.dataset.expanded = (!expanded).toString(); });
-        var select = document.getElementById('preference_control_203');
-        select.value = expanded ? '2' : '1';
-        var event = new Event('change');
-        select.dispatchEvent(event);
-    };
-    SeaSaltPaper.prototype.showPersonalObjective = function (playerId) {
-        var _this = this;
-        if (document.getElementById("personal-objective-wrapper-".concat(playerId)).childElementCount > 0) {
-            return;
-        }
-        var player = this.gamedatas.players[playerId];
-        var html = "\n            <div class=\"personal-objective collapsed\">\n                ".concat(player.personalObjectiveLetters.map(function (letter, letterIndex) { return "<div class=\"letter\" data-player-id=\"".concat(playerId, "\" data-position=\"").concat(player.personalObjectivePositions[letterIndex], "\">").concat(letter, "</div>"); }).join(''), "\n            </div>\n            <div class=\"personal-objective expanded ").concat(this.gamedatas.map, "\" data-type=\"").concat(player.personalObjective, "\"></div>\n            <div id=\"toggle-objective-expand-").concat(playerId, "\" class=\"arrow\"></div>\n        ");
-        dojo.place(html, "personal-objective-wrapper-".concat(playerId));
-        document.getElementById("toggle-objective-expand-".concat(playerId)).addEventListener('click', function () { return _this.expandObjectiveClick(); });
-    };
     SeaSaltPaper.prototype.getOrderedPlayers = function (gamedatas) {
         var _this = this;
         var players = Object.values(gamedatas.players).sort(function (a, b) { return a.playerNo - b.playerNo; });
@@ -819,83 +778,16 @@ var SeaSaltPaper = /** @class */ (function () {
         return orderedPlayers;
     };
     SeaSaltPaper.prototype.createPlayerTables = function (gamedatas) {
-        var _this = this;
-        var orderedPlayers = this.getOrderedPlayers(gamedatas);
-        orderedPlayers.forEach(function (player) {
-            return _this.createPlayerTable(gamedatas, Number(player.id));
-        });
-    };
-    SeaSaltPaper.prototype.createPlayerTable = function (gamedatas, playerId) {
-        var table = new PlayerTable(this, gamedatas.players[playerId]);
-        table.setRound(gamedatas.validatedTickets, gamedatas.currentTicket);
-        this.playersTables.push(table);
-    };
-    SeaSaltPaper.prototype.placeFirstPlayerToken = function (playerId) {
-        var firstPlayerBoardToken = document.getElementById('firstPlayerBoardToken');
-        if (firstPlayerBoardToken) {
-            slideToObjectAndAttach(this, firstPlayerBoardToken, "player_board_".concat(playerId, "_firstPlayerWrapper"));
-        }
-        else {
-            dojo.place('<div id="firstPlayerBoardToken" class="first-player-token"></div>', "player_board_".concat(playerId, "_firstPlayerWrapper"));
-            this.addTooltipHtml('firstPlayerBoardToken', _("Inspector pawn. This player is the first player of the round."));
-        }
-        var firstPlayerTableToken = document.getElementById('firstPlayerTableToken');
-        if (firstPlayerTableToken) {
-            slideToObjectAndAttach(this, firstPlayerTableToken, "player-table-".concat(playerId, "-first-player-wrapper"), this.zoom);
-        }
-        else {
-            dojo.place('<div id="firstPlayerTableToken" class="first-player-token"></div>', "player-table-".concat(playerId, "-first-player-wrapper"));
-            this.addTooltipHtml('firstPlayerTableToken', _("Inspector pawn. This player is the first player of the round."));
-        }
-    };
-    SeaSaltPaper.prototype.getTooltip = function (element) {
-        switch (element) {
-            case 0: return '[GreenLight] : ' + _("If your route ends at an intersection with a [GreenLight], you place an additional marker.");
-            case 1: return _("<strong>Number:</strong> Possible starting point. You choose between 2 numbers at the beginning of the game to place your Departure Pawn.");
-            case 20: return '[OldLady] : ' + _("When a marker reaches [OldLady], check a box on the [OldLady] zone. Add the number next to each checked box at game end.");
-            case 30: return '[Student] : ' + _("When a marker reaches [Student], check a box on the [Student] zone. Multiply [Student] with [School] at game end.");
-            case 32: return '[School] : ' + _("When a marker reaches [School], check a box on the [School] zone. Multiply [Student] with [School] at game end.") + "<br><i>".concat(_("If the [School] is marked with a Star, write the number of [Student] you have checked when a marker reaches it."), "</i>");
-            case 40: return '[Tourist] : ' + _("When a marker reaches [Tourist], check a box on the first available row on the [Tourist] zone. You will score when you drop off the [Tourist] to [MonumentLight]/[MonumentDark]. If the current row is full and you didn't reach [MonumentLight]/[MonumentDark], nothing happens.");
-            case 41: return '[MonumentLight][MonumentDark] : ' + _("When a marker reaches [MonumentLight]/[MonumentDark], write the score on the column of the [Tourist] at the end of the current row. If the current row is empty, nothing happens.") + "<br><i>".concat(_("If [MonumentLight]/[MonumentDark] is marked with a Star, write the number of [Tourist] you have checked When a marker reaches it."), "</i>");
-            case 50: return '[Businessman] : ' + _("When a marker reaches [Businessman], check a box on the first available row on the [Businessman] zone. You will score when you drop off the [Businessman] to [Office]. If the current row is full and you didn't reach [Office], nothing happens.");
-            case 51: return '[Office] : ' + _("When a marker reaches [Office], write the score on the column of the [Businessman] at the end of the current row, and check the corresponding symbol ([OldLady], [Tourist] or [Student]) as if you reached it with a marker. If the current row is empty, nothing happens.") + "<br><i>".concat(_("If the [Office] is marked with a Star, write the number of [Businessman] you have checked When a marker reaches it."), "</i>");
-            case 90: return _("<strong>Common Objective:</strong> Score 10 points when you complete the objective, or 6 points if another player completed it on a previous round.");
-            case 91: return _("<strong>Personal Objective:</strong> Score 10 points when your markers link the 3 Letters of your personal objective.");
-            case 92: return _("<strong>Turn Zone:</strong> If you choose to change a turn into a straight line or a straight line to a turn, check a box on the Turn Zone. The score here is negative, and you only have 5 of them!");
-            case 93: return _("<strong>Traffic Jam:</strong> For each marker already in place when you add a marker on a route, check a Traffic Jam box. If the road is black, check an extra box. The score here is negative!");
-            case 94: return _("<strong>Total score:</strong> Add sum of all green zone totals, subtract sum of all red zone totals.");
-            case 95: return _("<strong>Tickets:</strong> The red check indicates the current round ticket. It defines the shape of the route you have to place. The black checks indicates past rounds.");
-            case 97: return _("<strong>Letter:</strong> Used to define your personal objective.");
-        }
-    };
-    SeaSaltPaper.prototype.addTooltips = function () {
-        var _this = this;
-        document.querySelectorAll("[data-tooltip]").forEach(function (element) {
-            var tooltipsIds = JSON.parse(element.dataset.tooltip);
-            var tooltip = "";
-            tooltipsIds.forEach(function (id) { return tooltip += "<div class=\"tooltip-section\">".concat(formatTextIcons(_this.getTooltip(id)), "</div>"); });
-            _this.addTooltipHtml(element.id, tooltip);
-        });
-    };
-    SeaSaltPaper.prototype.eliminatePlayer = function (playerId) {
-        this.gamedatas.players[playerId].eliminated = 1;
-        document.getElementById("overall_player_board_".concat(playerId)).classList.add('eliminated-player');
-        dojo.addClass("player-table-".concat(playerId), 'eliminated');
-        this.setNewScore(playerId, 0);
-    };
-    SeaSaltPaper.prototype.setNewScore = function (playerId, score) {
-        var _this = this;
-        var _a;
-        if (this.gamedatas.hiddenScore) {
-            setTimeout(function () {
-                Object.keys(_this.gamedatas.players).filter(function (pId) { return _this.gamedatas.players[pId].eliminated == 0; }).forEach(function (pId) { return document.getElementById("player_score_".concat(pId)).innerHTML = '-'; });
-            }, 100);
-        }
-        else {
-            if (!isNaN(score)) {
-                (_a = this.scoreCtrl[playerId]) === null || _a === void 0 ? void 0 : _a.toValue(this.gamedatas.players[playerId].eliminated != 0 ? 0 : score);
-            }
-        }
+        /*const orderedPlayers = this.getOrderedPlayers(gamedatas);
+
+        orderedPlayers.forEach(player =>
+            this.createPlayerTable(gamedatas, Number(player.id))
+        );
+    }
+
+    private createPlayerTable(gamedatas: SeaSaltPaperGamedatas, playerId: number) {
+        const table = new PlayerTable(this, gamedatas.players[playerId]);
+        this.playersTables.push(table);*/
     };
     SeaSaltPaper.prototype.onCardClick = function (card) {
         switch (this.gamedatas.gamestate.name) {

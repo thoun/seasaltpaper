@@ -54,7 +54,6 @@ trait ActionTrait {
         ]);
 
         if ($this->hasFourSirens($playerId)) {
-            $this->setGameStateValue(FOUR_SIRENS, $playerId);
             $this->gamestate->nextState('sirens');
         } else {
             $this->gamestate->nextState('playCards');
@@ -85,7 +84,6 @@ trait ActionTrait {
         ]);
 
         if ($this->hasFourSirens($playerId)) {
-            $this->setGameStateValue(FOUR_SIRENS, $playerId);
             $this->gamestate->nextState('sirens');
             return;
         }

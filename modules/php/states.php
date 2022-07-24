@@ -13,7 +13,6 @@ trait StateTrait {
 
     function stNewRound() {
         // init round discard
-
         foreach([1, 2] as $discardNumber) {
             $card = $this->cards->pickCardForLocation('deck', 'discard'.$discardNumber);
 
@@ -23,6 +22,7 @@ trait StateTrait {
             ]);
         }
 
+        // set round number
         $roundNumber = intval($this->getGameStateValue(ROUND_NUMBER));
         $roundNumber++;
         $this->setGameStateValue(ROUND_NUMBER, $roundNumber);
@@ -169,7 +169,7 @@ trait StateTrait {
     }
 
     function computeStats(int $playerId) {
-        $scoreSheets = $this->getScoreSheets($playerId, $this->getPlacedRoutes($playerId), $this->getCommonObjectives(), true);
+        /*$scoreSheets = $this->getScoreSheets($playerId, $this->getPlacedRoutes($playerId), $this->getCommonObjectives(), true);
         $scoreSheet = $scoreSheets->validated;
         
         $this->setStat(count(array_filter($scoreSheet->commonObjectives->subTotals, fn($subTotal) => $subTotal == 10)), 'commonObjectivesFirst', $playerId);
@@ -199,30 +199,16 @@ trait StateTrait {
         }
         if ($checkedBusinessmen > 0) {
             $this->setStat((float)$scoreSheet->businessmen->total / (float)$checkedBusinessmen, 'averagePointsByCheckedBusinessmen', $playerId);
-        }
+        }*/
     }
 
     function stEndScore() {
         $playersIds = $this->getPlayersIds();
-        $map = $this->getMap();
+
         foreach ($playersIds as $playerId) {
-            if (!$this->isEliminated($playerId)) {
-                $scoreSheets = $this->notifUpdateScoreSheet($playerId, true);
-                $score = $scoreSheets->validated->total;
-                $this->DbQuery("UPDATE player SET `player_score` = $score WHERE `player_id` = $playerId");
+            if ($this->hasFourSirens($playerId)) {
+                $this->setPlayerScore($playerId, 100, clienttranslate('${player_name} placed 4 mermaid cards and immediately wins the game!'), []);
             }
-
-            $personalObjective = intval($this->getUniqueValueFromDB("SELECT player_personal_objective FROM `player` where `player_id` = $playerId"));
-
-            $personalObjectiveLetters = array_map(fn($code) => chr($code), $this->getPersonalObjectiveLetters($playerId));
-            self::notifyAllPlayers('revealPersonalObjective', clienttranslate('${player_name} personal objective was ${objectiveLetters}'), [
-                'playerId' => $playerId,
-                'player_name' => $this->getPlayerName($playerId),
-                'objectiveLetters' => implode(' ', $personalObjectiveLetters),
-                'personalObjective' => $personalObjective,
-                'personalObjectiveLetters' => $personalObjectiveLetters,
-                'personalObjectivePositions' => $this->getPersonalObjectivePositions($personalObjective, $map),
-            ]);
 
             $this->computeStats($playerId);
         }
