@@ -673,6 +673,7 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.onEnteringPlayCards = function () {
         this.stacks.showPickCards(false);
+        this.selectedCards = [];
     };
     SeaSaltPaper.prototype.onLeavingState = function (stateName) {
         log('Leaving state: ' + stateName);
@@ -680,11 +681,17 @@ var SeaSaltPaper = /** @class */ (function () {
             case 'takeCards':
                 this.onLeavingTakeCards();
                 break;
+            case 'playCards':
+                this.onLeavingPlayCards();
+                break;
         }
     };
     SeaSaltPaper.prototype.onLeavingTakeCards = function () {
         this.stacks.makeDeckSelectable(false);
         this.stacks.makeDiscardSelectable([]);
+    };
+    SeaSaltPaper.prototype.onLeavingPlayCards = function () {
+        this.selectedCards = null;
     };
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
     //                        action status bar (ie: the HTML links in the status bar).
@@ -695,10 +702,12 @@ var SeaSaltPaper = /** @class */ (function () {
             switch (stateName) {
                 case 'playCards':
                     var playCardsArgs = args;
+                    this.addActionButton("playCards_button", _("Play selected cards"), function () { return _this.playSelectedCards(); });
                     this.addActionButton("endTurn_button", _("End turn"), function () { return _this.endTurn(); });
                     this.addActionButton("endRound_button", _('End round ("LAST CHANCE")'), function () { return _this.endRound(); }, null, null, 'red');
                     this.addActionButton("immediateEndRound_button", _('End round ("STOP")'), function () { return _this.immediateEndRound(); }, null, null, 'red');
                     if (!playCardsArgs.canCallEndRound) {
+                        dojo.addClass("playCards_button", "disabled");
                         dojo.addClass("endRound_button", "disabled");
                         dojo.addClass("immediateEndRound_button", "disabled");
                     }
@@ -790,19 +799,37 @@ var SeaSaltPaper = /** @class */ (function () {
         this.playersTables.push(table);*/
     };
     SeaSaltPaper.prototype.onCardClick = function (card) {
+        var cardDiv = document.getElementById("card-".concat(card.id));
+        var parentDiv = cardDiv.parentElement;
         switch (this.gamedatas.gamestate.name) {
             case 'takeCards':
-                var discardDiv = document.getElementById("card-".concat(card.id)).parentElement;
-                if (discardDiv.dataset.discard) {
-                    this.takeCardFromDiscard(Number(discardDiv.dataset.discard));
+                if (parentDiv.dataset.discard) {
+                    this.takeCardFromDiscard(Number(parentDiv.dataset.discard));
                 }
                 break;
             case 'chooseCard':
-                var pickDiv = document.getElementById("card-".concat(card.id)).parentElement;
-                if (pickDiv.id == 'pick') {
+                if (parentDiv.id == 'pick') {
                     this.chooseCard(card.id);
                 }
                 break;
+            case 'playCards':
+                if (parentDiv.id == "my-hand") {
+                    if (this.selectedCards.includes(card.id)) {
+                        this.selectedCards.splice(this.selectedCards.indexOf(card.id), 1);
+                        cardDiv.classList.remove('selected');
+                    }
+                    else {
+                        this.selectedCards.push(card.id);
+                        cardDiv.classList.add('selected');
+                    }
+                    dojo.toggleClass("playCards_button", "disabled", this.selectedCards.length != 2);
+                }
+                break;
+        }
+    };
+    SeaSaltPaper.prototype.playSelectedCards = function () {
+        if (this.selectedCards.length == 2) {
+            this.playCards(this.selectedCards);
         }
     };
     SeaSaltPaper.prototype.takeCardsFromDeck = function () {
@@ -833,6 +860,15 @@ var SeaSaltPaper = /** @class */ (function () {
         }
         this.takeAction('putDiscardPile', {
             discardNumber: discardNumber
+        });
+    };
+    SeaSaltPaper.prototype.playCards = function (ids) {
+        if (!this.checkAction('playCards')) {
+            return;
+        }
+        this.takeAction('playCards', {
+            'id1': ids[0],
+            'id2': ids[1],
         });
     };
     SeaSaltPaper.prototype.endTurn = function () {

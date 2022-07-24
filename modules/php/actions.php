@@ -140,6 +140,51 @@ trait ActionTrait {
         $this->gamestate->nextState('playCards');
     }
 
+    public function playCards(int $id1, int $id2) {
+        $this->checkAction('playCards'); 
+
+        if ($id1 == $id2) {
+            throw new BgaUserException("Same id");
+        }
+
+        $playerId = $this->getActivePlayerId();
+        $cards = $this->getCardsFromDb($this->cards->getCards([$id1, $id2]));
+
+        if ($this->array_some($cards, fn($card) => $card->location != 'hand'.$playerId || $card->category != PAIR)) {
+            throw new BgaUserException("You must select Pair cards from your hand");
+        }
+
+        if (
+            ($cards[0]->family == SWIMMER && $cards[1]->family != SHARK) ||            
+            ($cards[0]->family == SHARK && $cards[1]->family != SWIMMER) ||
+            ($cards[0]->family != $cards[1]->family)
+        ) {
+            throw new BgaUserException("Invalid pair");
+        }
+
+        switch ($cards[0]->family) {
+            case CRAB:
+                $this->gamestate->nextState('chooseDiscardPile');
+                break;
+            case BOAT:
+                $this->gamestate->nextState('newTurn');
+                break;
+            case BOAT:
+                /* TODO The player adds the
+top card from the deck to their
+hand. use first main action! */ 
+                $this->gamestate->nextState('playCards');
+                break;
+            case SWIMMER:
+            case SHARK:
+                /* TODO The player steals a random card
+from another player and adds it to their
+hand. */ 
+                $this->gamestate->nextState('playCards');
+                break;
+        }
+    }
+
     public function endTurn() {
         $this->checkAction('endTurn'); 
         

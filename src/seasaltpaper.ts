@@ -35,6 +35,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     private stacks: Stacks;
     private playersTables: PlayerTable[] = [];
     private roundNumberCounter: Counter;
+    private selectedCards: number[];
 
     constructor() {
         const zoomStr = localStorage.getItem(LOCAL_STORAGE_ZOOM_KEY);
@@ -134,6 +135,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
     private onEnteringPlayCards() {
         this.stacks.showPickCards(false);
+        this.selectedCards = [];
     }
 
     public onLeavingState(stateName: string) {
@@ -143,12 +145,19 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             case 'takeCards':
                 this.onLeavingTakeCards();
                 break;
+            case 'playCards':
+                this.onLeavingPlayCards();
+                break;
         }
     }
 
     private onLeavingTakeCards() {
         this.stacks.makeDeckSelectable(false);
         this.stacks.makeDiscardSelectable([]);
+    }
+
+    private onLeavingPlayCards() {
+        this.selectedCards = null;
     }
 
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
@@ -159,10 +168,12 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             switch (stateName) {
                 case 'playCards':
                     const playCardsArgs = args as EnteringPlayCardsArgs;
+                    (this as any).addActionButton(`playCards_button`, _("Play selected cards"), () => this.playSelectedCards());
                     (this as any).addActionButton(`endTurn_button`, _("End turn"), () => this.endTurn());
                     (this as any).addActionButton(`endRound_button`, _('End round ("LAST CHANCE")'), () => this.endRound(), null, null, 'red');
                     (this as any).addActionButton(`immediateEndRound_button`, _('End round ("STOP")'), () => this.immediateEndRound(), null, null, 'red');
                     if (!playCardsArgs.canCallEndRound) {
+                        dojo.addClass(`playCards_button`, `disabled`);
                         dojo.addClass(`endRound_button`, `disabled`);
                         dojo.addClass(`immediateEndRound_button`, `disabled`);
                     }
@@ -270,19 +281,38 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
     
     public onCardClick(card: Card): void {
+        const cardDiv = document.getElementById(`card-${card.id}`);
+        const parentDiv = cardDiv.parentElement;
+
         switch (this.gamedatas.gamestate.name) {
             case 'takeCards':
-                const discardDiv = document.getElementById(`card-${card.id}`).parentElement;
-                if (discardDiv.dataset.discard) {
-                    this.takeCardFromDiscard(Number(discardDiv.dataset.discard));
+                if (parentDiv.dataset.discard) {
+                    this.takeCardFromDiscard(Number(parentDiv.dataset.discard));
                 }
                 break;
             case 'chooseCard':
-                const pickDiv = document.getElementById(`card-${card.id}`).parentElement;
-                if (pickDiv.id == 'pick') {
+                if (parentDiv.id == 'pick') {
                     this.chooseCard(card.id);
                 }
                 break;
+            case 'playCards':
+                if (parentDiv.id == `my-hand`) {
+                    if (this.selectedCards.includes(card.id)) {
+                        this.selectedCards.splice(this.selectedCards.indexOf(card.id), 1);
+                        cardDiv.classList.remove('selected');
+                    } else {
+                        this.selectedCards.push(card.id);
+                        cardDiv.classList.add('selected');
+                    }
+                    dojo.toggleClass(`playCards_button`, `disabled`, this.selectedCards.length != 2);
+                }
+                break;
+        }
+    }
+
+    private playSelectedCards() {
+        if (this.selectedCards.length == 2) {
+            this.playCards(this.selectedCards);
         }
     }
 
@@ -321,6 +351,17 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
         this.takeAction('putDiscardPile', {
             discardNumber
+        });
+    }
+
+    public playCards(ids: number[]) {
+        if(!(this as any).checkAction('playCards')) {
+            return;
+        }
+
+        this.takeAction('playCards', {
+            'id1': ids[0],
+            'id2': ids[1],
         });
     }
 

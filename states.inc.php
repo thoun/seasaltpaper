@@ -144,6 +144,7 @@ $playerActionsGameStates = [
         ],
         "transitions" => [
             "chooseDiscardPile" => ST_PLAYER_CHOOSE_DISCARD_PILE,
+            "newTurn" => ST_PLAYER_CHOOSE_CARD,
             "chooseOpponent" => ST_PLAYER_CHOOSE_OPPONENT,
             "playCards" => ST_PLAYER_PLAY_CARDS,
             "endTurn" => ST_NEXT_PLAYER,
