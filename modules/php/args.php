@@ -37,9 +37,13 @@ trait ArgsTrait {
     }
    
     function argPlayCards() {
-        $canCallEndRound = false; // TODO
+        $playerId = $this->getActivePlayerId();
+
+        $totalPoints = $this->getCardsPoints($playerId)->totalPoints;
+        $canCallEndRound = $totalPoints >= 7;
     
         return [
+            'totalPoints' => $totalPoints,
             'canCallEndRound' => $canCallEndRound,
         ];
     }

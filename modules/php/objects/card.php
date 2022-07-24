@@ -21,11 +21,11 @@ class SirenCard extends CardType {
 }
 
 class PairCard extends CardType {
-    public int $matchType;
+    public int $matchFamily;
 
-    public function __construct(int $family, int $matchType,  int $color, int $number) {
+    public function __construct(int $family, int $matchFamily,  int $color, int $number) {
         parent::__construct(PAIR, $family, $color, $number);
-        $this->matchType = $matchType;
+        $this->matchFamily = $matchFamily;
     } 
 }
 class CrabPairCard extends PairCard {
@@ -60,11 +60,15 @@ class CollectionCard extends CardType {
     } 
 }
 class MultiplierCard extends CardType {
-    public int $matchType;
+    public int $matchCategory;
+    public int $matchFamily;
+    public int $points;
 
-    public function __construct(int $family, int $matchType,  int $color) {
+    public function __construct(int $family, int $matchCategory, int $matchFamily,  int $color, int $points) {
         parent::__construct(MULTIPLIER, $family, $color, 1);
-        $this->matchType = $matchType;
+        $this->matchCategory = $matchCategory;
+        $this->matchFamily = $matchFamily;
+        $this->points = $points;
     } 
 }
 
@@ -73,7 +77,7 @@ class Card extends CardType {
     public string $location;
     public int $locationArg;
     public int $index;
-    public /*int|null*/ $matchType;
+    public /*int|null*/ $matchFamily;
 
     public function __construct($dbCard, $CARDS_TYPE) {
         $this->id = intval($dbCard['id']);
@@ -89,8 +93,14 @@ class Card extends CardType {
 
         foreach ($CARDS_TYPE as $cardType) {
             if ($cardType->category == $this->category && $cardType->family == $this->family) {
-                if (property_exists($cardType, 'matchType')) {
-                    $this->matchType = $cardType->matchType;
+                if (property_exists($cardType, 'matchCategory')) {
+                    $this->matchCategory = $cardType->matchCategory;
+                }
+                if (property_exists($cardType, 'matchFamily')) {
+                    $this->matchFamily = $cardType->matchFamily;
+                }
+                if (property_exists($cardType, 'points')) {
+                    $this->points = $cardType->points;
                 }
                 break;
             }

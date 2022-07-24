@@ -57,6 +57,13 @@ define('SHOAL_FISH', 2);
 define('PENGUIN_COLONY', 3);
 define('CAPTAIN', 4);
 
+define('COLLECTION_POINTS', [
+    SHELL => [null, 0, 2, 4, 6, 8, 10],
+    OCTOPUS => [null, 0, 3, 6, 9, 12],
+    PENGUIN => [null, 1, 3, 5],
+    SAILOR => [null, 0, 5],
+]);
+
 
 /*
  * Colors

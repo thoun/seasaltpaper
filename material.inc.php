@@ -21,13 +21,6 @@
 
 require_once('modules/php/objects/card.php');
 
-$this->COLLECTION_POINTS = [
-  SHELL => [null, 0, 2, 4, 6, 8, 10],
-  OCTOPUS => [null, 0, 3, 6, 9, 12],
-  PENGUIN => [null, 1, 3, 5],
-  SAILOR => [null, 0, 5],
-];
-
 $this->CARDS = [
   new SirenCard(),
 
@@ -81,10 +74,10 @@ $this->CARDS = [
   new CollectionCard(SAILOR, PINK),
   new CollectionCard(SAILOR, ORANGE),
   
-  new MultiplierCard(LIGHTHOUSE, PURPLE, BOAT, 1),
-  new MultiplierCard(SHOAL_FISH, GREY, FISH, 1),
-  new MultiplierCard(PENGUIN_COLONY, GREEN, PENGUIN, 2),
-  new MultiplierCard(CAPTAIN, LIGHT_ORANGE, SAILOR, 3),
+  new MultiplierCard(LIGHTHOUSE, PAIR, BOAT, PURPLE, 1),
+  new MultiplierCard(SHOAL_FISH, PAIR, FISH, GREY, 1),
+  new MultiplierCard(PENGUIN_COLONY, COLLECTION, PENGUIN, GREEN, 2),
+  new MultiplierCard(CAPTAIN, COLLECTION, SAILOR, LIGHT_ORANGE, 3),
 ];
 
 
