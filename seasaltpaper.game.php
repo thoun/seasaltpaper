@@ -44,11 +44,7 @@ class SeaSaltPaper extends Table {
         
         self::initGameStateLabels([
             ROUND_NUMBER => ROUND_NUMBER,
-            //    "my_second_global_variable" => 11,
-            //      ...
-            //    "my_first_game_variant" => 100,
-            //    "my_second_game_variant" => 101,
-            //      ...
+            FOUR_SIRENS => FOUR_SIRENS,
         ]);  
 
         $this->cards = self::getNew("module.common.deck");
@@ -91,6 +87,7 @@ class SeaSaltPaper extends Table {
 
         // Init global values with their initial values
         $this->setGameStateInitialValue(ROUND_NUMBER, 1);
+        $this->setGameStateInitialValue(FOUR_SIRENS, 0);
         
         // Init game statistics
         // (note: statistics used in this file must be defined in your stats.inc.php file)

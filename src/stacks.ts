@@ -29,7 +29,7 @@ class Stacks {
         pickDiv.dataset.visible = show.toString();
 
         cards?.forEach(card => 
-            this.game.cards.createMoveOrUpdateCard(card, `pick`)
+            this.game.cards.createMoveOrUpdateCard(card, `pick`/*, false, 'deck' TODO*/)
         );
     }
 }

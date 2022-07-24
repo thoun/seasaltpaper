@@ -274,7 +274,7 @@ var Stacks = /** @class */ (function () {
         pickDiv.innerHTML = cards ? '' : 'TODO opponent is choosing';
         pickDiv.dataset.visible = show.toString();
         cards === null || cards === void 0 ? void 0 : cards.forEach(function (card) {
-            return _this.game.cards.createMoveOrUpdateCard(card, "pick");
+            return _this.game.cards.createMoveOrUpdateCard(card, "pick" /*, false, 'deck' TODO*/);
         });
     };
     return Stacks;
@@ -711,8 +711,11 @@ var SeaSaltPaper = /** @class */ (function () {
                 this.onEnteringTakeCards(args.args);
                 break;
             case 'chooseCard':
+            case 'putDiscardPile':
                 this.onEnteringChooseCard(args.args);
                 break;
+            case 'playCards':
+                this.onEnteringPlayCards();
         }
     };
     SeaSaltPaper.prototype.setGamestateDescription = function (property) {
@@ -735,23 +738,20 @@ var SeaSaltPaper = /** @class */ (function () {
         var _a;
         this.stacks.showPickCards(true, (_a = args._private) === null || _a === void 0 ? void 0 : _a.cards);
     };
+    SeaSaltPaper.prototype.onEnteringPlayCards = function () {
+        this.stacks.showPickCards(false);
+    };
     SeaSaltPaper.prototype.onLeavingState = function (stateName) {
         log('Leaving state: ' + stateName);
         switch (stateName) {
             case 'takeCards':
                 this.onLeavingTakeCards();
                 break;
-            case 'chooseCard':
-                this.onLeavingChooseCard();
-                break;
         }
     };
     SeaSaltPaper.prototype.onLeavingTakeCards = function () {
         this.stacks.makeDeckSelectable(false);
         this.stacks.makeDiscardSelectable([]);
-    };
-    SeaSaltPaper.prototype.onLeavingChooseCard = function () {
-        this.stacks.showPickCards(false);
     };
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
     //                        action status bar (ie: the HTML links in the status bar).
@@ -1019,51 +1019,6 @@ var SeaSaltPaper = /** @class */ (function () {
         }
         this.takeAction('immediateEndRound');
     };
-    SeaSaltPaper.prototype.placeRoute = function (from, to) {
-        var _this = this;
-        var _a;
-        var args = this.gamedatas.gamestate.args;
-        var route = (_a = args.possibleRoutes) === null || _a === void 0 ? void 0 : _a.find(function (r) { return (r.from === from && r.to === to) || (r.from === to && r.to === from); });
-        if (!route) {
-            return;
-        }
-        if (!this.checkAction('placeRoute')) {
-            return;
-        }
-        var eliminationWarning = route.isElimination /* && args.possibleRoutes.some(r => !r.isElimination)*/;
-        if (eliminationWarning) {
-            this.confirmationDialog(_('Are you sure you want to place that marker? You will be eliminated!'), function () {
-                _this.takeAction('placeRoute', {
-                    from: from,
-                    to: to,
-                });
-            });
-        }
-        else {
-            this.takeAction('placeRoute', {
-                from: from,
-                to: to,
-            });
-        }
-    };
-    SeaSaltPaper.prototype.cancelLast = function () {
-        if (!this.checkAction('cancelLast')) {
-            return;
-        }
-        this.takeAction('cancelLast');
-    };
-    SeaSaltPaper.prototype.resetTurn = function () {
-        if (!this.checkAction('resetTurn')) {
-            return;
-        }
-        this.takeAction('resetTurn');
-    };
-    SeaSaltPaper.prototype.confirmTurn = function () {
-        if (!this.checkAction('confirmTurn', true)) {
-            return;
-        }
-        this.takeAction('confirmTurn');
-    };
     SeaSaltPaper.prototype.takeAction = function (action, data) {
         data = data || {};
         data.lock = true;
@@ -1109,84 +1064,50 @@ var SeaSaltPaper = /** @class */ (function () {
         //log( 'notifications subscriptions setup' );
         var _this = this;
         var notifs = [
-            ['newRound', ANIMATION_MS],
-            ['newFirstPlayer', ANIMATION_MS],
-            ['placedRoute', ANIMATION_MS * 2],
-            ['confirmTurn', ANIMATION_MS],
-            ['flipObjective', ANIMATION_MS],
-            ['removeMarkers', 1],
-            ['revealPersonalObjective', 1],
-            ['updateScoreSheet', 1],
+            ['cardInHandFromDiscard', ANIMATION_MS],
+            ['cardInHandFromPick', ANIMATION_MS],
+            ['cardInDiscardFromPick', ANIMATION_MS],
         ];
         notifs.forEach(function (notif) {
             dojo.subscribe(notif[0], _this, "notif_".concat(notif[0]));
             _this.notifqueue.setSynchronous(notif[0], notif[1]);
         });
     };
-    SeaSaltPaper.prototype.notif_newRound = function (notif) {
-        this.playersTables.forEach(function (playerTable) { return playerTable.setRound(notif.args.validatedTickets, notif.args.currentTicket); });
-        this.roundNumberCounter.toValue(notif.args.round);
+    SeaSaltPaper.prototype.notif_cardInHandFromDiscard = function (notif) {
+        if (notif.args.playerId == this.getPlayerId()) {
+            this.cards.createMoveOrUpdateCard(notif.args.card, "my-hand", false, "discard".concat(notif.args.discardId));
+        }
+        else {
+            // TODO animate
+            var pickedCard = document.getElementById("card-".concat(notif.args.card.id));
+            pickedCard === null || pickedCard === void 0 ? void 0 : pickedCard.parentElement.removeChild(pickedCard);
+        }
+        if (notif.args.newDiscardTopCard) {
+            this.cards.createMoveOrUpdateCard(notif.args.newDiscardTopCard, "discard".concat(notif.args.discardId), true);
+        }
     };
-    SeaSaltPaper.prototype.notif_newFirstPlayer = function (notif) {
-        this.placeFirstPlayerToken(notif.args.playerId);
+    SeaSaltPaper.prototype.notif_cardInHandFromPick = function (notif) {
+        if (notif.args.playerId == this.getPlayerId() && notif.args.card) {
+            this.cards.createMoveOrUpdateCard(notif.args.card, "my-hand");
+        }
+        else {
+            // TODO update counter ?
+        }
     };
-    SeaSaltPaper.prototype.notif_updateScoreSheet = function (notif) {
-        var playerId = notif.args.playerId;
-        this.setNewScore(playerId, notif.args.scoreSheets.current.total);
-        //this.setObjectivesCounters(playerId, notif.args.scoreSheets.current);
-    };
-    SeaSaltPaper.prototype.notif_placedRoute = function (notif) {
-        var playerId = notif.args.playerId;
-        this.gamedatas.players[notif.args.playerId].markers.push(notif.args.marker);
-        var player = this.gamedatas.players[notif.args.playerId];
-        //this.highlightObjectiveLetters(player);
-    };
-    SeaSaltPaper.prototype.notif_confirmTurn = function (notif) {
-        //notif.args.markers.forEach(marker => this.tableCenter.setMarkerValidated(notif.args.playerId, marker));
-    };
-    SeaSaltPaper.prototype.notif_removeMarkers = function (notif) {
-        var _this = this;
-        notif.args.markers.forEach(function (marker) {
-            var markerIndex = _this.gamedatas.players[notif.args.playerId].markers.findIndex(function (m) { return m.from == marker.from && m.to == marker.to; });
-            if (markerIndex !== -1) {
-                _this.gamedatas.players[notif.args.playerId].markers.splice(markerIndex, 1);
-            }
-        });
-        var player = this.gamedatas.players[notif.args.playerId];
-        //this.highlightObjectiveLetters(player);
-    };
-    SeaSaltPaper.prototype.notif_playerEliminated = function (notif) {
-        var playerId = Number(notif.args.who_quits);
-        this.setNewScore(playerId, 0);
-        this.eliminatePlayer(playerId);
-    };
-    SeaSaltPaper.prototype.notif_flipObjective = function (notif) {
-        document.getElementById("common-objective-".concat(notif.args.objective.id)).dataset.side = '1';
-    };
-    SeaSaltPaper.prototype.notif_revealPersonalObjective = function (notif) {
-        var playerId = notif.args.playerId;
-        var player = this.gamedatas.players[playerId];
-        player.personalObjective = notif.args.personalObjective;
-        player.personalObjectiveLetters = notif.args.personalObjectiveLetters;
-        player.personalObjectivePositions = notif.args.personalObjectivePositions;
-        this.showPersonalObjective(playerId);
-        //this.highlightObjectiveLetters(player);
+    SeaSaltPaper.prototype.notif_cardInDiscardFromPick = function (notif) {
+        var currentCardDiv = document.getElementById("discard".concat(notif.args.discardId)).firstElementChild;
+        this.cards.createMoveOrUpdateCard(notif.args.card, "discard".concat(notif.args.discardId));
+        if (currentCardDiv) {
+            setTimeout(function () { return currentCardDiv.parentElement.removeChild(currentCardDiv); }, 500);
+        }
     };
     /* This enable to inject translatable styled things to logs or action bar */
     /* @Override */
     SeaSaltPaper.prototype.format_string_recursive = function (log, args) {
         try {
             if (log && args && !args.processed) {
-                if (args.shape && args.shape[0] != '<') {
-                    args.shape = "<div class=\"shape\" data-shape=\"".concat(JSON.stringify(args.shape), "\" data-step=\"").concat(args.step, "\"></div>");
-                }
-                if (args.elements && typeof args.elements !== 'string') {
-                    args.elements = args.elements.map(function (element) {
-                        return "<div class=\"map-icon\" data-element=\"".concat(element, "\"></div>");
-                    }).join('');
-                }
-                if (args.objectiveLetters && args.objectiveLetters[0] != '<') {
-                    args.objectiveLetters = "<strong>".concat(args.objectiveLetters, "</strong>");
+                if (args.discardNumber && args.discardNumber[0] != '<') {
+                    args.discardNumber = "<strong>".concat(args.discardNumber, "</strong>");
                 }
             }
         }

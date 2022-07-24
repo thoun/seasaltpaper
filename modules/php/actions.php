@@ -18,19 +18,11 @@ trait ActionTrait {
 
         $cards = $this->getCardsFromDb($this->cards->pickCardsForLocation(2, 'deck', 'pick'));
 
-        /*$mapElements = $this->MAP_POSITIONS[$this->getMap()][$position];
-        $ticketNumber = $this->array_find($mapElements, fn($element) => $element >= 1 && $element <= 12);
-
-        if ($ticketNumber === null || !$this->array_some($tickets, fn($ticket) => $ticket->type == $ticketNumber)) {
-            throw new BgaUserException("Invalid departure");
-        }
-
-        $this->DbQuery("UPDATE player SET `player_departure_position` = $position WHERE `player_id` = $playerId");
-        
-        self::notifyAllPlayers('log', clienttranslate('${player_name} has chose the position for its departure pawn'), [
+        self::notifyAllPlayers('log', clienttranslate('${player_name} picks ${number} cards from the deck'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
-        ]);*/
+            'number' => count($cards),
+        ]);
 
         $this->gamestate->nextState('chooseCard');
     }
@@ -51,10 +43,22 @@ trait ActionTrait {
 
         $this->cards->moveCard($card->id, 'hand'.$playerId);
 
-        // TODO notif card in hand
-        // TODO notif new card on discard top
+        self::notifyAllPlayers('cardInHandFromDiscard', clienttranslate('${player_name} takes ${TODO} from discard pile ${discardNumber}'), [
+            'playerId' => $playerId,
+            'player_name' => $this->getPlayerName($playerId),
+            'card' => $card,
+            'TODO' =>'TODO',
+            'discardId' => $discardNumber,
+            'discardNumber' => $discardNumber,
+            'newDiscardTopCard' => $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber)),
+        ]);
 
-        $this->gamestate->nextState('playCards');
+        if ($this->hasFourSirens($playerId)) {
+            $this->setGameStateValue(FOUR_SIRENS, $playerId);
+            $this->gamestate->nextState('sirens');
+        } else {
+            $this->gamestate->nextState('playCards');
+        }
     }
 
     public function chooseCard(int $cardId) {
@@ -69,20 +73,45 @@ trait ActionTrait {
 
         $this->cards->moveCard($card->id, 'hand'.$playerId);
 
-        // TODO notif card in hand
+        self::notifyPlayer($playerId, 'cardInHandFromPick', clienttranslate('You choose ${TODO} card'), [
+            'playerId' => $playerId,
+            'player_name' => $this->getPlayerName($playerId),
+            'card' => $card,
+            'TODO' =>'TODO',
+        ]);
+        self::notifyAllPlayers('cardInHandFromPick', clienttranslate('${player_name} chooses a card'), [
+            'playerId' => $playerId,
+            'player_name' => $this->getPlayerName($playerId),
+        ]);
 
-        // TODO auto-place if 1 or 2 discard piles empty
-        $this->gamestate->nextState('putDiscardPile');
+        if ($this->hasFourSirens($playerId)) {
+            $this->setGameStateValue(FOUR_SIRENS, $playerId);
+            $this->gamestate->nextState('sirens');
+            return;
+        }
+        
+        $remainingCardsInPick = intval($this->cards->countCardInLocation('pick'));
+        if ($remainingCardsInPick == 0) {
+            $this->gamestate->nextState('playCards');
+            return;
+        }
+
+        $remainingCardsInDiscard1 = intval($this->cards->countCardInLocation('discard1'));
+        $remainingCardsInDiscard2 = intval($this->cards->countCardInLocation('discard2'));
+
+        if ($remainingCardsInDiscard1 == 0) {
+            $this->applyPutDiscardPile(1);
+            $this->gamestate->nextState('playCards');
+        } else if ($remainingCardsInDiscard2 == 0) {
+            $this->applyPutDiscardPile(2);
+            $this->gamestate->nextState('playCards');
+        } else {
+            $this->gamestate->nextState('putDiscardPile');
+        }
     }
 
-    public function putDiscardPile(int $discardNumber) {
-        $this->checkAction('putDiscardPile'); 
-        
+    private function applyPutDiscardPile(int $discardNumber) {        
         $playerId = $this->getActivePlayerId();
-        
-        if (!in_array($discardNumber, [1, 2])) {
-            throw new BgaUserException("Invalid discard number");
-        }
 
         $card = $this->getCardsFromDb($this->cards->getCardsInLocation('pick'))[0];
         if ($card == null) {
@@ -91,7 +120,24 @@ trait ActionTrait {
 
         $this->cards->moveCard($card->id, 'discard'.$discardNumber, intval($this->cards->countCardInLocation('discard'.$discardNumber)) + 1);
 
-        // TODO notif new card on discard top
+        self::notifyAllPlayers('cardInDiscardFromPick', clienttranslate('${player_name} puts ${TODO} to discard pile ${discardNumber}'), [
+            'playerId' => $playerId,
+            'player_name' => $this->getPlayerName($playerId),
+            'card' => $card,
+            'TODO' =>'TODO',
+            'discardId' => $discardNumber,
+            'discardNumber' => $discardNumber,
+        ]);
+    }
+
+    public function putDiscardPile(int $discardNumber) {
+        $this->checkAction('putDiscardPile'); 
+        
+        if (!in_array($discardNumber, [1, 2])) {
+            throw new BgaUserException("Invalid discard number");
+        }
+
+        $this->applyPutDiscardPile($discardNumber);
 
         $this->gamestate->nextState('playCards');
     }

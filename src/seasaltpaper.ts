@@ -113,8 +113,11 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                 this.onEnteringTakeCards(args.args);
                 break;
             case 'chooseCard':
+            case 'putDiscardPile':
                 this.onEnteringChooseCard(args.args);
                 break;
+            case 'playCards':
+                this.onEnteringPlayCards();
         }
     }
     
@@ -140,6 +143,10 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.stacks.showPickCards(true, args._private?.cards);
     }
 
+    private onEnteringPlayCards() {
+        this.stacks.showPickCards(false);
+    }
+
     public onLeavingState(stateName: string) {
         log( 'Leaving state: '+stateName );
 
@@ -147,19 +154,12 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             case 'takeCards':
                 this.onLeavingTakeCards();
                 break;
-            case 'chooseCard':
-                this.onLeavingChooseCard();
-                break;
         }
     }
 
     private onLeavingTakeCards() {
         this.stacks.makeDeckSelectable(false);
         this.stacks.makeDiscardSelectable([]);
-    }
-
-    private onLeavingChooseCard() {
-        this.stacks.showPickCards(false);
     }
 
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
@@ -474,59 +474,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.takeAction('immediateEndRound');
     }
 
-    public placeRoute(from: number, to: number) {
-
-        const args: EnteringTakeCardsArgs = this.gamedatas.gamestate.args;
-        const route = args.possibleRoutes?.find(r => (r.from === from && r.to === to) || (r.from === to && r.to === from));
-        if (!route) {
-            return;
-        }
-
-        if(!(this as any).checkAction('placeRoute')) {
-            return;
-        }
-
-        const eliminationWarning = route.isElimination /* && args.possibleRoutes.some(r => !r.isElimination)*/;
-
-        if (eliminationWarning) {
-            (this as any).confirmationDialog(_('Are you sure you want to place that marker? You will be eliminated!'), () => {
-                this.takeAction('placeRoute', {
-                    from, 
-                    to,
-                });
-            });
-        } else {
-            this.takeAction('placeRoute', {
-                from, 
-                to,
-            });
-        }
-    }
-
-    public cancelLast() {
-        if(!(this as any).checkAction('cancelLast')) {
-            return;
-        }
-
-        this.takeAction('cancelLast');
-    }
-
-    public resetTurn() {
-        if(!(this as any).checkAction('resetTurn')) {
-            return;
-        }
-
-        this.takeAction('resetTurn');
-    }
-
-    public confirmTurn() {
-        if(!(this as any).checkAction('confirmTurn', true)) {
-            return;
-        }
-
-        this.takeAction('confirmTurn');
-    }
-
     public takeAction(action: string, data?: any) {
         data = data || {};
         data.lock = true;
@@ -574,14 +521,9 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         //log( 'notifications subscriptions setup' );
 
         const notifs = [
-            ['newRound', ANIMATION_MS],
-            ['newFirstPlayer', ANIMATION_MS],
-            ['placedRoute', ANIMATION_MS*2],
-            ['confirmTurn', ANIMATION_MS],
-            ['flipObjective', ANIMATION_MS],
-            ['removeMarkers', 1],
-            ['revealPersonalObjective', 1],
-            ['updateScoreSheet', 1],
+            ['cardInHandFromDiscard', ANIMATION_MS],
+            ['cardInHandFromPick', ANIMATION_MS],
+            ['cardInDiscardFromPick', ANIMATION_MS],
         ];
     
         notifs.forEach((notif) => {
@@ -590,82 +532,44 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         });
     }
 
-    notif_newRound(notif: Notif<NotifNewRoundArgs>) {
-        this.playersTables.forEach(playerTable => playerTable.setRound(notif.args.validatedTickets, notif.args.currentTicket));
-        this.roundNumberCounter.toValue(notif.args.round);
-    }
+    notif_cardInHandFromDiscard(notif: Notif<NotifCardInHandFromDiscardArgs>) {
+        if (notif.args.playerId == this.getPlayerId()) {
+            this.cards.createMoveOrUpdateCard(notif.args.card, `my-hand`, false, `discard${notif.args.discardId}`);
+        } else {
+            // TODO animate
+            const pickedCard = document.getElementById(`card-${notif.args.card.id}`)
+            pickedCard?.parentElement.removeChild(pickedCard);
+        }
 
-    notif_newFirstPlayer(notif: Notif<NotifNewFirstPlayerArgs>) {
-        this.placeFirstPlayerToken(notif.args.playerId);
-    }
+        if (notif.args.newDiscardTopCard) {
+            this.cards.createMoveOrUpdateCard(notif.args.newDiscardTopCard, `discard${notif.args.discardId}`, true);
+        }
+    } 
 
-    notif_updateScoreSheet(notif: Notif<NotifUpdateScoreSheetArgs>) {
-        const playerId = notif.args.playerId;      
-        this.setNewScore(playerId, notif.args.scoreSheets.current.total);
-        //this.setObjectivesCounters(playerId, notif.args.scoreSheets.current);
-    }
+    notif_cardInHandFromPick(notif: Notif<NotifCardInHandFromPickArgs>) {
+        if (notif.args.playerId == this.getPlayerId() && notif.args.card) {
+            this.cards.createMoveOrUpdateCard(notif.args.card, `my-hand`);
+        } else {
+            // TODO update counter ?
+        }
+    }   
 
-    notif_placedRoute(notif: Notif<NotifPlacedRouteArgs>) {
-        const playerId = notif.args.playerId;
-        this.gamedatas.players[notif.args.playerId].markers.push(notif.args.marker);
-        const player = this.gamedatas.players[notif.args.playerId];
-        //this.highlightObjectiveLetters(player);
+    notif_cardInDiscardFromPick(notif: Notif<NotifCardInDiscardFromPickArgs>) {
+        const currentCardDiv = document.getElementById(`discard${notif.args.discardId}`).firstElementChild;
+        this.cards.createMoveOrUpdateCard(notif.args.card, `discard${notif.args.discardId}`);
+        
+        if (currentCardDiv) {
+            setTimeout(() => currentCardDiv.parentElement.removeChild(currentCardDiv), 500);
+        }
     }
-
-    notif_confirmTurn(notif: Notif<NotifConfirmTurnArgs>) {
-        //notif.args.markers.forEach(marker => this.tableCenter.setMarkerValidated(notif.args.playerId, marker));
-    }
-
-    notif_removeMarkers(notif: Notif<NotifConfirmTurnArgs>) {
-        notif.args.markers.forEach(marker => {
-            const markerIndex = this.gamedatas.players[notif.args.playerId].markers.findIndex(m => m.from == marker.from && m.to == marker.to);
-            if (markerIndex !== -1) {
-                this.gamedatas.players[notif.args.playerId].markers.splice(markerIndex, 1);
-            }
-        });
-        const player = this.gamedatas.players[notif.args.playerId];
-        //this.highlightObjectiveLetters(player);
-    }
-
-    notif_playerEliminated(notif: Notif<any>) {
-        const playerId = Number(notif.args.who_quits);
-        this.setNewScore(playerId, 0);
-        this.eliminatePlayer(playerId);
-    }
-
-    notif_flipObjective(notif: Notif<NotifFlipObjectiveArgs>) {
-        document.getElementById(`common-objective-${notif.args.objective.id}`).dataset.side = '1';
-    }
-
-    notif_revealPersonalObjective(notif: Notif<NotifRevealPersonalObjectiveArgs>) {
-        const playerId = notif.args.playerId;
-        const player = this.gamedatas.players[playerId];
-        player.personalObjective = notif.args.personalObjective;
-        player.personalObjectiveLetters = notif.args.personalObjectiveLetters;
-        player.personalObjectivePositions = notif.args.personalObjectivePositions;
-
-        this.showPersonalObjective(playerId);
-        //this.highlightObjectiveLetters(player);
-    }
-    
 
     /* This enable to inject translatable styled things to logs or action bar */
     /* @Override */
     public format_string_recursive(log: string, args: any) {
         try {
             if (log && args && !args.processed) {
-                if (args.shape && args.shape[0] != '<') {
-                    args.shape = `<div class="shape" data-shape="${JSON.stringify(args.shape)}" data-step="${args.step}"></div>`
-                }
-
-                if (args.elements && typeof args.elements !== 'string') {
-                    args.elements = args.elements.map(element => 
-                        `<div class="map-icon" data-element="${element}"></div>`
-                    ).join('');
-                }
-
-                if (args.objectiveLetters && args.objectiveLetters[0] != '<') {
-                    args.objectiveLetters = `<strong>${args.objectiveLetters}</strong>`;
+                if (args.discardNumber && args.discardNumber[0] != '<') {
+                    args.discardNumber = `<strong>${args.discardNumber}</strong>`;
                 }
             }
         } catch (e) {

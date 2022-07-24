@@ -29,6 +29,7 @@ define('END_SCORE', 100);
  * Constants
  */
 define('ROUND_NUMBER', 10);
+define('FOUR_SIRENS', 11);
 
 /*
  * Cards

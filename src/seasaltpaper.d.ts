@@ -61,45 +61,20 @@ interface EnteringPlayCardsArgs {
     canCallEndRound: boolean;
 }
 
-interface NotifNewRoundArgs {
-    round: number;
-    validatedTickets: number[];
-    currentTicket: number | null;
+interface NotifCardInHandFromDiscardArgs {
+    playerId: number;
+    card: Card;
+    discardId: number;
+    newDiscardTopCard: Card | null;
 }
 
-interface NotifNewFirstPlayerArgs {
+interface NotifCardInHandFromPickArgs {
     playerId: number;
+    card?: Card;
 }
 
-interface NotifUpdateScoreSheetArgs {
+interface NotifCardInDiscardFromPickArgs {
     playerId: number;
-    scoreSheets: ScoreSheets;
-}
-
-interface NotifPlacedDeparturePawnArgs {
-    playerId: number;
-    position: number;
-} 
-
-interface NotifPlacedRouteArgs {
-    playerId: number;
-    marker: PlacedRoute;
-    zones: number[];
-    position: number;
-} 
-
-interface NotifConfirmTurnArgs {
-    playerId: number;
-    markers: PlacedRoute[];
-}
-
-interface NotifFlipObjectiveArgs {
-    objective: CommonObjective;
-}
-
-interface NotifRevealPersonalObjectiveArgs {
-    playerId: number;
-    personalObjective: number;
-    personalObjectiveLetters: number[];
-    personalObjectivePositions: number[];
+    card: Card;
+    discardId: number;
 }
