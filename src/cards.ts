@@ -46,8 +46,13 @@ class Cards {
         const existingDiv = document.getElementById(`card-${card.id}`);
         const side = 'front';//(card.type ? 0 : 1)
         if (existingDiv) {
+            if (existingDiv.parentElement.id == from) {
+                return;
+            }
+
             (this.game as any).removeTooltip(`card-${card.id}`);
             const oldType = Number(existingDiv.dataset.type);
+            existingDiv.classList.remove('selectable', 'selected', 'disabled');
 
             if (init) {
                 document.getElementById(destinationId).appendChild(existingDiv);

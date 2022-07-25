@@ -108,6 +108,9 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                 break;
             case 'playCards':
                 this.onEnteringPlayCards();
+                break;
+            case 'chooseDiscardCard':
+                this.onEnteringChooseDiscardCard(args.args);
         }
     }
     
@@ -136,6 +139,20 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     private onEnteringPlayCards() {
         this.stacks.showPickCards(false);
         this.selectedCards = [];
+
+        this.updateDisabledPlayCards();
+    }
+    
+    private onEnteringChooseDiscardCard(args: EnteringChooseCardArgs) {
+        //this.stacks.showPickCards(true, args._private?.cards); copy of, TEMP
+        const cards = args._private?.cards;
+        const pickDiv = document.getElementById('discard-pick');
+        pickDiv.innerHTML = cards ? '' : 'TODO opponent is choosing';
+        pickDiv.dataset.visible = 'true';
+
+        cards?.forEach(card => 
+            this.cards.createMoveOrUpdateCard(card, `discard-pick`/*, false, 'deck' TODO*/)
+        );
     }
 
     public onLeavingState(stateName: string) {
@@ -148,6 +165,9 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             case 'playCards':
                 this.onLeavingPlayCards();
                 break;
+            case 'chooseDiscardCard':
+                this.onLeavingChooseDiscardCard();
+                break;
         }
     }
 
@@ -158,6 +178,14 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
     private onLeavingPlayCards() {
         this.selectedCards = null;
+        const cards = Array.from(document.getElementById(`my-hand`).getElementsByClassName('card')) as HTMLDivElement[];
+        cards.forEach(card => card.classList.remove('selectable', 'selected', 'disabled'));
+    }
+
+    private onLeavingChooseDiscardCard() {
+        // TEMP TODO
+        const pickDiv = document.getElementById('discard-pick');
+        pickDiv.dataset.visible = 'false';
     }
 
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
@@ -268,7 +296,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     private createPlayerTables(gamedatas: SeaSaltPaperGamedatas) {
-        /*const orderedPlayers = this.getOrderedPlayers(gamedatas);
+        const orderedPlayers = this.getOrderedPlayers(gamedatas);
 
         orderedPlayers.forEach(player => 
             this.createPlayerTable(gamedatas, Number(player.id))
@@ -277,12 +305,37 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
     private createPlayerTable(gamedatas: SeaSaltPaperGamedatas, playerId: number) {
         const table = new PlayerTable(this, gamedatas.players[playerId]);
-        this.playersTables.push(table);*/
+        this.playersTables.push(table);
+    }
+
+    private updateDisabledPlayCards() {
+        const cards = Array.from(document.getElementById(`my-hand`).getElementsByClassName('card')) as HTMLDivElement[];
+        cards.forEach(card => {
+            let disabled = false;
+            if (card.dataset.category != '2') {
+                disabled = true;
+            } else {
+                if (this.selectedCards.length >= 2) {
+                    disabled = !this.selectedCards.includes(Number(card.dataset.id));
+                } else if (this.selectedCards.length == 1) {
+                    const family = Number(document.getElementById(`card-${this.selectedCards[0]}`).dataset.family);
+                    const authorizedFamily = ''+(family >= 4 ? 9 - family : family);
+                    disabled = Number(card.dataset.id) != this.selectedCards[0] && card.dataset.family != authorizedFamily;
+                }
+            }
+            card.classList.toggle('disabled', disabled);
+        });
+
+        document.getElementById(`playCards_button`)?.classList.toggle(`disabled`, this.selectedCards.length != 2);
     }
     
     public onCardClick(card: Card): void {
         const cardDiv = document.getElementById(`card-${card.id}`);
         const parentDiv = cardDiv.parentElement;
+
+        if (cardDiv.classList.contains('disabled')) {
+            return;
+        }
 
         switch (this.gamedatas.gamestate.name) {
             case 'takeCards':
@@ -304,8 +357,23 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                         this.selectedCards.push(card.id);
                         cardDiv.classList.add('selected');
                     }
-                    dojo.toggleClass(`playCards_button`, `disabled`, this.selectedCards.length != 2);
+                    this.updateDisabledPlayCards();
                 }
+                break;
+            case 'chooseDiscardCard':
+                if (parentDiv.id == 'discard-pick') {
+                    this.chooseDiscardCard(card.id);
+                }
+        }
+    }
+
+    public onDiscardPileClick(number: number): void {
+        switch (this.gamedatas.gamestate.name) {
+            case 'putDiscardPile':
+                this.putDiscardPile(number);
+                break;
+            case 'chooseDiscardPile':
+                this.chooseDiscardPile(number);
                 break;
         }
     }
@@ -362,6 +430,26 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.takeAction('playCards', {
             'id1': ids[0],
             'id2': ids[1],
+        });
+    }
+
+    public chooseDiscardPile(discardNumber: number) {
+        if(!(this as any).checkAction('chooseDiscardPile')) {
+            return;
+        }
+
+        this.takeAction('chooseDiscardPile', {
+            discardNumber
+        });
+    }
+
+    public chooseDiscardCard(id: number) {
+        if(!(this as any).checkAction('chooseDiscardCard')) {
+            return;
+        }
+
+        this.takeAction('chooseDiscardCard', {
+            id
         });
     }
 
@@ -440,6 +528,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             ['cardInHandFromDiscard', ANIMATION_MS],
             ['cardInHandFromPick', ANIMATION_MS],
             ['cardInDiscardFromPick', ANIMATION_MS],
+            ['playCards', ANIMATION_MS],
             ['endRound', ANIMATION_MS],
         ];
     
@@ -488,8 +577,13 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         (this as any).scoreCtrl[notif.args.playerId]?.toValue(notif.args.newScore);
     }
 
+    notif_playCards(notif: Notif<NotifPlayCardsArgs>) {
+        notif.args.cards.forEach(card => this.cards.createMoveOrUpdateCard(card, `player-table-${notif.args.playerId}-cards`));
+    }
+
     notif_endRound() {
         document.getElementById(`my-hand`).innerHTML = ''; // animate cards to deck?
+        Object.keys(this.gamedatas.players).forEach(playerId => document.getElementById(`player-table-${playerId}-cards`).innerHTML = '');
         [1, 2].forEach(discardNumber => {
             const currentCardDiv = document.getElementById(`discard${discardNumber}`).firstElementChild;
             currentCardDiv?.parentElement.removeChild(currentCardDiv); // animate cards to deck?

@@ -52,5 +52,19 @@ trait ArgsTrait {
             'canCallEndRound' => $canCallEndRound,
         ];
     }
+
+    function argChooseDiscardCard() {
+        $playerId = $this->getActivePlayerId();
+
+        $cards = $this->getCardsFromDb($this->cards->getCardsInLocation('discard'.$this->getGameStateValue(CHOSEN_DISCARD)));
+    
+        return [
+            '_private' => [
+                $playerId => [
+                    'cards' => $cards,
+                ]
+            ]
+        ];
+    }
     
 }

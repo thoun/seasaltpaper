@@ -88,8 +88,12 @@ var Cards = /** @class */ (function () {
         var existingDiv = document.getElementById("card-".concat(card.id));
         var side = 'front'; //(card.type ? 0 : 1)
         if (existingDiv) {
+            if (existingDiv.parentElement.id == from) {
+                return;
+            }
             this.game.removeTooltip("card-".concat(card.id));
             var oldType = Number(existingDiv.dataset.type);
+            existingDiv.classList.remove('selectable', 'selected', 'disabled');
             if (init) {
                 document.getElementById(destinationId).appendChild(existingDiv);
             }
@@ -197,11 +201,7 @@ var Stacks = /** @class */ (function () {
         });
         document.getElementById('deck').addEventListener('click', function () { return _this.game.takeCardsFromDeck(); });
         [1, 2].forEach(function (number) {
-            return document.getElementById("discard".concat(number)).addEventListener('click', function () {
-                if (gamedatas.gamestate.name === 'putDiscardPile') {
-                    _this.game.putDiscardPile(number);
-                }
-            });
+            return document.getElementById("discard".concat(number)).addEventListener('click', function () { return _this.game.onDiscardPileClick(number); });
         });
     }
     Stacks.prototype.makeDeckSelectable = function (selectable) {
@@ -221,342 +221,15 @@ var Stacks = /** @class */ (function () {
     };
     return Stacks;
 }());
-var PlayerTableBlock = /** @class */ (function () {
-    function PlayerTableBlock(playerId) {
-        this.playerId = playerId;
-    }
-    PlayerTableBlock.prototype.setContentAndValidation = function (id, content, unvalidated) {
-        var div = document.getElementById("player-table-".concat(this.playerId, "-").concat(id));
-        var contentStr = '';
-        if (typeof content === 'string') {
-            contentStr = content;
-        }
-        else if (typeof content === 'number') {
-            contentStr = '' + content;
-        }
-        div.innerHTML = contentStr;
-        div.dataset.unvalidated = unvalidated.toString();
-    };
-    return PlayerTableBlock;
-}());
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var PlayerTableOldLadiesBlock = /** @class */ (function (_super) {
-    __extends(PlayerTableOldLadiesBlock, _super);
-    function PlayerTableOldLadiesBlock(playerId, scoreSheets, visibleScoring) {
-        var _this = _super.call(this, playerId) || this;
-        var html = "\n        <div id=\"old-ladies-block-".concat(playerId, "\" data-tooltip=\"[20]\" class=\"old-ladies block\" data-zone=\"2\">");
-        for (var i = 1; i <= 8; i++) {
-            html += "\n                <div id=\"player-table-".concat(playerId, "-old-ladies-checkmark").concat(i, "\" class=\"checkmark\" data-number=\"").concat(i, "\"></div>\n            ");
-        }
-        html += "        \n                    <div id=\"player-table-".concat(playerId, "-old-ladies-total\" class=\"total\"></div>\n                </div>\n        ");
-        dojo.place(html, "player-table-".concat(playerId, "-main"));
-        _this.updateScoreSheet(scoreSheets, visibleScoring);
-        return _this;
-    }
-    PlayerTableOldLadiesBlock.prototype.updateScoreSheet = function (scoreSheets, visibleScoring) {
-        var current = scoreSheets.current.oldLadies;
-        var validated = scoreSheets.validated.oldLadies;
-        for (var i = 1; i <= 8; i++) {
-            this.setContentAndValidation("old-ladies-checkmark".concat(i), current.checked >= i ? '✔' : '', current.checked >= i && validated.checked < i);
-        }
-        if (visibleScoring) {
-            this.setContentAndValidation("old-ladies-total", current.total, current.total !== validated.total);
-        }
-    };
-    return PlayerTableOldLadiesBlock;
-}(PlayerTableBlock));
-var PlayerTableStudentsBlock = /** @class */ (function (_super) {
-    __extends(PlayerTableStudentsBlock, _super);
-    function PlayerTableStudentsBlock(playerId, scoreSheets, visibleScoring) {
-        var _this = _super.call(this, playerId) || this;
-        var html = "\n        <div id=\"students-block-".concat(playerId, "\" data-tooltip=\"[30,32]\" class=\"students block\" data-zone=\"3\">\n                ");
-        for (var i = 1; i <= 6; i++) {
-            html += "\n                    <div id=\"player-table-".concat(playerId, "-students-checkmark").concat(i, "\" class=\"students checkmark\" data-number=\"").concat(i, "\"></div>");
-        }
-        for (var i = 1; i <= 3; i++) {
-            html += "\n                    <div id=\"player-table-".concat(playerId, "-internships-checkmark").concat(i, "\" class=\"internships checkmark\" data-number=\"").concat(i, "\"></div>");
-        }
-        for (var i = 1; i <= 4; i++) {
-            html += "\n                    <div id=\"player-table-".concat(playerId, "-schools-checkmark").concat(i, "\" class=\"schools checkmark\" data-number=\"").concat(i, "\"></div>");
-        }
-        html += "\n                    <div id=\"player-table-".concat(playerId, "-students-special\" class=\"special\"></div>\n                    <div id=\"player-table-").concat(playerId, "-students-subtotal\" class=\"subtotal\"></div>\n                    <div id=\"player-table-").concat(playerId, "-students-total\" class=\"total\"></div>\n                </div>\n        ");
-        dojo.place(html, "player-table-".concat(playerId, "-main"));
-        _this.updateScoreSheet(scoreSheets, visibleScoring);
-        return _this;
-    }
-    PlayerTableStudentsBlock.prototype.updateScoreSheet = function (scoreSheets, visibleScoring) {
-        var current = scoreSheets.current.students;
-        var validated = scoreSheets.validated.students;
-        for (var i = 1; i <= 6; i++) {
-            this.setContentAndValidation("students-checkmark".concat(i), current.checkedStudents >= i ? '✔' : '', current.checkedStudents >= i && validated.checkedStudents < i);
-        }
-        for (var i = 1; i <= 3; i++) {
-            this.setContentAndValidation("internships-checkmark".concat(i), current.checkedInternships >= i ? '✔' : '', current.checkedInternships >= i && validated.checkedInternships < i);
-        }
-        for (var i = 1; i <= 4; i++) {
-            this.setContentAndValidation("schools-checkmark".concat(i), current.checkedSchools >= i ? '✔' : '', current.checkedSchools >= i && validated.checkedSchools < i);
-        }
-        this.setContentAndValidation("students-special", current.specialSchool, current.specialSchool !== validated.specialSchool);
-        if (visibleScoring) {
-            this.setContentAndValidation("students-subtotal", current.subTotal, current.subTotal !== validated.subTotal);
-            this.setContentAndValidation("students-total", current.total, current.total !== validated.total);
-        }
-    };
-    return PlayerTableStudentsBlock;
-}(PlayerTableBlock));
-var PlayerTableTouristsBlock = /** @class */ (function (_super) {
-    __extends(PlayerTableTouristsBlock, _super);
-    function PlayerTableTouristsBlock(playerId, scoreSheets, visibleScoring) {
-        var _this = _super.call(this, playerId) || this;
-        var html = "\n        <div id=\"tourists-block-".concat(playerId, "\" data-tooltip=\"[40,41]\" class=\"tourists block\" data-zone=\"4\">");
-        for (var i = 1; i <= 3; i++) {
-            html += "\n                    <div id=\"player-table-".concat(playerId, "-tourists-light-checkmark").concat(i, "\" class=\"monument light checkmark\" data-number=\"").concat(i, "\"></div>");
-        }
-        for (var i = 1; i <= 3; i++) {
-            html += "\n                    <div id=\"player-table-".concat(playerId, "-tourists-dark-checkmark").concat(i, "\" class=\"monument dark checkmark\" data-number=\"").concat(i, "\"></div>");
-        }
-        html += "\n                    <div id=\"player-table-".concat(playerId, "-tourists-specialLight\" class=\"special\" data-style=\"Light\"></div>\n                    <div id=\"player-table-").concat(playerId, "-tourists-specialDark\" class=\"special\" data-style=\"Dark\"></div>\n                    <div id=\"player-table-").concat(playerId, "-tourists-specialMax\" class=\"special\"></div>");
-        for (var row = 1; row <= 3; row++) {
-            for (var i = 1; i <= 4; i++) {
-                html += "\n                        <div id=\"player-table-".concat(playerId, "-tourists-checkmark").concat(row, "-").concat(i, "\" class=\"tourists checkmark\" data-row=\"").concat(row, "\" data-number=\"").concat(i, "\"></div>");
-            }
-        }
-        html += " \n                    <div id=\"player-table-".concat(playerId, "-tourists-subtotal1\" class=\"subtotal\" data-number=\"1\"></div>\n                    <div id=\"player-table-").concat(playerId, "-tourists-subtotal2\" class=\"subtotal\" data-number=\"2\"></div>\n                    <div id=\"player-table-").concat(playerId, "-tourists-subtotal3\" class=\"subtotal\" data-number=\"3\"></div>\n                    <div id=\"player-table-").concat(playerId, "-tourists-total\" class=\"total\"></div>\n                </div>\n        ");
-        dojo.place(html, "player-table-".concat(playerId, "-main"));
-        _this.updateScoreSheet(scoreSheets, visibleScoring);
-        return _this;
-    }
-    PlayerTableTouristsBlock.prototype.updateScoreSheet = function (scoreSheets, visibleScoring) {
-        var current = scoreSheets.current.tourists;
-        var validated = scoreSheets.validated.tourists;
-        for (var i = 1; i <= 3; i++) {
-            this.setContentAndValidation("tourists-light-checkmark".concat(i), current.checkedMonumentsLight >= i ? '✔' : '', current.checkedMonumentsLight >= i && validated.checkedMonumentsLight < i);
-        }
-        for (var i = 1; i <= 3; i++) {
-            this.setContentAndValidation("tourists-dark-checkmark".concat(i), current.checkedMonumentsDark >= i ? '✔' : '', current.checkedMonumentsDark >= i && validated.checkedMonumentsDark < i);
-        }
-        this.setContentAndValidation("tourists-specialLight", current.specialMonumentLight, current.specialMonumentLight !== validated.specialMonumentLight);
-        this.setContentAndValidation("tourists-specialDark", current.specialMonumentDark, current.specialMonumentDark !== validated.specialMonumentDark);
-        if (visibleScoring) {
-            this.setContentAndValidation("tourists-specialMax", current.specialMonumentMax, current.specialMonumentMax !== validated.specialMonumentMax);
-        }
-        for (var row = 1; row <= 3; row++) {
-            for (var i = 1; i <= 4; i++) {
-                this.setContentAndValidation("tourists-checkmark".concat(row, "-").concat(i), current.checkedTourists[row - 1] >= i ? '✔' : (current.subTotals[row - 1] ? '⎯⎯' : ''), current.checkedTourists[row - 1] >= i && validated.checkedTourists[row - 1] < i);
-            }
-            this.setContentAndValidation("tourists-subtotal".concat(row), current.subTotals[row - 1], current.subTotals[row - 1] != validated.subTotals[row - 1]);
-        }
-        if (visibleScoring) {
-            this.setContentAndValidation("tourists-total", current.total, current.total != validated.total);
-        }
-    };
-    return PlayerTableTouristsBlock;
-}(PlayerTableBlock));
-var PlayerTableBusinessmenBlock = /** @class */ (function (_super) {
-    __extends(PlayerTableBusinessmenBlock, _super);
-    function PlayerTableBusinessmenBlock(playerId, scoreSheets, visibleScoring) {
-        var _this = _super.call(this, playerId) || this;
-        var html = "\n        <div id=\"businessmen-block-".concat(playerId, "\" data-tooltip=\"[50,51]\" class=\"businessmen block\" data-zone=\"5\">\n                    <div id=\"player-table-").concat(playerId, "-businessmen-special\" class=\"special\"></div>");
-        for (var row = 1; row <= 3; row++) {
-            for (var i = 1; i <= 3; i++) {
-                html += "\n                        <div id=\"player-table-".concat(playerId, "-businessmen-checkmark").concat(row, "-").concat(i, "\" class=\"checkmark\" data-row=\"").concat(row, "\" data-number=\"").concat(i, "\"></div>");
-            }
-        }
-        html += "\n                    <div id=\"player-table-".concat(playerId, "-businessmen-subtotal1\" class=\"subtotal\" data-number=\"1\"></div>\n                    <div id=\"player-table-").concat(playerId, "-businessmen-subtotal2\" class=\"subtotal\" data-number=\"2\"></div>\n                    <div id=\"player-table-").concat(playerId, "-businessmen-subtotal3\" class=\"subtotal\" data-number=\"3\"></div>\n                    <div id=\"player-table-").concat(playerId, "-businessmen-total\" class=\"total\"></div>\n                </div>\n        ");
-        dojo.place(html, "player-table-".concat(playerId, "-main"));
-        _this.updateScoreSheet(scoreSheets, visibleScoring);
-        return _this;
-    }
-    PlayerTableBusinessmenBlock.prototype.updateScoreSheet = function (scoreSheets, visibleScoring) {
-        var current = scoreSheets.current.businessmen;
-        var validated = scoreSheets.validated.businessmen;
-        this.setContentAndValidation("businessmen-special", current.specialOffice, current.specialOffice !== validated.specialOffice);
-        for (var row = 1; row <= 3; row++) {
-            for (var i = 1; i <= 3; i++) {
-                this.setContentAndValidation("businessmen-checkmark".concat(row, "-").concat(i), current.checkedBusinessmen[row - 1] >= i ? '✔' : (current.subTotals[row - 1] ? '⎯⎯' : ''), current.checkedBusinessmen[row - 1] >= i && validated.checkedBusinessmen[row - 1] < i);
-            }
-            this.setContentAndValidation("businessmen-subtotal".concat(row), current.subTotals[row - 1], current.subTotals[row - 1] != validated.subTotals[row - 1]);
-        }
-        if (visibleScoring) {
-            this.setContentAndValidation("businessmen-total", current.total, current.total != validated.total);
-        }
-    };
-    return PlayerTableBusinessmenBlock;
-}(PlayerTableBlock));
-var PlayerTableCommonObjectivesBlock = /** @class */ (function (_super) {
-    __extends(PlayerTableCommonObjectivesBlock, _super);
-    function PlayerTableCommonObjectivesBlock(playerId, scoreSheets, visibleScoring) {
-        var _this = _super.call(this, playerId) || this;
-        var html = "\n        <div id=\"common-objectives-block-".concat(playerId, "\" data-tooltip=\"[90]\" class=\"common-objectives block\">\n            <div id=\"player-table-").concat(playerId, "-common-objectives-objective1\" class=\"subtotal\" data-number=\"1\"></div>\n            <div id=\"player-table-").concat(playerId, "-common-objectives-objective2\" class=\"subtotal\" data-number=\"2\"></div>\n            <div id=\"player-table-").concat(playerId, "-common-objectives-total\" class=\"total\"></div>\n        </div>\n        ");
-        dojo.place(html, "player-table-".concat(playerId, "-main"));
-        _this.updateScoreSheet(scoreSheets, visibleScoring);
-        return _this;
-    }
-    PlayerTableCommonObjectivesBlock.prototype.updateScoreSheet = function (scoreSheets, visibleScoring) {
-        var current = scoreSheets.current.commonObjectives;
-        var validated = scoreSheets.validated.commonObjectives;
-        for (var i = 1; i <= 2; i++) {
-            this.setContentAndValidation("common-objectives-objective".concat(i), current.subTotals[i - 1], current.subTotals[i - 1] != validated.subTotals[i - 1]);
-        }
-        if (visibleScoring) {
-            this.setContentAndValidation("common-objectives-total", current.total, current.total != validated.total);
-        }
-    };
-    return PlayerTableCommonObjectivesBlock;
-}(PlayerTableBlock));
-var PlayerTablePersonalObjectiveBlock = /** @class */ (function (_super) {
-    __extends(PlayerTablePersonalObjectiveBlock, _super);
-    function PlayerTablePersonalObjectiveBlock(playerId, scoreSheets, visibleScoring) {
-        var _this = _super.call(this, playerId) || this;
-        var html = "\n        <div id=\"personal-objective-block-".concat(playerId, "\" data-tooltip=\"[91]\" class=\"personal-objective block\">\n            <div id=\"player-table-").concat(playerId, "-personal-objective-total\" class=\"total\"></div>\n        </div>\n        ");
-        dojo.place(html, "player-table-".concat(playerId, "-main"));
-        _this.updateScoreSheet(scoreSheets, visibleScoring);
-        return _this;
-    }
-    PlayerTablePersonalObjectiveBlock.prototype.updateScoreSheet = function (scoreSheets, visibleScoring) {
-        var current = scoreSheets.current.personalObjective;
-        var validated = scoreSheets.validated.personalObjective;
-        if (visibleScoring) {
-            this.setContentAndValidation("personal-objective-total", current.total, current.total != validated.total);
-        }
-    };
-    return PlayerTablePersonalObjectiveBlock;
-}(PlayerTableBlock));
-var PlayerTableTurnZonesBlock = /** @class */ (function (_super) {
-    __extends(PlayerTableTurnZonesBlock, _super);
-    function PlayerTableTurnZonesBlock(playerId, scoreSheets, visibleScoring) {
-        var _this = _super.call(this, playerId) || this;
-        var html = "\n        <div id=\"turn-zones-block-".concat(playerId, "\" data-tooltip=\"[92]\" class=\"turn-zones block\" data-zone=\"6\">");
-        for (var i = 1; i <= 5; i++) {
-            html += "\n                    <div id=\"player-table-".concat(playerId, "-turn-zones-checkmark").concat(i, "\" class=\"checkmark\" data-number=\"").concat(i, "\"></div>");
-        }
-        html += "\n                    <div id=\"player-table-".concat(playerId, "-turn-zones-total\" class=\"total\"></div>\n                </div>\n        ");
-        dojo.place(html, "player-table-".concat(playerId, "-main"));
-        _this.updateScoreSheet(scoreSheets, visibleScoring);
-        return _this;
-    }
-    PlayerTableTurnZonesBlock.prototype.updateScoreSheet = function (scoreSheets, visibleScoring) {
-        var current = scoreSheets.current.turnZones;
-        var validated = scoreSheets.validated.turnZones;
-        for (var i = 1; i <= 5; i++) {
-            this.setContentAndValidation("turn-zones-checkmark".concat(i), current.checked >= i ? '✔' : '', current.checked >= i && validated.checked < i);
-        }
-        if (visibleScoring) {
-            this.setContentAndValidation("turn-zones-total", -current.total, current.total !== validated.total);
-        }
-    };
-    return PlayerTableTurnZonesBlock;
-}(PlayerTableBlock));
-var PlayerTableTrafficJamBlock = /** @class */ (function (_super) {
-    __extends(PlayerTableTrafficJamBlock, _super);
-    function PlayerTableTrafficJamBlock(playerId, scoreSheets, visibleScoring) {
-        var _this = _super.call(this, playerId) || this;
-        var html = "\n        <div id=\"traffic-jam-block-".concat(playerId, "\" data-tooltip=\"[93]\" class=\"traffic-jam block\" data-zone=\"7\">");
-        for (var i = 1; i <= 19; i++) {
-            html += "\n                    <div id=\"player-table-".concat(playerId, "-traffic-jam-checkmark").concat(i, "\" class=\"checkmark\" data-number=\"").concat(i, "\"></div>");
-        }
-        html += "\n                    <div id=\"player-table-".concat(playerId, "-traffic-jam-total\" class=\"total\"></div>\n                </div>\n        ");
-        dojo.place(html, "player-table-".concat(playerId, "-main"));
-        _this.updateScoreSheet(scoreSheets, visibleScoring);
-        return _this;
-    }
-    PlayerTableTrafficJamBlock.prototype.updateScoreSheet = function (scoreSheets, visibleScoring) {
-        var current = scoreSheets.current.trafficJam;
-        var validated = scoreSheets.validated.trafficJam;
-        for (var i = 1; i <= 19; i++) {
-            this.setContentAndValidation("traffic-jam-checkmark".concat(i), current.checked >= i ? '✔' : '', current.checked >= i && validated.checked < i);
-        }
-        if (visibleScoring) {
-            this.setContentAndValidation("traffic-jam-total", -current.total, current.total !== validated.total);
-        }
-    };
-    return PlayerTableTrafficJamBlock;
-}(PlayerTableBlock));
 var isDebug = window.location.host == 'studio.boardgamearena.com' || window.location.hash.indexOf('debug') > -1;
 ;
 var log = isDebug ? console.log.bind(window.console) : function () { };
 var PlayerTable = /** @class */ (function () {
-    function PlayerTable(game, player, id, insertIn) {
-        if (id === void 0) { id = player.id; }
-        if (insertIn === void 0) { insertIn = document.getElementById('full-table'); }
-        this.playerId = id;
-        /*let html = `
-        <div id="player-table-${this.playerId}" class="player-table ${eliminated ? 'eliminated' : ''}" style="box-shadow: 0 0 3px 3px #${player.color};">
-            <div id="player-table-${this.playerId}-top" data-tooltip="[95]" class="top" data-type="${player.sheetType}">
-            `;
-        for(let i=1; i<=12; i++) {
-            html += `
-                    <div id="player-table-${this.playerId}-top-checkmark${i}" class="checkmark" data-number="${i}"></div>`;
-        }
-        html += `
-            </div>
-            <div id="player-table-${this.playerId}-main" class="main">
-                <div id="player-table-${this.playerId}-total-score" data-tooltip="[94]" class="total score"></div>
-            </div>
-            <div class="name" style="color: #${player.color};">${player.name}</div>
-            <div id="player-table-${this.playerId}-first-player-wrapper" class="first-player-wrapper"></div>
-        </div>
-        `;
-        dojo.place(html, insertIn);
-
-        this.oldLadies = new PlayerTableOldLadiesBlock(this.playerId, player.scoreSheets, game.isVisibleScoring());
-        this.students = new PlayerTableStudentsBlock(this.playerId, player.scoreSheets, game.isVisibleScoring());
-        this.tourists = new PlayerTableTouristsBlock(this.playerId, player.scoreSheets, game.isVisibleScoring());
-        this.businessmen = new PlayerTableBusinessmenBlock(this.playerId, player.scoreSheets, game.isVisibleScoring());
-        this.commonObjectives = new PlayerTableCommonObjectivesBlock(this.playerId, player.scoreSheets, game.isVisibleScoring());
-        this.personalObjective = new PlayerTablePersonalObjectiveBlock(this.playerId, player.scoreSheets, game.isVisibleScoring());
-        this.turnZones = new PlayerTableTurnZonesBlock(this.playerId, player.scoreSheets, game.isVisibleScoring());
-        this.trafficJam = new PlayerTableTrafficJamBlock(this.playerId, player.scoreSheets, game.isVisibleScoring());
-
-        this.updateScoreSheet(player.scoreSheets, game.isVisibleScoring());*/
+    function PlayerTable(game, player) {
+        this.playerId = Number(player.id);
+        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\" style=\"box-shadow: 0 0 3px 3px #").concat(player.color, ";\">\n            <div class=\"name\" style=\"color: #").concat(player.color, ";\">").concat(player.name, "</div>\n            <div id=\"player-table-").concat(this.playerId, "-cards\" class=\"cards\">\n            </div>\n        </div>\n        ");
+        dojo.place(html, document.getElementById('full-table'));
     }
-    PlayerTable.prototype.setRound = function (validatedTickets, currentTicket) {
-        if (!currentTicket) {
-            return;
-        }
-        for (var i = 1; i <= 12; i++) {
-            this.setContentAndValidation("top-checkmark".concat(i), currentTicket === i || validatedTickets.includes(i) ? '✔' : '', currentTicket === i);
-        }
-    };
-    PlayerTable.prototype.updateScoreSheet = function (scoreSheets, visibleScoring) {
-        this.oldLadies.updateScoreSheet(scoreSheets, visibleScoring);
-        this.students.updateScoreSheet(scoreSheets, visibleScoring);
-        this.tourists.updateScoreSheet(scoreSheets, visibleScoring);
-        this.businessmen.updateScoreSheet(scoreSheets, visibleScoring);
-        this.commonObjectives.updateScoreSheet(scoreSheets, visibleScoring);
-        this.personalObjective.updateScoreSheet(scoreSheets, visibleScoring);
-        this.turnZones.updateScoreSheet(scoreSheets, visibleScoring);
-        this.trafficJam.updateScoreSheet(scoreSheets, visibleScoring);
-        if (visibleScoring) {
-            this.setContentAndValidation("total-score", scoreSheets.current.total, scoreSheets.current.total != scoreSheets.validated.total);
-        }
-    };
-    PlayerTable.prototype.setContentAndValidation = function (id, content, unvalidated) {
-        var div = document.getElementById("player-table-".concat(this.playerId, "-").concat(id));
-        var contentStr = '';
-        if (typeof content === 'string') {
-            contentStr = content;
-        }
-        else if (typeof content === 'number') {
-            contentStr = '' + content;
-        }
-        div.innerHTML = contentStr;
-        div.dataset.unvalidated = unvalidated.toString();
-    };
     return PlayerTable;
 }());
 var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
@@ -649,6 +322,9 @@ var SeaSaltPaper = /** @class */ (function () {
                 break;
             case 'playCards':
                 this.onEnteringPlayCards();
+                break;
+            case 'chooseDiscardCard':
+                this.onEnteringChooseDiscardCard(args.args);
         }
     };
     SeaSaltPaper.prototype.setGamestateDescription = function (property) {
@@ -674,6 +350,19 @@ var SeaSaltPaper = /** @class */ (function () {
     SeaSaltPaper.prototype.onEnteringPlayCards = function () {
         this.stacks.showPickCards(false);
         this.selectedCards = [];
+        this.updateDisabledPlayCards();
+    };
+    SeaSaltPaper.prototype.onEnteringChooseDiscardCard = function (args) {
+        var _this = this;
+        var _a;
+        //this.stacks.showPickCards(true, args._private?.cards); copy of, TEMP
+        var cards = (_a = args._private) === null || _a === void 0 ? void 0 : _a.cards;
+        var pickDiv = document.getElementById('discard-pick');
+        pickDiv.innerHTML = cards ? '' : 'TODO opponent is choosing';
+        pickDiv.dataset.visible = 'true';
+        cards === null || cards === void 0 ? void 0 : cards.forEach(function (card) {
+            return _this.cards.createMoveOrUpdateCard(card, "discard-pick" /*, false, 'deck' TODO*/);
+        });
     };
     SeaSaltPaper.prototype.onLeavingState = function (stateName) {
         log('Leaving state: ' + stateName);
@@ -684,6 +373,9 @@ var SeaSaltPaper = /** @class */ (function () {
             case 'playCards':
                 this.onLeavingPlayCards();
                 break;
+            case 'chooseDiscardCard':
+                this.onLeavingChooseDiscardCard();
+                break;
         }
     };
     SeaSaltPaper.prototype.onLeavingTakeCards = function () {
@@ -692,6 +384,13 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.onLeavingPlayCards = function () {
         this.selectedCards = null;
+        var cards = Array.from(document.getElementById("my-hand").getElementsByClassName('card'));
+        cards.forEach(function (card) { return card.classList.remove('selectable', 'selected', 'disabled'); });
+    };
+    SeaSaltPaper.prototype.onLeavingChooseDiscardCard = function () {
+        // TEMP TODO
+        var pickDiv = document.getElementById('discard-pick');
+        pickDiv.dataset.visible = 'false';
     };
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
     //                        action status bar (ie: the HTML links in the status bar).
@@ -787,20 +486,45 @@ var SeaSaltPaper = /** @class */ (function () {
         return orderedPlayers;
     };
     SeaSaltPaper.prototype.createPlayerTables = function (gamedatas) {
-        /*const orderedPlayers = this.getOrderedPlayers(gamedatas);
-
-        orderedPlayers.forEach(player =>
-            this.createPlayerTable(gamedatas, Number(player.id))
-        );
-    }
-
-    private createPlayerTable(gamedatas: SeaSaltPaperGamedatas, playerId: number) {
-        const table = new PlayerTable(this, gamedatas.players[playerId]);
-        this.playersTables.push(table);*/
+        var _this = this;
+        var orderedPlayers = this.getOrderedPlayers(gamedatas);
+        orderedPlayers.forEach(function (player) {
+            return _this.createPlayerTable(gamedatas, Number(player.id));
+        });
+    };
+    SeaSaltPaper.prototype.createPlayerTable = function (gamedatas, playerId) {
+        var table = new PlayerTable(this, gamedatas.players[playerId]);
+        this.playersTables.push(table);
+    };
+    SeaSaltPaper.prototype.updateDisabledPlayCards = function () {
+        var _this = this;
+        var _a;
+        var cards = Array.from(document.getElementById("my-hand").getElementsByClassName('card'));
+        cards.forEach(function (card) {
+            var disabled = false;
+            if (card.dataset.category != '2') {
+                disabled = true;
+            }
+            else {
+                if (_this.selectedCards.length >= 2) {
+                    disabled = !_this.selectedCards.includes(Number(card.dataset.id));
+                }
+                else if (_this.selectedCards.length == 1) {
+                    var family = Number(document.getElementById("card-".concat(_this.selectedCards[0])).dataset.family);
+                    var authorizedFamily = '' + (family >= 4 ? 9 - family : family);
+                    disabled = Number(card.dataset.id) != _this.selectedCards[0] && card.dataset.family != authorizedFamily;
+                }
+            }
+            card.classList.toggle('disabled', disabled);
+        });
+        (_a = document.getElementById("playCards_button")) === null || _a === void 0 ? void 0 : _a.classList.toggle("disabled", this.selectedCards.length != 2);
     };
     SeaSaltPaper.prototype.onCardClick = function (card) {
         var cardDiv = document.getElementById("card-".concat(card.id));
         var parentDiv = cardDiv.parentElement;
+        if (cardDiv.classList.contains('disabled')) {
+            return;
+        }
         switch (this.gamedatas.gamestate.name) {
             case 'takeCards':
                 if (parentDiv.dataset.discard) {
@@ -822,8 +546,22 @@ var SeaSaltPaper = /** @class */ (function () {
                         this.selectedCards.push(card.id);
                         cardDiv.classList.add('selected');
                     }
-                    dojo.toggleClass("playCards_button", "disabled", this.selectedCards.length != 2);
+                    this.updateDisabledPlayCards();
                 }
+                break;
+            case 'chooseDiscardCard':
+                if (parentDiv.id == 'discard-pick') {
+                    this.chooseDiscardCard(card.id);
+                }
+        }
+    };
+    SeaSaltPaper.prototype.onDiscardPileClick = function (number) {
+        switch (this.gamedatas.gamestate.name) {
+            case 'putDiscardPile':
+                this.putDiscardPile(number);
+                break;
+            case 'chooseDiscardPile':
+                this.chooseDiscardPile(number);
                 break;
         }
     };
@@ -869,6 +607,22 @@ var SeaSaltPaper = /** @class */ (function () {
         this.takeAction('playCards', {
             'id1': ids[0],
             'id2': ids[1],
+        });
+    };
+    SeaSaltPaper.prototype.chooseDiscardPile = function (discardNumber) {
+        if (!this.checkAction('chooseDiscardPile')) {
+            return;
+        }
+        this.takeAction('chooseDiscardPile', {
+            discardNumber: discardNumber
+        });
+    };
+    SeaSaltPaper.prototype.chooseDiscardCard = function (id) {
+        if (!this.checkAction('chooseDiscardCard')) {
+            return;
+        }
+        this.takeAction('chooseDiscardCard', {
+            id: id
         });
     };
     SeaSaltPaper.prototype.endTurn = function () {
@@ -938,6 +692,7 @@ var SeaSaltPaper = /** @class */ (function () {
             ['cardInHandFromDiscard', ANIMATION_MS],
             ['cardInHandFromPick', ANIMATION_MS],
             ['cardInDiscardFromPick', ANIMATION_MS],
+            ['playCards', ANIMATION_MS],
             ['endRound', ANIMATION_MS],
         ];
         notifs.forEach(function (notif) {
@@ -980,8 +735,13 @@ var SeaSaltPaper = /** @class */ (function () {
         var _a;
         (_a = this.scoreCtrl[notif.args.playerId]) === null || _a === void 0 ? void 0 : _a.toValue(notif.args.newScore);
     };
+    SeaSaltPaper.prototype.notif_playCards = function (notif) {
+        var _this = this;
+        notif.args.cards.forEach(function (card) { return _this.cards.createMoveOrUpdateCard(card, "player-table-".concat(notif.args.playerId, "-cards")); });
+    };
     SeaSaltPaper.prototype.notif_endRound = function () {
         document.getElementById("my-hand").innerHTML = ''; // animate cards to deck?
+        Object.keys(this.gamedatas.players).forEach(function (playerId) { return document.getElementById("player-table-".concat(playerId, "-cards")).innerHTML = ''; });
         [1, 2].forEach(function (discardNumber) {
             var currentCardDiv = document.getElementById("discard".concat(discardNumber)).firstElementChild;
             currentCardDiv === null || currentCardDiv === void 0 ? void 0 : currentCardDiv.parentElement.removeChild(currentCardDiv); // animate cards to deck?

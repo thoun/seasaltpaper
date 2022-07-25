@@ -59,7 +59,7 @@ $basicGameStates = [
         "description" => clienttranslate("Game setup"),
         "type" => "manager",
         "action" => "stGameSetup",
-        "transitions" => [ "" => ST_PLAYER_TAKE_CARDS ]
+        "transitions" => [ "" => ST_NEW_ROUND ]
     ],
    
     // Final state.
@@ -144,10 +144,11 @@ $playerActionsGameStates = [
         ],
         "transitions" => [
             "chooseDiscardPile" => ST_PLAYER_CHOOSE_DISCARD_PILE,
-            "newTurn" => ST_PLAYER_CHOOSE_CARD,
+            "newTurn" => ST_PLAYER_TAKE_CARDS,
             "chooseOpponent" => ST_PLAYER_CHOOSE_OPPONENT,
             "playCards" => ST_PLAYER_PLAY_CARDS,
             "endTurn" => ST_NEXT_PLAYER,
+            "sirens" => ST_END_SCORE,
             "zombiePass" => ST_NEXT_PLAYER,
         ]
     ],
@@ -170,12 +171,14 @@ $playerActionsGameStates = [
         "name" => "chooseDiscardCard",
         "description" => clienttranslate('${actplayer} must choose a card'),
         "descriptionmyturn" => clienttranslate('${you} must choose a card'),
-        "type" => "activeplayer",
+        "type" => "activeplayer", 
+        "args" => "argChooseDiscardCard", 
         "possibleactions" => [ 
             "chooseDiscardCard",
         ],
         "transitions" => [
             "playCards" => ST_PLAYER_PLAY_CARDS,
+            "sirens" => ST_END_SCORE,
             "zombiePass" => ST_NEXT_PLAYER,
         ]
     ],
@@ -190,6 +193,7 @@ $playerActionsGameStates = [
         ],
         "transitions" => [
             "playCards" => ST_PLAYER_PLAY_CARDS,
+            "sirens" => ST_END_SCORE,
             "zombiePass" => ST_NEXT_PLAYER,
         ]
     ],

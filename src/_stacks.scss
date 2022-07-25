@@ -28,3 +28,11 @@
         display: none;
     }
 }
+
+#discard-pick {
+    border: 1px solid blue; // TEMP
+
+    &[data-visible="false"] {
+        display: none;
+    }
+}

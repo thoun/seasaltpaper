@@ -157,10 +157,41 @@ trait ActionTrait {
         if (
             ($cards[0]->family == SWIMMER && $cards[1]->family != SHARK) ||            
             ($cards[0]->family == SHARK && $cards[1]->family != SWIMMER) ||
-            ($cards[0]->family != $cards[1]->family)
+            (!in_array($cards[0]->family, [SWIMMER, SHARK]) && $cards[0]->family != $cards[1]->family)
         ) {
             throw new BgaUserException("Invalid pair");
         }
+
+        $count = intval($this->cards->countCardInLocation('table'.$playerId));
+        foreach($cards as $card) {
+            $this->cards->moveCard($card->id, 'table'.$playerId, ++$count);
+        }
+
+        $action = '';
+        switch ($cards[0]->family) {
+            case CRAB:
+                $action = clienttranslate('takes a card from a discard pile');
+                break;
+            case BOAT:
+                $action = clienttranslate('plays a new turn');
+                break;
+            case FISH:
+                $action = clienttranslate('adds the top card from the deck to hand');
+                break;
+            case SWIMMER:
+            case SHARK:
+                $action = clienttranslate('steals a random card from another player');
+                break;
+        }
+
+        self::notifyAllPlayers('playCards', clienttranslate('${player_name} plays cards ${TODO} and ${action}'), [
+            'playerId' => $playerId,
+            'player_name' => $this->getPlayerName($playerId),
+            'cards' => $cards,
+            'TODO' =>'TODO',
+            'action' => $action,
+            'i18n' => ['action'],
+        ]);
 
         switch ($cards[0]->family) {
             case CRAB:
@@ -169,18 +200,38 @@ trait ActionTrait {
             case BOAT:
                 $this->gamestate->nextState('newTurn');
                 break;
-            case BOAT:
-                /* TODO The player adds the
-top card from the deck to their
-hand. use first main action! */ 
-                $this->gamestate->nextState('playCards');
+            case FISH:
+                $card = $this->getCardFromDb($this->cards->pickCardForLocation('deck', 'hand'.$playerId));
+
+                self::notifyPlayer($playerId, 'cardInHandFromPick', clienttranslate('You take ${TODO} card from deck'), [
+                    'playerId' => $playerId,
+                    'player_name' => $this->getPlayerName($playerId),
+                    'card' => $card,
+                    'TODO' =>'TODO',
+                ]);
+                self::notifyAllPlayers('cardInHandFromPick', clienttranslate('${player_name} took a card from deck'), [
+                    'playerId' => $playerId,
+                    'player_name' => $this->getPlayerName($playerId),
+                ]);
+                
+                if ($this->hasFourSirens($playerId)) {
+                    $this->gamestate->nextState('sirens');
+                } else {
+                    $this->gamestate->nextState('playCards');
+                }
                 break;
             case SWIMMER:
             case SHARK:
-                /* TODO The player steals a random card
-from another player and adds it to their
-hand. */ 
-                $this->gamestate->nextState('playCards');
+                $possibleOpponentsToSteal = $this->getPossibleOpponentsToSteal($playerId);
+
+                if (count($possibleOpponentsToSteal) > 1) {
+                    $this->gamestate->nextState('chooseOpponent');
+                } else {
+                    if (count($possibleOpponentsToSteal) == 1) {
+                        $this->applySteal($playerId, $possibleOpponentsToSteal[0]);
+                    }
+                    $this->gamestate->nextState('playCards');
+                }
                 break;
         }
     }
@@ -216,5 +267,47 @@ hand. */
         $this->checkAction('endTurn');
 
         $this->applyEndRound(STOP, _('STOP'));
+    }
+
+    public function chooseDiscardPile(int $discardNumber) {
+        $this->checkAction('chooseDiscardPile'); 
+        
+        if (!in_array($discardNumber, [1, 2])) {
+            throw new BgaUserException("Invalid discard number");
+        }
+
+        $this->setGameStateValue(CHOSEN_DISCARD, $discardNumber);
+
+        $this->gamestate->nextState('chooseCard');
+    }
+
+    public function chooseDiscardCard(int $cardId) {
+        $this->checkAction('chooseDiscardCard');
+
+        $card = $this->getCardFromDb($this->cards->getCard($cardId));
+        $discardNumber = $this->getGameStateValue(CHOSEN_DISCARD);
+        if ($card == null || $card->location != 'discard'.$discardNumber) {
+            throw new BgaUserException("Invalid discard card");
+        }
+
+        $playerId = $this->getActivePlayerId();
+
+        $this->cards->moveCard($card->id, 'hand'.$playerId);
+
+        self::notifyAllPlayers('cardInHandFromDiscard', clienttranslate('${player_name} takes ${TODO} from discard pile ${discardNumber}'), [
+            'playerId' => $playerId,
+            'player_name' => $this->getPlayerName($playerId),
+            'card' => $card,
+            'TODO' =>'TODO',
+            'discardId' => $discardNumber,
+            'discardNumber' => $discardNumber,
+            'newDiscardTopCard' => $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber)),
+        ]);
+
+        if ($this->hasFourSirens($playerId)) {
+            $this->gamestate->nextState('sirens');
+        } else {
+            $this->gamestate->nextState('playCards');
+        }
     }
 }

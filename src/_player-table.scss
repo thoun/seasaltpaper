@@ -1,130 +1,19 @@
-/*#player-tables {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-
-  .player-table {
-    margin: 20px;
-  }
-}*/
-
 .player-table {
   width: 700px;
-  height: 700px;
   position: relative;
-  font-size: 16pt;
-
-  &.eliminated {
-      filter: grayscale(1);
-  }
-
-  .first-player-wrapper {
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-
-  .top {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 77px;
-
-    @for $i from 1 through 5 {
-      &[data-type="#{$i}"] {
-        background: url('img/score-pad-top-#{$i}.png');
-      }
-    }
-
-    .checkmark {
-      position: absolute;
-      text-align: center;
-      top: 31px;
-      width: 15px;
-      height: 14px;
-      font-size: 20pt;
-      margin-top: -12px;
-      margin-left: -3px;
-
-      @for $i from 0 through 11 {
-        &[data-number="#{$i + 1}"] {
-          left: #{75 + ($i % 6) * 100 + floor($i / 6) * 46}px;
-        }
-      }
-    }
-  }
-
-  .main {
-    position: absolute;
-    top: 77px;
-    left: 0;
-    width: 100%;
-    height: 623px;
-    background: url('img/score-pad.png');
-
-    .block {
-      position: absolute;
-
-      @import 'score-sheet-main';
-
-      .checkmark {
-        position: absolute;
-        text-align: center;
-        width: 28px;
-        height: 27px;
-        font-size: 22pt;
-        margin-top: -8px;
-      }
-
-      .subtotal, .special {
-        position: absolute;
-        text-align: center;
-        width: 28px;
-        height: 27px;
-        right: 7px;
-      }
-
-      .total {
-        position: absolute;
-        text-align: center;
-        bottom: 0;
-        right: 0;
-        width: 43px;
-        height: 41px;
-        font-size: 22pt;
-      }
-    }
-
-    .score.total {
-      position: absolute;
-      text-align: center;
-      bottom: 16px;
-      right: 29px;
-      width: 103px;
-      height: 41px;
-      font-size: 40pt;
-      margin-bottom: 15px;
-      margin-right: 7px;
-    }
-  }
 
   .name {
-    position: absolute;
-    top: 99px;
-    left: 62px;
-    width: 133px;
-    height: 32px;
+    font-size: 16pt;
     display: flex;
-    align-items: center;
+    background: white;
+    padding: 10px;
+    justify-content: center;
   }
 
-  [data-unvalidated="true"] {
-    color: red;
+  .cards {
+    min-height: 218px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
   }
-}
-
-#firstPlayerTableToken {
-  width: 64px;
-  height: 64px;
 }

@@ -24,8 +24,7 @@ trait StateTrait {
 
         // set round number
         $roundNumber = intval($this->getGameStateValue(ROUND_NUMBER));
-        $roundNumber++;
-        $this->setGameStateValue(ROUND_NUMBER, $roundNumber);
+        $this->setGameStateValue(ROUND_NUMBER, ++$roundNumber);
         $totalRoundNumber = $this->getTotalRoundNumber();
 
         self::notifyAllPlayers('log', clienttranslate('Round ${roundNumber}/${totalRoundNumber} begins!'), [

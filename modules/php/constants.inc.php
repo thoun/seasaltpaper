@@ -31,6 +31,7 @@ define('END_SCORE', 100);
  * Constants
  */
 define('ROUND_NUMBER', 10);
+define('CHOSEN_DISCARD', 11);
 define('END_ROUND_TYPE', 12); /* : */ define('STOP', 1); define('LAST_CHANCE', 2); define('EMPTY_DECK', 3);
 define('LAST_CHANCE_CALLER', 13);
 

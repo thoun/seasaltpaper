@@ -6,11 +6,7 @@ class Stacks {
 
         document.getElementById('deck').addEventListener('click', () => this.game.takeCardsFromDeck());
         [1, 2].forEach(number => 
-            document.getElementById(`discard${number}`).addEventListener('click', () => {
-                if (gamedatas.gamestate.name === 'putDiscardPile') {
-                    this.game.putDiscardPile(number);
-                }
-            })
+            document.getElementById(`discard${number}`).addEventListener('click', () => this.game.onDiscardPileClick(number))
         );
         
     }

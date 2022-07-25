@@ -50,6 +50,11 @@ $ORANGE: 10;
         }
     }
 
+    &.disabled {
+      cursor: not-allowed;
+      filter: contrast(0.6);
+    }
+
     .card-sides {
         position: absolute;
         top: 0;

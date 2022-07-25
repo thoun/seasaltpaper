@@ -44,6 +44,7 @@ class SeaSaltPaper extends Table {
         
         self::initGameStateLabels([
             ROUND_NUMBER => ROUND_NUMBER,
+            CHOSEN_DISCARD => CHOSEN_DISCARD,
             END_ROUND_TYPE => END_ROUND_TYPE,
             LAST_CHANCE_CALLER => LAST_CHANCE_CALLER,
         ]);  
@@ -127,6 +128,7 @@ class SeaSaltPaper extends Table {
         foreach($result['players'] as $playerId => &$player) {
             $player['playerNo'] = intval($player['playerNo']);
             $player['handCount'] = $this->getHandCount($playerId);
+            $player['tableCards'] = $this->getCardsFromDb($this->cards->getCardsInLocation('table'.$playerId));
         }
   
         // TODO: Gather all information about current game situation (visible by player $current_player_id).

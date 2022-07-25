@@ -147,4 +147,40 @@ trait UtilTrait {
         ] + $args);
     }
 
+    function getPossibleOpponentsToSteal(int $stealerId) {
+        $playersIds = $this->getPlayersIds();
+
+        return array_filter($playersIds, fn($playerId) => 
+            $playerId != $stealerId && intval($this->cards->countCardInLocation('hand'.$playerId)) > 0
+        );
+    }
+
+    function applySteal(int $stealerId, int $robbedPlayerId) {
+
+        $cardsInHand = $this->getCardsFromDb($this->cards->getCardsInLocation('hand'.$robbedPlayerId));
+        $removedCard = null;
+        $cardsNumber = count($cardsInHand);
+        if ($cardsNumber > 0) {
+            $removedCard = $cardsInHand[bga_rand(1, $cardsNumber) - 1];
+            $this->cards->moveCard($removedCard->id, 'hand'.$stealerId);
+
+            $this->notifyPlayer($robbedPlayerId, 'removedCard', clienttranslate('Card ${TODO} was removed from your hand'), [
+                'playerId' => $robbedPlayerId,
+                'animal' => $removedCard,
+                'fromPlayerId' => $stealerId,
+                'TODO' => 'TODO',
+            ]);
+
+            $this->notifyPlayer($stealerId, 'newCard', clienttranslate('Card ${TODO} was picked from ${player_name2} hand'), [
+                'playerId' => $stealerId,
+                'player_name2' => $this->getPlayerName($robbedPlayerId),
+                'animal' => $removedCard,
+                'fromPlayerId' => $robbedPlayerId,
+                'TODO' => 'TODO',
+            ]);
+
+            // TODO notif hand counts
+        }
+    }
+
 }

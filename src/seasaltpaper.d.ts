@@ -43,7 +43,7 @@ interface SeaSaltPaperGame extends Game {
 
     takeCardsFromDeck(): void;
     onCardClick(card: Card): void;
-    putDiscardPile(discardNumber: number): void;
+    onDiscardPileClick(discardNumber: number): void;
 }
 
 interface EnteringTakeCardsArgs {
@@ -82,4 +82,9 @@ interface NotifCardInDiscardFromPickArgs {
 interface NotifScoreArgs {
     playerId: number;
     newScore: number;
+}
+
+interface NotifPlayCardsArgs {
+    playerId: number;
+    cards: Card[];
 }
