@@ -35,6 +35,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     private stacks: Stacks;
     private playersTables: PlayerTable[] = [];
     private roundNumberCounter: Counter;
+    private cardsPointsCounter: Counter;
     private selectedCards: number[];
 
     constructor() {
@@ -66,6 +67,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
         this.cards = new Cards(this);
         this.stacks = new Stacks(this, this.gamedatas);
+        this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
 
         document.getElementById('round-panel').innerHTML = `${_('Round')}&nbsp;<span id="round-number-counter"></span>&nbsp;/&nbsp;${6 - Object.keys(gamedatas.players).length}`;
@@ -293,6 +295,27 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         const playerIndex = players.findIndex(player => Number(player.id) === Number((this as any).player_id));
         const orderedPlayers = playerIndex > 0 ? [...players.slice(playerIndex), ...players.slice(0, playerIndex)] : players;
         return orderedPlayers;
+    }
+
+    private createPlayerPanels(gamedatas: SeaSaltPaperGamedatas) {
+
+        Object.values(gamedatas.players).forEach(player => {
+            const playerId = Number(player.id);    
+            
+            if (playerId == this.getPlayerId()) {
+                // cards points counter
+                dojo.place(`
+                <div class="counter">
+                    ${_('Cards points:')}&nbsp;
+                    <span id="cards-points-counter"></span>
+                </div>
+                `, `player_board_${player.id}`);
+
+                this.cardsPointsCounter = new ebg.counter();
+                this.cardsPointsCounter.create(`cards-points-counter`);
+                this.cardsPointsCounter.setValue(player.cardsPoints);
+            }
+        });
     }
 
     private createPlayerTables(gamedatas: SeaSaltPaperGamedatas) {
@@ -530,6 +553,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             ['cardInDiscardFromPick', ANIMATION_MS],
             ['playCards', ANIMATION_MS],
             ['endRound', ANIMATION_MS],
+            ['updateCardsPoints', 1],
         ];
     
         notifs.forEach((notif) => {
@@ -584,10 +608,15 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     notif_endRound() {
         document.getElementById(`my-hand`).innerHTML = ''; // animate cards to deck?
         Object.keys(this.gamedatas.players).forEach(playerId => document.getElementById(`player-table-${playerId}-cards`).innerHTML = '');
+        this.cardsPointsCounter?.toValue(0);
         [1, 2].forEach(discardNumber => {
             const currentCardDiv = document.getElementById(`discard${discardNumber}`).firstElementChild;
             currentCardDiv?.parentElement.removeChild(currentCardDiv); // animate cards to deck?
         });
+    }
+
+    notif_updateCardsPoints(notif: Notif<NotifUpdateCardsPointsArgs>) {
+        this.cardsPointsCounter.toValue(notif.args.cardsPoints);
     }
 
     /* This enable to inject translatable styled things to logs or action bar */

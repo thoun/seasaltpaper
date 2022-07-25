@@ -288,6 +288,7 @@ var SeaSaltPaper = /** @class */ (function () {
         log('gamedatas', gamedatas);
         this.cards = new Cards(this);
         this.stacks = new Stacks(this, this.gamedatas);
+        this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
         document.getElementById('round-panel').innerHTML = "".concat(_('Round'), "&nbsp;<span id=\"round-number-counter\"></span>&nbsp;/&nbsp;").concat(6 - Object.keys(gamedatas.players).length);
         this.roundNumberCounter = new ebg.counter();
@@ -484,6 +485,19 @@ var SeaSaltPaper = /** @class */ (function () {
         var playerIndex = players.findIndex(function (player) { return Number(player.id) === Number(_this.player_id); });
         var orderedPlayers = playerIndex > 0 ? __spreadArray(__spreadArray([], players.slice(playerIndex), true), players.slice(0, playerIndex), true) : players;
         return orderedPlayers;
+    };
+    SeaSaltPaper.prototype.createPlayerPanels = function (gamedatas) {
+        var _this = this;
+        Object.values(gamedatas.players).forEach(function (player) {
+            var playerId = Number(player.id);
+            if (playerId == _this.getPlayerId()) {
+                // cards points counter
+                dojo.place("\n                <div class=\"counter\">\n                    ".concat(_('Cards points:'), "&nbsp;\n                    <span id=\"cards-points-counter\"></span>\n                </div>\n                "), "player_board_".concat(player.id));
+                _this.cardsPointsCounter = new ebg.counter();
+                _this.cardsPointsCounter.create("cards-points-counter");
+                _this.cardsPointsCounter.setValue(player.cardsPoints);
+            }
+        });
     };
     SeaSaltPaper.prototype.createPlayerTables = function (gamedatas) {
         var _this = this;
@@ -694,6 +708,7 @@ var SeaSaltPaper = /** @class */ (function () {
             ['cardInDiscardFromPick', ANIMATION_MS],
             ['playCards', ANIMATION_MS],
             ['endRound', ANIMATION_MS],
+            ['updateCardsPoints', 1],
         ];
         notifs.forEach(function (notif) {
             dojo.subscribe(notif[0], _this, "notif_".concat(notif[0]));
@@ -740,12 +755,17 @@ var SeaSaltPaper = /** @class */ (function () {
         notif.args.cards.forEach(function (card) { return _this.cards.createMoveOrUpdateCard(card, "player-table-".concat(notif.args.playerId, "-cards")); });
     };
     SeaSaltPaper.prototype.notif_endRound = function () {
+        var _a;
         document.getElementById("my-hand").innerHTML = ''; // animate cards to deck?
         Object.keys(this.gamedatas.players).forEach(function (playerId) { return document.getElementById("player-table-".concat(playerId, "-cards")).innerHTML = ''; });
+        (_a = this.cardsPointsCounter) === null || _a === void 0 ? void 0 : _a.toValue(0);
         [1, 2].forEach(function (discardNumber) {
             var currentCardDiv = document.getElementById("discard".concat(discardNumber)).firstElementChild;
             currentCardDiv === null || currentCardDiv === void 0 ? void 0 : currentCardDiv.parentElement.removeChild(currentCardDiv); // animate cards to deck?
         });
+    };
+    SeaSaltPaper.prototype.notif_updateCardsPoints = function (notif) {
+        this.cardsPointsCounter.toValue(notif.args.cardsPoints);
     };
     /* This enable to inject translatable styled things to logs or action bar */
     /* @Override */

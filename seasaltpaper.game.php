@@ -118,7 +118,7 @@ class SeaSaltPaper extends Table {
     protected function getAllDatas() {
         $result = array();
     
-        $currentPlayerId = self::getCurrentPlayerId();    // !! We must only return informations visible by this player !!
+        $currentPlayerId = intval($this->getCurrentPlayerId());    // !! We must only return informations visible by this player !!
     
         // Get information about players
         // Note: you can retrieve some extra field you added for "player" table in "dbmodel.sql" if you need it.
@@ -129,6 +129,9 @@ class SeaSaltPaper extends Table {
             $player['playerNo'] = intval($player['playerNo']);
             $player['handCount'] = $this->getHandCount($playerId);
             $player['tableCards'] = $this->getCardsFromDb($this->cards->getCardsInLocation('table'.$playerId));
+            if ($playerId == $currentPlayerId) {
+                $player['cardsPoints'] = $this->getCardsPoints($playerId)->totalPoints;
+            }
         }
   
         // TODO: Gather all information about current game situation (visible by player $current_player_id).

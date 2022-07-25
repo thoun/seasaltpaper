@@ -13,6 +13,7 @@ interface Card {
 interface SeaSaltPaperPlayer extends Player {
     playerNo: number;
     handCount: number;
+    cardsPoints?: number;
 }
 
 interface SeaSaltPaperGamedatas {
@@ -87,4 +88,8 @@ interface NotifScoreArgs {
 interface NotifPlayCardsArgs {
     playerId: number;
     cards: Card[];
+}
+
+interface NotifUpdateCardsPointsArgs {
+    cardsPoints: number;
 }

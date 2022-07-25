@@ -48,7 +48,6 @@ trait ArgsTrait {
         $canCallEndRound = $totalPoints >= 7 && intval($this->getGameStateValue(END_ROUND_TYPE)) == 0;
     
         return [
-            'totalPoints' => $totalPoints, // TODO remove
             'canCallEndRound' => $canCallEndRound,
         ];
     }

@@ -53,6 +53,7 @@ trait ActionTrait {
             'newDiscardTopCard' => $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber)),
         ]);
 
+        $this->updateCardsPoints($playerId);
         if ($this->hasFourSirens($playerId)) {
             $this->gamestate->nextState('sirens');
         } else {
@@ -83,6 +84,7 @@ trait ActionTrait {
             'player_name' => $this->getPlayerName($playerId),
         ]);
 
+        $this->updateCardsPoints($playerId);
         if ($this->hasFourSirens($playerId)) {
             $this->gamestate->nextState('sirens');
             return;
@@ -214,6 +216,7 @@ trait ActionTrait {
                     'player_name' => $this->getPlayerName($playerId),
                 ]);
                 
+                $this->updateCardsPoints($playerId);
                 if ($this->hasFourSirens($playerId)) {
                     $this->gamestate->nextState('sirens');
                 } else {
@@ -304,6 +307,7 @@ trait ActionTrait {
             'newDiscardTopCard' => $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber)),
         ]);
 
+        $this->updateCardsPoints($playerId);
         if ($this->hasFourSirens($playerId)) {
             $this->gamestate->nextState('sirens');
         } else {

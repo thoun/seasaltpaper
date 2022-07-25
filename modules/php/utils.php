@@ -104,6 +104,12 @@ trait UtilTrait {
         return $cardsScore;
     }
 
+    function updateCardsPoints(int $playerId) {
+        $this->notifyPlayer($playerId, 'updateCardsPoints', '', [
+            'cardsPoints' => $this->getCardsPoints($playerId)->totalPoints,
+        ]);
+    }
+
     function hasFourSirens(int $playerId) {
         $tableCards = $this->getCardsFromDb($this->cards->getCardsInLocation('table'.$playerId));
         $handCards = $this->getCardsFromDb($this->cards->getCardsInLocation('hand'.$playerId));
