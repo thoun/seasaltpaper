@@ -248,6 +248,7 @@
   border: 2px solid #60c2cb;
   padding: 5px;
   border-radius: 15px;
+  background: rgba(96, 194, 203, 0.4);
 }
 #table-center #deck-and-discards {
   display: flex;
@@ -339,7 +340,7 @@
 }
 
 .player-table {
-  width: 700px;
+  width: 650px;
   position: relative;
   background: rgba(255, 255, 255, 0.4);
   border: 2px solid white;
@@ -373,7 +374,7 @@
   min-height: 218px;
 }
 .player-table .cards.hand[data-current-player=false] {
-  min-height: unset;
+  min-height: 45px;
   max-height: 45px;
   overflow: hidden;
 }

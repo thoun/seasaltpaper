@@ -1,5 +1,5 @@
 .player-table {
-  width: 700px;
+  width: 650px;
   position: relative;
   background: #FFFFFF66;
   border: 2px solid white;
@@ -40,7 +40,7 @@
 
     &.hand {
       &[data-current-player="false"] {
-        min-height: unset;
+        min-height: 45px;
         max-height: 45px;
         overflow: hidden;
 

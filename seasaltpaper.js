@@ -336,24 +336,9 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     return to.concat(ar || Array.prototype.slice.call(from));
 };
 var ANIMATION_MS = 500;
-var ZOOM_LEVELS = [0.5, 0.625, 0.75, 0.875, 1, 1.25, 1.5];
-var ZOOM_LEVELS_MARGIN = [-100, -60, -33, -14, 0, 20, 33.34];
+var ZOOM_LEVELS = [0.5, 0.625, 0.75, 0.875, 1];
+var ZOOM_LEVELS_MARGIN = [-100, -60, -33, -14, 0];
 var LOCAL_STORAGE_ZOOM_KEY = 'SeaSaltPaper-zoom';
-function formatTextIcons(rawText) {
-    if (!rawText) {
-        return '';
-    }
-    return rawText
-        .replace(/\[GreenLight\]/ig, '<div class="map-icon" data-element="0"></div>')
-        .replace(/\[OldLady\]/ig, '<div class="map-icon" data-element="20"></div>')
-        .replace(/\[Student\]/ig, '<div class="map-icon" data-element="30"></div>')
-        .replace(/\[School\]/ig, '<div class="map-icon" data-element="32"></div>')
-        .replace(/\[Tourist\]/ig, '<div class="map-icon" data-element="40"></div>')
-        .replace(/\[MonumentLight\]/ig, '<div class="map-icon" data-element="41"></div>')
-        .replace(/\[MonumentDark\]/ig, '<div class="map-icon" data-element="42"></div>')
-        .replace(/\[Businessman\]/ig, '<div class="map-icon" data-element="50"></div>')
-        .replace(/\[Office\]/ig, '<div class="map-icon" data-element="51"></div>');
-}
 var SeaSaltPaper = /** @class */ (function () {
     function SeaSaltPaper() {
         this.zoom = 1;
@@ -582,7 +567,6 @@ var SeaSaltPaper = /** @class */ (function () {
             div.style.transform = "scale(".concat(zoom, ")");
             div.style.margin = "0 ".concat(ZOOM_LEVELS_MARGIN[newIndex], "% ").concat((1 - zoom) * -100, "% 0");
         }
-        document.getElementById('map').classList.toggle('hd', zoom > 1);
         document.getElementById('zoom-wrapper').style.height = "".concat(div.getBoundingClientRect().height, "px");
     };
     SeaSaltPaper.prototype.zoomIn = function () {

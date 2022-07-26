@@ -7,25 +7,9 @@ declare const g_gamethemeurl;
 
 const ANIMATION_MS = 500;
 
-const ZOOM_LEVELS = [0.5, 0.625, 0.75, 0.875, 1, 1.25, 1.5];
-const ZOOM_LEVELS_MARGIN = [-100, -60, -33, -14, 0, 20, 33.34];
+const ZOOM_LEVELS = [0.5, 0.625, 0.75, 0.875, 1];
+const ZOOM_LEVELS_MARGIN = [-100, -60, -33, -14, 0];
 const LOCAL_STORAGE_ZOOM_KEY = 'SeaSaltPaper-zoom';
-
-function formatTextIcons(rawText: string) {
-    if (!rawText) {
-        return '';
-    }
-    return rawText
-        .replace(/\[GreenLight\]/ig, '<div class="map-icon" data-element="0"></div>')
-        .replace(/\[OldLady\]/ig, '<div class="map-icon" data-element="20"></div>')
-        .replace(/\[Student\]/ig, '<div class="map-icon" data-element="30"></div>')
-        .replace(/\[School\]/ig, '<div class="map-icon" data-element="32"></div>')
-        .replace(/\[Tourist\]/ig, '<div class="map-icon" data-element="40"></div>')
-        .replace(/\[MonumentLight\]/ig, '<div class="map-icon" data-element="41"></div>')
-        .replace(/\[MonumentDark\]/ig, '<div class="map-icon" data-element="42"></div>')
-        .replace(/\[Businessman\]/ig, '<div class="map-icon" data-element="50"></div>')
-        .replace(/\[Office\]/ig, '<div class="map-icon" data-element="51"></div>');
-}
 
 class SeaSaltPaper implements SeaSaltPaperGame {
     public zoom: number = 1;
@@ -292,8 +276,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             div.style.transform = `scale(${zoom})`;
             div.style.margin = `0 ${ZOOM_LEVELS_MARGIN[newIndex]}% ${(1-zoom)*-100}% 0`;
         }
-        
-        document.getElementById('map').classList.toggle('hd', zoom > 1);
 
         document.getElementById('zoom-wrapper').style.height = `${div.getBoundingClientRect().height}px`;
     }

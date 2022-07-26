@@ -35,3 +35,4 @@ Make sure ftp-sync.json and node_modules are in .gitignore
 log TODOs
 deck & discard counters
 detail on cards points ?
+table placement
