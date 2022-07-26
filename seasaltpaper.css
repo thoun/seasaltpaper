@@ -298,6 +298,7 @@
   background: rgba(255, 255, 255, 0.5333333333);
   padding: 5px;
   justify-content: center;
+  align-items: center;
 }
 .player-table .name-wrapper .name-and-bubble {
   position: relative;
@@ -305,6 +306,10 @@
 .player-table .name-wrapper .name-and-bubble .name {
   font-family: "Origami";
   font-size: 26pt;
+}
+.player-table .name-wrapper .counter {
+  margin-left: 8px;
+  font-size: 80%;
 }
 .player-table .cards {
   display: flex;

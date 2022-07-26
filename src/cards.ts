@@ -36,7 +36,7 @@ class Cards {
         const existingDiv = document.getElementById(`card-${card.id}`);
         const side = card.category ? 'front' : 'back';
         if (existingDiv) {
-            if (existingDiv.parentElement.id == from) {
+            if (existingDiv.parentElement.id == destinationId) {
                 return;
             }
 
@@ -52,6 +52,8 @@ class Cards {
             existingDiv.dataset.side = ''+side;
             if (!oldType && card.category) {
                 this.setVisibleInformations(existingDiv, card);
+            } else if (oldType && !card.category) {
+                this.removeVisibleInformations(existingDiv);
             }
             //this.game.setTooltip(existingDiv.id, this.getTooltip(card.type, card.subType));
         } else {
@@ -73,11 +75,11 @@ class Cards {
             div.addEventListener('click', () => this.game.onCardClick(card));
 
             if (from) {
-                const fromCardId = document.getElementById(from)/*.children[0]*/.id;
+                const fromCardId = document.getElementById(from).id;
                 slideFromObject(this.game, div, fromCardId);
             }
 
-            if (true/*card.type*/) {
+            if (card.category) {
                 this.setVisibleInformations(div, card);
             }
             //this.game.setTooltip(div.id, this.getTooltip(card.type, card.subType));
@@ -89,6 +91,13 @@ class Cards {
         div.dataset.family = ''+card.family;
         div.dataset.color = ''+card.color;
         div.dataset.index = ''+card.index;
+    }
+
+    private removeVisibleInformations(div: HTMLElement) {
+        div.removeAttribute('data-category');
+        div.removeAttribute('data-family');
+        div.removeAttribute('data-color');
+        div.removeAttribute('data-index');
     }
 
     getTitle(type: number, subType: number) {

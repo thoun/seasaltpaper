@@ -14,7 +14,7 @@ trait ActionTrait {
     public function takeCardsFromDeck() {
         $this->checkAction('takeCardsFromDeck'); 
         
-        $playerId = $this->getActivePlayerId();
+        $playerId = intval($this->getActivePlayerId());
 
         $cards = $this->getCardsFromDb($this->cards->pickCardsForLocation(2, 'deck', 'pick'));
 
@@ -43,11 +43,11 @@ trait ActionTrait {
 
         $this->cards->moveCard($card->id, 'hand'.$playerId);
 
-        self::notifyAllPlayers('cardInHandFromDiscard', clienttranslate('${player_name} takes ${TODO} from discard pile ${discardNumber}'), [
+        self::notifyAllPlayers('cardInHandFromDiscard', clienttranslate('${player_name} takes ${cardName} from discard pile ${discardNumber}'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'card' => $card,
-            'TODO' =>'TODO',
+            'cardName' => $this->getCardName($card),
             'discardId' => $discardNumber,
             'discardNumber' => $discardNumber,
             'newDiscardTopCard' => $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber)),
@@ -60,7 +60,7 @@ trait ActionTrait {
     public function chooseCard(int $cardId) {
         $this->checkAction('chooseCard'); 
         
-        $playerId = $this->getActivePlayerId();
+        $playerId = intval($this->getActivePlayerId());
 
         $card = $this->getCardFromDb($this->cards->getCard($cardId));
         if ($card->location != 'pick') {
@@ -69,15 +69,16 @@ trait ActionTrait {
 
         $this->cards->moveCard($card->id, 'hand'.$playerId);
 
-        self::notifyPlayer($playerId, 'cardInHandFromPick', clienttranslate('You choose ${TODO} card'), [
+        self::notifyPlayer($playerId, 'cardInHandFromPick', clienttranslate('You choose ${cardName} card'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'card' => $card,
-            'TODO' =>'TODO',
+            'cardName' => $this->getCardName($card),
         ]);
         self::notifyAllPlayers('cardInHandFromPick', clienttranslate('${player_name} chooses a card'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
+            'card' => Card::onlyId($card),
         ]);
 
         $this->updateCardsPoints($playerId);
@@ -103,7 +104,7 @@ trait ActionTrait {
     }
 
     private function applyPutDiscardPile(int $discardNumber) {        
-        $playerId = $this->getActivePlayerId();
+        $playerId = intval($this->getActivePlayerId());
 
         $card = $this->getCardsFromDb($this->cards->getCardsInLocation('pick'))[0];
         if ($card == null) {
@@ -112,11 +113,11 @@ trait ActionTrait {
 
         $this->cards->moveCard($card->id, 'discard'.$discardNumber, intval($this->cards->countCardInLocation('discard'.$discardNumber)) + 1);
 
-        self::notifyAllPlayers('cardInDiscardFromPick', clienttranslate('${player_name} puts ${TODO} to discard pile ${discardNumber}'), [
+        self::notifyAllPlayers('cardInDiscardFromPick', clienttranslate('${player_name} puts ${cardName} to discard pile ${discardNumber}'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'card' => $card,
-            'TODO' =>'TODO',
+            'cardName' => $this->getCardName($card),
             'discardId' => $discardNumber,
             'discardNumber' => $discardNumber,
         ]);
@@ -141,7 +142,7 @@ trait ActionTrait {
             throw new BgaUserException("Same id");
         }
 
-        $playerId = $this->getActivePlayerId();
+        $playerId = intval($this->getActivePlayerId());
         $cards = $this->getCardsFromDb($this->cards->getCards([$id1, $id2]));
 
         if ($this->array_some($cards, fn($card) => $card->location != 'hand'.$playerId || $card->category != PAIR)) {
@@ -178,11 +179,11 @@ trait ActionTrait {
                 break;
         }
 
-        self::notifyAllPlayers('playCards', clienttranslate('${player_name} plays cards ${TODO} and ${action}'), [
+        self::notifyAllPlayers('playCards', clienttranslate('${player_name} plays cards ${cardName} and ${action}'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'cards' => $cards,
-            'TODO' =>'TODO',
+            'cardName' => $this->getCardName($card),
             'action' => $action,
             'i18n' => ['action'],
         ]);
@@ -208,11 +209,11 @@ trait ActionTrait {
                 if (intval($this->cards->countCardInLocation('deck')) > 0) {
                     $card = $this->getCardFromDb($this->cards->pickCardForLocation('deck', 'hand'.$playerId));
 
-                    self::notifyPlayer($playerId, 'cardInHandFromPick', clienttranslate('You take ${TODO} card from deck'), [
+                    self::notifyPlayer($playerId, 'cardInHandFromPick', clienttranslate('You take ${cardName} card from deck'), [
                         'playerId' => $playerId,
                         'player_name' => $this->getPlayerName($playerId),
                         'card' => $card,
-                        'TODO' =>'TODO',
+                        'cardName' => $this->getCardName($card),
                     ]);
                     self::notifyAllPlayers('cardInHandFromPick', clienttranslate('${player_name} took a card from deck'), [
                         'playerId' => $playerId,
@@ -252,7 +253,7 @@ trait ActionTrait {
     }
 
     private function applyEndRound(int $type, string $announcement) {
-        $playerId = $this->getActivePlayerId();
+        $playerId = intval($this->getActivePlayerId());
 
         $this->setGameStateValue(END_ROUND_TYPE, $type);
 
@@ -302,7 +303,13 @@ trait ActionTrait {
     public function endGameWithSirens() {
         $playerId = intval($this->getActivePlayerId());
 
-        if ($this->hasFourSirens($playerId)) {
+        $sirens = $this->getPlayerSirens($playerId);
+        if (count($sirens) == 4) {
+            $this->notifyAllPlayers('playCards', '', [
+                'playerId' => $playerId,
+                'cards' => $sirens,
+            ]);
+
             $this->gamestate->nextState('sirens');
         } else {
             throw new BgaUserException("You need the four sirens");
@@ -322,11 +329,11 @@ trait ActionTrait {
 
         $this->cards->moveCard($card->id, 'hand'.$playerId);
 
-        self::notifyAllPlayers('cardInHandFromDiscard', clienttranslate('${player_name} takes ${TODO} from discard pile ${discardNumber}'), [
+        self::notifyAllPlayers('cardInHandFromDiscard', clienttranslate('${player_name} takes ${cardName} from discard pile ${discardNumber}'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'card' => $card,
-            'TODO' =>'TODO',
+            'cardName' => $this->getCardName($card),
             'discardId' => $discardNumber,
             'discardNumber' => $discardNumber,
             'newDiscardTopCard' => $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber)),

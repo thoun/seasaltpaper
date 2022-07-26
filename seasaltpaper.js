@@ -80,7 +80,7 @@ var Cards = /** @class */ (function () {
         var existingDiv = document.getElementById("card-".concat(card.id));
         var side = card.category ? 'front' : 'back';
         if (existingDiv) {
-            if (existingDiv.parentElement.id == from) {
+            if (existingDiv.parentElement.id == destinationId) {
                 return;
             }
             this.game.removeTooltip("card-".concat(card.id));
@@ -96,6 +96,9 @@ var Cards = /** @class */ (function () {
             if (!oldType && card.category) {
                 this.setVisibleInformations(existingDiv, card);
             }
+            else if (oldType && !card.category) {
+                this.removeVisibleInformations(existingDiv);
+            }
             //this.game.setTooltip(existingDiv.id, this.getTooltip(card.type, card.subType));
         }
         else {
@@ -108,10 +111,10 @@ var Cards = /** @class */ (function () {
             document.getElementById(destinationId).appendChild(div);
             div.addEventListener('click', function () { return _this.game.onCardClick(card); });
             if (from) {
-                var fromCardId = document.getElementById(from) /*.children[0]*/.id;
+                var fromCardId = document.getElementById(from).id;
                 slideFromObject(this.game, div, fromCardId);
             }
-            if (true /*card.type*/) {
+            if (card.category) {
                 this.setVisibleInformations(div, card);
             }
             //this.game.setTooltip(div.id, this.getTooltip(card.type, card.subType));
@@ -122,6 +125,12 @@ var Cards = /** @class */ (function () {
         div.dataset.family = '' + card.family;
         div.dataset.color = '' + card.color;
         div.dataset.index = '' + card.index;
+    };
+    Cards.prototype.removeVisibleInformations = function (div) {
+        div.removeAttribute('data-category');
+        div.removeAttribute('data-family');
+        div.removeAttribute('data-color');
+        div.removeAttribute('data-index');
     };
     Cards.prototype.getTitle = function (type, subType) {
         switch (type) {
@@ -221,8 +230,17 @@ var PlayerTable = /** @class */ (function () {
         this.game = game;
         this.playerId = Number(player.id);
         this.currentPlayer = this.playerId == this.game.getPlayerId();
-        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div id=\"player-table-").concat(this.playerId, "-hand-cards\" class=\"hand cards\" data-current-player=\"").concat(this.currentPlayer.toString(), "\" data-my-hand=\"").concat(this.currentPlayer.toString(), "\"></div>\n            <div class=\"name-wrapper\" style=\"color: #").concat(player.color, ";\"><span id=\"player-table-").concat(this.playerId, "-name\" class=\"name-and-bubble\"><span class=\"name\">").concat(player.name, "</span></span></div>\n            <div id=\"player-table-").concat(this.playerId, "-table-cards\" class=\"table cards\">\n            </div>\n        </div>\n        ");
+        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div id=\"player-table-").concat(this.playerId, "-hand-cards\" class=\"hand cards\" data-current-player=\"").concat(this.currentPlayer.toString(), "\" data-my-hand=\"").concat(this.currentPlayer.toString(), "\"></div>\n            <div class=\"name-wrapper\">\n                <span id=\"player-table-").concat(this.playerId, "-name\" class=\"name-and-bubble\">\n                    <span class=\"name\" style=\"color: #").concat(player.color, ";\">").concat(player.name, "</span>\n                </span>");
+        if (this.currentPlayer) {
+            html += "<span class=\"counter\">\n                    (".concat(_('Cards points:'), "&nbsp;<span id=\"cards-points-counter\"></span>)\n                </span>");
+        }
+        html += "</div>\n            <div id=\"player-table-".concat(this.playerId, "-table-cards\" class=\"table cards\">\n            </div>\n        </div>\n        ");
         dojo.place(html, document.getElementById('full-table'));
+        if (this.currentPlayer) {
+            this.cardsPointsCounter = new ebg.counter();
+            this.cardsPointsCounter.create("cards-points-counter");
+            this.cardsPointsCounter.setValue(player.cardsPoints);
+        }
         this.addCardsToHand(player.handCards);
         this.addCardsToTable(player.tableCards);
     }
@@ -250,6 +268,9 @@ var PlayerTable = /** @class */ (function () {
         // TODO animate cards to deck?
         this.handCardsDiv.innerHTML = '';
         this.tableCardsDiv.innerHTML = '';
+    };
+    PlayerTable.prototype.setHandPoints = function (cardsPoints) {
+        this.cardsPointsCounter.toValue(cardsPoints);
     };
     PlayerTable.prototype.showAnnouncement = function (announcement) {
         this.game.showBubble("player-table-".concat(this.playerId, "-name"), _('I announce ${announcement}!').replace('${announcement}', _(announcement)), 0, 5000);
@@ -345,7 +366,7 @@ var SeaSaltPaper = /** @class */ (function () {
         log('gamedatas', gamedatas);
         this.cards = new Cards(this);
         this.stacks = new Stacks(this, this.gamedatas);
-        this.createPlayerPanels(gamedatas);
+        //this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
         document.getElementById('round-panel').innerHTML = "".concat(_('Round'), "&nbsp;<span id=\"round-number-counter\"></span>&nbsp;/&nbsp;").concat(6 - Object.keys(gamedatas.players).length);
         this.roundNumberCounter = new ebg.counter();
@@ -563,19 +584,26 @@ var SeaSaltPaper = /** @class */ (function () {
         var orderedPlayers = playerIndex > 0 ? __spreadArray(__spreadArray([], players.slice(playerIndex), true), players.slice(0, playerIndex), true) : players;
         return orderedPlayers;
     };
-    SeaSaltPaper.prototype.createPlayerPanels = function (gamedatas) {
-        var _this = this;
-        Object.values(gamedatas.players).forEach(function (player) {
-            var playerId = Number(player.id);
-            if (playerId == _this.getPlayerId()) {
+    /*private createPlayerPanels(gamedatas: SeaSaltPaperGamedatas) {
+
+        Object.values(gamedatas.players).forEach(player => {
+            const playerId = Number(player.id);
+            
+            if (playerId == this.getPlayerId()) {
                 // cards points counter
-                dojo.place("\n                <div class=\"counter\">\n                    ".concat(_('Cards points:'), "&nbsp;\n                    <span id=\"cards-points-counter\"></span>\n                </div>\n                "), "player_board_".concat(player.id));
-                _this.cardsPointsCounter = new ebg.counter();
-                _this.cardsPointsCounter.create("cards-points-counter");
-                _this.cardsPointsCounter.setValue(player.cardsPoints);
+                dojo.place(`
+                <div class="counter">
+                    ${_('Cards points:')}&nbsp;
+                    <span id="cards-points-counter"></span>
+                </div>
+                `, `player_board_${player.id}`);
+
+                this.cardsPointsCounter = new ebg.counter();
+                this.cardsPointsCounter.create(`cards-points-counter`);
+                this.cardsPointsCounter.setValue(player.cardsPoints);
             }
         });
-    };
+    }*/
     SeaSaltPaper.prototype.createPlayerTables = function (gamedatas) {
         var _this = this;
         var orderedPlayers = this.getOrderedPlayers(gamedatas);
@@ -795,19 +823,16 @@ var SeaSaltPaper = /** @class */ (function () {
     SeaSaltPaper.prototype.notif_cardInHandFromDiscard = function (notif) {
         var card = notif.args.card;
         var playerId = notif.args.playerId;
-        this.getPlayerTable(playerId).addCardsToHand([playerId == this.getPlayerId() ? card : { id: card.id }], "discard".concat(notif.args.discardId));
+        var maskedCard = playerId == this.getPlayerId() ? card : { id: card.id };
+        this.getPlayerTable(playerId).addCardsToHand([maskedCard]);
         if (notif.args.newDiscardTopCard) {
             this.cards.createMoveOrUpdateCard(notif.args.newDiscardTopCard, "discard".concat(notif.args.discardId), true);
         }
     };
     SeaSaltPaper.prototype.notif_cardInHandFromPick = function (notif) {
-        if (notif.args.playerId == this.getPlayerId() && notif.args.card) {
-            // TODO this.cards.createMoveOrUpdateCard(notif.args.card, `my-hand`);
-            this.getCurrentPlayerTable().addCardsToHand([notif.args.card]);
-        }
-        else {
-            // TODO update counter ?
-        }
+        var playerId = notif.args.playerId;
+        var from = playerId == this.getPlayerId() ? undefined : 'pick';
+        this.getPlayerTable(playerId).addCardsToHand([notif.args.card], from);
     };
     SeaSaltPaper.prototype.notif_cardInDiscardFromPick = function (notif) {
         var currentCardDiv = document.getElementById("discard".concat(notif.args.discardId)).firstElementChild;
@@ -829,14 +854,15 @@ var SeaSaltPaper = /** @class */ (function () {
     SeaSaltPaper.prototype.notif_endRound = function () {
         var _a;
         this.playersTables.forEach(function (playerTable) { return playerTable.cleanTable(); });
-        (_a = this.cardsPointsCounter) === null || _a === void 0 ? void 0 : _a.toValue(0);
+        (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setHandPoints(0);
         [1, 2].forEach(function (discardNumber) {
             var currentCardDiv = document.getElementById("discard".concat(discardNumber)).firstElementChild;
             currentCardDiv === null || currentCardDiv === void 0 ? void 0 : currentCardDiv.parentElement.removeChild(currentCardDiv); // animate cards to deck?
         });
     };
     SeaSaltPaper.prototype.notif_updateCardsPoints = function (notif) {
-        this.cardsPointsCounter.toValue(notif.args.cardsPoints);
+        var _a;
+        (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setHandPoints(notif.args.cardsPoints);
     };
     /* This enable to inject translatable styled things to logs or action bar */
     /* @Override */

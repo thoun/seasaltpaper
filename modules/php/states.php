@@ -36,7 +36,7 @@ trait StateTrait {
     }    
 
     function stNextPlayer() {
-        $playerId = $this->getActivePlayerId();
+        $playerId = intval($this->getActivePlayerId());
 
         $this->giveExtraTime($playerId);
 
@@ -205,7 +205,8 @@ trait StateTrait {
         $playersIds = $this->getPlayersIds();
 
         foreach ($playersIds as $playerId) {
-            if ($this->hasFourSirens($playerId)) {
+            $sirens = $this->getPlayerSirens($playerId);
+            if (count($sirens) == 4) {
                 $this->setPlayerScore($playerId, 100, clienttranslate('${player_name} placed 4 mermaid cards and immediately wins the game!'), []);
             }
 

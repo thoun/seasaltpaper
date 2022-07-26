@@ -28,7 +28,7 @@ trait ArgsTrait {
     }
 
     function argChooseCard() {        
-        $playerId = $this->getActivePlayerId();
+        $playerId = intval($this->getActivePlayerId());
 
         $cards = $this->getCardsFromDb($this->cards->getCardsInLocation('pick'));
     
@@ -42,11 +42,11 @@ trait ArgsTrait {
     }
    
     function argPlayCards() {
-        $playerId = $this->getActivePlayerId();
+        $playerId = intval($this->getActivePlayerId());
 
         $totalPoints = $this->getCardsPoints($playerId)->totalPoints;
         $canCallEndRound = $totalPoints >= 7 && intval($this->getGameStateValue(END_ROUND_TYPE)) == 0;
-        $hasFourSirens = $this->hasFourSirens($playerId);
+        $hasFourSirens = count($this->getPlayerSirens($playerId)) == 4;
     
         return [
             'hasFourSirens' => $hasFourSirens,
@@ -55,7 +55,7 @@ trait ArgsTrait {
     }
 
     function argChooseDiscardCard() {
-        $playerId = $this->getActivePlayerId();
+        $playerId = intval($this->getActivePlayerId());
 
         $cards = $this->getCardsFromDb($this->cards->getCardsInLocation('discard'.$this->getGameStateValue(CHOSEN_DISCARD)));
     
@@ -69,7 +69,7 @@ trait ArgsTrait {
     }
 
     function argChooseOpponent() {
-        $playerId = $this->getActivePlayerId();
+        $playerId = intval($this->getActivePlayerId());
 
         $possibleOpponentsToSteal = $this->getPossibleOpponentsToSteal($playerId);
 

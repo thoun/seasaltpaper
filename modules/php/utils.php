@@ -106,13 +106,13 @@ trait UtilTrait {
         ]);
     }
 
-    function hasFourSirens(int $playerId) {
+    function getPlayerSirens(int $playerId) {
         $tableCards = $this->getCardsFromDb($this->cards->getCardsInLocation('table'.$playerId));
         $handCards = $this->getCardsFromDb($this->cards->getCardsInLocation('hand'.$playerId));
         $cards = $tableCards + $handCards;
         $sirenCards = array_values(array_filter($cards, fn($card) => $card->category == SIREN));
 
-        return count($sirenCards) >= 4;
+        return $sirenCards;
     }
 
     function revealHand(int $playerId) {
@@ -121,7 +121,10 @@ trait UtilTrait {
         if (count($handCards) > 0) {
             $this->cards->moveAllCardsInLocation('hand'.$playerId, 'table'.$playerId);
 
-            // TODO notif $handCards
+            $this->notifyAllPlayers('playCards', '', [
+                'playerId' => $playerId,
+                'cards' => $this->getCardsFromDb($this->cards->getCardsInLocation('table'.$playerId)),
+            ]);
         }
     }
 
@@ -166,23 +169,27 @@ trait UtilTrait {
             $removedCard = $cardsInHand[bga_rand(1, $cardsNumber) - 1];
             $this->cards->moveCard($removedCard->id, 'hand'.$stealerId);
 
-            $this->notifyPlayer($robbedPlayerId, 'removedCard', clienttranslate('Card ${TODO} was removed from your hand'), [
+            $this->notifyPlayer($robbedPlayerId, 'removedCard', clienttranslate('Card ${cardName} was removed from your hand'), [
                 'playerId' => $robbedPlayerId,
                 'animal' => $removedCard,
                 'fromPlayerId' => $stealerId,
-                'TODO' => 'TODO',
+                'cardName' => $this->getCardName($removedCard),
             ]);
 
-            $this->notifyPlayer($stealerId, 'newCard', clienttranslate('Card ${TODO} was picked from ${player_name2} hand'), [
+            $this->notifyPlayer($stealerId, 'newCard', clienttranslate('Card ${cardName} was picked from ${player_name2} hand'), [
                 'playerId' => $stealerId,
                 'player_name2' => $this->getPlayerName($robbedPlayerId),
                 'animal' => $removedCard,
                 'fromPlayerId' => $robbedPlayerId,
-                'TODO' => 'TODO',
+                'cardName' => $this->getCardName($removedCard),
             ]);
 
             // TODO notif hand counts
         }
+    }
+
+    function getCardName(Card $card) {
+        return 'TODO';
     }
 
 }

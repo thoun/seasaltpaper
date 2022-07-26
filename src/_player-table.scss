@@ -10,6 +10,7 @@
     background: #FFFFFF88;;
     padding: 5px;
     justify-content: center;
+    align-items: center;
 
     .name-and-bubble {
       position: relative;
@@ -18,6 +19,11 @@
         font-family: 'Origami';
         font-size: 26pt;
       }
+    }
+
+    .counter {
+      margin-left: 8px;
+      font-size: 80%;
     }
   }
 

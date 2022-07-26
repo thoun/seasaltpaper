@@ -5,6 +5,7 @@ class PlayerTable {
     public playerId: number;
 
     private currentPlayer: boolean;
+    private cardsPointsCounter: Counter;
 
     private get handCardsDiv() {
         return document.getElementById(`player-table-${this.playerId}-hand-cards`);
@@ -20,12 +21,27 @@ class PlayerTable {
         let html = `
         <div id="player-table-${this.playerId}" class="player-table">
             <div id="player-table-${this.playerId}-hand-cards" class="hand cards" data-current-player="${this.currentPlayer.toString()}" data-my-hand="${this.currentPlayer.toString()}"></div>
-            <div class="name-wrapper" style="color: #${player.color};"><span id="player-table-${this.playerId}-name" class="name-and-bubble"><span class="name">${player.name}</span></span></div>
+            <div class="name-wrapper">
+                <span id="player-table-${this.playerId}-name" class="name-and-bubble">
+                    <span class="name" style="color: #${player.color};">${player.name}</span>
+                </span>`
+        if (this.currentPlayer) {
+            html += `<span class="counter">
+                    (${_('Cards points:')}&nbsp;<span id="cards-points-counter"></span>)
+                </span>`;
+        }
+        html += `</div>
             <div id="player-table-${this.playerId}-table-cards" class="table cards">
             </div>
         </div>
         `;
         dojo.place(html, document.getElementById('full-table'));
+
+        if (this.currentPlayer) {
+            this.cardsPointsCounter = new ebg.counter();
+            this.cardsPointsCounter.create(`cards-points-counter`);
+            this.cardsPointsCounter.setValue(player.cardsPoints);
+        }
         
 
         this.addCardsToHand(player.handCards);
@@ -43,6 +59,10 @@ class PlayerTable {
         // TODO animate cards to deck?
         this.handCardsDiv.innerHTML = '';
         this.tableCardsDiv.innerHTML = '';
+    }
+    
+    public setHandPoints(cardsPoints: number) {
+        this.cardsPointsCounter.toValue(cardsPoints);
     }
 
     public showAnnouncement(announcement: string) {
