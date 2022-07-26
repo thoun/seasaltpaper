@@ -96,6 +96,11 @@ interface NotifPlayCardsArgs {
     cards: Card[];
 }
 
+interface NotifAnnounceEndRoundArgs {
+    playerId: number;
+    announcement: string;
+}
+
 interface NotifUpdateCardsPointsArgs {
     cardsPoints: number;
 }

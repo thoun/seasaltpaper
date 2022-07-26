@@ -221,7 +221,7 @@ var PlayerTable = /** @class */ (function () {
         this.game = game;
         this.playerId = Number(player.id);
         this.currentPlayer = this.playerId == this.game.getPlayerId();
-        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div id=\"player-table-").concat(this.playerId, "-hand-cards\" class=\"hand cards\" data-current-player=\"").concat(this.currentPlayer.toString(), "\" data-my-hand=\"").concat(this.currentPlayer.toString(), "\"></div>\n            <div class=\"name\" style=\"color: #").concat(player.color, ";\">").concat(player.name, "</div>\n            <div id=\"player-table-").concat(this.playerId, "-table-cards\" class=\"table cards\">\n            </div>\n        </div>\n        ");
+        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div id=\"player-table-").concat(this.playerId, "-hand-cards\" class=\"hand cards\" data-current-player=\"").concat(this.currentPlayer.toString(), "\" data-my-hand=\"").concat(this.currentPlayer.toString(), "\"></div>\n            <div class=\"name-wrapper\" style=\"color: #").concat(player.color, ";\"><span id=\"player-table-").concat(this.playerId, "-name\" class=\"name-and-bubble\"><span class=\"name\">").concat(player.name, "</span></span></div>\n            <div id=\"player-table-").concat(this.playerId, "-table-cards\" class=\"table cards\">\n            </div>\n        </div>\n        ");
         dojo.place(html, document.getElementById('full-table'));
         this.addCardsToHand(player.handCards);
         this.addCardsToTable(player.tableCards);
@@ -251,9 +251,8 @@ var PlayerTable = /** @class */ (function () {
         this.handCardsDiv.innerHTML = '';
         this.tableCardsDiv.innerHTML = '';
     };
-    PlayerTable.prototype.addCards = function (cards, to, from) {
-        var _this = this;
-        cards.forEach(function (card) { return _this.game.cards.createMoveOrUpdateCard(card, "player-table-".concat(_this.playerId, "-").concat(to, "-cards"), false, from); });
+    PlayerTable.prototype.showAnnouncement = function (announcement) {
+        this.game.showBubble("player-table-".concat(this.playerId, "-name"), _('I announce ${announcement}!').replace('${announcement}', _(announcement)), 0, 5000);
     };
     PlayerTable.prototype.setSelectable = function (selectable) {
         var cards = Array.from(this.handCardsDiv.getElementsByClassName('card'));
@@ -283,6 +282,10 @@ var PlayerTable = /** @class */ (function () {
             }
             card.classList.toggle('disabled', disabled);
         });
+    };
+    PlayerTable.prototype.addCards = function (cards, to, from) {
+        var _this = this;
+        cards.forEach(function (card) { return _this.game.cards.createMoveOrUpdateCard(card, "player-table-".concat(_this.playerId, "-").concat(to, "-cards"), false, from); });
     };
     return PlayerTable;
 }());
@@ -777,6 +780,7 @@ var SeaSaltPaper = /** @class */ (function () {
             ['cardInHandFromPick', ANIMATION_MS],
             ['cardInDiscardFromPick', ANIMATION_MS],
             ['playCards', ANIMATION_MS],
+            ['announceEndRound', ANIMATION_MS],
             ['endRound', ANIMATION_MS],
             ['updateCardsPoints', 1],
         ];
@@ -818,6 +822,9 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.notif_playCards = function (notif) {
         this.getPlayerTable(notif.args.playerId).addCardsToTable(notif.args.cards);
+    };
+    SeaSaltPaper.prototype.notif_announceEndRound = function (notif) {
+        this.getPlayerTable(notif.args.playerId).showAnnouncement(notif.args.announcement);
     };
     SeaSaltPaper.prototype.notif_endRound = function () {
         var _a;

@@ -20,12 +20,13 @@ class PlayerTable {
         let html = `
         <div id="player-table-${this.playerId}" class="player-table">
             <div id="player-table-${this.playerId}-hand-cards" class="hand cards" data-current-player="${this.currentPlayer.toString()}" data-my-hand="${this.currentPlayer.toString()}"></div>
-            <div class="name" style="color: #${player.color};">${player.name}</div>
+            <div class="name-wrapper" style="color: #${player.color};"><span id="player-table-${this.playerId}-name" class="name-and-bubble"><span class="name">${player.name}</span></span></div>
             <div id="player-table-${this.playerId}-table-cards" class="table cards">
             </div>
         </div>
         `;
         dojo.place(html, document.getElementById('full-table'));
+        
 
         this.addCardsToHand(player.handCards);
         this.addCardsToTable(player.tableCards);
@@ -43,9 +44,9 @@ class PlayerTable {
         this.handCardsDiv.innerHTML = '';
         this.tableCardsDiv.innerHTML = '';
     }
-    
-    public addCards(cards: Card[], to: 'hand' | 'table', from?: string) {
-        cards.forEach(card => this.game.cards.createMoveOrUpdateCard(card, `player-table-${this.playerId}-${to}-cards`, false, from));
+
+    public showAnnouncement(announcement: string) {
+        (this.game as any).showBubble(`player-table-${this.playerId}-name`, _('I announce ${announcement}!').replace('${announcement}', _(announcement)), 0, 5000);        
     }
     
     public setSelectable(selectable: boolean) {
@@ -74,5 +75,9 @@ class PlayerTable {
             }
             card.classList.toggle('disabled', disabled);
         });
+    }
+    
+    private addCards(cards: Card[], to: 'hand' | 'table', from?: string) {
+        cards.forEach(card => this.game.cards.createMoveOrUpdateCard(card, `player-table-${this.playerId}-${to}-cards`, false, from));
     }
 }

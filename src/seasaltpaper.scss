@@ -7,6 +7,15 @@ html, .mode_3d #game_play_area_background {
   background: url('img/background.jpg');
 }
 
+@font-face {
+    font-family: 'Origami';
+    src: url('img/origami.woff2') format('woff2'),
+         url('img/origami.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
 #zoom-wrapper {
   position: relative;
 

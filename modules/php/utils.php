@@ -92,10 +92,6 @@ trait UtilTrait {
         return 6 - count($this->getPlayersIds());
     }
 
-    function getHandCount(int $playerId) {
-        return intval($this->cards->countCardInLocation('hand'.$playerId));
-    }
-
     function getCardsPoints(int $playerId) {
         $tableCards = $this->getCardsFromDb($this->cards->getCardsInLocation('table'.$playerId));
         $handCards = $this->getCardsFromDb($this->cards->getCardsInLocation('hand'.$playerId));

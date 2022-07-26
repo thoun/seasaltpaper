@@ -54,11 +54,7 @@ trait ActionTrait {
         ]);
 
         $this->updateCardsPoints($playerId);
-        if ($this->hasFourSirens($playerId)) {
-            $this->gamestate->nextState('sirens');
-        } else {
-            $this->gamestate->nextState('playCards');
-        }
+        $this->gamestate->nextState('playCards');
     }
 
     public function chooseCard(int $cardId) {
@@ -85,10 +81,6 @@ trait ActionTrait {
         ]);
 
         $this->updateCardsPoints($playerId);
-        if ($this->hasFourSirens($playerId)) {
-            $this->gamestate->nextState('sirens');
-            return;
-        }
         
         $remainingCardsInPick = intval($this->cards->countCardInLocation('pick'));
         if ($remainingCardsInPick == 0) {
@@ -197,31 +189,43 @@ trait ActionTrait {
 
         switch ($cards[0]->family) {
             case CRAB:
-                $this->gamestate->nextState('chooseDiscardPile');
-                break;
-            case BOAT:
-                $this->gamestate->nextState('newTurn');
-                break;
-            case FISH:
-                $card = $this->getCardFromDb($this->cards->pickCardForLocation('deck', 'hand'.$playerId));
-
-                self::notifyPlayer($playerId, 'cardInHandFromPick', clienttranslate('You take ${TODO} card from deck'), [
-                    'playerId' => $playerId,
-                    'player_name' => $this->getPlayerName($playerId),
-                    'card' => $card,
-                    'TODO' =>'TODO',
-                ]);
-                self::notifyAllPlayers('cardInHandFromPick', clienttranslate('${player_name} took a card from deck'), [
-                    'playerId' => $playerId,
-                    'player_name' => $this->getPlayerName($playerId),
-                ]);
-                
-                $this->updateCardsPoints($playerId);
-                if ($this->hasFourSirens($playerId)) {
-                    $this->gamestate->nextState('sirens');
+                if ((intval($this->cards->countCardInLocation('discard1')) + intval($this->cards->countCardInLocation('discard2'))) > 0) {
+                    $this->gamestate->nextState('chooseDiscardPile');
                 } else {
+                    self::notifyAllPlayers('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
                     $this->gamestate->nextState('playCards');
                 }
+                break;
+            case BOAT:
+                if ((intval($this->cards->countCardInLocation('deck')) + intval($this->cards->countCardInLocation('discard1')) + intval($this->cards->countCardInLocation('discard2'))) > 0) {
+                    $this->gamestate->nextState('newTurn');
+                } else {
+                    self::notifyAllPlayers('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
+                    $this->gamestate->nextState('playCards');
+                }
+                break;
+            case FISH:
+                if (intval($this->cards->countCardInLocation('deck')) > 0) {
+                    $card = $this->getCardFromDb($this->cards->pickCardForLocation('deck', 'hand'.$playerId));
+
+                    self::notifyPlayer($playerId, 'cardInHandFromPick', clienttranslate('You take ${TODO} card from deck'), [
+                        'playerId' => $playerId,
+                        'player_name' => $this->getPlayerName($playerId),
+                        'card' => $card,
+                        'TODO' =>'TODO',
+                    ]);
+                    self::notifyAllPlayers('cardInHandFromPick', clienttranslate('${player_name} took a card from deck'), [
+                        'playerId' => $playerId,
+                        'player_name' => $this->getPlayerName($playerId),
+                    ]);
+                    
+                    $this->updateCardsPoints($playerId);
+                    $this->gamestate->nextState('playCards');
+                } else {
+                    self::notifyAllPlayers('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
+                    $this->gamestate->nextState('playCards');
+                }
+                
                 break;
             case SWIMMER:
             case SHARK:
@@ -232,6 +236,8 @@ trait ActionTrait {
                 } else {
                     if (count($possibleOpponentsToSteal) == 1) {
                         $this->applySteal($playerId, $possibleOpponentsToSteal[0]);
+                    } else {
+                        self::notifyAllPlayers('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
                     }
                     $this->gamestate->nextState('playCards');
                 }
@@ -250,7 +256,7 @@ trait ActionTrait {
 
         $this->setGameStateValue(END_ROUND_TYPE, $type);
 
-        self::notifyAllPlayers('annouceLastChance', clienttranslate('${player_name} announces ${announcement}!'), [
+        self::notifyAllPlayers('announceEndRound', clienttranslate('${player_name} announces ${announcement}!'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'announcement' => $announcement,
@@ -277,6 +283,15 @@ trait ActionTrait {
         
         if (!in_array($discardNumber, [1, 2])) {
             throw new BgaUserException("Invalid discard number");
+        }
+
+        if (intval($this->cards->countCardInLocation('discard'.$discardNumber)) == 0) {
+            throw new BgaUserException("No card in that discard");
+        }
+
+        $card = $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber));
+        if ($card == null) {
+            throw new BgaUserException("No card in that discard");
         }
 
         $this->setGameStateValue(CHOSEN_DISCARD, $discardNumber);
@@ -318,10 +333,6 @@ trait ActionTrait {
         ]);
 
         $this->updateCardsPoints($playerId);
-        if ($this->hasFourSirens($playerId)) {
-            $this->gamestate->nextState('sirens');
-        } else {
-            $this->gamestate->nextState('playCards');
-        }
+        $this->gamestate->nextState('playCards');
     }
 }

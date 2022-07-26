@@ -574,6 +574,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             ['cardInHandFromPick', ANIMATION_MS],
             ['cardInDiscardFromPick', ANIMATION_MS],
             ['playCards', ANIMATION_MS],
+            ['announceEndRound', ANIMATION_MS],
             ['endRound', ANIMATION_MS],
             ['updateCardsPoints', 1],
         ];
@@ -622,6 +623,10 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
     notif_playCards(notif: Notif<NotifPlayCardsArgs>) {
         this.getPlayerTable(notif.args.playerId).addCardsToTable(notif.args.cards);
+    }
+
+    notif_announceEndRound(notif: Notif<NotifAnnounceEndRoundArgs>) {
+        this.getPlayerTable(notif.args.playerId).showAnnouncement(notif.args.announcement);
     }
 
     notif_endRound() {
