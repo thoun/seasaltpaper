@@ -302,10 +302,10 @@ $ORANGE: 10;
 @keyframes selectable-card-animation {
     0% { 
       //background: var(--background-lighter);
-      box-shadow: 0 0 2px 2px #FFFFFF88;
+      box-shadow: 0 0 3px 2px #FFFFFF;
     }
     100% { 
       //background: var(--background-darker);
-      box-shadow: 0 0 2px 2px #FFFFFF;
+      box-shadow: 0 0 5px 3px #FFFFFF;
     }
   }

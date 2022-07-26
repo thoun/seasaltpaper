@@ -30,7 +30,6 @@ interface SeaSaltPaperGamedatas {
     tablespeed: string;
 
     // Add here variables you set up in getAllDatas
-    handCards: Card[];
     roundNumber: number;
     remainingCardsInDeck: number;
     discardTopCard1: Card;
@@ -57,6 +56,7 @@ interface EnteringChooseCardArgs {
     _private?: {
         cards: Card[];
     }
+    discardNumber?: number;
 }
 
 interface EnteringPlayCardsArgs {

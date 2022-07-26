@@ -1,10 +1,18 @@
 class Stacks {
+
+    private get deckDiv() {
+        return document.getElementById('deck');
+    }
+    private get pickDiv() {
+        return document.getElementById('pick');
+    }
+
     constructor(private game: SeaSaltPaperGame, gamedatas: SeaSaltPaperGamedatas) {
         [1, 2].filter(number => gamedatas[`discardTopCard${number}`]).forEach(number => 
             game.cards.createMoveOrUpdateCard(gamedatas[`discardTopCard${number}`], `discard${number}`)
         );
 
-        document.getElementById('deck').addEventListener('click', () => this.game.takeCardsFromDeck());
+        this.deckDiv.addEventListener('click', () => this.game.takeCardsFromDeck());
         [1, 2].forEach(number => 
             document.getElementById(`discard${number}`).addEventListener('click', () => this.game.onDiscardPileClick(number))
         );
@@ -12,16 +20,22 @@ class Stacks {
     }
     
     public makeDeckSelectable(selectable: boolean) {
-        // TODO
+        this.deckDiv.classList.toggle('selectable', selectable);
     }
 
-    public makeDiscardSelectable(canTakeFromDiscard: number[]) {
-        // TODO
+    public makeDiscardSelectable(selectable: boolean) {
+        [1, 2].forEach(number => 
+            document.getElementById(`discard${number}`).firstElementChild?.classList.toggle('selectable', selectable)
+        );
+    }
+
+    public makePickSelectable(selectable: boolean) {
+        const cards = Array.from(this.pickDiv.getElementsByClassName('card')) as HTMLDivElement[];
+        cards.forEach(card => card.classList.toggle('selectable', selectable));
     }
     
     public showPickCards(show: boolean, cards?: Card[]) {
-        const pickDiv = document.getElementById('pick');
-        pickDiv.dataset.visible = show.toString();
+        this.pickDiv.dataset.visible = show.toString();
 
         cards?.forEach(card => 
             this.game.cards.createMoveOrUpdateCard(card, `pick`, false, 'deck')

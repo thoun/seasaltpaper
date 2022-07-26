@@ -127,16 +127,13 @@ class SeaSaltPaper extends Table {
 
         foreach($result['players'] as $playerId => &$player) {
             $player['playerNo'] = intval($player['playerNo']);
-            $handCards = $this->getCardsFromDb($this->cards->getCardsInLocation('hand'.$playerId));
+            $handCards = $this->getCardsFromDb($this->cards->getCardsInLocation('hand'.$playerId, null, 'location_arg'));
             $player['handCards'] = $playerId == $currentPlayerId ? $handCards : Card::onlyIds($handCards);
-            $player['tableCards'] = $this->getCardsFromDb($this->cards->getCardsInLocation('table'.$playerId));
+            $player['tableCards'] = $this->getCardsFromDb($this->cards->getCardsInLocation('table'.$playerId, null, 'location_arg'));
             if ($playerId == $currentPlayerId) {
                 $player['cardsPoints'] = $this->getCardsPoints($playerId)->totalPoints;
             }
         }
-  
-        // TODO: Gather all information about current game situation (visible by player $current_player_id).
-        $result['handCards'] = $this->getCardsFromDb($this->cards->getCardsInLocation('hand'.$currentPlayerId));
 
         $result['roundNumber'] = intval($this->getGameStateValue(ROUND_NUMBER));
         $result['remainingCardsInDeck'] = intval($this->cards->countCardInLocation('deck'));

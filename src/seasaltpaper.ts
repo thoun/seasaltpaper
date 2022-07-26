@@ -101,14 +101,20 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                 this.onEnteringTakeCards(args.args);
                 break;
             case 'chooseCard':
-            case 'putDiscardPile':
                 this.onEnteringChooseCard(args.args);
+                break;
+            case 'putDiscardPile':
+                this.onEnteringPutDiscardPile(args.args);
                 break;
             case 'playCards':
                 this.onEnteringPlayCards();
                 break;
+            case 'chooseDiscardPile':
+                this.onEnteringChooseDiscardPile();
+                break;
             case 'chooseDiscardCard':
                 this.onEnteringChooseDiscardCard(args.args);
+                break;
         }
     }
     
@@ -126,12 +132,18 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
         if ((this as any).isCurrentPlayerActive()) {
             this.stacks.makeDeckSelectable(args.canTakeFromDeck);
-            this.stacks.makeDiscardSelectable(args.canTakeFromDiscard);
+            this.stacks.makeDiscardSelectable(true);
         }
     }
     
     private onEnteringChooseCard(args: EnteringChooseCardArgs) {
         this.stacks.showPickCards(true, args._private?.cards);
+        this.stacks.makePickSelectable((this as any).isCurrentPlayerActive());
+    }
+    
+    private onEnteringPutDiscardPile(args: EnteringChooseCardArgs) {
+        this.stacks.showPickCards(true, args._private?.cards);
+        this.stacks.makeDiscardSelectable((this as any).isCurrentPlayerActive());
     }
 
     private onEnteringPlayCards() {
@@ -142,16 +154,21 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.updateDisabledPlayCards();
     }
     
+    private onEnteringChooseDiscardPile() {
+        this.stacks.makeDiscardSelectable((this as any).isCurrentPlayerActive());
+    }
+    
     private onEnteringChooseDiscardCard(args: EnteringChooseCardArgs) {
-        //this.stacks.showPickCards(true, args._private?.cards); copy of, TEMP
         const cards = args._private?.cards;
         const pickDiv = document.getElementById('discard-pick');
-        pickDiv.innerHTML = cards ? '' : 'TODO opponent is choosing';
+        pickDiv.innerHTML = '';
         pickDiv.dataset.visible = 'true';
 
-        cards?.forEach(card => 
-            this.cards.createMoveOrUpdateCard(card, `discard-pick`/*, false, 'deck' TODO*/)
-        );
+        console.log(args);
+        cards?.forEach(card => {
+            this.cards.createMoveOrUpdateCard(card, `discard-pick`, false, 'discard'+args.discardNumber)
+            document.getElementById(`card-${card.id}`).classList.add('selectable');
+        });
     }
 
     public onLeavingState(stateName: string) {
@@ -160,6 +177,12 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         switch (stateName) {
             case 'takeCards':
                 this.onLeavingTakeCards();
+                break;
+            case 'chooseCard':
+                this.onLeavingChooseCard();
+                break;
+            case 'putDiscardPile':
+                this.onLeavingPutDiscardPile();
                 break;
             case 'playCards':
                 this.onLeavingPlayCards();
@@ -172,7 +195,15 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
     private onLeavingTakeCards() {
         this.stacks.makeDeckSelectable(false);
-        this.stacks.makeDiscardSelectable([]);
+        this.stacks.makeDiscardSelectable(false);
+    }
+    
+    private onLeavingChooseCard() {
+        this.stacks.makePickSelectable(false);
+    }
+
+    private onLeavingPutDiscardPile() {
+        this.stacks.makeDiscardSelectable(false);
     }
 
     private onLeavingPlayCards() {

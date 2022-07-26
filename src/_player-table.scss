@@ -41,7 +41,7 @@
     &.hand {
       &[data-current-player="false"] {
         min-height: unset;
-        max-height: 75px;
+        max-height: 45px;
         overflow: hidden;
 
         .card:not(:first-child) {

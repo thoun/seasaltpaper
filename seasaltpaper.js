@@ -200,21 +200,38 @@ var Stacks = /** @class */ (function () {
         [1, 2].filter(function (number) { return gamedatas["discardTopCard".concat(number)]; }).forEach(function (number) {
             return game.cards.createMoveOrUpdateCard(gamedatas["discardTopCard".concat(number)], "discard".concat(number));
         });
-        document.getElementById('deck').addEventListener('click', function () { return _this.game.takeCardsFromDeck(); });
+        this.deckDiv.addEventListener('click', function () { return _this.game.takeCardsFromDeck(); });
         [1, 2].forEach(function (number) {
             return document.getElementById("discard".concat(number)).addEventListener('click', function () { return _this.game.onDiscardPileClick(number); });
         });
     }
+    Object.defineProperty(Stacks.prototype, "deckDiv", {
+        get: function () {
+            return document.getElementById('deck');
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Stacks.prototype, "pickDiv", {
+        get: function () {
+            return document.getElementById('pick');
+        },
+        enumerable: false,
+        configurable: true
+    });
     Stacks.prototype.makeDeckSelectable = function (selectable) {
-        // TODO
+        this.deckDiv.classList.toggle('selectable', selectable);
     };
-    Stacks.prototype.makeDiscardSelectable = function (canTakeFromDiscard) {
-        // TODO
+    Stacks.prototype.makeDiscardSelectable = function (selectable) {
+        [1, 2].forEach(function (number) { var _a; return (_a = document.getElementById("discard".concat(number)).firstElementChild) === null || _a === void 0 ? void 0 : _a.classList.toggle('selectable', selectable); });
+    };
+    Stacks.prototype.makePickSelectable = function (selectable) {
+        var cards = Array.from(this.pickDiv.getElementsByClassName('card'));
+        cards.forEach(function (card) { return card.classList.toggle('selectable', selectable); });
     };
     Stacks.prototype.showPickCards = function (show, cards) {
         var _this = this;
-        var pickDiv = document.getElementById('pick');
-        pickDiv.dataset.visible = show.toString();
+        this.pickDiv.dataset.visible = show.toString();
         cards === null || cards === void 0 ? void 0 : cards.forEach(function (card) {
             return _this.game.cards.createMoveOrUpdateCard(card, "pick", false, 'deck');
         });
@@ -392,14 +409,20 @@ var SeaSaltPaper = /** @class */ (function () {
                 this.onEnteringTakeCards(args.args);
                 break;
             case 'chooseCard':
-            case 'putDiscardPile':
                 this.onEnteringChooseCard(args.args);
+                break;
+            case 'putDiscardPile':
+                this.onEnteringPutDiscardPile(args.args);
                 break;
             case 'playCards':
                 this.onEnteringPlayCards();
                 break;
+            case 'chooseDiscardPile':
+                this.onEnteringChooseDiscardPile();
+                break;
             case 'chooseDiscardCard':
                 this.onEnteringChooseDiscardCard(args.args);
+                break;
         }
     };
     SeaSaltPaper.prototype.setGamestateDescription = function (property) {
@@ -415,12 +438,18 @@ var SeaSaltPaper = /** @class */ (function () {
         }
         if (this.isCurrentPlayerActive()) {
             this.stacks.makeDeckSelectable(args.canTakeFromDeck);
-            this.stacks.makeDiscardSelectable(args.canTakeFromDiscard);
+            this.stacks.makeDiscardSelectable(true);
         }
     };
     SeaSaltPaper.prototype.onEnteringChooseCard = function (args) {
         var _a;
         this.stacks.showPickCards(true, (_a = args._private) === null || _a === void 0 ? void 0 : _a.cards);
+        this.stacks.makePickSelectable(this.isCurrentPlayerActive());
+    };
+    SeaSaltPaper.prototype.onEnteringPutDiscardPile = function (args) {
+        var _a;
+        this.stacks.showPickCards(true, (_a = args._private) === null || _a === void 0 ? void 0 : _a.cards);
+        this.stacks.makeDiscardSelectable(this.isCurrentPlayerActive());
     };
     SeaSaltPaper.prototype.onEnteringPlayCards = function () {
         var _a;
@@ -429,16 +458,20 @@ var SeaSaltPaper = /** @class */ (function () {
         (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setSelectable(true);
         this.updateDisabledPlayCards();
     };
+    SeaSaltPaper.prototype.onEnteringChooseDiscardPile = function () {
+        this.stacks.makeDiscardSelectable(this.isCurrentPlayerActive());
+    };
     SeaSaltPaper.prototype.onEnteringChooseDiscardCard = function (args) {
         var _this = this;
         var _a;
-        //this.stacks.showPickCards(true, args._private?.cards); copy of, TEMP
         var cards = (_a = args._private) === null || _a === void 0 ? void 0 : _a.cards;
         var pickDiv = document.getElementById('discard-pick');
-        pickDiv.innerHTML = cards ? '' : 'TODO opponent is choosing';
+        pickDiv.innerHTML = '';
         pickDiv.dataset.visible = 'true';
+        console.log(args);
         cards === null || cards === void 0 ? void 0 : cards.forEach(function (card) {
-            return _this.cards.createMoveOrUpdateCard(card, "discard-pick" /*, false, 'deck' TODO*/);
+            _this.cards.createMoveOrUpdateCard(card, "discard-pick", false, 'discard' + args.discardNumber);
+            document.getElementById("card-".concat(card.id)).classList.add('selectable');
         });
     };
     SeaSaltPaper.prototype.onLeavingState = function (stateName) {
@@ -446,6 +479,12 @@ var SeaSaltPaper = /** @class */ (function () {
         switch (stateName) {
             case 'takeCards':
                 this.onLeavingTakeCards();
+                break;
+            case 'chooseCard':
+                this.onLeavingChooseCard();
+                break;
+            case 'putDiscardPile':
+                this.onLeavingPutDiscardPile();
                 break;
             case 'playCards':
                 this.onLeavingPlayCards();
@@ -457,7 +496,13 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.onLeavingTakeCards = function () {
         this.stacks.makeDeckSelectable(false);
-        this.stacks.makeDiscardSelectable([]);
+        this.stacks.makeDiscardSelectable(false);
+    };
+    SeaSaltPaper.prototype.onLeavingChooseCard = function () {
+        this.stacks.makePickSelectable(false);
+    };
+    SeaSaltPaper.prototype.onLeavingPutDiscardPile = function () {
+        this.stacks.makeDiscardSelectable(false);
     };
     SeaSaltPaper.prototype.onLeavingPlayCards = function () {
         var _a;
