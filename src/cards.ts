@@ -81,8 +81,8 @@ class Cards {
 
             if (card.category) {
                 this.setVisibleInformations(div, card);
+                //this.game.setTooltip(div.id, this.getTooltip(card.type, card.subType));
             }
-            //this.game.setTooltip(div.id, this.getTooltip(card.type, card.subType));
         }
     }
 

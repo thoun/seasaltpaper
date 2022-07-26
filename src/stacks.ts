@@ -21,11 +21,10 @@ class Stacks {
     
     public showPickCards(show: boolean, cards?: Card[]) {
         const pickDiv = document.getElementById('pick');
-        pickDiv.innerHTML = cards ? '' : 'TODO opponent is choosing';
         pickDiv.dataset.visible = show.toString();
 
         cards?.forEach(card => 
-            this.game.cards.createMoveOrUpdateCard(card, `pick`/*, false, 'deck' TODO*/)
+            this.game.cards.createMoveOrUpdateCard(card, `pick`, false, 'deck')
         );
     }
 }

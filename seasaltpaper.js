@@ -116,8 +116,8 @@ var Cards = /** @class */ (function () {
             }
             if (card.category) {
                 this.setVisibleInformations(div, card);
+                //this.game.setTooltip(div.id, this.getTooltip(card.type, card.subType));
             }
-            //this.game.setTooltip(div.id, this.getTooltip(card.type, card.subType));
         }
     };
     Cards.prototype.setVisibleInformations = function (div, card) {
@@ -214,10 +214,9 @@ var Stacks = /** @class */ (function () {
     Stacks.prototype.showPickCards = function (show, cards) {
         var _this = this;
         var pickDiv = document.getElementById('pick');
-        pickDiv.innerHTML = cards ? '' : 'TODO opponent is choosing';
         pickDiv.dataset.visible = show.toString();
         cards === null || cards === void 0 ? void 0 : cards.forEach(function (card) {
-            return _this.game.cards.createMoveOrUpdateCard(card, "pick" /*, false, 'deck' TODO*/);
+            return _this.game.cards.createMoveOrUpdateCard(card, "pick", false, 'deck');
         });
     };
     return Stacks;

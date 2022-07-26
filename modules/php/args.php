@@ -29,15 +29,20 @@ trait ArgsTrait {
 
     function argChooseCard() {        
         $playerId = intval($this->getActivePlayerId());
+        $playersIds = $this->getPlayersIds();
 
         $cards = $this->getCardsFromDb($this->cards->getCardsInLocation('pick'));
+        $maskedCards = Card::onlyIds($cards);
+
+        $private = [];
+        foreach ($playersIds as $pId) {
+            $private[$pId] = [
+                'cards' => ($pId == $playerId) ? $cards : $maskedCards
+            ];
+        }
     
         return [
-            '_private' => [
-                $playerId => [
-                    'cards' => $cards,
-                ]
-            ]
+            '_private' => $private,
         ];
     }
    

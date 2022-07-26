@@ -7,7 +7,7 @@
 
   .name-wrapper {
     display: flex;
-    background: #FFFFFF88;;
+    background: #FFFFFFAA;
     padding: 5px;
     justify-content: center;
     align-items: center;
@@ -18,6 +18,10 @@
       .name {
         font-family: 'Origami';
         font-size: 26pt;
+      }
+
+      .discussion_bubble {
+        white-space: nowrap;
       }
     }
 

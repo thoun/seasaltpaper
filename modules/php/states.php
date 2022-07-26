@@ -97,14 +97,14 @@ trait StateTrait {
             foreach($playersIds as $playerId) {
                 $isBetCaller = $playerId == $lastChanceCaller;
 
-                if ($betWon) {   
-
+                $messageOnlyColorBonus = clienttranslate('${player_name} only scores the color bonus of ${colorBonus} (${cardsPoints} cards points are ignored)');
+                if ($betWon) {
                     $roundPoints = $isBetCaller ? 
                         $playerPoints[$playerId] + $cardsPoints[$playerId]->colorBonus : 
                         $cardsPoints[$playerId]->colorBonus;
                     $message = $isBetCaller ? 
-                        clienttranslate('${player_name} won the bet and scores ${cardsPoints}, and the color bonus of ${colorBonus}') : 
-                        clienttranslate('${player_name} only scores the color bonus of ${colorBonus}');
+                        clienttranslate('${player_name} won the bet and scores ${cardsPoints} for cards points, and the color bonus of ${colorBonus}') : 
+                        $messageOnlyColorBonus;
 
                     $this->incPlayerScore($playerId, $roundPoints, $message, [
                         'roundPoints' => $roundPoints,
@@ -117,7 +117,7 @@ trait StateTrait {
                         $cardsPoints[$playerId]->colorBonus : 
                         $playerPoints[$playerId];
                     $message = $isBetCaller ? 
-                        clienttranslate('${player_name} only scores the color bonus of ${colorBonus}') : 
+                        $messageOnlyColorBonus : 
                         clienttranslate('${player_name} scores ${roundPoints} points in this round for cards points');
 
                     $this->incPlayerScore($playerId, $roundPoints, $message, [

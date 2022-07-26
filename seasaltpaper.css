@@ -240,7 +240,21 @@
     box-shadow: 0 0 2px 2px #FFFFFF;
   }
 }
-#deck {
+#table-center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid #60c2cb;
+  padding: 5px;
+  border-radius: 15px;
+}
+#table-center #deck-and-discards {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#table-center #deck-and-discards #deck {
   display: inline-block;
   position: relative;
   width: 149px;
@@ -251,8 +265,7 @@
   background-size: auto 100%;
   box-shadow: 3px 3px 0px 0px #333, 5px 5px 3px black;
 }
-
-.discard-stack {
+#table-center #deck-and-discards .discard-stack {
   display: inline-block;
   position: relative;
   width: 159px;
@@ -260,32 +273,66 @@
   margin: 5px;
   border-radius: 10px;
   border: 1px solid white;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.4);
 }
-
-#pick {
-  border: 1px solid green;
+#table-center #pick {
+  position: relative;
+  background-color: #60c2cb;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 350px;
+  height: 230px;
+  margin-top: 10px;
+  transition: background-color 0.5s;
 }
-#pick[data-visible=false] {
-  display: none;
+#table-center #pick[data-visible=false] {
+  background-color: transparent;
+}
+#table-center #pick[data-visible=false]::before {
+  border-color: transparent;
+}
+#table-center #pick::before {
+  transition: border-color 0.5s;
+  top: -12px;
+  border-width: 0 12px 12px 12px;
+  border-color: #60c2cb transparent;
+  border-style: solid;
+  content: "";
+  display: block;
+  left: 7px;
+  position: absolute;
+  width: 0;
 }
 
 #discard-pick {
-  border: 1px solid blue;
+  background: rgba(255, 255, 255, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
 }
 #discard-pick[data-visible=false] {
   display: none;
 }
 
-/*.player-board {
-  background-color: white;
+.cards-stack {
+  position: relative;
+}
+.cards-stack .card {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
 
-  &.spectator-mode {
-    * {
-      background: white !important;
-    }
-  }
-}*/
+.player-board {
+  background-color: white;
+}
+.player-board.spectator-mode * {
+  background: white !important;
+}
+
 .player-table {
   width: 700px;
   position: relative;
@@ -295,7 +342,7 @@
 }
 .player-table .name-wrapper {
   display: flex;
-  background: rgba(255, 255, 255, 0.5333333333);
+  background: rgba(255, 255, 255, 0.6666666667);
   padding: 5px;
   justify-content: center;
   align-items: center;
@@ -306,6 +353,9 @@
 .player-table .name-wrapper .name-and-bubble .name {
   font-family: "Origami";
   font-size: 26pt;
+}
+.player-table .name-wrapper .name-and-bubble .discussion_bubble {
+  white-space: nowrap;
 }
 .player-table .name-wrapper .counter {
   margin-left: 8px;
