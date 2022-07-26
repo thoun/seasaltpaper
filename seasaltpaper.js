@@ -610,7 +610,7 @@ var SeaSaltPaper = /** @class */ (function () {
             var prefId = +match[1];
             var prefValue = +e.target.value;
             _this.prefs[prefId].value = prefValue;
-            //this.onPreferenceChange(prefId, prefValue);
+            _this.onPreferenceChange(prefId, prefValue);
         };
         // Call onPreferenceChange() when any value changes
         dojo.query(".preference_control").connect("onchange", onchange);
@@ -620,6 +620,13 @@ var SeaSaltPaper = /** @class */ (function () {
             document.getElementById('preference_control_203').closest(".preference_choice").style.display = 'none';
         }
         catch (e) { }
+    };
+    SeaSaltPaper.prototype.onPreferenceChange = function (prefId, prefValue) {
+        switch (prefId) {
+            case 201:
+                document.getElementsByTagName('html')[0].dataset.origamiFont = (prefValue == 2).toString();
+                break;
+        }
     };
     SeaSaltPaper.prototype.getOrderedPlayers = function (gamedatas) {
         var _this = this;

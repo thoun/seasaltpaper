@@ -324,7 +324,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
           var prefId = +match[1];
           var prefValue = +e.target.value;
           (this as any).prefs[prefId].value = prefValue;
-          //this.onPreferenceChange(prefId, prefValue);
+          this.onPreferenceChange(prefId, prefValue);
         }
         
         // Call onPreferenceChange() when any value changes
@@ -339,6 +339,14 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         try {
             (document.getElementById('preference_control_203').closest(".preference_choice") as HTMLDivElement).style.display = 'none';
         } catch (e) {}
+    }
+      
+    private onPreferenceChange(prefId: number, prefValue: number) {
+        switch (prefId) {
+            case 201: 
+                document.getElementsByTagName('html')[0].dataset.origamiFont = (prefValue == 2).toString();
+                break;
+        }
     }
 
     private getOrderedPlayers(gamedatas: SeaSaltPaperGamedatas) {

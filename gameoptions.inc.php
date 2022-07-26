@@ -27,3 +27,16 @@
 $game_options = [];
 
 
+$game_preferences = [
+    201 => [
+        'name' => totranslate('Font style'),
+        'needReload' => false,
+        'values' => [
+            1 => [ 'name' => totranslate( 'Default font' )],
+            2 => [ 'name' => totranslate( 'Origami font' )],
+        ],
+        'default' => 2
+    ],
+];
+
+

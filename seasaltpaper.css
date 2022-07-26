@@ -356,8 +356,8 @@
   position: relative;
 }
 .player-table .name-wrapper .name-and-bubble .name {
-  font-family: "Origami";
-  font-size: 26pt;
+  font-size: 20pt;
+  font-weight: bold;
 }
 .player-table .name-wrapper .name-and-bubble .discussion_bubble {
   white-space: nowrap;
@@ -437,4 +437,9 @@ html, .mode_3d #game_play_area_background {
 
 .spectatorMode #myhand-wrap {
   display: none;
+}
+
+html[data-origami-font=true] .player-table .name-wrapper .name-and-bubble .name {
+  font-family: "Origami";
+  font-size: 26pt;
 }
