@@ -95,17 +95,19 @@ $ORANGE: 10;
         }
     }    
 
-    &.selectable {
+    &.selectable:not(.disabled) {
         cursor: pointer;
-        box-shadow: 0 0 10px 10px white;
+        &:not(.selected) {
+            animation: selectable-card-animation 1s alternate infinite ease-in-out;
+        }
 
         .card-side {
             box-shadow: unset;
         }
     }    
 
-    &.selected {
-        box-shadow: 0 0 10px 10px orange;
+    &.selected:not(.disabled) {
+        box-shadow: 0 0 5px 8px orange;
 
         .card-side {
             box-shadow: unset;
@@ -296,3 +298,14 @@ $ORANGE: 10;
         }
     }
 }
+
+@keyframes selectable-card-animation {
+    0% { 
+      //background: var(--background-lighter);
+      box-shadow: 0 0 2px 2px #FFFFFF88;
+    }
+    100% { 
+      //background: var(--background-darker);
+      box-shadow: 0 0 2px 2px #FFFFFF;
+    }
+  }

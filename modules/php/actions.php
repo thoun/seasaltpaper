@@ -30,7 +30,7 @@ trait ActionTrait {
     public function takeCardFromDiscard(int $discardNumber) {
         $this->checkAction('takeCardFromDiscard'); 
         
-        $playerId = $this->getActivePlayerId();
+        $playerId = intval($this->getActivePlayerId());
         
         if (!in_array($discardNumber, [1, 2])) {
             throw new BgaUserException("Invalid discard number");
@@ -284,6 +284,16 @@ trait ActionTrait {
         $this->gamestate->nextState('chooseCard');
     }
 
+    public function endGameWithSirens() {
+        $playerId = intval($this->getActivePlayerId());
+
+        if ($this->hasFourSirens($playerId)) {
+            $this->gamestate->nextState('sirens');
+        } else {
+            throw new BgaUserException("You need the four sirens");
+        }
+    }
+
     public function chooseDiscardCard(int $cardId) {
         $this->checkAction('chooseDiscardCard');
 
@@ -293,7 +303,7 @@ trait ActionTrait {
             throw new BgaUserException("Invalid discard card");
         }
 
-        $playerId = $this->getActivePlayerId();
+        $playerId = intval($this->getActivePlayerId());
 
         $this->cards->moveCard($card->id, 'hand'.$playerId);
 

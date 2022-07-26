@@ -73,26 +73,18 @@ var Cards = /** @class */ (function () {
             });
         });
     };
-    Cards.prototype.debugSeeAllCardsFromGamedatas = function (cards) {
-        var _this = this;
-        document.querySelectorAll('.card').forEach(function (card) { return card.remove(); });
-        var html = "<div id=\"all-cards\">";
-        html += "</div>";
-        dojo.place(html, 'full-table', 'before');
-        cards.forEach(function (card) { return _this.createMoveOrUpdateCard(card, "all-cards"); });
-    };
     Cards.prototype.createMoveOrUpdateCard = function (card, destinationId, init, from) {
         var _this = this;
         if (init === void 0) { init = false; }
         if (from === void 0) { from = null; }
         var existingDiv = document.getElementById("card-".concat(card.id));
-        var side = 'front'; //(card.type ? 0 : 1)
+        var side = card.category ? 'front' : 'back';
         if (existingDiv) {
             if (existingDiv.parentElement.id == from) {
                 return;
             }
             this.game.removeTooltip("card-".concat(card.id));
-            var oldType = Number(existingDiv.dataset.type);
+            var oldType = Number(existingDiv.dataset.category);
             existingDiv.classList.remove('selectable', 'selected', 'disabled');
             if (init) {
                 document.getElementById(destinationId).appendChild(existingDiv);
@@ -101,7 +93,7 @@ var Cards = /** @class */ (function () {
                 slideToObjectAndAttach(this.game, existingDiv, destinationId);
             }
             existingDiv.dataset.side = '' + side;
-            if (!oldType && true /*card.type*/) {
+            if (!oldType && card.category) {
                 this.setVisibleInformations(existingDiv, card);
             }
             //this.game.setTooltip(existingDiv.id, this.getTooltip(card.type, card.subType));
@@ -226,10 +218,72 @@ var isDebug = window.location.host == 'studio.boardgamearena.com' || window.loca
 var log = isDebug ? console.log.bind(window.console) : function () { };
 var PlayerTable = /** @class */ (function () {
     function PlayerTable(game, player) {
+        this.game = game;
         this.playerId = Number(player.id);
-        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\" style=\"box-shadow: 0 0 3px 3px #").concat(player.color, ";\">\n            <div class=\"name\" style=\"color: #").concat(player.color, ";\">").concat(player.name, "</div>\n            <div id=\"player-table-").concat(this.playerId, "-cards\" class=\"cards\">\n            </div>\n        </div>\n        ");
+        this.currentPlayer = this.playerId == this.game.getPlayerId();
+        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div id=\"player-table-").concat(this.playerId, "-hand-cards\" class=\"hand cards\" data-current-player=\"").concat(this.currentPlayer.toString(), "\" data-my-hand=\"").concat(this.currentPlayer.toString(), "\"></div>\n            <div class=\"name\" style=\"color: #").concat(player.color, ";\">").concat(player.name, "</div>\n            <div id=\"player-table-").concat(this.playerId, "-table-cards\" class=\"table cards\">\n            </div>\n        </div>\n        ");
         dojo.place(html, document.getElementById('full-table'));
+        this.addCardsToHand(player.handCards);
+        this.addCardsToTable(player.tableCards);
     }
+    Object.defineProperty(PlayerTable.prototype, "handCardsDiv", {
+        get: function () {
+            return document.getElementById("player-table-".concat(this.playerId, "-hand-cards"));
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(PlayerTable.prototype, "tableCardsDiv", {
+        get: function () {
+            return document.getElementById("player-table-".concat(this.playerId, "-table-cards"));
+        },
+        enumerable: false,
+        configurable: true
+    });
+    PlayerTable.prototype.addCardsToHand = function (cards, from) {
+        this.addCards(cards, 'hand', from);
+    };
+    PlayerTable.prototype.addCardsToTable = function (cards, from) {
+        this.addCards(cards, 'table', from);
+    };
+    PlayerTable.prototype.cleanTable = function () {
+        // TODO animate cards to deck?
+        this.handCardsDiv.innerHTML = '';
+        this.tableCardsDiv.innerHTML = '';
+    };
+    PlayerTable.prototype.addCards = function (cards, to, from) {
+        var _this = this;
+        cards.forEach(function (card) { return _this.game.cards.createMoveOrUpdateCard(card, "player-table-".concat(_this.playerId, "-").concat(to, "-cards"), false, from); });
+    };
+    PlayerTable.prototype.setSelectable = function (selectable) {
+        var cards = Array.from(this.handCardsDiv.getElementsByClassName('card'));
+        if (selectable) {
+            cards.forEach(function (card) { return card.classList.add('selectable'); });
+        }
+        else {
+            cards.forEach(function (card) { return card.classList.remove('selectable', 'selected', 'disabled'); });
+        }
+    };
+    PlayerTable.prototype.updateDisabledPlayCards = function (selectedCards) {
+        var cards = Array.from(this.handCardsDiv.getElementsByClassName('card'));
+        cards.forEach(function (card) {
+            var disabled = false;
+            if (card.dataset.category != '2') {
+                disabled = true;
+            }
+            else {
+                if (selectedCards.length >= 2) {
+                    disabled = !selectedCards.includes(Number(card.dataset.id));
+                }
+                else if (selectedCards.length == 1) {
+                    var family = Number(document.getElementById("card-".concat(selectedCards[0])).dataset.family);
+                    var authorizedFamily = '' + (family >= 4 ? 9 - family : family);
+                    disabled = Number(card.dataset.id) != selectedCards[0] && card.dataset.family != authorizedFamily;
+                }
+            }
+            card.classList.toggle('disabled', disabled);
+        });
+    };
     return PlayerTable;
 }());
 var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
@@ -294,9 +348,6 @@ var SeaSaltPaper = /** @class */ (function () {
         this.roundNumberCounter = new ebg.counter();
         this.roundNumberCounter.create("round-number-counter");
         this.roundNumberCounter.setValue(gamedatas.roundNumber);
-        gamedatas.handCards.forEach(function (card) {
-            return _this.cards.createMoveOrUpdateCard(card, "my-hand");
-        });
         this.setupNotifications();
         this.setupPreferences();
         document.getElementById('zoom-out').addEventListener('click', function () { return _this.zoomOut(); });
@@ -349,8 +400,10 @@ var SeaSaltPaper = /** @class */ (function () {
         this.stacks.showPickCards(true, (_a = args._private) === null || _a === void 0 ? void 0 : _a.cards);
     };
     SeaSaltPaper.prototype.onEnteringPlayCards = function () {
+        var _a;
         this.stacks.showPickCards(false);
         this.selectedCards = [];
+        (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setSelectable(true);
         this.updateDisabledPlayCards();
     };
     SeaSaltPaper.prototype.onEnteringChooseDiscardCard = function (args) {
@@ -384,9 +437,9 @@ var SeaSaltPaper = /** @class */ (function () {
         this.stacks.makeDiscardSelectable([]);
     };
     SeaSaltPaper.prototype.onLeavingPlayCards = function () {
+        var _a;
         this.selectedCards = null;
-        var cards = Array.from(document.getElementById("my-hand").getElementsByClassName('card'));
-        cards.forEach(function (card) { return card.classList.remove('selectable', 'selected', 'disabled'); });
+        (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setSelectable(false);
     };
     SeaSaltPaper.prototype.onLeavingChooseDiscardCard = function () {
         // TEMP TODO
@@ -403,6 +456,9 @@ var SeaSaltPaper = /** @class */ (function () {
                 case 'playCards':
                     var playCardsArgs = args;
                     this.addActionButton("playCards_button", _("Play selected cards"), function () { return _this.playSelectedCards(); });
+                    if (playCardsArgs.hasFourSirens) {
+                        this.addActionButton("endGameWithSirens_button", _("Play the four sirens"), function () { return _this.endGameWithSirens(); });
+                    }
                     this.addActionButton("endTurn_button", _("End turn"), function () { return _this.endTurn(); });
                     this.addActionButton("endRound_button", _('End round ("LAST CHANCE")'), function () { return _this.endRound(); }, null, null, 'red');
                     this.addActionButton("immediateEndRound_button", _('End round ("STOP")'), function () { return _this.immediateEndRound(); }, null, null, 'red');
@@ -411,6 +467,14 @@ var SeaSaltPaper = /** @class */ (function () {
                         dojo.addClass("endRound_button", "disabled");
                         dojo.addClass("immediateEndRound_button", "disabled");
                     }
+                    break;
+                case 'chooseOpponent':
+                    var chooseOpponentArgs = args;
+                    chooseOpponentArgs.playersIds.forEach(function (playerId) {
+                        var player = _this.getPlayer(playerId);
+                        _this.addActionButton("choosePlayer".concat(playerId, "-button"), player.name, function () { return _this.chooseOpponent(playerId); });
+                        document.getElementById("choosePlayer".concat(playerId, "-button")).style.border = "3px solid #".concat(player.color);
+                    });
                     break;
             }
         }
@@ -423,6 +487,16 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.getPlayerColor = function (playerId) {
         return this.gamedatas.players[playerId].color;
+    };
+    SeaSaltPaper.prototype.getPlayer = function (playerId) {
+        return Object.values(this.gamedatas.players).find(function (player) { return Number(player.id) == playerId; });
+    };
+    SeaSaltPaper.prototype.getPlayerTable = function (playerId) {
+        return this.playersTables.find(function (playerTable) { return playerTable.playerId === playerId; });
+    };
+    SeaSaltPaper.prototype.getCurrentPlayerTable = function () {
+        var _this = this;
+        return this.playersTables.find(function (playerTable) { return playerTable.playerId === _this.getPlayerId(); });
     };
     SeaSaltPaper.prototype.setZoom = function (zoom) {
         if (zoom === void 0) { zoom = 1; }
@@ -511,27 +585,9 @@ var SeaSaltPaper = /** @class */ (function () {
         this.playersTables.push(table);
     };
     SeaSaltPaper.prototype.updateDisabledPlayCards = function () {
-        var _this = this;
-        var _a;
-        var cards = Array.from(document.getElementById("my-hand").getElementsByClassName('card'));
-        cards.forEach(function (card) {
-            var disabled = false;
-            if (card.dataset.category != '2') {
-                disabled = true;
-            }
-            else {
-                if (_this.selectedCards.length >= 2) {
-                    disabled = !_this.selectedCards.includes(Number(card.dataset.id));
-                }
-                else if (_this.selectedCards.length == 1) {
-                    var family = Number(document.getElementById("card-".concat(_this.selectedCards[0])).dataset.family);
-                    var authorizedFamily = '' + (family >= 4 ? 9 - family : family);
-                    disabled = Number(card.dataset.id) != _this.selectedCards[0] && card.dataset.family != authorizedFamily;
-                }
-            }
-            card.classList.toggle('disabled', disabled);
-        });
-        (_a = document.getElementById("playCards_button")) === null || _a === void 0 ? void 0 : _a.classList.toggle("disabled", this.selectedCards.length != 2);
+        var _a, _b;
+        (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.updateDisabledPlayCards(this.selectedCards);
+        (_b = document.getElementById("playCards_button")) === null || _b === void 0 ? void 0 : _b.classList.toggle("disabled", this.selectedCards.length != 2);
     };
     SeaSaltPaper.prototype.onCardClick = function (card) {
         var cardDiv = document.getElementById("card-".concat(card.id));
@@ -551,7 +607,7 @@ var SeaSaltPaper = /** @class */ (function () {
                 }
                 break;
             case 'playCards':
-                if (parentDiv.id == "my-hand") {
+                if (parentDiv.dataset.myHand == "true") {
                     if (this.selectedCards.includes(card.id)) {
                         this.selectedCards.splice(this.selectedCards.indexOf(card.id), 1);
                         cardDiv.classList.remove('selected');
@@ -639,11 +695,25 @@ var SeaSaltPaper = /** @class */ (function () {
             id: id
         });
     };
+    SeaSaltPaper.prototype.chooseOpponent = function (id) {
+        if (!this.checkAction('chooseOpponent')) {
+            return;
+        }
+        this.takeAction('chooseOpponent', {
+            id: id
+        });
+    };
     SeaSaltPaper.prototype.endTurn = function () {
         if (!this.checkAction('endTurn')) {
             return;
         }
         this.takeAction('endTurn');
+    };
+    SeaSaltPaper.prototype.endGameWithSirens = function () {
+        if (!this.checkAction('endGameWithSirens')) {
+            return;
+        }
+        this.takeAction('endGameWithSirens');
     };
     SeaSaltPaper.prototype.endRound = function () {
         if (!this.checkAction('endRound')) {
@@ -719,21 +789,17 @@ var SeaSaltPaper = /** @class */ (function () {
         this.cards.createMoveOrUpdateCard(notif.args.card, "discard".concat(notif.args.discardId), true, 'deck');
     };
     SeaSaltPaper.prototype.notif_cardInHandFromDiscard = function (notif) {
-        if (notif.args.playerId == this.getPlayerId()) {
-            this.cards.createMoveOrUpdateCard(notif.args.card, "my-hand", false, "discard".concat(notif.args.discardId));
-        }
-        else {
-            // TODO animate
-            var pickedCard = document.getElementById("card-".concat(notif.args.card.id));
-            pickedCard === null || pickedCard === void 0 ? void 0 : pickedCard.parentElement.removeChild(pickedCard);
-        }
+        var card = notif.args.card;
+        var playerId = notif.args.playerId;
+        this.getPlayerTable(playerId).addCardsToHand([playerId == this.getPlayerId() ? card : { id: card.id }], "discard".concat(notif.args.discardId));
         if (notif.args.newDiscardTopCard) {
             this.cards.createMoveOrUpdateCard(notif.args.newDiscardTopCard, "discard".concat(notif.args.discardId), true);
         }
     };
     SeaSaltPaper.prototype.notif_cardInHandFromPick = function (notif) {
         if (notif.args.playerId == this.getPlayerId() && notif.args.card) {
-            this.cards.createMoveOrUpdateCard(notif.args.card, "my-hand");
+            // TODO this.cards.createMoveOrUpdateCard(notif.args.card, `my-hand`);
+            this.getCurrentPlayerTable().addCardsToHand([notif.args.card]);
         }
         else {
             // TODO update counter ?
@@ -751,13 +817,11 @@ var SeaSaltPaper = /** @class */ (function () {
         (_a = this.scoreCtrl[notif.args.playerId]) === null || _a === void 0 ? void 0 : _a.toValue(notif.args.newScore);
     };
     SeaSaltPaper.prototype.notif_playCards = function (notif) {
-        var _this = this;
-        notif.args.cards.forEach(function (card) { return _this.cards.createMoveOrUpdateCard(card, "player-table-".concat(notif.args.playerId, "-cards")); });
+        this.getPlayerTable(notif.args.playerId).addCardsToTable(notif.args.cards);
     };
     SeaSaltPaper.prototype.notif_endRound = function () {
         var _a;
-        document.getElementById("my-hand").innerHTML = ''; // animate cards to deck?
-        Object.keys(this.gamedatas.players).forEach(function (playerId) { return document.getElementById("player-table-".concat(playerId, "-cards")).innerHTML = ''; });
+        this.playersTables.forEach(function (playerTable) { return playerTable.cleanTable(); });
         (_a = this.cardsPointsCounter) === null || _a === void 0 ? void 0 : _a.toValue(0);
         [1, 2].forEach(function (discardNumber) {
             var currentCardDiv = document.getElementById("discard".concat(discardNumber)).firstElementChild;

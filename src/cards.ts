@@ -32,26 +32,16 @@ class Cards {
         );
     }
 
-    private debugSeeAllCardsFromGamedatas(cards: Card[]) {
-        document.querySelectorAll('.card').forEach(card => card.remove());
-        
-        let html = `<div id="all-cards">`;
-        html += `</div>`;
-        dojo.place(html, 'full-table', 'before');
-
-        cards.forEach(card => this.createMoveOrUpdateCard(card, `all-cards`));
-    }
-
     public createMoveOrUpdateCard(card: Card, destinationId: string, init: boolean = false, from: string = null) {
         const existingDiv = document.getElementById(`card-${card.id}`);
-        const side = 'front';//(card.type ? 0 : 1)
+        const side = card.category ? 'front' : 'back';
         if (existingDiv) {
             if (existingDiv.parentElement.id == from) {
                 return;
             }
 
             (this.game as any).removeTooltip(`card-${card.id}`);
-            const oldType = Number(existingDiv.dataset.type);
+            const oldType = Number(existingDiv.dataset.category);
             existingDiv.classList.remove('selectable', 'selected', 'disabled');
 
             if (init) {
@@ -60,7 +50,7 @@ class Cards {
                 slideToObjectAndAttach(this.game, existingDiv, destinationId);
             }
             existingDiv.dataset.side = ''+side;
-            if (!oldType && true/*card.type*/) {
+            if (!oldType && card.category) {
                 this.setVisibleInformations(existingDiv, card);
             }
             //this.game.setTooltip(existingDiv.id, this.getTooltip(card.type, card.subType));

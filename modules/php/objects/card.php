@@ -84,27 +84,42 @@ class Card extends CardType {
         $this->location = $dbCard['location'];
         $this->locationArg = intval($dbCard['location_arg']);
         $type = intval($dbCard['type']);
-        $typeArg = intval($dbCard['type_arg']);
+        if ($type > 0) {
+            $typeArg = intval($dbCard['type_arg']);
 
-        $this->category = floor($type / 10);
-        $this->family = $type % 10;
-        $this->color = floor($typeArg / 10);
-        $this->index = $typeArg % 10;
+            $this->category = floor($type / 10);
+            $this->family = $type % 10;
+            $this->color = floor($typeArg / 10);
+            $this->index = $typeArg % 10;
 
-        foreach ($CARDS_TYPE as $cardType) {
-            if ($cardType->category == $this->category && $cardType->family == $this->family) {
-                if (property_exists($cardType, 'matchCategory')) {
-                    $this->matchCategory = $cardType->matchCategory;
+            foreach ($CARDS_TYPE as $cardType) {
+                if ($cardType->category == $this->category && $cardType->family == $this->family) {
+                    if (property_exists($cardType, 'matchCategory')) {
+                        $this->matchCategory = $cardType->matchCategory;
+                    }
+                    if (property_exists($cardType, 'matchFamily')) {
+                        $this->matchFamily = $cardType->matchFamily;
+                    }
+                    if (property_exists($cardType, 'points')) {
+                        $this->points = $cardType->points;
+                    }
+                    break;
                 }
-                if (property_exists($cardType, 'matchFamily')) {
-                    $this->matchFamily = $cardType->matchFamily;
-                }
-                if (property_exists($cardType, 'points')) {
-                    $this->points = $cardType->points;
-                }
-                break;
             }
         }
     } 
+
+    public static function onlyId(Card $card) {
+        return new Card([
+            'id' => $card->id,
+            'location' => $card->location,
+            'location_arg' => $card->locationArg,
+            'type' => null
+        ], null);
+    }
+
+    public static function onlyIds(array $cards) {
+        return array_map(fn($card) => self::onlyId($card), $cards);
+    }
 }
 ?>

@@ -128,6 +128,8 @@ class SeaSaltPaper extends Table {
         foreach($result['players'] as $playerId => &$player) {
             $player['playerNo'] = intval($player['playerNo']);
             $player['handCount'] = $this->getHandCount($playerId);
+            $handCards = $this->getCardsFromDb($this->cards->getCardsInLocation('hand'.$playerId));
+            $player['handCards'] = $playerId == $currentPlayerId ? $handCards : Card::onlyIds($handCards);
             $player['tableCards'] = $this->getCardsFromDb($this->cards->getCardsInLocation('table'.$playerId));
             if ($playerId == $currentPlayerId) {
                 $player['cardsPoints'] = $this->getCardsPoints($playerId)->totalPoints;

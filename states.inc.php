@@ -92,7 +92,6 @@ $playerActionsGameStates = [
         "transitions" => [
             "playCards" => ST_PLAYER_PLAY_CARDS,
             "chooseCard" => ST_PLAYER_CHOOSE_CARD,
-            "sirens" => ST_END_SCORE,
             "zombiePass" => ST_NEXT_PLAYER,
         ]
     ],
@@ -109,7 +108,6 @@ $playerActionsGameStates = [
         "transitions" => [
             "putDiscardPile" => ST_PLAYER_PUT_DISCARD_PILE,
             "playCards" => ST_PLAYER_PLAY_CARDS,
-            "sirens" => ST_END_SCORE,
             "zombiePass" => ST_NEXT_PLAYER,
         ]
     ],
@@ -178,7 +176,6 @@ $playerActionsGameStates = [
         ],
         "transitions" => [
             "playCards" => ST_PLAYER_PLAY_CARDS,
-            "sirens" => ST_END_SCORE,
             "zombiePass" => ST_NEXT_PLAYER,
         ]
     ],
@@ -188,12 +185,12 @@ $playerActionsGameStates = [
         "description" => clienttranslate('${actplayer} must choose an opponent to steal'),
         "descriptionmyturn" => clienttranslate('${you} must choose an opponent to steal'),
         "type" => "activeplayer",
+        "args" => "argChooseOpponent", 
         "possibleactions" => [ 
             "chooseOpponent",
         ],
         "transitions" => [
             "playCards" => ST_PLAYER_PLAY_CARDS,
-            "sirens" => ST_END_SCORE,
             "zombiePass" => ST_NEXT_PLAYER,
         ]
     ],

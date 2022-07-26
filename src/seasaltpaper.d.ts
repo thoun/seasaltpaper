@@ -12,7 +12,8 @@ interface Card {
 
 interface SeaSaltPaperPlayer extends Player {
     playerNo: number;
-    handCount: number;
+    handCards: Card[];
+    tableCards: Card[];
     cardsPoints?: number;
 }
 
@@ -59,7 +60,12 @@ interface EnteringChooseCardArgs {
 }
 
 interface EnteringPlayCardsArgs {
+    hasFourSirens: boolean;
     canCallEndRound: boolean;
+}
+
+interface EnteringChooseOpponentArgs {
+    playersIds: number[];
 }
 
 interface NotifCardInHandFromDiscardArgs {

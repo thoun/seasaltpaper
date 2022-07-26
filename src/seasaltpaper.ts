@@ -75,10 +75,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.roundNumberCounter.create(`round-number-counter`);
         this.roundNumberCounter.setValue(gamedatas.roundNumber);
 
-        gamedatas.handCards.forEach(card => 
-            this.cards.createMoveOrUpdateCard(card, `my-hand`)
-        );
-
         this.setupNotifications();
         this.setupPreferences();
 
@@ -142,6 +138,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.stacks.showPickCards(false);
         this.selectedCards = [];
 
+        this.getCurrentPlayerTable()?.setSelectable(true);
         this.updateDisabledPlayCards();
     }
     
@@ -180,8 +177,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
     private onLeavingPlayCards() {
         this.selectedCards = null;
-        const cards = Array.from(document.getElementById(`my-hand`).getElementsByClassName('card')) as HTMLDivElement[];
-        cards.forEach(card => card.classList.remove('selectable', 'selected', 'disabled'));
+        this.getCurrentPlayerTable()?.setSelectable(false);
     }
 
     private onLeavingChooseDiscardCard() {
@@ -199,6 +195,9 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                 case 'playCards':
                     const playCardsArgs = args as EnteringPlayCardsArgs;
                     (this as any).addActionButton(`playCards_button`, _("Play selected cards"), () => this.playSelectedCards());
+                    if (playCardsArgs.hasFourSirens) {
+                        (this as any).addActionButton(`endGameWithSirens_button`, _("Play the four sirens"), () => this.endGameWithSirens());
+                    }
                     (this as any).addActionButton(`endTurn_button`, _("End turn"), () => this.endTurn());
                     (this as any).addActionButton(`endRound_button`, _('End round ("LAST CHANCE")'), () => this.endRound(), null, null, 'red');
                     (this as any).addActionButton(`immediateEndRound_button`, _('End round ("STOP")'), () => this.immediateEndRound(), null, null, 'red');
@@ -207,6 +206,15 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                         dojo.addClass(`endRound_button`, `disabled`);
                         dojo.addClass(`immediateEndRound_button`, `disabled`);
                     }
+                    break;
+                case 'chooseOpponent':
+                    const chooseOpponentArgs = args as EnteringChooseOpponentArgs;
+        
+                    chooseOpponentArgs.playersIds.forEach(playerId => {
+                        const player = this.getPlayer(playerId);
+                        (this as any).addActionButton(`choosePlayer${playerId}-button`, player.name, () => this.chooseOpponent(playerId));
+                        document.getElementById(`choosePlayer${playerId}-button`).style.border = `3px solid #${player.color}`;
+                    });
                     break;
             }
         }
@@ -224,6 +232,18 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
     public getPlayerColor(playerId: number): string {
         return this.gamedatas.players[playerId].color;
+    }
+
+    private getPlayer(playerId: number): SeaSaltPaperPlayer {
+        return Object.values(this.gamedatas.players).find(player => Number(player.id) == playerId);
+    }
+
+    private getPlayerTable(playerId: number): PlayerTable {
+        return this.playersTables.find(playerTable => playerTable.playerId === playerId);
+    }
+
+    private getCurrentPlayerTable(): PlayerTable | null {
+        return this.playersTables.find(playerTable => playerTable.playerId === this.getPlayerId());
     }
 
     private setZoom(zoom: number = 1) {
@@ -332,23 +352,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     private updateDisabledPlayCards() {
-        const cards = Array.from(document.getElementById(`my-hand`).getElementsByClassName('card')) as HTMLDivElement[];
-        cards.forEach(card => {
-            let disabled = false;
-            if (card.dataset.category != '2') {
-                disabled = true;
-            } else {
-                if (this.selectedCards.length >= 2) {
-                    disabled = !this.selectedCards.includes(Number(card.dataset.id));
-                } else if (this.selectedCards.length == 1) {
-                    const family = Number(document.getElementById(`card-${this.selectedCards[0]}`).dataset.family);
-                    const authorizedFamily = ''+(family >= 4 ? 9 - family : family);
-                    disabled = Number(card.dataset.id) != this.selectedCards[0] && card.dataset.family != authorizedFamily;
-                }
-            }
-            card.classList.toggle('disabled', disabled);
-        });
-
+        this.getCurrentPlayerTable()?.updateDisabledPlayCards(this.selectedCards);        
         document.getElementById(`playCards_button`)?.classList.toggle(`disabled`, this.selectedCards.length != 2);
     }
     
@@ -372,7 +376,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                 }
                 break;
             case 'playCards':
-                if (parentDiv.id == `my-hand`) {
+                if (parentDiv.dataset.myHand == `true`) {
                     if (this.selectedCards.includes(card.id)) {
                         this.selectedCards.splice(this.selectedCards.indexOf(card.id), 1);
                         cardDiv.classList.remove('selected');
@@ -476,12 +480,30 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         });
     }
 
+    public chooseOpponent(id: number) {
+        if(!(this as any).checkAction('chooseOpponent')) {
+            return;
+        }
+
+        this.takeAction('chooseOpponent', {
+            id
+        });
+    }
+
     public endTurn() {
         if(!(this as any).checkAction('endTurn')) {
             return;
         }
 
         this.takeAction('endTurn');
+    }
+
+    public endGameWithSirens() {
+        if(!(this as any).checkAction('endGameWithSirens')) {
+            return;
+        }
+
+        this.takeAction('endGameWithSirens');
     }
 
     public endRound() {
@@ -567,13 +589,9 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     } 
 
     notif_cardInHandFromDiscard(notif: Notif<NotifCardInHandFromDiscardArgs>) {
-        if (notif.args.playerId == this.getPlayerId()) {
-            this.cards.createMoveOrUpdateCard(notif.args.card, `my-hand`, false, `discard${notif.args.discardId}`);
-        } else {
-            // TODO animate
-            const pickedCard = document.getElementById(`card-${notif.args.card.id}`)
-            pickedCard?.parentElement.removeChild(pickedCard);
-        }
+        const card = notif.args.card;
+        const playerId = notif.args.playerId;
+        this.getPlayerTable(playerId).addCardsToHand([playerId == this.getPlayerId() ? card: { id: card.id } as Card], `discard${notif.args.discardId}`);
 
         if (notif.args.newDiscardTopCard) {
             this.cards.createMoveOrUpdateCard(notif.args.newDiscardTopCard, `discard${notif.args.discardId}`, true);
@@ -582,7 +600,8 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
     notif_cardInHandFromPick(notif: Notif<NotifCardInHandFromPickArgs>) {
         if (notif.args.playerId == this.getPlayerId() && notif.args.card) {
-            this.cards.createMoveOrUpdateCard(notif.args.card, `my-hand`);
+            // TODO this.cards.createMoveOrUpdateCard(notif.args.card, `my-hand`);
+            this.getCurrentPlayerTable().addCardsToHand([notif.args.card]);
         } else {
             // TODO update counter ?
         }
@@ -602,12 +621,12 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     notif_playCards(notif: Notif<NotifPlayCardsArgs>) {
-        notif.args.cards.forEach(card => this.cards.createMoveOrUpdateCard(card, `player-table-${notif.args.playerId}-cards`));
+        this.getPlayerTable(notif.args.playerId).addCardsToTable(notif.args.cards);
     }
 
     notif_endRound() {
-        document.getElementById(`my-hand`).innerHTML = ''; // animate cards to deck?
-        Object.keys(this.gamedatas.players).forEach(playerId => document.getElementById(`player-table-${playerId}-cards`).innerHTML = '');
+        this.playersTables.forEach(playerTable => playerTable.cleanTable());
+        
         this.cardsPointsCounter?.toValue(0);
         [1, 2].forEach(discardNumber => {
             const currentCardDiv = document.getElementById(`discard${discardNumber}`).firstElementChild;

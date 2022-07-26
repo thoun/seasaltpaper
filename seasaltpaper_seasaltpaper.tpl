@@ -1,16 +1,6 @@
 {OVERALL_GAME_HEADER}
 
 <div id="zoom-wrapper">
-
-    <div id="myhand-wrap" class="whiteblock hand-wrap">
-        <div id="my-hand-label" class="hand-label">
-            <button id="sortByWeight" class="sort-button"><div class="sort-icon" data-type="weight"></div></button>
-            <button id="sortByGender" class="sort-button"><div class="sort-icon" data-type="gender"></div></button>
-            <h3>{MY_HAND}</h3>
-        </div>
-        <div id="my-hand" class="hand-cards"></div>
-    </div>
-
     <div id="discard-pick" data-visible="false"></div>
 
     <div id="full-table">

@@ -1,6 +1,9 @@
 .player-table {
   width: 700px;
   position: relative;
+  background: #FFFFFF66;
+  border: 2px solid white;
+  border-radius: 15px;
 
   .name {
     font-size: 16pt;
@@ -11,9 +14,22 @@
   }
 
   .cards {
-    min-height: 218px;
+
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
+    min-height: 218px;
+
+    &.hand {
+      &[data-current-player="false"] {
+        min-height: unset;
+        max-height: 75px;
+        overflow: hidden;
+
+        .card:not(:first-child) {
+          margin-left: -120px;
+        }
+      }
+    }
   }
 }

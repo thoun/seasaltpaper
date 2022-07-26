@@ -109,6 +109,14 @@
         self::ajaxResponse();
     }
 
+    public function endGameWithSirens() {
+        self::setAjaxMode();
+
+        $this->game->endGameWithSirens();
+
+        self::ajaxResponse();
+    }
+
     public function chooseDiscardPile() {
         self::setAjaxMode();
 

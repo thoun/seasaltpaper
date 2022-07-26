@@ -46,8 +46,10 @@ trait ArgsTrait {
 
         $totalPoints = $this->getCardsPoints($playerId)->totalPoints;
         $canCallEndRound = $totalPoints >= 7 && intval($this->getGameStateValue(END_ROUND_TYPE)) == 0;
+        $hasFourSirens = $this->hasFourSirens($playerId);
     
         return [
+            'hasFourSirens' => $hasFourSirens,
             'canCallEndRound' => $canCallEndRound,
         ];
     }
@@ -63,6 +65,16 @@ trait ArgsTrait {
                     'cards' => $cards,
                 ]
             ]
+        ];
+    }
+
+    function argChooseOpponent() {
+        $playerId = $this->getActivePlayerId();
+
+        $possibleOpponentsToSteal = $this->getPossibleOpponentsToSteal($playerId);
+
+        return [
+            'playersIds' => $possibleOpponentsToSteal,
         ];
     }
     
