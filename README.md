@@ -33,7 +33,6 @@ Make sure ftp-sync.json and node_modules are in .gitignore
 
 # TODO
 log TODOs
-test choose opponent
 table placement
 aide
 colorAdd
