@@ -19,6 +19,7 @@ trait StateTrait {
             self::notifyAllPlayers('cardInDiscardFromDeck', '', [
                 'card' => $card,
                 'discardId' => $discardNumber,
+                'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
             ]);
         }
 

@@ -16,6 +16,14 @@ html, .mode_3d #game_play_area_background {
 
 }
 
+#round-panel {
+  display: inline-block;
+  background: #FFFFFFAA;  
+  padding: 12px;
+  margin-left: 2px;
+  border-radius: 10px;
+}
+
 #zoom-wrapper {
   position: relative;
 
@@ -58,13 +66,6 @@ html, .mode_3d #game_play_area_background {
     flex-wrap: wrap;
     gap: 20px;
   }
-}
-
-#round-panel {
-  position: absolute;
-  top: 0;
-  left: 0;
-  padding: 15px;
 }
 
 .spectatorMode #myhand-wrap {

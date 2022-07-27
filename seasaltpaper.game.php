@@ -136,9 +136,11 @@ class SeaSaltPaper extends Table {
         }
 
         $result['roundNumber'] = intval($this->getGameStateValue(ROUND_NUMBER));
-        $result['remainingCardsInDeck'] = intval($this->cards->countCardInLocation('deck'));
-        $result['discardTopCard1'] = $this->getCardFromDb($this->cards->getCardOnTop('discard1'));
-        $result['discardTopCard2'] = $this->getCardFromDb($this->cards->getCardOnTop('discard2'));
+        $result['remainingCardsInDeck'] = $this->getRemainingCardsInDeck();
+        foreach ([1, 2] as $number) {
+            $result['discardTopCard'.$number] = $this->getCardFromDb($this->cards->getCardOnTop('discard'.$number));
+            $result['remainingCardsInDiscard'.$number] = $this->getRemainingCardsInDiscard($number);
+        }
   
         return $result;
     }

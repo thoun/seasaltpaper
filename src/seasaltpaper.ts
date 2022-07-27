@@ -123,7 +123,8 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     
     private onEnteringChooseCard(args: EnteringChooseCardArgs) {
         this.stacks.showPickCards(true, args._private?.cards);
-        this.stacks.makePickSelectable((this as any).isCurrentPlayerActive());
+        this.stacks.makePickSelectable((this as any).isCurrentPlayerActive());        
+        this.stacks.deckCounter.setValue(args.remainingCardsInDeck);
     }
     
     private onEnteringPutDiscardPile(args: EnteringChooseCardArgs) {
@@ -613,19 +614,22 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         });
     }
 
-    notif_cardInDiscardFromDeck(notif: Notif<NotifCardInHandFromDiscardArgs>) {
+    notif_cardInDiscardFromDeck(notif: Notif<NotifCardInDiscardFromDeckArgs>) {
         this.cards.createMoveOrUpdateCard(notif.args.card, `discard${notif.args.discardId}`, true, 'deck');
+        this.stacks.deckCounter.setValue(notif.args.remainingCardsInDeck);
     } 
 
     notif_cardInHandFromDiscard(notif: Notif<NotifCardInHandFromDiscardArgs>) {
         const card = notif.args.card;
         const playerId = notif.args.playerId;
+        const discardNumber = notif.args.discardId;
         const maskedCard = playerId == this.getPlayerId() ? card : { id: card.id } as Card;
         this.getPlayerTable(playerId).addCardsToHand([maskedCard]);
 
         if (notif.args.newDiscardTopCard) {
-            this.cards.createMoveOrUpdateCard(notif.args.newDiscardTopCard, `discard${notif.args.discardId}`, true);
+            this.cards.createMoveOrUpdateCard(notif.args.newDiscardTopCard, `discard${discardNumber}`, true);
         }
+        this.stacks.discardCounters[discardNumber].setValue(notif.args.remainingCardsInDiscard);
     } 
 
     notif_cardInHandFromPick(notif: Notif<NotifCardInHandFromPickArgs>) {
@@ -635,12 +639,14 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }   
 
     notif_cardInDiscardFromPick(notif: Notif<NotifCardInDiscardFromPickArgs>) {
-        const currentCardDiv = document.getElementById(`discard${notif.args.discardId}`).firstElementChild;
-        this.cards.createMoveOrUpdateCard(notif.args.card, `discard${notif.args.discardId}`);
+        const currentCardDiv = this.stacks.getDiscardCard(notif.args.discardId);
+        const discardNumber = notif.args.discardId;
+        this.cards.createMoveOrUpdateCard(notif.args.card, `discard${discardNumber}`);
         
         if (currentCardDiv) {
             setTimeout(() => currentCardDiv.parentElement.removeChild(currentCardDiv), 500);
         }
+        this.stacks.discardCounters[discardNumber].setValue(notif.args.remainingCardsInDiscard);
     }
 
     notif_score(notif: Notif<NotifScoreArgs>) {
@@ -660,7 +666,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         
         this.getCurrentPlayerTable()?.setHandPoints(0);
         [1, 2].forEach(discardNumber => {
-            const currentCardDiv = document.getElementById(`discard${discardNumber}`).firstElementChild;
+            const currentCardDiv = this.stacks.getDiscardCard(discardNumber);
             currentCardDiv?.parentElement.removeChild(currentCardDiv); // animate cards to deck?
         });
     }

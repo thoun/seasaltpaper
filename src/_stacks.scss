@@ -98,4 +98,14 @@
         top: 0;
         left: 0;
     }
+
+    .pile-counter {
+        position: absolute;
+        bottom: -18px;
+        right: 0;
+        left: 0;
+        font-size: 80%;
+        text-align: center;
+        color: lightcyan;
+    }
 }

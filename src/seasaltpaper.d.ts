@@ -34,6 +34,8 @@ interface SeaSaltPaperGamedatas {
     remainingCardsInDeck: number;
     discardTopCard1: Card;
     discardTopCard2: Card;
+    remainingCardsInDiscard1: number;
+    remainingCardsInDiscard2: number;
 }
 
 interface SeaSaltPaperGame extends Game {
@@ -57,6 +59,7 @@ interface EnteringChooseCardArgs {
         cards: Card[];
     }
     discardNumber?: number;
+    remainingCardsInDeck: number;
 }
 
 interface EnteringPlayCardsArgs {
@@ -69,11 +72,18 @@ interface EnteringChooseOpponentArgs {
     playersIds: number[];
 }
 
+interface NotifCardInDiscardFromDeckArgs {
+    card: Card;
+    discardId: number;
+    remainingCardsInDeck: number;
+}
+
 interface NotifCardInHandFromDiscardArgs {
     playerId: number;
     card: Card;
     discardId: number;
     newDiscardTopCard: Card | null;
+    remainingCardsInDiscard: number;
 }
 
 interface NotifCardInHandFromPickArgs {
@@ -85,6 +95,7 @@ interface NotifCardInDiscardFromPickArgs {
     playerId: number;
     card: Card;
     discardId: number;
+    remainingCardsInDiscard: number;
 }
 
 interface NotifScoreArgs {

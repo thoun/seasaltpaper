@@ -212,4 +212,12 @@ trait UtilTrait {
         return 'TODO';
     }
 
+    function getRemainingCardsInDeck() {
+        return intval($this->cards->countCardInLocation('deck'));
+    }
+
+    function getRemainingCardsInDiscard(int $number) {
+        return intval($this->cards->countCardInLocation('discard'.$number));
+    }
+
 }

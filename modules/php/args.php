@@ -43,6 +43,7 @@ trait ArgsTrait {
     
         return [
             '_private' => $private,
+            'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
         ];
     }
    

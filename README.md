@@ -33,8 +33,7 @@ Make sure ftp-sync.json and node_modules are in .gitignore
 
 # TODO
 log TODOs
-deck & discard counters
-detail on cards points ?
+test choose opponent
 table placement
 aide
 colorAdd

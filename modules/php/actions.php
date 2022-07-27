@@ -51,6 +51,7 @@ trait ActionTrait {
             'discardId' => $discardNumber,
             'discardNumber' => $discardNumber,
             'newDiscardTopCard' => $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber)),
+            'remainingCardsInDiscard' => $this->getRemainingCardsInDiscard($discardNumber),
         ]);
 
         $this->updateCardsPoints($playerId);
@@ -120,6 +121,7 @@ trait ActionTrait {
             'cardName' => $this->getCardName($card),
             'discardId' => $discardNumber,
             'discardNumber' => $discardNumber,
+            'remainingCardsInDiscard' => $this->getRemainingCardsInDiscard($discardNumber),
         ]);
     }
 
@@ -337,6 +339,7 @@ trait ActionTrait {
             'discardId' => $discardNumber,
             'discardNumber' => $discardNumber,
             'newDiscardTopCard' => $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber)),
+            'remainingCardsInDiscard' => $this->getRemainingCardsInDiscard($discardNumber),
         ]);
 
         $this->updateCardsPoints($playerId);

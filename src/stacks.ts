@@ -1,4 +1,6 @@
 class Stacks {
+    public deckCounter: Counter;
+    public discardCounters: Counter[] = [];
 
     private get deckDiv() {
         return document.getElementById('deck');
@@ -8,14 +10,21 @@ class Stacks {
     }
 
     constructor(private game: SeaSaltPaperGame, gamedatas: SeaSaltPaperGamedatas) {
-        [1, 2].filter(number => gamedatas[`discardTopCard${number}`]).forEach(number => 
-            game.cards.createMoveOrUpdateCard(gamedatas[`discardTopCard${number}`], `discard${number}`)
-        );
-
         this.deckDiv.addEventListener('click', () => this.game.takeCardsFromDeck());
-        [1, 2].forEach(number => 
-            document.getElementById(`discard${number}`).addEventListener('click', () => this.game.onDiscardPileClick(number))
-        );
+        this.deckCounter = new ebg.counter();
+        this.deckCounter.create(`deck-counter`);
+        this.deckCounter.setValue(gamedatas.remainingCardsInDeck);
+
+        [1, 2].forEach(number => {
+            if (gamedatas[`discardTopCard${number}`]) {
+                game.cards.createMoveOrUpdateCard(gamedatas[`discardTopCard${number}`], `discard${number}`);
+            }
+            document.getElementById(`discard${number}`).addEventListener('click', () => this.game.onDiscardPileClick(number));
+            
+            this.discardCounters[number] = new ebg.counter();
+            this.discardCounters[number].create(`discard${number}-counter`);
+            this.discardCounters[number].setValue(gamedatas[`remainingCardsInDiscard${number}`]);
+        });
         
     }
     
@@ -25,7 +34,7 @@ class Stacks {
 
     public makeDiscardSelectable(selectable: boolean) {
         [1, 2].forEach(number => 
-            document.getElementById(`discard${number}`).firstElementChild?.classList.toggle('selectable', selectable)
+            this.getDiscardCard(number)?.classList.toggle('selectable', selectable)
         );
     }
 
@@ -40,5 +49,10 @@ class Stacks {
         cards?.forEach(card => 
             this.game.cards.createMoveOrUpdateCard(card, `pick`, false, 'deck')
         );
+    }
+
+    public getDiscardCard(discardNumber: number): HTMLDivElement | null {
+        const currentCardDivs = Array.from(document.getElementById(`discard${discardNumber}`).getElementsByClassName('card')) as HTMLDivElement[];
+        return currentCardDivs.length > 0 ? currentCardDivs[0] : null;
     }
 }

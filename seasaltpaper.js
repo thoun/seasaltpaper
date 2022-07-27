@@ -197,12 +197,19 @@ var Stacks = /** @class */ (function () {
     function Stacks(game, gamedatas) {
         var _this = this;
         this.game = game;
-        [1, 2].filter(function (number) { return gamedatas["discardTopCard".concat(number)]; }).forEach(function (number) {
-            return game.cards.createMoveOrUpdateCard(gamedatas["discardTopCard".concat(number)], "discard".concat(number));
-        });
+        this.discardCounters = [];
         this.deckDiv.addEventListener('click', function () { return _this.game.takeCardsFromDeck(); });
+        this.deckCounter = new ebg.counter();
+        this.deckCounter.create("deck-counter");
+        this.deckCounter.setValue(gamedatas.remainingCardsInDeck);
         [1, 2].forEach(function (number) {
-            return document.getElementById("discard".concat(number)).addEventListener('click', function () { return _this.game.onDiscardPileClick(number); });
+            if (gamedatas["discardTopCard".concat(number)]) {
+                game.cards.createMoveOrUpdateCard(gamedatas["discardTopCard".concat(number)], "discard".concat(number));
+            }
+            document.getElementById("discard".concat(number)).addEventListener('click', function () { return _this.game.onDiscardPileClick(number); });
+            _this.discardCounters[number] = new ebg.counter();
+            _this.discardCounters[number].create("discard".concat(number, "-counter"));
+            _this.discardCounters[number].setValue(gamedatas["remainingCardsInDiscard".concat(number)]);
         });
     }
     Object.defineProperty(Stacks.prototype, "deckDiv", {
@@ -223,7 +230,8 @@ var Stacks = /** @class */ (function () {
         this.deckDiv.classList.toggle('selectable', selectable);
     };
     Stacks.prototype.makeDiscardSelectable = function (selectable) {
-        [1, 2].forEach(function (number) { var _a; return (_a = document.getElementById("discard".concat(number)).firstElementChild) === null || _a === void 0 ? void 0 : _a.classList.toggle('selectable', selectable); });
+        var _this = this;
+        [1, 2].forEach(function (number) { var _a; return (_a = _this.getDiscardCard(number)) === null || _a === void 0 ? void 0 : _a.classList.toggle('selectable', selectable); });
     };
     Stacks.prototype.makePickSelectable = function (selectable) {
         var cards = Array.from(this.pickDiv.getElementsByClassName('card'));
@@ -235,6 +243,10 @@ var Stacks = /** @class */ (function () {
         cards === null || cards === void 0 ? void 0 : cards.forEach(function (card) {
             return _this.game.cards.createMoveOrUpdateCard(card, "pick", false, 'deck');
         });
+    };
+    Stacks.prototype.getDiscardCard = function (discardNumber) {
+        var currentCardDivs = Array.from(document.getElementById("discard".concat(discardNumber)).getElementsByClassName('card'));
+        return currentCardDivs.length > 0 ? currentCardDivs[0] : null;
     };
     return Stacks;
 }());
@@ -431,6 +443,7 @@ var SeaSaltPaper = /** @class */ (function () {
         var _a;
         this.stacks.showPickCards(true, (_a = args._private) === null || _a === void 0 ? void 0 : _a.cards);
         this.stacks.makePickSelectable(this.isCurrentPlayerActive());
+        this.stacks.deckCounter.setValue(args.remainingCardsInDeck);
     };
     SeaSaltPaper.prototype.onEnteringPutDiscardPile = function (args) {
         var _a;
@@ -860,15 +873,18 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.notif_cardInDiscardFromDeck = function (notif) {
         this.cards.createMoveOrUpdateCard(notif.args.card, "discard".concat(notif.args.discardId), true, 'deck');
+        this.stacks.deckCounter.setValue(notif.args.remainingCardsInDeck);
     };
     SeaSaltPaper.prototype.notif_cardInHandFromDiscard = function (notif) {
         var card = notif.args.card;
         var playerId = notif.args.playerId;
+        var discardNumber = notif.args.discardId;
         var maskedCard = playerId == this.getPlayerId() ? card : { id: card.id };
         this.getPlayerTable(playerId).addCardsToHand([maskedCard]);
         if (notif.args.newDiscardTopCard) {
-            this.cards.createMoveOrUpdateCard(notif.args.newDiscardTopCard, "discard".concat(notif.args.discardId), true);
+            this.cards.createMoveOrUpdateCard(notif.args.newDiscardTopCard, "discard".concat(discardNumber), true);
         }
+        this.stacks.discardCounters[discardNumber].setValue(notif.args.remainingCardsInDiscard);
     };
     SeaSaltPaper.prototype.notif_cardInHandFromPick = function (notif) {
         var playerId = notif.args.playerId;
@@ -876,11 +892,13 @@ var SeaSaltPaper = /** @class */ (function () {
         this.getPlayerTable(playerId).addCardsToHand([notif.args.card], from);
     };
     SeaSaltPaper.prototype.notif_cardInDiscardFromPick = function (notif) {
-        var currentCardDiv = document.getElementById("discard".concat(notif.args.discardId)).firstElementChild;
-        this.cards.createMoveOrUpdateCard(notif.args.card, "discard".concat(notif.args.discardId));
+        var currentCardDiv = this.stacks.getDiscardCard(notif.args.discardId);
+        var discardNumber = notif.args.discardId;
+        this.cards.createMoveOrUpdateCard(notif.args.card, "discard".concat(discardNumber));
         if (currentCardDiv) {
             setTimeout(function () { return currentCardDiv.parentElement.removeChild(currentCardDiv); }, 500);
         }
+        this.stacks.discardCounters[discardNumber].setValue(notif.args.remainingCardsInDiscard);
     };
     SeaSaltPaper.prototype.notif_score = function (notif) {
         var _a;
@@ -893,11 +911,12 @@ var SeaSaltPaper = /** @class */ (function () {
         this.getPlayerTable(notif.args.playerId).showAnnouncement(notif.args.announcement);
     };
     SeaSaltPaper.prototype.notif_endRound = function () {
+        var _this = this;
         var _a;
         this.playersTables.forEach(function (playerTable) { return playerTable.cleanTable(); });
         (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setHandPoints(0);
         [1, 2].forEach(function (discardNumber) {
-            var currentCardDiv = document.getElementById("discard".concat(discardNumber)).firstElementChild;
+            var currentCardDiv = _this.stacks.getDiscardCard(discardNumber);
             currentCardDiv === null || currentCardDiv === void 0 ? void 0 : currentCardDiv.parentElement.removeChild(currentCardDiv); // animate cards to deck?
         });
     };

@@ -331,6 +331,15 @@
   top: 0;
   left: 0;
 }
+.cards-stack .pile-counter {
+  position: absolute;
+  bottom: -18px;
+  right: 0;
+  left: 0;
+  font-size: 80%;
+  text-align: center;
+  color: lightcyan;
+}
 
 .player-board {
   background-color: white;
@@ -392,6 +401,14 @@ html, .mode_3d #game_play_area_background {
   font-weight: normal;
   font-style: normal;
 }
+#round-panel {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.6666666667);
+  padding: 12px;
+  margin-left: 2px;
+  border-radius: 10px;
+}
+
 #zoom-wrapper {
   position: relative;
 }
@@ -427,13 +444,6 @@ html, .mode_3d #game_play_area_background {
   align-items: center;
   flex-wrap: wrap;
   gap: 20px;
-}
-
-#round-panel {
-  position: absolute;
-  top: 0;
-  left: 0;
-  padding: 15px;
 }
 
 .spectatorMode #myhand-wrap {
