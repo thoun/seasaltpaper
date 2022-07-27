@@ -336,6 +336,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     return to.concat(ar || Array.prototype.slice.call(from));
 };
 var ANIMATION_MS = 500;
+var ACTION_TIMER_DURATION = 5;
 var ZOOM_LEVELS = [0.5, 0.625, 0.75, 0.875, 1];
 var ZOOM_LEVELS_MARGIN = [-100, -60, -33, -14, 0];
 var LOCAL_STORAGE_ZOOM_KEY = 'SeaSaltPaper-zoom';
@@ -510,15 +511,20 @@ var SeaSaltPaper = /** @class */ (function () {
                     var playCardsArgs = args;
                     this.addActionButton("playCards_button", _("Play selected cards"), function () { return _this.playSelectedCards(); });
                     if (playCardsArgs.hasFourSirens) {
-                        this.addActionButton("endGameWithSirens_button", _("Play the four sirens"), function () { return _this.endGameWithSirens(); });
+                        this.addActionButton("endGameWithSirens_button", _("Play the four sirens"), function () { return _this.endGameWithSirens(); }, null, true, 'red');
                     }
                     this.addActionButton("endTurn_button", _("End turn"), function () { return _this.endTurn(); });
-                    this.addActionButton("endRound_button", _('End round ("LAST CHANCE")'), function () { return _this.endRound(); }, null, null, 'red');
-                    this.addActionButton("immediateEndRound_button", _('End round ("STOP")'), function () { return _this.immediateEndRound(); }, null, null, 'red');
+                    if (playCardsArgs.canCallEndRound) {
+                        this.addActionButton("endRound_button", _('End round ("LAST CHANCE")'), function () { return _this.endRound(); }, null, null, 'red');
+                        this.addActionButton("immediateEndRound_button", _('End round ("STOP")'), function () { return _this.immediateEndRound(); }, null, null, 'red');
+                    }
                     if (!playCardsArgs.canCallEndRound) {
                         dojo.addClass("playCards_button", "disabled");
-                        dojo.addClass("endRound_button", "disabled");
-                        dojo.addClass("immediateEndRound_button", "disabled");
+                        //dojo.addClass(`endRound_button`, `disabled`);
+                        //dojo.addClass(`immediateEndRound_button`, `disabled`);
+                    }
+                    if (!playCardsArgs.canDoAction) {
+                        this.startActionTimer('endTurn_button', ACTION_TIMER_DURATION);
                     }
                     break;
                 case 'chooseOpponent':

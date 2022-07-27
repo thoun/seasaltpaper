@@ -188,6 +188,26 @@ trait UtilTrait {
         }
     }
 
+    function playableDuoCards(int $playerId) {
+        $familyPairs = [];
+        $handCards = $this->getCardsFromDb($this->cards->getCardsInLocation('hand'.$playerId));
+        $pairCards = array_values(array_filter($handCards, fn($card) => $card->category == PAIR));
+        for ($family = CRAB; $family <= FISH; $family++) {
+            if (count(array_values(array_filter($pairCards, fn($card) => $card->family == $family))) >= 2) {
+                $familyPairs[] = $family;
+            }
+        }
+        if (
+            count(array_values(array_filter($pairCards, fn($card) => $card->family == SWIMMER))) >= 1 &&
+            count(array_values(array_filter($pairCards, fn($card) => $card->family == SHARK))) >= 1
+        ) {
+            $familyPairs[] = SWIMMER;
+            $familyPairs[] = SHARK;
+        }
+
+        return $familyPairs;
+    }
+
     function getCardName(Card $card) {
         return 'TODO';
     }

@@ -6,6 +6,7 @@ declare const _;
 declare const g_gamethemeurl;
 
 const ANIMATION_MS = 500;
+const ACTION_TIMER_DURATION = 5;
 
 const ZOOM_LEVELS = [0.5, 0.625, 0.75, 0.875, 1];
 const ZOOM_LEVELS_MARGIN = [-100, -60, -33, -14, 0];
@@ -211,15 +212,21 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                     const playCardsArgs = args as EnteringPlayCardsArgs;
                     (this as any).addActionButton(`playCards_button`, _("Play selected cards"), () => this.playSelectedCards());
                     if (playCardsArgs.hasFourSirens) {
-                        (this as any).addActionButton(`endGameWithSirens_button`, _("Play the four sirens"), () => this.endGameWithSirens());
+                        (this as any).addActionButton(`endGameWithSirens_button`, _("Play the four sirens"), () => this.endGameWithSirens(), null, true, 'red');
                     }
                     (this as any).addActionButton(`endTurn_button`, _("End turn"), () => this.endTurn());
-                    (this as any).addActionButton(`endRound_button`, _('End round ("LAST CHANCE")'), () => this.endRound(), null, null, 'red');
-                    (this as any).addActionButton(`immediateEndRound_button`, _('End round ("STOP")'), () => this.immediateEndRound(), null, null, 'red');
+                    if (playCardsArgs.canCallEndRound) {
+                        (this as any).addActionButton(`endRound_button`, _('End round ("LAST CHANCE")'), () => this.endRound(), null, null, 'red');
+                        (this as any).addActionButton(`immediateEndRound_button`, _('End round ("STOP")'), () => this.immediateEndRound(), null, null, 'red');
+                    }
                     if (!playCardsArgs.canCallEndRound) {
                         dojo.addClass(`playCards_button`, `disabled`);
-                        dojo.addClass(`endRound_button`, `disabled`);
-                        dojo.addClass(`immediateEndRound_button`, `disabled`);
+                        //dojo.addClass(`endRound_button`, `disabled`);
+                        //dojo.addClass(`immediateEndRound_button`, `disabled`);
+                    }
+                    
+                    if (!playCardsArgs.canDoAction) {
+                        this.startActionTimer('endTurn_button', ACTION_TIMER_DURATION);
                     }
                     break;
                 case 'chooseOpponent':

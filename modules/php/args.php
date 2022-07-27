@@ -50,10 +50,12 @@ trait ArgsTrait {
         $playerId = intval($this->getActivePlayerId());
 
         $totalPoints = $this->getCardsPoints($playerId)->totalPoints;
+        $playableDuoCards = $this->playableDuoCards($playerId);
         $canCallEndRound = $totalPoints >= 7 && intval($this->getGameStateValue(END_ROUND_TYPE)) == 0;
         $hasFourSirens = count($this->getPlayerSirens($playerId)) == 4;
     
         return [
+            'canDoAction' => count($playableDuoCards) > 0 || $canCallEndRound || $hasFourSirens,
             'hasFourSirens' => $hasFourSirens,
             'canCallEndRound' => $canCallEndRound,
         ];

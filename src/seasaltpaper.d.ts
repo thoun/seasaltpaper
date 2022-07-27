@@ -60,6 +60,7 @@ interface EnteringChooseCardArgs {
 }
 
 interface EnteringPlayCardsArgs {
+    canDoAction: boolean;
     hasFourSirens: boolean;
     canCallEndRound: boolean;
 }

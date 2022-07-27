@@ -204,6 +204,15 @@ trait StateTrait {
     function stEndScore() {
         $playersIds = $this->getPlayersIds();
 
+        // update player_score_aux
+        $playerId = intval($this->getPlayerBefore($this->getActivePlayerId()));
+        $scoreAux = count($playersIds);
+        while ($scoreAux >= 1) {
+            $this->DbQuery("UPDATE `player` SET `player_score_aux` = $scoreAux WHERE `player_id` = $playerId"); 
+            $playerId = intval($this->getPlayerBefore($playerId));
+            $scoreAux--;
+        }
+
         foreach ($playersIds as $playerId) {
             $sirens = $this->getPlayerSirens($playerId);
             if (count($sirens) == 4) {

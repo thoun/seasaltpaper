@@ -36,3 +36,5 @@ log TODOs
 deck & discard counters
 detail on cards points ?
 table placement
+aide
+colorAdd
