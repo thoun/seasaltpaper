@@ -391,6 +391,7 @@ var SeaSaltPaper = /** @class */ (function () {
         this.roundNumberCounter.setValue(gamedatas.roundNumber);
         this.setupNotifications();
         this.setupPreferences();
+        this.addHelp();
         document.getElementById('zoom-out').addEventListener('click', function () { return _this.zoomOut(); });
         document.getElementById('zoom-in').addEventListener('click', function () { return _this.zoomIn(); });
         if (this.zoom !== 1) {
@@ -727,6 +728,35 @@ var SeaSaltPaper = /** @class */ (function () {
         if (this.selectedCards.length == 2) {
             this.playCards(this.selectedCards);
         }
+    };
+    SeaSaltPaper.prototype.addHelp = function () {
+        var _this = this;
+        var labels = [
+            _('Dark blue'),
+            _('Light blue'),
+            _('Black'),
+            _('Yellow'),
+            _('Green'),
+            _('White'),
+            _('Purple'),
+            _('Gray'),
+            _('Light orange'),
+            _('Pink'),
+            _('Orange'),
+        ].map(function (label, index) { return "<span class=\"label\" data-row=\"".concat(Math.floor(index / 2), "\"  data-column=\"").concat(Math.floor(index % 2), "\">").concat(label, "</span>"); }).join('');
+        dojo.place("\n            <button id=\"seasaltpaper-help-button\">?</button>\n            <button id=\"color-help-button\" data-folded=\"true\">".concat(labels, "</button>\n        "), 'left-side');
+        document.getElementById('seasaltpaper-help-button').addEventListener('click', function () { return _this.showHelp(); });
+        var helpButton = document.getElementById('color-help-button');
+        helpButton.addEventListener('click', function () { return helpButton.dataset.folded = helpButton.dataset.folded == 'true' ? 'false' : 'true'; });
+    };
+    SeaSaltPaper.prototype.showHelp = function () {
+        var helpDialog = new ebg.popindialog();
+        helpDialog.create('seasaltpaperHelpDialog');
+        helpDialog.setTitle(_("TODO"));
+        var html = "<div id=\"help-popin\">\n            <h1>".concat(_("TODO title"), "</h1>\n            <div id=\"help-TODO\" class=\"help-section\">\n                TODO\n            </div>\n        </div>");
+        // Show the dialog
+        helpDialog.setContent(html);
+        helpDialog.show();
     };
     SeaSaltPaper.prototype.takeCardsFromDeck = function () {
         if (!this.checkAction('takeCardsFromDeck')) {

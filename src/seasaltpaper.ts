@@ -62,6 +62,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
         this.setupNotifications();
         this.setupPreferences();
+        this.addHelp();
 
         document.getElementById('zoom-out').addEventListener('click', () => this.zoomOut());
         document.getElementById('zoom-in').addEventListener('click', () => this.zoomIn());
@@ -438,6 +439,47 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         if (this.selectedCards.length == 2) {
             this.playCards(this.selectedCards);
         }
+    }
+
+    private addHelp() {
+        let labels = [
+            _('Dark blue'),
+            _('Light blue'),
+            _('Black'),
+            _('Yellow'),
+            _('Green'),
+            _('White'),
+            _('Purple'),
+            _('Gray'),
+            _('Light orange'),
+            _('Pink'),
+            _('Orange'),
+        ].map((label, index) => `<span class="label" data-row="${Math.floor(index / 2)}"  data-column="${Math.floor(index % 2)}">${label}</span>`).join('');
+        dojo.place(`
+            <button id="seasaltpaper-help-button">?</button>
+            <button id="color-help-button" data-folded="true">${labels}</button>
+        `, 'left-side');
+        document.getElementById('seasaltpaper-help-button').addEventListener('click', () => this.showHelp());
+        const helpButton = document.getElementById('color-help-button');
+        helpButton.addEventListener('click', () => helpButton.dataset.folded = helpButton.dataset.folded == 'true' ? 'false' : 'true');
+    }
+
+    private showHelp() {
+        const helpDialog = new ebg.popindialog();
+        helpDialog.create('seasaltpaperHelpDialog');
+        helpDialog.setTitle(_("TODO"));
+        
+        let html = `<div id="help-popin">
+            <h1>${_("TODO title")}</h1>
+            <div id="help-TODO" class="help-section">
+                TODO
+            </div>
+        </div>`;
+        
+        // Show the dialog
+        helpDialog.setContent(html);
+
+        helpDialog.show();
     }
 
     public takeCardsFromDeck() {
