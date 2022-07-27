@@ -314,7 +314,7 @@ trait ActionTrait {
 
             $this->gamestate->nextState('sirens');
         } else {
-            throw new BgaUserException("You need the four sirens");
+            throw new BgaUserException("You need the four Mermaids");
         }
     }
 

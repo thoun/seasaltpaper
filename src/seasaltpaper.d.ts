@@ -76,6 +76,7 @@ interface NotifCardInDiscardFromDeckArgs {
     card: Card;
     discardId: number;
     remainingCardsInDeck: number;
+    roundNumber: number;
 }
 
 interface NotifCardInHandFromDiscardArgs {

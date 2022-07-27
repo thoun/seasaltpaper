@@ -12,6 +12,12 @@ trait StateTrait {
     */
 
     function stNewRound() {
+
+        // set round number
+        $roundNumber = intval($this->getGameStateValue(ROUND_NUMBER));
+        $this->setGameStateValue(ROUND_NUMBER, ++$roundNumber);
+        $totalRoundNumber = $this->getTotalRoundNumber();
+
         // init round discard
         foreach([1, 2] as $discardNumber) {
             $card = $this->cards->pickCardForLocation('deck', 'discard'.$discardNumber);
@@ -20,13 +26,9 @@ trait StateTrait {
                 'card' => $card,
                 'discardId' => $discardNumber,
                 'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
+                'roundNumber' => $roundNumber,
             ]);
         }
-
-        // set round number
-        $roundNumber = intval($this->getGameStateValue(ROUND_NUMBER));
-        $this->setGameStateValue(ROUND_NUMBER, ++$roundNumber);
-        $totalRoundNumber = $this->getTotalRoundNumber();
 
         self::notifyAllPlayers('log', clienttranslate('Round ${roundNumber}/${totalRoundNumber} begins!'), [
             'roundNumber' => $roundNumber,
@@ -47,12 +49,10 @@ trait StateTrait {
         $endRound = intval($this->getGameStateValue(END_ROUND_TYPE));
         $lastChanceCaller = intval($this->getGameStateValue(LAST_CHANCE_CALLER));
 
-        if ($endRound > 0) {
-            $this->revealHand($playerId);
-        }
-
         $newPlayerId = $this->activeNextPlayer();
         if ($endRound == LAST_CHANCE) {
+            $this->revealHand($playerId);
+
             if ($lastChanceCaller == $newPlayerId) {
                 $this->activeNextPlayer();
                 $this->gamestate->nextState('endRound');
@@ -71,7 +71,15 @@ trait StateTrait {
             }
         }
 
-        $this->gamestate->nextState($emptyDeck || $endRound == STOP ? 'endRound' : 'newTurn');
+        $immediateEndRound = $emptyDeck || $endRound == STOP;
+        if ($immediateEndRound) {
+            $playersIds = $this->getPlayersIds();
+            foreach($playersIds as $pId) {
+                $this->revealHand($pId);
+            }
+        }
+
+        $this->gamestate->nextState($immediateEndRound ? 'endRound' : 'newTurn');
     }
 
     function updateScores(int $endRound) {

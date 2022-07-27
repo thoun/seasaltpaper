@@ -34,4 +34,3 @@ Make sure ftp-sync.json and node_modules are in .gitignore
 # TODO
 log TODOs
 table placement
-aide

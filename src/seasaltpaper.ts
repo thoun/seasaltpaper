@@ -22,6 +22,8 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     private roundNumberCounter: Counter;
     //private cardsPointsCounter: Counter;
     private selectedCards: number[];
+    
+    private TOOLTIP_DELAY = document.body.classList.contains('touch-device') ? 1500 : undefined;
 
     constructor() {
         const zoomStr = localStorage.getItem(LOCAL_STORAGE_ZOOM_KEY);
@@ -214,18 +216,23 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                     const playCardsArgs = args as EnteringPlayCardsArgs;
                     (this as any).addActionButton(`playCards_button`, _("Play selected cards"), () => this.playSelectedCards());
                     if (playCardsArgs.hasFourSirens) {
-                        (this as any).addActionButton(`endGameWithSirens_button`, _("Play the four sirens"), () => this.endGameWithSirens(), null, true, 'red');
+                        (this as any).addActionButton(`endGameWithSirens_button`, _("Play the four Mermaids"), () => this.endGameWithSirens(), null, true, 'red');
                     }
                     (this as any).addActionButton(`endTurn_button`, _("End turn"), () => this.endTurn());
                     if (playCardsArgs.canCallEndRound) {
                         (this as any).addActionButton(`endRound_button`, _('End round ("LAST CHANCE")'), () => this.endRound(), null, null, 'red');
                         (this as any).addActionButton(`immediateEndRound_button`, _('End round ("STOP")'), () => this.immediateEndRound(), null, null, 'red');
+
+                        this.setTooltip(`endRound_button`, `${_("Say <strong>LAST CHANCE</strong> if you are willing to take the bet of having the most points at the end of the round. The other players each take a final turn (take a card + play cards) which they complete by revealing their hand, which is now protected from attacks. Then, all players count the points on their cards (in their hand and in front of them).")}<br><br>
+                        ${_("If your hand is higher or equal to that of your opponents, bet won! You score the points for your cards + the color bonus (1 point per card of the color they have the most of). Your opponents only score their color bonus.")}<br><br>
+                        ${_("If your score is less than that of at least one opponent, bet lost! You score only the color bonus. Your opponents score points for their cards.")}`);
+                        this.setTooltip(`immediateEndRound_button`, _("Say <strong>STOP</strong> if you do not want to take a risk. All players reveal their hands and immediately score the points on their cards (in their hand and in front of them)."));
                     }
-                    if (!playCardsArgs.canCallEndRound) {
-                        dojo.addClass(`playCards_button`, `disabled`);
-                        //dojo.addClass(`endRound_button`, `disabled`);
-                        //dojo.addClass(`immediateEndRound_button`, `disabled`);
-                    }
+                    dojo.addClass(`playCards_button`, `disabled`);
+                    /*if (!playCardsArgs.canCallEndRound) {
+                        dojo.addClass(`endRound_button`, `disabled`);
+                        dojo.addClass(`immediateEndRound_button`, `disabled`);
+                    }*/
                     
                     if (!playCardsArgs.canDoAction) {
                         this.startActionTimer('endTurn_button', ACTION_TIMER_DURATION);
@@ -249,6 +256,10 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
 
     ///////////////////////////////////////////////////
+
+    public setTooltip(id: string, html: string) {
+        (this as any).addTooltipHtml(id, html, this.TOOLTIP_DELAY);
+    }
 
     public getPlayerId(): number {
         return Number((this as any).player_id);
@@ -467,14 +478,75 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     private showHelp() {
         const helpDialog = new ebg.popindialog();
         helpDialog.create('seasaltpaperHelpDialog');
-        helpDialog.setTitle(_("TODO"));
-        
-        let html = `<div id="help-popin">
-            <h1>${_("TODO title")}</h1>
-            <div id="help-TODO" class="help-section">
-                TODO
-            </div>
+        helpDialog.setTitle(_("Card details").toUpperCase());
+
+        const duoCards = [
+            [_('crab'), _("The player chooses a discard pile, consults it without shuffling it, and chooses a card from it to add to their hand. They do not have to show it to the other players.")],
+            [_('boat'), _("The player immediately takes another turn.")],
+            [_('fish'), _("The player adds the top card from the deck to their hand.")],
+        ].map(array => `
+        <div class="help-section">
+            <div><strong>${array[0]}</strong></div>
+            <div>${_("1 point for each pair of crab cards.").replace('${card}', array[0])}</div>
+            <div>${_("Effect:")} ${_(array[1])}</div>
+        </div>
+        `).join('');
+
+        const duoSection = `
+        ${duoCards}
+        <div class="help-section">
+            <div><strong>${_("swimmer/shark")}</strong></div>
+            <div>${_("1 point for each combination of swimmer and shark cards.")}</div>
+            <div>${_("Effect:")} ${_("The player steals a random card from another player and adds it to their hand.")}</div>
+        </div>
+        ${_("Note: The points for duo cards count whether the cards have been played or not. However, the effect is only applied when the player places the two cards in front of them.")}`;
+
+        const mermaidSection = `
+        <div class="help-section">
+        ${_("1 point for each card of the color the player has the most of. If they have more mermaid cards, they must look at which of the other colors they have more of. The same color cannot be counted for more than one mermaid card.")}
+        <br><br>
+        <strong>${_("Effect: If they place 4 mermaid cards, the player immediately wins the game.")}</strong>
         </div>`;
+
+        const collectorCards = [
+            ['0, 2, 4, 6, 8, 10', '1, 2, 3, 4, 5, 6', _('shell')],
+            ['0, 3, 6, 9, 12', '1, 2, 3, 4, 5', _('octopus')],
+            ['1, 3, 5', '1, 2, 3', _('penguin')],
+            ['0, 5', '1,  2', _('sailor')],
+        ].map(array => `
+        <div class="help-section">
+            <div><strong>${array[2]}</strong></div>
+            <div>${_("${points} points depending on whether the player has ${numbers} ${card} cards.").replace('${points}', array[0]).replace('${numbers}', array[1]).replace('${card}', array[2])}</div>
+        </div>
+        `).join('');
+
+        const multiplierCards = [
+            [_('The lighthouse'), _('boat')],
+            [_('The shoal of fish'), _('fish')],
+            [_('The penguin colony'), _('penguin')],
+            [_('The captain'), _('sailor')],
+        ].map(array => `
+        <div class="help-section">
+            <div><strong>${array[0]}</strong></div>
+            <div>${_("1 point per ${card} card.").replace('${card}', array[1])}</div>
+            <div>${_("This card does not count as a ${card} card.").replace('${card}', array[1])}</div>
+        </div>
+        `).join('');
+        
+        let html = `
+        <div id="help-popin">
+            ${_("<strong>Important:</strong> When it is said that the player counts or scores the points on their cards, it means both those in their hand and those in front of them.")}
+
+            <h1>${_("Duo cards")}</h1>
+            ${duoSection}
+            <h1>${_("Mermaid cards")}</h1>
+            ${mermaidSection}
+            <h1>${_("Collector cards")}</h1>
+            ${collectorCards}
+            <h1>${_("Point Multiplier cards")}</h1>
+            ${multiplierCards}
+        </div>
+        `;
         
         // Show the dialog
         helpDialog.setContent(html);
@@ -648,6 +720,8 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             ['stealCard', ANIMATION_MS],
             ['announceEndRound', ANIMATION_MS],
             ['endRound', ANIMATION_MS],
+            ['score', ANIMATION_MS * 3], // TODO animate ?
+            ['newRound', 1],
             ['updateCardsPoints', 1],
         ];
     
@@ -660,6 +734,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     notif_cardInDiscardFromDeck(notif: Notif<NotifCardInDiscardFromDeckArgs>) {
         this.cards.createMoveOrUpdateCard(notif.args.card, `discard${notif.args.discardId}`, true, 'deck');
         this.stacks.deckCounter.setValue(notif.args.remainingCardsInDeck);
+        this.roundNumberCounter.toValue(notif.args.roundNumber);
     } 
 
     notif_cardInHandFromDiscard(notif: Notif<NotifCardInHandFromDiscardArgs>) {
@@ -695,6 +770,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     notif_score(notif: Notif<NotifScoreArgs>) {
         (this as any).scoreCtrl[notif.args.playerId]?.toValue(notif.args.newScore);
     }
+    notif_newRound() {}
 
     notif_playCards(notif: Notif<NotifPlayCardsArgs>) {
         this.getPlayerTable(notif.args.playerId).addCardsToTable(notif.args.cards);
