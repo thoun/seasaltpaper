@@ -79,6 +79,10 @@ class PlayerTable {
     }
 
     public updateDisabledPlayCards(selectedCards: number[]) {
+        if (!(this.game as any).isCurrentPlayerActive()) {
+            return;
+        }
+
         const cards = Array.from(this.handCardsDiv.getElementsByClassName('card')) as HTMLDivElement[];
         cards.forEach(card => {
             let disabled = false;

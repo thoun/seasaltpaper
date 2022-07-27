@@ -155,36 +155,39 @@ trait UtilTrait {
     function getPossibleOpponentsToSteal(int $stealerId) {
         $playersIds = $this->getPlayersIds();
 
-        return array_filter($playersIds, fn($playerId) => 
+        return array_values(array_filter($playersIds, fn($playerId) => 
             $playerId != $stealerId && intval($this->cards->countCardInLocation('hand'.$playerId)) > 0
-        );
+        ));
     }
 
     function applySteal(int $stealerId, int $robbedPlayerId) {
 
         $cardsInHand = $this->getCardsFromDb($this->cards->getCardsInLocation('hand'.$robbedPlayerId));
-        $removedCard = null;
+        $card = null;
         $cardsNumber = count($cardsInHand);
         if ($cardsNumber > 0) {
-            $removedCard = $cardsInHand[bga_rand(1, $cardsNumber) - 1];
-            $this->cards->moveCard($removedCard->id, 'hand'.$stealerId);
+            $card = $cardsInHand[bga_rand(1, $cardsNumber) - 1];
+            $this->cards->moveCard($card->id, 'hand'.$stealerId);
 
-            $this->notifyPlayer($robbedPlayerId, 'removedCard', clienttranslate('Card ${cardName} was removed from your hand'), [
-                'playerId' => $robbedPlayerId,
-                'animal' => $removedCard,
-                'fromPlayerId' => $stealerId,
-                'cardName' => $this->getCardName($removedCard),
-            ]);
-
-            $this->notifyPlayer($stealerId, 'newCard', clienttranslate('Card ${cardName} was picked from ${player_name2} hand'), [
+            $args = [
                 'playerId' => $stealerId,
+                'opponentId' => $robbedPlayerId,
+                'player_name' => $this->getPlayerName($stealerId),
                 'player_name2' => $this->getPlayerName($robbedPlayerId),
-                'animal' => $removedCard,
-                'fromPlayerId' => $robbedPlayerId,
-                'cardName' => $this->getCardName($removedCard),
-            ]);
+            ];
+            $argCardName = [
+                'cardName' => $this->getCardName($card),
+            ];
+            $argCard = [
+                'card' => $card,
+            ];
+            $argMaskedCard = [
+                'card' => Card::onlyId($card),
+            ];
 
-            // TODO notif hand counts
+            $this->notifyAllPlayers('stealCard', clienttranslate('${player_name} steals a card from ${player_name2} hand'), $args + $argMaskedCard);
+            $this->notifyPlayer($robbedPlayerId, 'log', clienttranslate('Card ${cardName} was stolen from your hand'), $args + $argCardName);
+            $this->notifyPlayer($stealerId, 'stealCard', clienttranslate('Card ${cardName} was picked from ${player_name2} hand'), $args + $argCardName + $argCard);
         }
     }
 

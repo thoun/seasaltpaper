@@ -345,4 +345,14 @@ trait ActionTrait {
         $this->updateCardsPoints($playerId);
         $this->gamestate->nextState('playCards');
     }
+
+    public function chooseOpponent(int $opponentId) {
+        $this->checkAction('chooseOpponent');
+
+        $playerId = intval($this->getActivePlayerId());
+
+        $this->applySteal($playerId, $opponentId);
+
+        $this->gamestate->nextState('playCards');
+    }
 }

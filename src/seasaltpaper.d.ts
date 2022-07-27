@@ -116,3 +116,9 @@ interface NotifAnnounceEndRoundArgs {
 interface NotifUpdateCardsPointsArgs {
     cardsPoints: number;
 }
+
+interface NotifStealCardArgs {
+    playerId: number;
+    opponentId: number;
+    card: Card;
+}

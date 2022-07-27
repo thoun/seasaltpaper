@@ -313,6 +313,9 @@ var PlayerTable = /** @class */ (function () {
         }
     };
     PlayerTable.prototype.updateDisabledPlayCards = function (selectedCards) {
+        if (!this.game.isCurrentPlayerActive()) {
+            return;
+        }
         var cards = Array.from(this.handCardsDiv.getElementsByClassName('card'));
         cards.forEach(function (card) {
             var disabled = false;
@@ -862,6 +865,7 @@ var SeaSaltPaper = /** @class */ (function () {
             ['cardInHandFromPick', ANIMATION_MS],
             ['cardInDiscardFromPick', ANIMATION_MS],
             ['playCards', ANIMATION_MS],
+            ['stealCard', ANIMATION_MS],
             ['announceEndRound', ANIMATION_MS],
             ['endRound', ANIMATION_MS],
             ['updateCardsPoints', 1],
@@ -906,6 +910,14 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.notif_playCards = function (notif) {
         this.getPlayerTable(notif.args.playerId).addCardsToTable(notif.args.cards);
+    };
+    SeaSaltPaper.prototype.notif_stealCard = function (notif) {
+        var playerId = this.getPlayerId();
+        var stealerId = notif.args.playerId;
+        var card = notif.args.card;
+        if (card.category || playerId != stealerId) {
+            this.getPlayerTable(stealerId).addCardsToHand([card]);
+        }
     };
     SeaSaltPaper.prototype.notif_announceEndRound = function (notif) {
         this.getPlayerTable(notif.args.playerId).showAnnouncement(notif.args.announcement);
