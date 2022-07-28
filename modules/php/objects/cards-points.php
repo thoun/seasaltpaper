@@ -16,7 +16,7 @@ class CardsPoints {
 
     public function __construct(array $tableCards, array $handCards) {
         $this->visiblePoints = $this->getPoints($tableCards); // visible before total, for colorBonus
-        $this->totalPoints = 7 + $this->getPoints($tableCards + $handCards);
+        $this->totalPoints = $this->getPoints($tableCards + $handCards);
     }
 
     private function getPoints(array $cards) {

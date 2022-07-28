@@ -136,6 +136,7 @@ $playerActionsGameStates = [
         "updateGameProgression" => true,
         "possibleactions" => [ 
             "playCards",
+            "endGameWithMermaids",
             "endTurn",
             "endRound",
             "immediateEndRound",
