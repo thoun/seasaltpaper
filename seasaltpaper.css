@@ -410,13 +410,14 @@
 #color-help-button {
   position: fixed;
   bottom: 12px;
-  left: 60px;
+  left: 65px;
   width: 50px;
   height: 50px;
   border-radius: 25px;
   box-shadow: 3px 5px 5px 0px rgb(0, 0, 0);
   cursor: pointer;
   z-index: 949;
+  overflow: hidden;
   transition: width 0.5s, height 0.5s, border-radius 0.5s, background-image 0.5s;
 }
 #color-help-button .label {

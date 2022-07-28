@@ -760,23 +760,23 @@ var SeaSaltPaper = /** @class */ (function () {
         helpDialog.create('seasaltpaperHelpDialog');
         helpDialog.setTitle(_("Card details").toUpperCase());
         var duoCards = [
-            [_('crab'), _("The player chooses a discard pile, consults it without shuffling it, and chooses a card from it to add to their hand. They do not have to show it to the other players.")],
-            [_('boat'), _("The player immediately takes another turn.")],
-            [_('fish'), _("The player adds the top card from the deck to their hand.")],
-        ].map(function (array) { return "\n        <div class=\"help-section\">\n            <div><strong>".concat(array[0], "</strong></div>\n            <div>").concat(_("1 point for each pair of crab cards.").replace('${card}', array[0]), "</div>\n            <div>").concat(_("Effect:"), " ").concat(_(array[1]), "</div>\n        </div>\n        "); }).join('');
-        var duoSection = "\n        ".concat(duoCards, "\n        <div class=\"help-section\">\n            <div><strong>").concat(_("swimmer/shark"), "</strong></div>\n            <div>").concat(_("1 point for each combination of swimmer and shark cards."), "</div>\n            <div>").concat(_("Effect:"), " ").concat(_("The player steals a random card from another player and adds it to their hand."), "</div>\n        </div>\n        ").concat(_("Note: The points for duo cards count whether the cards have been played or not. However, the effect is only applied when the player places the two cards in front of them."));
+            [_('Crab'), _("The player chooses a discard pile, consults it without shuffling it, and chooses a card from it to add to their hand. They do not have to show it to the other players.")],
+            [_('Boat'), _("The player immediately takes another turn.")],
+            [_('Fish'), _("The player adds the top card from the deck to their hand.")],
+        ].map(function (array) { return "\n        <div class=\"help-section\">\n            <div><strong>".concat(array[0], "</strong></div>\n            <div>").concat(_("1 point for each pair of ${card} cards.").replace('${card}', array[0]), "</div>\n            <div>").concat(_("Effect:"), " ").concat(_(array[1]), "</div>\n        </div>\n        "); }).join('');
+        var duoSection = "\n        ".concat(duoCards, "\n        <div class=\"help-section\">\n            <div><strong>").concat(_("Swimmer"), "/").concat(_("Shark"), "</strong></div>\n            <div>").concat(_("1 point for each combination of swimmer and shark cards."), "</div>\n            <div>").concat(_("Effect:"), " ").concat(_("The player steals a random card from another player and adds it to their hand."), "</div>\n        </div>\n        ").concat(_("Note: The points for duo cards count whether the cards have been played or not. However, the effect is only applied when the player places the two cards in front of them."));
         var mermaidSection = "\n        <div class=\"help-section\">\n        ".concat(_("1 point for each card of the color the player has the most of. If they have more mermaid cards, they must look at which of the other colors they have more of. The same color cannot be counted for more than one mermaid card."), "\n        <br><br>\n        <strong>").concat(_("Effect: If they place 4 mermaid cards, the player immediately wins the game."), "</strong>\n        </div>");
         var collectorCards = [
-            ['0, 2, 4, 6, 8, 10', '1, 2, 3, 4, 5, 6', _('shell')],
-            ['0, 3, 6, 9, 12', '1, 2, 3, 4, 5', _('octopus')],
-            ['1, 3, 5', '1, 2, 3', _('penguin')],
-            ['0, 5', '1,  2', _('sailor')],
+            ['0, 2, 4, 6, 8, 10', '1, 2, 3, 4, 5, 6', _('Shell')],
+            ['0, 3, 6, 9, 12', '1, 2, 3, 4, 5', _('Octopus')],
+            ['1, 3, 5', '1, 2, 3', _('Penguin')],
+            ['0, 5', '1,  2', _('Sailor')],
         ].map(function (array) { return "\n        <div class=\"help-section\">\n            <div><strong>".concat(array[2], "</strong></div>\n            <div>").concat(_("${points} points depending on whether the player has ${numbers} ${card} cards.").replace('${points}', array[0]).replace('${numbers}', array[1]).replace('${card}', array[2]), "</div>\n        </div>\n        "); }).join('');
         var multiplierCards = [
-            [_('The lighthouse'), _('boat')],
-            [_('The shoal of fish'), _('fish')],
-            [_('The penguin colony'), _('penguin')],
-            [_('The captain'), _('sailor')],
+            [_('The lighthouse'), _('Boat')],
+            [_('The shoal of fish'), _('Fish')],
+            [_('The penguin colony'), _('Penguin')],
+            [_('The captain'), _('Sailor')],
         ].map(function (array) { return "\n        <div class=\"help-section\">\n            <div><strong>".concat(array[0], "</strong></div>\n            <div>").concat(_("1 point per ${card} card.").replace('${card}', array[1]), "</div>\n            <div>").concat(_("This card does not count as a ${card} card.").replace('${card}', array[1]), "</div>\n        </div>\n        "); }).join('');
         var html = "\n        <div id=\"help-popin\">\n            ".concat(_("<strong>Important:</strong> When it is said that the player counts or scores the points on their cards, it means both those in their hand and those in front of them."), "\n\n            <h1>").concat(_("Duo cards"), "</h1>\n            ").concat(duoSection, "\n            <h1>").concat(_("Mermaid cards"), "</h1>\n            ").concat(mermaidSection, "\n            <h1>").concat(_("Collector cards"), "</h1>\n            ").concat(collectorCards, "\n            <h1>").concat(_("Point Multiplier cards"), "</h1>\n            ").concat(multiplierCards, "\n        </div>\n        ");
         // Show the dialog
@@ -931,6 +931,12 @@ var SeaSaltPaper = /** @class */ (function () {
             dojo.subscribe(notif[0], _this, "notif_".concat(notif[0]));
             _this.notifqueue.setSynchronous(notif[0], notif[1]);
         });
+        this.notifqueue.setIgnoreNotificationCheck('cardInHandFromPick', function (notif) {
+            return notif.args.playerId == _this.getPlayerId() && !notif.args.card.category;
+        });
+        this.notifqueue.setIgnoreNotificationCheck('stealCard', function (notif) {
+            return [notif.args.playerId, notif.args.opponentId].includes(_this.getPlayerId()) && !notif.args.cardName;
+        });
     };
     SeaSaltPaper.prototype.notif_cardInDiscardFromDeck = function (notif) {
         this.cards.createMoveOrUpdateCard(notif.args.card, "discard".concat(notif.args.discardId), true, 'deck');
@@ -950,8 +956,7 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.notif_cardInHandFromPick = function (notif) {
         var playerId = notif.args.playerId;
-        var from = playerId == this.getPlayerId() ? undefined : 'pick';
-        this.getPlayerTable(playerId).addCardsToHand([notif.args.card], from);
+        this.getPlayerTable(playerId).addCardsToHand([notif.args.card]);
     };
     SeaSaltPaper.prototype.notif_cardInDiscardFromPick = function (notif) {
         var currentCardDiv = this.stacks.getDiscardCard(notif.args.discardId);
@@ -971,12 +976,9 @@ var SeaSaltPaper = /** @class */ (function () {
         this.getPlayerTable(notif.args.playerId).addCardsToTable(notif.args.cards);
     };
     SeaSaltPaper.prototype.notif_stealCard = function (notif) {
-        var playerId = this.getPlayerId();
         var stealerId = notif.args.playerId;
         var card = notif.args.card;
-        if (card.category || playerId != stealerId) {
-            this.getPlayerTable(stealerId).addCardsToHand([card]);
-        }
+        this.getPlayerTable(stealerId).addCardsToHand([card]);
     };
     SeaSaltPaper.prototype.notif_announceEndRound = function (notif) {
         this.getPlayerTable(notif.args.playerId).showAnnouncement(notif.args.announcement);

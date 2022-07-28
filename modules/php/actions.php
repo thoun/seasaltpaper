@@ -43,11 +43,13 @@ trait ActionTrait {
 
         $this->cards->moveCard($card->id, 'hand'.$playerId);
 
-        self::notifyAllPlayers('cardInHandFromDiscard', clienttranslate('${player_name} takes ${cardName} from discard pile ${discardNumber}'), [
+        self::notifyAllPlayers('cardInHandFromDiscard', clienttranslate('${player_name} takes ${cardColor} ${cardName} from discard pile ${discardNumber}'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'card' => $card,
             'cardName' => $this->getCardName($card),
+            'cardColor' => $this->COLORS[$card->color],
+            'i18n' => ['cardName', 'cardColor'],
             'discardId' => $discardNumber,
             'discardNumber' => $discardNumber,
             'newDiscardTopCard' => $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber)),
@@ -70,11 +72,13 @@ trait ActionTrait {
 
         $this->cards->moveCard($card->id, 'hand'.$playerId);
 
-        self::notifyPlayer($playerId, 'cardInHandFromPick', clienttranslate('You choose ${cardName} card'), [
+        self::notifyPlayer($playerId, 'cardInHandFromPick', clienttranslate('You choose ${cardColor} ${cardName} card'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'card' => $card,
             'cardName' => $this->getCardName($card),
+            'cardColor' => $this->COLORS[$card->color],
+            'i18n' => ['cardName', 'cardColor'],
         ]);
         self::notifyAllPlayers('cardInHandFromPick', clienttranslate('${player_name} chooses a card'), [
             'playerId' => $playerId,
@@ -114,11 +118,13 @@ trait ActionTrait {
 
         $this->cards->moveCard($card->id, 'discard'.$discardNumber, intval($this->cards->countCardInLocation('discard'.$discardNumber)) + 1);
 
-        self::notifyAllPlayers('cardInDiscardFromPick', clienttranslate('${player_name} puts ${cardName} to discard pile ${discardNumber}'), [
+        self::notifyAllPlayers('cardInDiscardFromPick', clienttranslate('${player_name} puts ${cardColor} ${cardName} to discard pile ${discardNumber}'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'card' => $card,
             'cardName' => $this->getCardName($card),
+            'cardColor' => $this->COLORS[$card->color],
+            'i18n' => ['cardName', 'cardColor'],
             'discardId' => $discardNumber,
             'discardNumber' => $discardNumber,
             'remainingCardsInDiscard' => $this->getRemainingCardsInDiscard($discardNumber),
@@ -181,13 +187,16 @@ trait ActionTrait {
                 break;
         }
 
-        self::notifyAllPlayers('playCards', clienttranslate('${player_name} plays cards ${cardName} and ${action}'), [
+        self::notifyAllPlayers('playCards', clienttranslate('${player_name} plays cards ${cardColor1} ${cardName1} and ${cardColor2} ${cardName2} and ${action}'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'cards' => $cards,
-            'cardName' => $this->getCardName($card),
+            'cardName1' => $this->getCardName($cards[0]),
+            'cardName2' => $this->getCardName($cards[1]),
+            'cardColor1' => $this->COLORS[$cards[0]->color],
+            'cardColor2' => $this->COLORS[$cards[0]->color],
             'action' => $action,
-            'i18n' => ['action'],
+            'i18n' => ['cardName1', 'cardName2', 'cardColor1', 'cardColor2', 'action'],
         ]);
 
         switch ($cards[0]->family) {
@@ -211,11 +220,13 @@ trait ActionTrait {
                 if (intval($this->cards->countCardInLocation('deck')) > 0) {
                     $card = $this->getCardFromDb($this->cards->pickCardForLocation('deck', 'hand'.$playerId));
 
-                    self::notifyPlayer($playerId, 'cardInHandFromPick', clienttranslate('You take ${cardName} card from deck'), [
+                    self::notifyPlayer($playerId, 'cardInHandFromPick', clienttranslate('You take ${cardColor} ${cardName} card from deck'), [
                         'playerId' => $playerId,
                         'player_name' => $this->getPlayerName($playerId),
                         'card' => $card,
                         'cardName' => $this->getCardName($card),
+                        'cardColor' => $this->COLORS[$card->color],
+                        'i18n' => ['cardName', 'cardColor'],
                     ]);
                     self::notifyAllPlayers('cardInHandFromPick', clienttranslate('${player_name} took a card from deck'), [
                         'playerId' => $playerId,
@@ -331,11 +342,13 @@ trait ActionTrait {
 
         $this->cards->moveCard($card->id, 'hand'.$playerId);
 
-        self::notifyAllPlayers('cardInHandFromDiscard', clienttranslate('${player_name} takes ${cardName} from discard pile ${discardNumber}'), [
+        self::notifyAllPlayers('cardInHandFromDiscard', clienttranslate('${player_name} takes ${cardColor} ${cardName} from discard pile ${discardNumber}'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'card' => $card,
             'cardName' => $this->getCardName($card),
+            'cardColor' => $this->COLORS[$card->color],
+            'i18n' => ['cardName', 'cardColor'],
             'discardId' => $discardNumber,
             'discardNumber' => $discardNumber,
             'newDiscardTopCard' => $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber)),

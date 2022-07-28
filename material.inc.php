@@ -21,6 +21,21 @@
 
 require_once('modules/php/objects/card.php');
 
+$this->COLORS = [
+  null,
+  clienttranslate('Dark blue'),
+  clienttranslate('Light blue'),
+  clienttranslate('Black'),
+  clienttranslate('Yellow'),
+  clienttranslate('Green'),
+  clienttranslate('White'),
+  clienttranslate('Purple'),
+  clienttranslate('Gray'),
+  clienttranslate('Light orange'),
+  clienttranslate('Pink'),
+  clienttranslate('Orange'),
+];
+
 $this->CARDS = [
   new SirenCard(),
 

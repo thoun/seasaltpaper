@@ -481,13 +481,13 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         helpDialog.setTitle(_("Card details").toUpperCase());
 
         const duoCards = [
-            [_('crab'), _("The player chooses a discard pile, consults it without shuffling it, and chooses a card from it to add to their hand. They do not have to show it to the other players.")],
-            [_('boat'), _("The player immediately takes another turn.")],
-            [_('fish'), _("The player adds the top card from the deck to their hand.")],
+            [_('Crab'), _("The player chooses a discard pile, consults it without shuffling it, and chooses a card from it to add to their hand. They do not have to show it to the other players.")],
+            [_('Boat'), _("The player immediately takes another turn.")],
+            [_('Fish'), _("The player adds the top card from the deck to their hand.")],
         ].map(array => `
         <div class="help-section">
             <div><strong>${array[0]}</strong></div>
-            <div>${_("1 point for each pair of crab cards.").replace('${card}', array[0])}</div>
+            <div>${_("1 point for each pair of ${card} cards.").replace('${card}', array[0])}</div>
             <div>${_("Effect:")} ${_(array[1])}</div>
         </div>
         `).join('');
@@ -495,7 +495,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         const duoSection = `
         ${duoCards}
         <div class="help-section">
-            <div><strong>${_("swimmer/shark")}</strong></div>
+            <div><strong>${_("Swimmer")}/${_("Shark")}</strong></div>
             <div>${_("1 point for each combination of swimmer and shark cards.")}</div>
             <div>${_("Effect:")} ${_("The player steals a random card from another player and adds it to their hand.")}</div>
         </div>
@@ -509,10 +509,10 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         </div>`;
 
         const collectorCards = [
-            ['0, 2, 4, 6, 8, 10', '1, 2, 3, 4, 5, 6', _('shell')],
-            ['0, 3, 6, 9, 12', '1, 2, 3, 4, 5', _('octopus')],
-            ['1, 3, 5', '1, 2, 3', _('penguin')],
-            ['0, 5', '1,  2', _('sailor')],
+            ['0, 2, 4, 6, 8, 10', '1, 2, 3, 4, 5, 6', _('Shell')],
+            ['0, 3, 6, 9, 12', '1, 2, 3, 4, 5', _('Octopus')],
+            ['1, 3, 5', '1, 2, 3', _('Penguin')],
+            ['0, 5', '1,  2', _('Sailor')],
         ].map(array => `
         <div class="help-section">
             <div><strong>${array[2]}</strong></div>
@@ -521,10 +521,10 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         `).join('');
 
         const multiplierCards = [
-            [_('The lighthouse'), _('boat')],
-            [_('The shoal of fish'), _('fish')],
-            [_('The penguin colony'), _('penguin')],
-            [_('The captain'), _('sailor')],
+            [_('The lighthouse'), _('Boat')],
+            [_('The shoal of fish'), _('Fish')],
+            [_('The penguin colony'), _('Penguin')],
+            [_('The captain'), _('Sailor')],
         ].map(array => `
         <div class="help-section">
             <div><strong>${array[0]}</strong></div>
@@ -729,6 +729,13 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             dojo.subscribe(notif[0], this, `notif_${notif[0]}`);
             (this as any).notifqueue.setSynchronous(notif[0], notif[1]);
         });
+
+        (this as any).notifqueue.setIgnoreNotificationCheck('cardInHandFromPick', (notif: Notif<NotifCardInHandFromPickArgs>) => 
+            notif.args.playerId == this.getPlayerId() && !notif.args.card.category
+        );
+        (this as any).notifqueue.setIgnoreNotificationCheck('stealCard', (notif: Notif<NotifStealCardArgs>) => 
+            [notif.args.playerId, notif.args.opponentId].includes(this.getPlayerId()) && !(notif.args as any).cardName
+        );
     }
 
     notif_cardInDiscardFromDeck(notif: Notif<NotifCardInDiscardFromDeckArgs>) {
@@ -752,8 +759,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
     notif_cardInHandFromPick(notif: Notif<NotifCardInHandFromPickArgs>) {
         const playerId = notif.args.playerId;
-        const from = playerId == this.getPlayerId() ? undefined : 'pick';
-        this.getPlayerTable(playerId).addCardsToHand([notif.args.card], from);
+        this.getPlayerTable(playerId).addCardsToHand([notif.args.card]);
     }   
 
     notif_cardInDiscardFromPick(notif: Notif<NotifCardInDiscardFromPickArgs>) {
@@ -777,12 +783,9 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     notif_stealCard(notif: Notif<NotifStealCardArgs>) {
-        const playerId = this.getPlayerId();
         const stealerId = notif.args.playerId;
         const card = notif.args.card;
-        if (card.category || playerId != stealerId) {
-            this.getPlayerTable(stealerId).addCardsToHand([card]);
-        }
+        this.getPlayerTable(stealerId).addCardsToHand([card]);
     }
 
     notif_announceEndRound(notif: Notif<NotifAnnounceEndRoundArgs>) {

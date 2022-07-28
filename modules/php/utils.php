@@ -177,6 +177,8 @@ trait UtilTrait {
             ];
             $argCardName = [
                 'cardName' => $this->getCardName($card),
+                'cardColor' => $this->COLORS[$card->color],
+                'i18n' => ['cardName', 'cardColor'],
             ];
             $argCard = [
                 'card' => $card,
@@ -186,8 +188,8 @@ trait UtilTrait {
             ];
 
             $this->notifyAllPlayers('stealCard', clienttranslate('${player_name} steals a card from ${player_name2} hand'), $args + $argMaskedCard);
-            $this->notifyPlayer($robbedPlayerId, 'log', clienttranslate('Card ${cardName} was stolen from your hand'), $args + $argCardName);
-            $this->notifyPlayer($stealerId, 'stealCard', clienttranslate('Card ${cardName} was picked from ${player_name2} hand'), $args + $argCardName + $argCard);
+            $this->notifyPlayer($robbedPlayerId, 'stealCard', clienttranslate('Card ${cardColor} ${cardName} was stolen from your hand'), $args + $argCardName + $argMaskedCard);
+            $this->notifyPlayer($stealerId, 'stealCard', clienttranslate('Card ${cardColor} ${cardName} was picked from ${player_name2} hand'), $args + $argCardName + $argCard);
         }
     }
 
@@ -212,7 +214,36 @@ trait UtilTrait {
     }
 
     function getCardName(Card $card) {
-        return 'TODO';
+        switch ($card->category) {
+            case SIREN: return clienttranslate('Mermaid');
+            case PAIR:
+                switch ($card->family) {
+                    case CRAB: return clienttranslate('Crab');
+                    case BOAT: return clienttranslate('Boat');
+                    case FISH: return clienttranslate('Fish');
+                    case SWIMMER: return clienttranslate('Swimmer');
+                    case SHARK: return clienttranslate('Shark');
+                }
+                break;
+            case COLLECTION:
+                switch ($card->family) {
+                    case SHELL: return clienttranslate('Shell');
+                    case OCTOPUS: return clienttranslate('Octopus');
+                    case PENGUIN: return clienttranslate('Penguin');
+                    case SAILOR: return clienttranslate('Sailor');
+                }
+                break;
+            case MULTIPLIER:
+                switch ($card->family) {
+                    case LIGHTHOUSE: return clienttranslate('The lighthouse');
+                    case SHOAL_FISH: return clienttranslate('The shoal of fish');
+                    case PENGUIN_COLONY: return clienttranslate('The penguin colony');
+                    case CAPTAIN: return clienttranslate('The captain');
+                }
+                break;
+        }
+
+        return '!!!';
     }
 
     function getRemainingCardsInDeck() {
