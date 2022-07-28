@@ -16,19 +16,17 @@ class CardsPoints {
 
     public function __construct(array $tableCards, array $handCards) {
         $this->visiblePoints = $this->getPoints($tableCards); // visible before total, for colorBonus
-        $this->totalPoints = $this->getPoints($tableCards + $handCards);
+        $this->totalPoints = 7 + $this->getPoints($tableCards + $handCards);
     }
 
     private function getPoints(array $cards) {
         $points = 0;
 
-        $sirenCards = array_values(array_filter($cards, fn($card) => $card->category == SIREN));
+        $mermaidCards = array_values(array_filter($cards, fn($card) => $card->category == MERMAID));
         $pairCards = array_values(array_filter($cards, fn($card) => $card->category == PAIR));
         $collectionCards = array_values(array_filter($cards, fn($card) => $card->category == COLLECTION));
         $multiplierCards = array_values(array_filter($cards, fn($card) => $card->category == MULTIPLIER));
 
-        // Sirens
-        $sirenCount = count($sirenCards);
         $numberByColor = [];
         foreach($cards as $card) {
             if ($card->color > 0) {
@@ -41,7 +39,9 @@ class CardsPoints {
         }
         $this->colorBonus = count($numberByColor) > 0 ? max($numberByColor) : 0;
 
-        while ($sirenCount > 0) {
+        // Mermaids
+        $mermaidCount = count($mermaidCards);
+        while ($mermaidCount > 0) {
             if (count($numberByColor) == 0) {
                 break;
             }
@@ -52,7 +52,7 @@ class CardsPoints {
             $maxColorIndex = array_find_key($numberByColor, fn($val) => $val == $maxColor);
             unset($numberByColor[$maxColorIndex]);
 
-            $sirenCount--;
+            $mermaidCount--;
         }
 
         // Pairs

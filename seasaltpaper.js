@@ -250,6 +250,15 @@ var Stacks = /** @class */ (function () {
     };
     return Stacks;
 }());
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 var isDebug = window.location.host == 'studio.boardgamearena.com' || window.location.hash.indexOf('debug') > -1;
 ;
 var log = isDebug ? console.log.bind(window.console) : function () { };
@@ -293,9 +302,12 @@ var PlayerTable = /** @class */ (function () {
         this.addCards(cards, 'table', from);
     };
     PlayerTable.prototype.cleanTable = function () {
-        // TODO animate cards to deck?
-        this.handCardsDiv.innerHTML = '';
-        this.tableCardsDiv.innerHTML = '';
+        var _this = this;
+        var cards = __spreadArray(__spreadArray([], Array.from(this.handCardsDiv.getElementsByClassName('card')), true), Array.from(this.tableCardsDiv.getElementsByClassName('card')), true);
+        cards.forEach(function (cardDiv) { return _this.game.cards.createMoveOrUpdateCard({
+            id: Number(cardDiv.dataset.id),
+        }, "deck"); });
+        setTimeout(function () { return cards.forEach(function (cardDiv) { return cardDiv === null || cardDiv === void 0 ? void 0 : cardDiv.parentElement.removeChild(cardDiv); }); }, 500);
     };
     PlayerTable.prototype.setHandPoints = function (cardsPoints) {
         this.cardsPointsCounter.toValue(cardsPoints);
@@ -341,15 +353,6 @@ var PlayerTable = /** @class */ (function () {
     };
     return PlayerTable;
 }());
-var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
 var ANIMATION_MS = 500;
 var ACTION_TIMER_DURATION = 5;
 var ZOOM_LEVELS = [0.5, 0.625, 0.75, 0.875, 1];
@@ -514,7 +517,6 @@ var SeaSaltPaper = /** @class */ (function () {
         (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setSelectable(false);
     };
     SeaSaltPaper.prototype.onLeavingChooseDiscardCard = function () {
-        // TEMP TODO
         var pickDiv = document.getElementById('discard-pick');
         pickDiv.dataset.visible = 'false';
     };
@@ -528,8 +530,8 @@ var SeaSaltPaper = /** @class */ (function () {
                 case 'playCards':
                     var playCardsArgs = args;
                     this.addActionButton("playCards_button", _("Play selected cards"), function () { return _this.playSelectedCards(); });
-                    if (playCardsArgs.hasFourSirens) {
-                        this.addActionButton("endGameWithSirens_button", _("Play the four Mermaids"), function () { return _this.endGameWithSirens(); }, null, true, 'red');
+                    if (playCardsArgs.hasFourMermaids) {
+                        this.addActionButton("endGameWithMermaids_button", _("Play the four Mermaids"), function () { return _this.endGameWithMermaids(); }, null, true, 'red');
                     }
                     this.addActionButton("endTurn_button", _("End turn"), function () { return _this.endTurn(); });
                     if (playCardsArgs.canCallEndRound) {
@@ -867,11 +869,11 @@ var SeaSaltPaper = /** @class */ (function () {
         }
         this.takeAction('endTurn');
     };
-    SeaSaltPaper.prototype.endGameWithSirens = function () {
-        if (!this.checkAction('endGameWithSirens')) {
+    SeaSaltPaper.prototype.endGameWithMermaids = function () {
+        if (!this.checkAction('endGameWithMermaids')) {
             return;
         }
-        this.takeAction('endGameWithSirens');
+        this.takeAction('endGameWithMermaids');
     };
     SeaSaltPaper.prototype.endRound = function () {
         if (!this.checkAction('endRound')) {

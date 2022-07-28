@@ -201,7 +201,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     private onLeavingChooseDiscardCard() {
-        // TEMP TODO
         const pickDiv = document.getElementById('discard-pick');
         pickDiv.dataset.visible = 'false';
     }
@@ -215,8 +214,8 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                 case 'playCards':
                     const playCardsArgs = args as EnteringPlayCardsArgs;
                     (this as any).addActionButton(`playCards_button`, _("Play selected cards"), () => this.playSelectedCards());
-                    if (playCardsArgs.hasFourSirens) {
-                        (this as any).addActionButton(`endGameWithSirens_button`, _("Play the four Mermaids"), () => this.endGameWithSirens(), null, true, 'red');
+                    if (playCardsArgs.hasFourMermaids) {
+                        (this as any).addActionButton(`endGameWithMermaids_button`, _("Play the four Mermaids"), () => this.endGameWithMermaids(), null, true, 'red');
                     }
                     (this as any).addActionButton(`endTurn_button`, _("End turn"), () => this.endTurn());
                     if (playCardsArgs.canCallEndRound) {
@@ -672,12 +671,12 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.takeAction('endTurn');
     }
 
-    public endGameWithSirens() {
-        if(!(this as any).checkAction('endGameWithSirens')) {
+    public endGameWithMermaids() {
+        if(!(this as any).checkAction('endGameWithMermaids')) {
             return;
         }
 
-        this.takeAction('endGameWithSirens');
+        this.takeAction('endGameWithMermaids');
     }
 
     public endRound() {

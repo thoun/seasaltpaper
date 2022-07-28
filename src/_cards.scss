@@ -1,4 +1,4 @@
-$SIREN: 1;
+$MERMAID: 1;
 $PAIR: 2;
 $COLLECTION: 3;
 $MULTIPLIER: 4;
@@ -114,7 +114,7 @@ $ORANGE: 10;
         }
     } 
 
-    &[data-category="#{$SIREN}"] .front {
+    &[data-category="#{$MERMAID}"] .front {
         background-position-x: 0%;
     }
 

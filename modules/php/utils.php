@@ -106,13 +106,13 @@ trait UtilTrait {
         ]);
     }
 
-    function getPlayerSirens(int $playerId) {
+    function getPlayerMermaids(int $playerId) {
         $tableCards = $this->getCardsFromDb($this->cards->getCardsInLocation('table'.$playerId));
         $handCards = $this->getCardsFromDb($this->cards->getCardsInLocation('hand'.$playerId));
         $cards = $tableCards + $handCards;
-        $sirenCards = array_values(array_filter($cards, fn($card) => $card->category == SIREN));
+        $mermaidCards = array_values(array_filter($cards, fn($card) => $card->category == MERMAID));
 
-        return $sirenCards;
+        return $mermaidCards;
     }
 
     function revealHand(int $playerId) {
@@ -215,7 +215,7 @@ trait UtilTrait {
 
     function getCardName(Card $card) {
         switch ($card->category) {
-            case SIREN: return clienttranslate('Mermaid');
+            case MERMAID: return clienttranslate('Mermaid');
             case PAIR:
                 switch ($card->family) {
                     case CRAB: return clienttranslate('Crab');

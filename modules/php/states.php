@@ -223,8 +223,8 @@ trait StateTrait {
         }
 
         foreach ($playersIds as $playerId) {
-            $sirens = $this->getPlayerSirens($playerId);
-            if (count($sirens) == 4) {
+            $mermaids = $this->getPlayerMermaids($playerId);
+            if (count($mermaids) == 4) {
                 $this->setPlayerScore($playerId, 100, clienttranslate('${player_name} placed 4 mermaid cards and immediately wins the game!'), []);
             }
 

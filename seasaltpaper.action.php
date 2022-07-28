@@ -109,10 +109,10 @@
         self::ajaxResponse();
     }
 
-    public function endGameWithSirens() {
+    public function endGameWithMermaids() {
         self::setAjaxMode();
 
-        $this->game->endGameWithSirens();
+        $this->game->endGameWithMermaids();
 
         self::ajaxResponse();
     }

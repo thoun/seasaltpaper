@@ -313,17 +313,17 @@ trait ActionTrait {
         $this->gamestate->nextState('chooseCard');
     }
 
-    public function endGameWithSirens() {
+    public function endGameWithMermaids() {
         $playerId = intval($this->getActivePlayerId());
 
-        $sirens = $this->getPlayerSirens($playerId);
-        if (count($sirens) == 4) {
+        $mermaids = $this->getPlayerMermaids($playerId);
+        if (count($mermaids) == 4) {
             $this->notifyAllPlayers('playCards', '', [
                 'playerId' => $playerId,
-                'cards' => $sirens,
+                'cards' => $mermaids,
             ]);
 
-            $this->gamestate->nextState('sirens');
+            $this->gamestate->nextState('mermaids');
         } else {
             throw new BgaUserException("You need the four Mermaids");
         }

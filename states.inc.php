@@ -146,7 +146,7 @@ $playerActionsGameStates = [
             "chooseOpponent" => ST_PLAYER_CHOOSE_OPPONENT,
             "playCards" => ST_PLAYER_PLAY_CARDS,
             "endTurn" => ST_NEXT_PLAYER,
-            "sirens" => ST_END_SCORE,
+            "mermaids" => ST_END_SCORE,
             "zombiePass" => ST_NEXT_PLAYER,
         ]
     ],

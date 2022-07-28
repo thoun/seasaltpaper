@@ -39,7 +39,7 @@ define('LAST_CHANCE_CALLER', 13);
  * Cards
  */
 // Category
-define('SIREN', 1);
+define('MERMAID', 1);
 define('PAIR', 2);
 define('COLLECTION', 3);
 define('MULTIPLIER', 4);

@@ -56,9 +56,16 @@ class PlayerTable {
     }
 
     public cleanTable(): void {
-        // TODO animate cards to deck?
-        this.handCardsDiv.innerHTML = '';
-        this.tableCardsDiv.innerHTML = '';
+        const cards = [
+            ...Array.from(this.handCardsDiv.getElementsByClassName('card')) as HTMLDivElement[],
+            ...Array.from(this.tableCardsDiv.getElementsByClassName('card')) as HTMLDivElement[],
+        ];
+        
+        cards.forEach(cardDiv => this.game.cards.createMoveOrUpdateCard({
+            id: Number(cardDiv.dataset.id),
+        } as any, `deck`));
+
+        setTimeout(() => cards.forEach(cardDiv => cardDiv?.parentElement.removeChild(cardDiv)), 500);
     }
     
     public setHandPoints(cardsPoints: number) {

@@ -22,7 +22,7 @@
 require_once('modules/php/objects/card.php');
 
 $this->COLORS = [
-  null,
+  '',
   clienttranslate('Dark blue'),
   clienttranslate('Light blue'),
   clienttranslate('Black'),
@@ -37,7 +37,7 @@ $this->COLORS = [
 ];
 
 $this->CARDS = [
-  new SirenCard(),
+  new MermaidCard(),
 
   new CrabPairCard(DARK_BLUE, 2),
   new CrabPairCard(LIGHT_BLUE, 2),

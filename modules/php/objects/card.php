@@ -14,9 +14,9 @@ class CardType {
     } 
 }
 
-class SirenCard extends CardType {  
+class MermaidCard extends CardType {  
     public function __construct() {
-        parent::__construct(SIREN, 0, 0, 4);
+        parent::__construct(MERMAID, 0, 0, 4);
     } 
 }
 
