@@ -44,6 +44,7 @@ interface SeaSaltPaperGame extends Game {
     getPlayerId(): number;
     getPlayerColor(playerId: number): string;
 
+    setTooltip(id: string, html: string): void;
     takeCardsFromDeck(): void;
     onCardClick(card: Card): void;
     onDiscardPileClick(discardNumber: number): void;

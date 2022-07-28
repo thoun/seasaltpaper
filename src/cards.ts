@@ -14,7 +14,6 @@ class Cards {
                 id: 10+subType,
                 type: 1,
                 subType,
-                name: this.getTitle(1, subType)
             } as any as Card;
             this.createMoveOrUpdateCard(card, `all-cards`);
         });
@@ -25,7 +24,6 @@ class Cards {
                     id: 10*type+subType,
                     type,
                     subType,
-                    name: this.getTitle(type, subType)
                 } as any as Card;
                 this.createMoveOrUpdateCard(card, `all-cards`);
             })
@@ -55,7 +53,7 @@ class Cards {
             } else if (oldType && !card.category) {
                 this.removeVisibleInformations(existingDiv);
             }
-            //this.game.setTooltip(existingDiv.id, this.getTooltip(card.type, card.subType));
+            this.game.setTooltip(existingDiv.id, this.getTooltip(card.category, card.family));
         } else {
             const div = document.createElement('div');
             div.id = `card-${card.id}`;
@@ -81,7 +79,9 @@ class Cards {
 
             if (card.category) {
                 this.setVisibleInformations(div, card);
-                //this.game.setTooltip(div.id, this.getTooltip(card.type, card.subType));
+                if (!destinationId.startsWith('help-')) {
+                    this.game.setTooltip(div.id, this.getTooltip(card.category, card.family));
+                }
             }
         }
     }
@@ -100,63 +100,51 @@ class Cards {
         div.removeAttribute('data-index');
     }
 
-    getTitle(type: number, subType: number) {
-        switch(type) {
+    public getTooltip(category: number, family?: number) {
+        switch(category) {
             case 1:
-                switch(subType) {
-                    case 1: case 2: return _('Infirmary');
-                    case 3: case 4: return _('Sacred Place');
-                    case 5: case 6: return _('Fortress');
-                }
+                return `
+                <div><strong>${_("Mermaid")}</strong></div>
+                ${_("1 point for each card of the color the player has the most of. If they have more mermaid cards, they must look at which of the other colors they have more of. The same color cannot be counted for more than one mermaid card.")}
+                <br><br>
+                <strong>${_("Effect: If they place 4 mermaid cards, the player immediately wins the game.")}</strong>`;
             case 2:
-                switch(subType) {
-                    case 1: return _('Herbalist');
-                    case 2: return _('House');
-                    case 3: return _('Prison');
+                if (family >= 4) {
+                    return `<div><strong>${_("Swimmer")}/${_("Shark")}</strong></div>
+                    <div>${_("1 point for each combination of swimmer and shark cards.")}</div><br>
+                    <div>${_("Effect:")} ${_("The player steals a random card from another player and adds it to their hand.")}</div>`;
                 }
+                const duoCards = [
+                    [_('Crab'), _("The player chooses a discard pile, consults it without shuffling it, and chooses a card from it to add to their hand. They do not have to show it to the other players.")],
+                    [_('Boat'), _("The player immediately takes another turn.")],
+                    [_('Fish'), _("The player adds the top card from the deck to their hand.")]
+                ];
+                const duo = duoCards[family - 1];
+                return `<div><strong>${duo[0]}</strong></div>
+                <div>${_("1 point for each pair of ${card} cards.").replace('${card}', duo[0])}</div><br>
+                <div>${_("Effect:")} ${_(duo[1])}</div>`;
             case 3:
-                switch(subType) {
-                    case 1: return _('Forge');
-                    case 2: return _('Terraced Houses');
-                    case 3: return _('Outpost');
-                }
+                const collectorCards = [
+                    ['0, 2, 4, 6, 8, 10', '1, 2, 3, 4, 5, 6', _('Shell')],
+                    ['0, 3, 6, 9, 12', '1, 2, 3, 4, 5', _('Octopus')],
+                    ['1, 3, 5', '1, 2, 3', _('Penguin')],
+                    ['0, 5', '1,  2', _('Sailor')],
+                ];
+                const collector = collectorCards[family - 1];
+                return `<div><strong>${collector[2]}</strong></div>
+                <div>${_("${points} points depending on whether the player has ${numbers} ${card} cards.").replace('${points}', collector[0]).replace('${numbers}', collector[1]).replace('${card}', collector[2])}</div>`;
             case 4:
-                switch(subType) {
-                    case 1: return _('Windmill');
-                    case 2: return _('Sanctuary');
-                    case 3: return _('Bunker');
-                }
-            case 5:
-                switch(subType) {
-                    case 1: return _('Power Station');
-                    case 2: return _('Apartments');
-                    case 3: return _('Radio Tower');
-                }
-            case 6:
-                switch(subType) {
-                    case 1: return _('Water Reservoir');
-                    case 2: return _('Temple');
-                    case 3: return _('Air Base');
-                }
+                const multiplierCards = [
+                    [_('The lighthouse'), _('Boat')],
+                    [_('The shoal of fish'), _('Fish')],
+                    [_('The penguin colony'), _('Penguin')],
+                    [_('The captain'), _('Sailor')],
+                ];
+                const multiplier = multiplierCards[family - 1];
+                return `<div><strong>${multiplier[0]}</strong></div>
+                <div>${_("1 point per ${card} card.").replace('${card}', multiplier[1])}</div>
+                <div>${_("This card does not count as a ${card} card.").replace('${card}', multiplier[1])}</div>`;
         }
             
-    }
-
-    getTooltip(type: number, subType: number) {
-        if (!type) {
-            return _('Common projects deck');
-        }
-        return `<h3 class="title">${this.getTitle(type, subType)}</h3><div>${this.getTooltipDescription(type)}</div>`;
-    }
-
-    getTooltipDescription(type: number) {
-        switch(type) {
-            case 1: return _('Construct a building with at least 2 floors on an area adjacent to an unoccupied area, respecting the indicated land types (1 copy each).');
-            case 2: return _('Construct a building with at least 2 floors on the indicated land type in one of the 6 outside territories (1 copy each).');
-            case 3: return _('Construct 2 buildings with at least 1 floor on 2 adjacent areas of the indicated land type (1 copy each).');
-            case 4: return _('Construct 2 buildings, 1 with at least 2 floors and 1 with at least 1 floor, on 2 adjacent areas, respecting the indicated land type (1 copy each).');
-            case 5: return _('Construct a building with at least 3 floors on the indicated land type in the central territory (1 copy each).');
-            case 6: return _('Construct 3 buildings, 1 with at least 2 floors adjacent to 2 buildings with at least 1 floor respecting the indicated land types (1 copy each).');
-        }
     }
 }
