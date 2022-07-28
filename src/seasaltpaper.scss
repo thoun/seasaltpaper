@@ -61,16 +61,15 @@ html, .mode_3d #game_play_area_background {
     position: relative;
     transform-origin: left top;
 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 20px;
+    #tables {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
   }
-}
-
-.spectatorMode #myhand-wrap {
-  display: none;
 }
 
 html[data-origami-font="true"] {

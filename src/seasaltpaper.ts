@@ -139,7 +139,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.stacks.showPickCards(false);
         this.selectedCards = [];
 
-        //this.getCurrentPlayerTable()?.setSelectable((this as any).isCurrentPlayerActive());
         this.updateDisabledPlayCards();
     }
     
@@ -153,11 +152,13 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         pickDiv.innerHTML = '';
         pickDiv.dataset.visible = 'true';
 
-        console.log(args);
         cards?.forEach(card => {
-            this.cards.createMoveOrUpdateCard(card, `discard-pick`, false, 'discard'+args.discardNumber)
-            document.getElementById(`card-${card.id}`).classList.add('selectable');
+            this.cards.createMoveOrUpdateCard(card, `discard-pick`, false, 'discard'+args.discardNumber);
+            if ((this as any).isCurrentPlayerActive()) {
+                document.getElementById(`card-${card.id}`).classList.add('selectable');
+            }
         });
+        this.updateTableHeight();
     }
 
     public onLeavingState(stateName: string) {
@@ -293,10 +294,10 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             div.style.margin = '';
         } else {
             div.style.transform = `scale(${zoom})`;
-            div.style.margin = `0 ${ZOOM_LEVELS_MARGIN[newIndex]}% ${(1-zoom)*-100}% 0`;
+            div.style.marginRight = `${ZOOM_LEVELS_MARGIN[newIndex]}%`;
         }
 
-        document.getElementById('zoom-wrapper').style.height = `${div.getBoundingClientRect().height}px`;
+        this.updateTableHeight();
     }
 
     public zoomIn() {
@@ -313,6 +314,10 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         }
         const newIndex = ZOOM_LEVELS.indexOf(this.zoom) - 1;
         this.setZoom(ZOOM_LEVELS[newIndex]);
+    }
+
+    private updateTableHeight() {
+        document.getElementById('zoom-wrapper').style.height = `${document.getElementById('full-table').getBoundingClientRect().height}px`;
     }
 
     private setupPreferences() {
@@ -710,7 +715,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             ['playCards', ANIMATION_MS],
             ['stealCard', ANIMATION_MS],
             ['announceEndRound', ANIMATION_MS],
-            ['endRound', ANIMATION_MS],
+            ['endRound', ANIMATION_MS * 2],
             ['score', ANIMATION_MS * 3], // TODO animate ?
             ['newRound', 1],
             ['updateCardsPoints', 1],
@@ -730,9 +735,11 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     notif_cardInDiscardFromDeck(notif: Notif<NotifCardInDiscardFromDeckArgs>) {
-        this.cards.createMoveOrUpdateCard(notif.args.card, `discard${notif.args.discardId}`, true, 'deck');
+        this.cards.createMoveOrUpdateCard(notif.args.card, `discard${notif.args.discardId}`, false, 'deck');
+        this.stacks.discardCounters[notif.args.discardId].setValue(1);
         this.stacks.deckCounter.setValue(notif.args.remainingCardsInDeck);
         this.roundNumberCounter.toValue(notif.args.roundNumber);
+        this.updateTableHeight();
     } 
 
     notif_cardInHandFromDiscard(notif: Notif<NotifCardInHandFromDiscardArgs>) {
@@ -746,6 +753,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             this.cards.createMoveOrUpdateCard(notif.args.newDiscardTopCard, `discard${discardNumber}`, true);
         }
         this.stacks.discardCounters[discardNumber].setValue(notif.args.remainingCardsInDiscard);
+        this.updateTableHeight();
     } 
 
     notif_cardInHandFromPick(notif: Notif<NotifCardInHandFromPickArgs>) {
@@ -762,6 +770,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             setTimeout(() => currentCardDiv.parentElement.removeChild(currentCardDiv), 500);
         }
         this.stacks.discardCounters[discardNumber].setValue(notif.args.remainingCardsInDiscard);
+        this.updateTableHeight();
     }
 
     notif_score(notif: Notif<NotifScoreArgs>) {
@@ -791,6 +800,9 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             const currentCardDiv = this.stacks.getDiscardCard(discardNumber);
             currentCardDiv?.parentElement.removeChild(currentCardDiv); // animate cards to deck?
         });
+
+        [1, 2].forEach(discardNumber => this.stacks.discardCounters[discardNumber].setValue(0));
+        this.stacks.deckCounter.setValue(58);
     }
 
     notif_updateCardsPoints(notif: Notif<NotifUpdateCardsPointsArgs>) {
@@ -806,7 +818,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                     args.announcement = `<strong style="color: darkred;">${_(args.announcement)}</strong>`;
                 }
 
-                ['discardNumber', 'roundPoints', 'cardsPoints', 'colorBonus'].forEach(field => {
+                ['discardNumber', 'roundPoints', 'cardsPoints', 'colorBonus', 'cardName', 'cardName1', 'cardName2', 'cardColor', 'cardColor1', 'cardColor2'].forEach(field => {
                     if (args[field] && args[field][0] != '<') {
                         args[field] = `<strong>${args[field]}</strong>`;
                     }

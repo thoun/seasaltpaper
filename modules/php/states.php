@@ -20,7 +20,7 @@ trait StateTrait {
 
         // init round discard
         foreach([1, 2] as $discardNumber) {
-            $card = $this->cards->pickCardForLocation('deck', 'discard'.$discardNumber);
+            $card = $this->getCardFromDb($this->cards->pickCardForLocation('deck', 'discard'.$discardNumber));
 
             self::notifyAllPlayers('cardInDiscardFromDeck', '', [
                 'card' => $card,

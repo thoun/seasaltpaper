@@ -49,6 +49,7 @@ class Stacks {
         cards?.forEach(card => 
             this.game.cards.createMoveOrUpdateCard(card, `pick`, false, 'deck')
         );
+        this.game.updateTableHeight();
     }
 
     public getDiscardCard(discardNumber: number): HTMLDivElement | null {

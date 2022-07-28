@@ -35,7 +35,7 @@ class PlayerTable {
             </div>
         </div>
         `;
-        dojo.place(html, document.getElementById('full-table'));
+        dojo.place(html, document.getElementById('tables'));
 
         if (this.currentPlayer) {
             this.cardsPointsCounter = new ebg.counter();
@@ -66,6 +66,7 @@ class PlayerTable {
         } as any, `deck`));
 
         setTimeout(() => cards.forEach(cardDiv => cardDiv?.parentElement.removeChild(cardDiv)), 500);
+        this.game.updateTableHeight();
     }
     
     public setHandPoints(cardsPoints: number) {
@@ -114,5 +115,6 @@ class PlayerTable {
     
     private addCards(cards: Card[], to: 'hand' | 'table', from?: string) {
         cards.forEach(card => this.game.cards.createMoveOrUpdateCard(card, `player-table-${this.playerId}-${to}-cards`, false, from));
+        this.game.updateTableHeight();
     }
 }

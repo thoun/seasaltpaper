@@ -564,15 +564,14 @@ html, .mode_3d #game_play_area_background {
 #zoom-wrapper #full-table {
   position: relative;
   transform-origin: left top;
+}
+#zoom-wrapper #full-table #tables {
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
   gap: 20px;
-}
-
-.spectatorMode #myhand-wrap {
-  display: none;
 }
 
 html[data-origami-font=true] .player-table .name-wrapper .name-and-bubble .name {
