@@ -506,6 +506,14 @@
   border-radius: 8px;
   padding: 5px;
   margin: 3px 0;
+  display: flex;
+}
+#help-popin .help-section > div:not(:first-child) {
+  margin-left: 5px;
+}
+#help-popin .help-section > div:not(:first-child):not([id]) {
+  flex: 1;
+  margin-left: 5px;
 }
 
 html, .mode_3d #game_play_area_background {

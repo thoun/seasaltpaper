@@ -484,28 +484,42 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             [_('Crab'), _("The player chooses a discard pile, consults it without shuffling it, and chooses a card from it to add to their hand. They do not have to show it to the other players.")],
             [_('Boat'), _("The player immediately takes another turn.")],
             [_('Fish'), _("The player adds the top card from the deck to their hand.")],
-        ].map(array => `
+        ].map((array, index) => `
         <div class="help-section">
-            <div><strong>${array[0]}</strong></div>
-            <div>${_("1 point for each pair of ${card} cards.").replace('${card}', array[0])}</div>
-            <div>${_("Effect:")} ${_(array[1])}</div>
+            <div id="help-pair-${index+1}">
+            </div>
+            <div>
+                <div><strong>${array[0]}</strong></div>
+                <div>${_("1 point for each pair of ${card} cards.").replace('${card}', array[0])}</div>
+                <div>${_("Effect:")} ${_(array[1])}</div>
+            </div>
         </div>
         `).join('');
 
         const duoSection = `
         ${duoCards}
         <div class="help-section">
-            <div><strong>${_("Swimmer")}/${_("Shark")}</strong></div>
-            <div>${_("1 point for each combination of swimmer and shark cards.")}</div>
-            <div>${_("Effect:")} ${_("The player steals a random card from another player and adds it to their hand.")}</div>
+            <div id="help-pair-4">
+            </div>
+            <div id="help-pair-5">
+            </div>
+            <div>
+                <div><strong>${_("Swimmer")}/${_("Shark")}</strong></div>
+                <div>${_("1 point for each combination of swimmer and shark cards.")}</div>
+                <div>${_("Effect:")} ${_("The player steals a random card from another player and adds it to their hand.")}</div>
+            </div>
         </div>
         ${_("Note: The points for duo cards count whether the cards have been played or not. However, the effect is only applied when the player places the two cards in front of them.")}`;
 
         const mermaidSection = `
         <div class="help-section">
-        ${_("1 point for each card of the color the player has the most of. If they have more mermaid cards, they must look at which of the other colors they have more of. The same color cannot be counted for more than one mermaid card.")}
-        <br><br>
-        <strong>${_("Effect: If they place 4 mermaid cards, the player immediately wins the game.")}</strong>
+            <div id="help-mermaid">
+            </div>
+            <div>
+                ${_("1 point for each card of the color the player has the most of. If they have more mermaid cards, they must look at which of the other colors they have more of. The same color cannot be counted for more than one mermaid card.")}
+                <br><br>
+                <strong>${_("Effect: If they place 4 mermaid cards, the player immediately wins the game.")}</strong>
+            </div>
         </div>`;
 
         const collectorCards = [
@@ -513,10 +527,14 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             ['0, 3, 6, 9, 12', '1, 2, 3, 4, 5', _('Octopus')],
             ['1, 3, 5', '1, 2, 3', _('Penguin')],
             ['0, 5', '1,  2', _('Sailor')],
-        ].map(array => `
+        ].map((array, index) => `
         <div class="help-section">
-            <div><strong>${array[2]}</strong></div>
-            <div>${_("${points} points depending on whether the player has ${numbers} ${card} cards.").replace('${points}', array[0]).replace('${numbers}', array[1]).replace('${card}', array[2])}</div>
+            <div id="help-collector-${index+1}">
+            </div>
+            <div>
+                <div><strong>${array[2]}</strong></div>
+                <div>${_("${points} points depending on whether the player has ${numbers} ${card} cards.").replace('${points}', array[0]).replace('${numbers}', array[1]).replace('${card}', array[2])}</div>
+            </div>
         </div>
         `).join('');
 
@@ -525,11 +543,15 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             [_('The shoal of fish'), _('Fish')],
             [_('The penguin colony'), _('Penguin')],
             [_('The captain'), _('Sailor')],
-        ].map(array => `
+        ].map((array, index) => `
         <div class="help-section">
-            <div><strong>${array[0]}</strong></div>
-            <div>${_("1 point per ${card} card.").replace('${card}', array[1])}</div>
-            <div>${_("This card does not count as a ${card} card.").replace('${card}', array[1])}</div>
+            <div id="help-multiplier-${index+1}">
+            </div>
+            <div>
+                <div><strong>${array[0]}</strong></div>
+                <div>${_("1 point per ${card} card.").replace('${card}', array[1])}</div>
+                <div>${_("This card does not count as a ${card} card.").replace('${card}', array[1])}</div>
+            </div>
         </div>
         `).join('');
         
@@ -552,6 +574,15 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         helpDialog.setContent(html);
 
         helpDialog.show();
+
+        // pair
+        [[1, 1], [2, 2], [3, 3], [4, 4], [5, 5]].forEach(([family, color]) => this.cards.createMoveOrUpdateCard({id: 1020 + family, category: 2, family, color, index: 0 } as any, `help-pair-${family}`));
+        // mermaid
+        this.cards.createMoveOrUpdateCard({id: 1010, category: 1 } as any, `help-mermaid`);
+        // collector
+        [[1, 1], [2, 2], [3, 6], [4, 9]].forEach(([family, color]) => this.cards.createMoveOrUpdateCard({id: 1030 + family, category: 3, family, color, index: 0 } as any, `help-collector-${family}`));
+        // multiplier
+        [1, 2, 3, 4].forEach(family => this.cards.createMoveOrUpdateCard({id: 1040 + family, category: 4, family } as any, `help-multiplier-${family}`));
     }
 
     public takeCardsFromDeck() {

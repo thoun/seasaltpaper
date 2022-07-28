@@ -756,6 +756,7 @@ var SeaSaltPaper = /** @class */ (function () {
         helpButton.addEventListener('click', function () { return helpButton.dataset.folded = helpButton.dataset.folded == 'true' ? 'false' : 'true'; });
     };
     SeaSaltPaper.prototype.showHelp = function () {
+        var _this = this;
         var helpDialog = new ebg.popindialog();
         helpDialog.create('seasaltpaperHelpDialog');
         helpDialog.setTitle(_("Card details").toUpperCase());
@@ -763,25 +764,39 @@ var SeaSaltPaper = /** @class */ (function () {
             [_('Crab'), _("The player chooses a discard pile, consults it without shuffling it, and chooses a card from it to add to their hand. They do not have to show it to the other players.")],
             [_('Boat'), _("The player immediately takes another turn.")],
             [_('Fish'), _("The player adds the top card from the deck to their hand.")],
-        ].map(function (array) { return "\n        <div class=\"help-section\">\n            <div><strong>".concat(array[0], "</strong></div>\n            <div>").concat(_("1 point for each pair of ${card} cards.").replace('${card}', array[0]), "</div>\n            <div>").concat(_("Effect:"), " ").concat(_(array[1]), "</div>\n        </div>\n        "); }).join('');
-        var duoSection = "\n        ".concat(duoCards, "\n        <div class=\"help-section\">\n            <div><strong>").concat(_("Swimmer"), "/").concat(_("Shark"), "</strong></div>\n            <div>").concat(_("1 point for each combination of swimmer and shark cards."), "</div>\n            <div>").concat(_("Effect:"), " ").concat(_("The player steals a random card from another player and adds it to their hand."), "</div>\n        </div>\n        ").concat(_("Note: The points for duo cards count whether the cards have been played or not. However, the effect is only applied when the player places the two cards in front of them."));
-        var mermaidSection = "\n        <div class=\"help-section\">\n        ".concat(_("1 point for each card of the color the player has the most of. If they have more mermaid cards, they must look at which of the other colors they have more of. The same color cannot be counted for more than one mermaid card."), "\n        <br><br>\n        <strong>").concat(_("Effect: If they place 4 mermaid cards, the player immediately wins the game."), "</strong>\n        </div>");
+        ].map(function (array, index) { return "\n        <div class=\"help-section\">\n            <div id=\"help-pair-".concat(index + 1, "\">\n            </div>\n            <div>\n                <div><strong>").concat(array[0], "</strong></div>\n                <div>").concat(_("1 point for each pair of ${card} cards.").replace('${card}', array[0]), "</div>\n                <div>").concat(_("Effect:"), " ").concat(_(array[1]), "</div>\n            </div>\n        </div>\n        "); }).join('');
+        var duoSection = "\n        ".concat(duoCards, "\n        <div class=\"help-section\">\n            <div id=\"help-pair-4\">\n            </div>\n            <div id=\"help-pair-5\">\n            </div>\n            <div>\n                <div><strong>").concat(_("Swimmer"), "/").concat(_("Shark"), "</strong></div>\n                <div>").concat(_("1 point for each combination of swimmer and shark cards."), "</div>\n                <div>").concat(_("Effect:"), " ").concat(_("The player steals a random card from another player and adds it to their hand."), "</div>\n            </div>\n        </div>\n        ").concat(_("Note: The points for duo cards count whether the cards have been played or not. However, the effect is only applied when the player places the two cards in front of them."));
+        var mermaidSection = "\n        <div class=\"help-section\">\n            <div id=\"help-mermaid\">\n            </div>\n            <div>\n                ".concat(_("1 point for each card of the color the player has the most of. If they have more mermaid cards, they must look at which of the other colors they have more of. The same color cannot be counted for more than one mermaid card."), "\n                <br><br>\n                <strong>").concat(_("Effect: If they place 4 mermaid cards, the player immediately wins the game."), "</strong>\n            </div>\n        </div>");
         var collectorCards = [
             ['0, 2, 4, 6, 8, 10', '1, 2, 3, 4, 5, 6', _('Shell')],
             ['0, 3, 6, 9, 12', '1, 2, 3, 4, 5', _('Octopus')],
             ['1, 3, 5', '1, 2, 3', _('Penguin')],
             ['0, 5', '1,  2', _('Sailor')],
-        ].map(function (array) { return "\n        <div class=\"help-section\">\n            <div><strong>".concat(array[2], "</strong></div>\n            <div>").concat(_("${points} points depending on whether the player has ${numbers} ${card} cards.").replace('${points}', array[0]).replace('${numbers}', array[1]).replace('${card}', array[2]), "</div>\n        </div>\n        "); }).join('');
+        ].map(function (array, index) { return "\n        <div class=\"help-section\">\n            <div id=\"help-collector-".concat(index + 1, "\">\n            </div>\n            <div>\n                <div><strong>").concat(array[2], "</strong></div>\n                <div>").concat(_("${points} points depending on whether the player has ${numbers} ${card} cards.").replace('${points}', array[0]).replace('${numbers}', array[1]).replace('${card}', array[2]), "</div>\n            </div>\n        </div>\n        "); }).join('');
         var multiplierCards = [
             [_('The lighthouse'), _('Boat')],
             [_('The shoal of fish'), _('Fish')],
             [_('The penguin colony'), _('Penguin')],
             [_('The captain'), _('Sailor')],
-        ].map(function (array) { return "\n        <div class=\"help-section\">\n            <div><strong>".concat(array[0], "</strong></div>\n            <div>").concat(_("1 point per ${card} card.").replace('${card}', array[1]), "</div>\n            <div>").concat(_("This card does not count as a ${card} card.").replace('${card}', array[1]), "</div>\n        </div>\n        "); }).join('');
+        ].map(function (array, index) { return "\n        <div class=\"help-section\">\n            <div id=\"help-multiplier-".concat(index + 1, "\">\n            </div>\n            <div>\n                <div><strong>").concat(array[0], "</strong></div>\n                <div>").concat(_("1 point per ${card} card.").replace('${card}', array[1]), "</div>\n                <div>").concat(_("This card does not count as a ${card} card.").replace('${card}', array[1]), "</div>\n            </div>\n        </div>\n        "); }).join('');
         var html = "\n        <div id=\"help-popin\">\n            ".concat(_("<strong>Important:</strong> When it is said that the player counts or scores the points on their cards, it means both those in their hand and those in front of them."), "\n\n            <h1>").concat(_("Duo cards"), "</h1>\n            ").concat(duoSection, "\n            <h1>").concat(_("Mermaid cards"), "</h1>\n            ").concat(mermaidSection, "\n            <h1>").concat(_("Collector cards"), "</h1>\n            ").concat(collectorCards, "\n            <h1>").concat(_("Point Multiplier cards"), "</h1>\n            ").concat(multiplierCards, "\n        </div>\n        ");
         // Show the dialog
         helpDialog.setContent(html);
         helpDialog.show();
+        // pair
+        [[1, 1], [2, 2], [3, 3], [4, 4], [5, 5]].forEach(function (_a) {
+            var family = _a[0], color = _a[1];
+            return _this.cards.createMoveOrUpdateCard({ id: 1020 + family, category: 2, family: family, color: color, index: 0 }, "help-pair-".concat(family));
+        });
+        // mermaid
+        this.cards.createMoveOrUpdateCard({ id: 1010, category: 1 }, "help-mermaid");
+        // collector
+        [[1, 1], [2, 2], [3, 6], [4, 9]].forEach(function (_a) {
+            var family = _a[0], color = _a[1];
+            return _this.cards.createMoveOrUpdateCard({ id: 1030 + family, category: 3, family: family, color: color, index: 0 }, "help-collector-".concat(family));
+        });
+        // multiplier
+        [1, 2, 3, 4].forEach(function (family) { return _this.cards.createMoveOrUpdateCard({ id: 1040 + family, category: 4, family: family }, "help-multiplier-".concat(family)); });
     };
     SeaSaltPaper.prototype.takeCardsFromDeck = function () {
         if (!this.checkAction('takeCardsFromDeck')) {
