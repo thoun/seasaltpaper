@@ -139,7 +139,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.stacks.showPickCards(false);
         this.selectedCards = [];
 
-        this.getCurrentPlayerTable()?.setSelectable((this as any).isCurrentPlayerActive());
+        //this.getCurrentPlayerTable()?.setSelectable((this as any).isCurrentPlayerActive());
         this.updateDisabledPlayCards();
     }
     
@@ -392,7 +392,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     private updateDisabledPlayCards() {
-        this.getCurrentPlayerTable()?.updateDisabledPlayCards(this.selectedCards);        
+        this.getCurrentPlayerTable()?.updateDisabledPlayCards(this.selectedCards, this.gamedatas.gamestate.args.playableDuoCards);        
         document.getElementById(`playCards_button`)?.classList.toggle(`disabled`, this.selectedCards.length != 2);
     }
     

@@ -300,7 +300,7 @@ var PlayerTable = /** @class */ (function () {
             cards.forEach(function (card) { return card.classList.remove('selectable', 'selected', 'disabled'); });
         }
     };
-    PlayerTable.prototype.updateDisabledPlayCards = function (selectedCards) {
+    PlayerTable.prototype.updateDisabledPlayCards = function (selectedCards, playableDuoCardFamilies) {
         if (!this.game.isCurrentPlayerActive()) {
             return;
         }
@@ -311,13 +311,18 @@ var PlayerTable = /** @class */ (function () {
                 disabled = true;
             }
             else {
-                if (selectedCards.length >= 2) {
-                    disabled = !selectedCards.includes(Number(card.dataset.id));
+                if (playableDuoCardFamilies.includes(Number(card.dataset.family))) {
+                    if (selectedCards.length >= 2) {
+                        disabled = !selectedCards.includes(Number(card.dataset.id));
+                    }
+                    else if (selectedCards.length == 1) {
+                        var family = Number(document.getElementById("card-".concat(selectedCards[0])).dataset.family);
+                        var authorizedFamily = '' + (family >= 4 ? 9 - family : family);
+                        disabled = Number(card.dataset.id) != selectedCards[0] && card.dataset.family != authorizedFamily;
+                    }
                 }
-                else if (selectedCards.length == 1) {
-                    var family = Number(document.getElementById("card-".concat(selectedCards[0])).dataset.family);
-                    var authorizedFamily = '' + (family >= 4 ? 9 - family : family);
-                    disabled = Number(card.dataset.id) != selectedCards[0] && card.dataset.family != authorizedFamily;
+                else {
+                    disabled = true;
                 }
             }
             card.classList.toggle('disabled', disabled);
@@ -435,10 +440,9 @@ var SeaSaltPaper = /** @class */ (function () {
         this.stacks.makeDiscardSelectable(this.isCurrentPlayerActive());
     };
     SeaSaltPaper.prototype.onEnteringPlayCards = function () {
-        var _a;
         this.stacks.showPickCards(false);
         this.selectedCards = [];
-        (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setSelectable(this.isCurrentPlayerActive());
+        //this.getCurrentPlayerTable()?.setSelectable((this as any).isCurrentPlayerActive());
         this.updateDisabledPlayCards();
     };
     SeaSaltPaper.prototype.onEnteringChooseDiscardPile = function () {
@@ -659,7 +663,7 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.updateDisabledPlayCards = function () {
         var _a, _b;
-        (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.updateDisabledPlayCards(this.selectedCards);
+        (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.updateDisabledPlayCards(this.selectedCards, this.gamedatas.gamestate.args.playableDuoCards);
         (_b = document.getElementById("playCards_button")) === null || _b === void 0 ? void 0 : _b.classList.toggle("disabled", this.selectedCards.length != 2);
     };
     SeaSaltPaper.prototype.onCardClick = function (card) {

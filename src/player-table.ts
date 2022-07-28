@@ -85,7 +85,7 @@ class PlayerTable {
         }
     }
 
-    public updateDisabledPlayCards(selectedCards: number[]) {
+    public updateDisabledPlayCards(selectedCards: number[], playableDuoCardFamilies: number[]) {
         if (!(this.game as any).isCurrentPlayerActive()) {
             return;
         }
@@ -96,12 +96,16 @@ class PlayerTable {
             if (card.dataset.category != '2') {
                 disabled = true;
             } else {
-                if (selectedCards.length >= 2) {
-                    disabled = !selectedCards.includes(Number(card.dataset.id));
-                } else if (selectedCards.length == 1) {
-                    const family = Number(document.getElementById(`card-${selectedCards[0]}`).dataset.family);
-                    const authorizedFamily = ''+(family >= 4 ? 9 - family : family);
-                    disabled = Number(card.dataset.id) != selectedCards[0] && card.dataset.family != authorizedFamily;
+                if (playableDuoCardFamilies.includes(Number(card.dataset.family))) {
+                    if (selectedCards.length >= 2) {
+                        disabled = !selectedCards.includes(Number(card.dataset.id));
+                    } else if (selectedCards.length == 1) {
+                        const family = Number(document.getElementById(`card-${selectedCards[0]}`).dataset.family);
+                        const authorizedFamily = ''+(family >= 4 ? 9 - family : family);
+                        disabled = Number(card.dataset.id) != selectedCards[0] && card.dataset.family != authorizedFamily;
+                    }
+                } else {
+                    disabled = true;
                 }
             }
             card.classList.toggle('disabled', disabled);

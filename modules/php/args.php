@@ -57,6 +57,7 @@ trait ArgsTrait {
     
         return [
             'canDoAction' => count($playableDuoCards) > 0 || $canCallEndRound || $hasFourMermaids,
+            'playableDuoCards' => $playableDuoCards,
             'hasFourMermaids' => $hasFourMermaids,
             'canCallEndRound' => $canCallEndRound,
         ];
