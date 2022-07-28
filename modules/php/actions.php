@@ -231,6 +231,7 @@ trait ActionTrait {
                     self::notifyAllPlayers('cardInHandFromPick', clienttranslate('${player_name} took a card from deck'), [
                         'playerId' => $playerId,
                         'player_name' => $this->getPlayerName($playerId),
+                        'card' => Card::onlyId($card),
                     ]);
                     
                     $this->updateCardsPoints($playerId);

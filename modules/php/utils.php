@@ -190,6 +190,9 @@ trait UtilTrait {
             $this->notifyAllPlayers('stealCard', clienttranslate('${player_name} steals a card from ${player_name2} hand'), $args + $argMaskedCard);
             $this->notifyPlayer($robbedPlayerId, 'stealCard', clienttranslate('Card ${cardColor} ${cardName} was stolen from your hand'), $args + $argCardName + $argMaskedCard);
             $this->notifyPlayer($stealerId, 'stealCard', clienttranslate('Card ${cardColor} ${cardName} was picked from ${player_name2} hand'), $args + $argCardName + $argCard);
+
+            $this->updateCardsPoints($stealerId);
+            $this->updateCardsPoints($robbedPlayerId);
         }
     }
 
@@ -243,7 +246,7 @@ trait UtilTrait {
                 break;
         }
 
-        return '!!!';
+        return '';
     }
 
     function getRemainingCardsInDeck() {

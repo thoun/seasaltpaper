@@ -10,17 +10,15 @@ function array_find_key(array $array, callable $fn) {
 }
 
 class CardsPoints {
-    public int $visiblePoints;
     public int $totalPoints;
     public int $colorBonus;
 
     public function __construct(array $tableCards, array $handCards) {
-        $this->visiblePoints = $this->getPoints($tableCards); // visible before total, for colorBonus
-        $this->totalPoints = $this->getPoints($tableCards + $handCards);
-    }
-
-    private function getPoints(array $cards) {
-        $points = 0;
+        $cards = array_merge($tableCards, $handCards);         
+        $mermaidPoints = 0;
+        $pairPoints = 0;
+        $collectorPoints = 0;
+        $multiplierPoints = 0;
 
         $mermaidCards = array_values(array_filter($cards, fn($card) => $card->category == MERMAID));
         $pairCards = array_values(array_filter($cards, fn($card) => $card->category == PAIR));
@@ -47,7 +45,7 @@ class CardsPoints {
             }
 
             $maxColor = count($numberByColor) > 0 ? max($numberByColor) : 0;
-            $points += $maxColor;
+            $mermaidPoints += $maxColor;
 
             $maxColorIndex = array_find_key($numberByColor, fn($val) => $val == $maxColor);
             unset($numberByColor[$maxColorIndex]);
@@ -57,9 +55,9 @@ class CardsPoints {
 
         // Pairs
         for ($family = CRAB; $family <= FISH; $family++) {
-            $points += floor(count(array_values(array_filter($pairCards, fn($card) => $card->family == $family))) / 2);
+            $pairPoints += floor(count(array_values(array_filter($pairCards, fn($card) => $card->family == $family))) / 2);
         }
-        $points += min(
+        $pairPoints += min(
             count(array_values(array_filter($pairCards, fn($card) => $card->family == SWIMMER))),
             count(array_values(array_filter($pairCards, fn($card) => $card->family == SHARK))),
         );
@@ -68,7 +66,7 @@ class CardsPoints {
         for ($family = SHELL; $family <= SAILOR; $family++) {
             $count = count(array_values(array_filter($collectionCards, fn($card) => $card->family == $family)));
             if ($count > 0) {
-                $points += COLLECTION_POINTS[$family][$count];
+                $collectorPoints += COLLECTION_POINTS[$family][$count];
             }
         }
         
@@ -77,11 +75,11 @@ class CardsPoints {
             $multiplierCardsOfFamily = array_values(array_filter($multiplierCards, fn($card) => $card->family == $family));
             if (count($multiplierCardsOfFamily) > 0) {
                 $multiplierCard = $multiplierCardsOfFamily[0];
-                $points += $multiplierCard->points * count(array_values(array_filter($cards, fn($card) => $card->category == $multiplierCard->matchCategory && $card->family == $multiplierCard->matchFamily)));
+                $multiplierPoints += $multiplierCard->points * count(array_values(array_filter($cards, fn($card) => $card->category == $multiplierCard->matchCategory && $card->family == $multiplierCard->matchFamily)));
             }
         }
 
-        return $points;
+        $this->totalPoints = $mermaidPoints + $pairPoints + $collectorPoints + $multiplierPoints;
     }
 }
 ?>
