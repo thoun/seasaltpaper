@@ -373,10 +373,6 @@ var SeaSaltPaper = /** @class */ (function () {
         this.stacks = new Stacks(this, this.gamedatas);
         //this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
-        document.getElementById('round-panel').innerHTML = "".concat(_('Round'), "&nbsp;<span id=\"round-number-counter\"></span>&nbsp;/&nbsp;").concat(6 - Object.keys(gamedatas.players).length);
-        this.roundNumberCounter = new ebg.counter();
-        this.roundNumberCounter.create("round-number-counter");
-        this.roundNumberCounter.setValue(gamedatas.roundNumber);
         this.setupNotifications();
         this.setupPreferences();
         this.addHelp();
@@ -932,7 +928,6 @@ var SeaSaltPaper = /** @class */ (function () {
         this.cards.createMoveOrUpdateCard(notif.args.card, "discard".concat(notif.args.discardId), false, 'deck');
         this.stacks.discardCounters[notif.args.discardId].setValue(1);
         this.stacks.deckCounter.setValue(notif.args.remainingCardsInDeck);
-        this.roundNumberCounter.toValue(notif.args.roundNumber);
         this.updateTableHeight();
     };
     SeaSaltPaper.prototype.notif_cardInHandFromDiscard = function (notif) {

@@ -79,7 +79,7 @@ class CardsPoints {
             }
         }
 
-        $this->totalPoints = $mermaidPoints + $pairPoints + $collectorPoints + $multiplierPoints;
+        $this->totalPoints = 7+ $mermaidPoints + $pairPoints + $collectorPoints + $multiplierPoints;
     }
 }
 ?>

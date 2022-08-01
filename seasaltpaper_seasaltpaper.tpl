@@ -1,8 +1,5 @@
 {OVERALL_GAME_HEADER}
 
-<div>
-    <div id="round-panel"></div>
-</div>
 <div id="zoom-wrapper">
     <div id="full-table">
         <div id="discard-pick" data-visible="false"></div>

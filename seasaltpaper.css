@@ -526,14 +526,6 @@ html, .mode_3d #game_play_area_background {
   font-weight: normal;
   font-style: normal;
 }
-#round-panel {
-  display: inline-block;
-  background: rgba(255, 255, 255, 0.6666666667);
-  padding: 12px;
-  margin-left: 2px;
-  border-radius: 10px;
-}
-
 #zoom-wrapper {
   position: relative;
 }

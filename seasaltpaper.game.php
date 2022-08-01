@@ -43,7 +43,6 @@ class SeaSaltPaper extends Table {
         parent::__construct();
         
         self::initGameStateLabels([
-            ROUND_NUMBER => ROUND_NUMBER,
             CHOSEN_DISCARD => CHOSEN_DISCARD,
             END_ROUND_TYPE => END_ROUND_TYPE,
             LAST_CHANCE_CALLER => LAST_CHANCE_CALLER,
@@ -88,7 +87,6 @@ class SeaSaltPaper extends Table {
         /************ Start the game initialization *****/
 
         // Init global values with their initial values
-        $this->setGameStateInitialValue(ROUND_NUMBER, 0);
         $this->setGameStateInitialValue(END_ROUND_TYPE, 0);
         $this->setGameStateInitialValue(LAST_CHANCE_CALLER, 0);
         
@@ -135,7 +133,6 @@ class SeaSaltPaper extends Table {
             }
         }
 
-        $result['roundNumber'] = intval($this->getGameStateValue(ROUND_NUMBER));
         $result['remainingCardsInDeck'] = $this->getRemainingCardsInDeck();
         foreach ([1, 2] as $number) {
             $result['discardTopCard'.$number] = $this->getCardFromDb($this->cards->getCardOnTop('discard'.$number));
@@ -156,12 +153,10 @@ class SeaSaltPaper extends Table {
         (see states.inc.php)
     */
     function getGameProgression() {
-        $roundNumber = intval($this->getGameStateValue(ROUND_NUMBER));
-        $totalRoundNumber = $this->getTotalRoundNumber();
+        $maxScore = $this->END_GAME_POINTS[count($this->getPlayersIds())];
+        $topScore = $this->getPlayerTopScore();
 
-        $inRoundProgression = (58 - intval($this->cards->countCardInLocation('deck'))) / 58;
-
-        return 100 * ($roundNumber-1 + $inRoundProgression) / $totalRoundNumber;
+        return min(100, 100 * $topScore / $maxScore);
     }
 
 //////////////////////////////////////////////////////////////////////////////

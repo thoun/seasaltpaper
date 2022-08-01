@@ -21,6 +21,12 @@
 
 require_once('modules/php/objects/card.php');
 
+$this->END_GAME_POINTS = [
+  2 => 40,
+  3 => 35,
+  4 => 30,
+];
+
 $this->COLORS = [
   '',
   clienttranslate('Dark blue'),

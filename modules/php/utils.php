@@ -64,6 +64,10 @@ trait UtilTrait {
         return self::getUniqueValueFromDB("SELECT player_name FROM player WHERE player_id = $playerId");
     }
 
+    function getPlayerTopScore() {
+        return intval(self::getUniqueValueFromDB("SELECT max(player_score) FROM player"));
+    }
+
     function getCardFromDb(/*array|null*/ $dbCard) {
         if ($dbCard == null) {
             return null;

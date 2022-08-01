@@ -19,8 +19,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     private gamedatas: SeaSaltPaperGamedatas;
     private stacks: Stacks;
     private playersTables: PlayerTable[] = [];
-    private roundNumberCounter: Counter;
-    //private cardsPointsCounter: Counter;
     private selectedCards: number[];
     
     private TOOLTIP_DELAY = document.body.classList.contains('touch-device') ? 1500 : undefined;
@@ -56,11 +54,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.stacks = new Stacks(this, this.gamedatas);
         //this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
-
-        document.getElementById('round-panel').innerHTML = `${_('Round')}&nbsp;<span id="round-number-counter"></span>&nbsp;/&nbsp;${6 - Object.keys(gamedatas.players).length}`;
-        this.roundNumberCounter = new ebg.counter();
-        this.roundNumberCounter.create(`round-number-counter`);
-        this.roundNumberCounter.setValue(gamedatas.roundNumber);
 
         this.setupNotifications();
         this.setupPreferences();
@@ -738,7 +731,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.cards.createMoveOrUpdateCard(notif.args.card, `discard${notif.args.discardId}`, false, 'deck');
         this.stacks.discardCounters[notif.args.discardId].setValue(1);
         this.stacks.deckCounter.setValue(notif.args.remainingCardsInDeck);
-        this.roundNumberCounter.toValue(notif.args.roundNumber);
         this.updateTableHeight();
     } 
 

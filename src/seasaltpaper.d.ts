@@ -30,7 +30,6 @@ interface SeaSaltPaperGamedatas {
     tablespeed: string;
 
     // Add here variables you set up in getAllDatas
-    roundNumber: number;
     remainingCardsInDeck: number;
     discardTopCard1: Card;
     discardTopCard2: Card;
@@ -79,7 +78,6 @@ interface NotifCardInDiscardFromDeckArgs {
     card: Card;
     discardId: number;
     remainingCardsInDeck: number;
-    roundNumber: number;
 }
 
 interface NotifCardInHandFromDiscardArgs {

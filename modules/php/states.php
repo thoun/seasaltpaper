@@ -12,12 +12,6 @@ trait StateTrait {
     */
 
     function stNewRound() {
-
-        // set round number
-        $roundNumber = intval($this->getGameStateValue(ROUND_NUMBER));
-        $this->setGameStateValue(ROUND_NUMBER, ++$roundNumber);
-        $totalRoundNumber = $this->getTotalRoundNumber();
-
         // init round discard
         foreach([1, 2] as $discardNumber) {
             $card = $this->getCardFromDb($this->cards->pickCardForLocation('deck', 'discard'.$discardNumber));
@@ -26,14 +20,10 @@ trait StateTrait {
                 'card' => $card,
                 'discardId' => $discardNumber,
                 'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
-                'roundNumber' => $roundNumber,
             ]);
         }
 
-        self::notifyAllPlayers('log', clienttranslate('Round ${roundNumber}/${totalRoundNumber} begins!'), [
-            'roundNumber' => $roundNumber,
-            'totalRoundNumber' => $totalRoundNumber,
-        ]);
+        self::notifyAllPlayers('log', clienttranslate('A new round begins!'), []);
 
         $this->gamestate->nextState('start');
     }    
@@ -162,10 +152,10 @@ trait StateTrait {
         $this->setGameStateValue(END_ROUND_TYPE, 0);
         $this->setGameStateValue(LAST_CHANCE_CALLER, 0);
 
-        $roundNumber = intval($this->getGameStateValue(ROUND_NUMBER));
-        $totalRoundNumber = $this->getTotalRoundNumber();
-        $lastRound = $roundNumber >= $totalRoundNumber;
+        $maxScore = $this->END_GAME_POINTS[count($this->getPlayersIds())];
+        $topScore = $this->getPlayerTopScore();
 
+        $lastRound = $topScore >= $maxScore;
         if (!$lastRound) {
             $this->cards->moveAllCardsInLocation(null, 'deck');
             $this->cards->shuffle('deck');
