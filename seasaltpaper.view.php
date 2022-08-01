@@ -31,16 +31,12 @@
     function getGameName() {
         return "seasaltpaper";
     }    
-  	function build_page( $viewArgs )
-  	{		
+  	function build_page($viewArgs) {		
   	    // Get players & players number
         $players = $this->game->loadPlayersBasicInfos();
-        $players_nbr = count( $players );
+        $players_nbr = count($players);
 
         /*********** Place your code below:  ************/
-
-        $this->tpl['MY_HAND'] = self::_("My hand");
-
         /*********** Do not change anything below this line  ************/
   	}
   }
