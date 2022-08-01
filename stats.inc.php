@@ -47,49 +47,112 @@
     
 */
 
-$stats_type = array(
+
+$commonStats = [
+    "turnsNumber" => [
+        "id" => 11,
+        "name" => totranslate("Number of turns"),
+        "type" => "int" 
+    ],
+    "takeCardFromDeck" => [
+        "id" => 12,
+        "name" => totranslate("Cards taken from deck"),
+        "type" => "int"
+    ],
+    "takeFromDiscard" => [
+        "id" => 13,
+        "name" => totranslate("Cards taken from discard"),
+        "type" => "int"
+    ],
+    "playedDuoCards" => [
+        "id" => 14,
+        "name" => totranslate("Played duo cards"),
+        "type" => "int"
+    ],
+    "playedDuoCards1" => [
+        "id" => 15,
+        "name" => totranslate("Played duo crab cards"),
+        "type" => "int"
+    ],
+    "playedDuoCards2" => [
+        "id" => 16,
+        "name" => totranslate("Played duo boat cards"),
+        "type" => "int"
+    ],
+    "playedDuoCards3" => [
+        "id" => 17,
+        "name" => totranslate("Played duo fish cards"),
+        "type" => "int"
+    ],
+    "playedDuoCards4" => [
+        "id" => 18,
+        "name" => totranslate("Played duo swimmer/shark cards"),
+        "type" => "int"
+    ],
+    "winWithMermaids" => [
+        "id" => 19,
+        "name" => totranslate("Win with 4 Mermaids"),
+        "type" => "bool"
+    ],
+    "announce" => [
+        "id" => 20,
+        "name" => totranslate("Announce end of round"),
+        "type" => "int"
+    ],
+    "announceStop" => [
+        "id" => 21,
+        "name" => totranslate("Announce end of round (STOP)"),
+        "type" => "int"
+    ],
+    "announceLastChance" => [
+        "id" => 22,
+        "name" => totranslate("Announce end of round (LAST CHANCE)"),
+        "type" => "int"
+    ],
+    "lastChanceBetWon" => [
+        "id" => 23,
+        "name" => totranslate("Last chance bet won"),
+        "type" => "int"
+    ],
+    "lastChanceBetLost" => [
+        "id" => 24,
+        "name" => totranslate("Last chance bet lost"),
+        "type" => "int"
+    ],
+    "cardsCollected2" => [
+        "id" => 25,
+        "name" => totranslate("Duo cards collected"),
+        "type" => "int"
+    ],
+    "cardsCollected1" => [
+        "id" => 26,
+        "name" => totranslate("Mermaid cards collected"),
+        "type" => "int"
+    ],
+    "cardsCollected3" => [
+        "id" => 27,
+        "name" => totranslate("Collector cards collected"),
+        "type" => "int"
+    ],
+    "cardsCollected4" => [
+        "id" => 28,
+        "name" => totranslate("Point Multiplier cards collected"),
+        "type" => "int"
+    ],
+];
+
+$stats_type = [
 
     // Statistics global to table
-    "table" => array(
-
-        "turns_number" => array("id"=> 10,
-                    "name" => totranslate("Number of turns"),
-                    "type" => "int" ),
-
-/*
-        Examples:
-
-
-        "table_teststat1" => array(   "id"=> 10,
-                                "name" => totranslate("table test stat 1"), 
-                                "type" => "int" ),
-                                
-        "table_teststat2" => array(   "id"=> 11,
-                                "name" => totranslate("table test stat 2"), 
-                                "type" => "float" )
-*/  
-    ),
+    "table" => $commonStats + [
+        "roundNumber" => [
+            "id" => 10,
+            "name" => totranslate("Round number"),
+            "type" => "int"
+        ], 
+    ],
     
     // Statistics existing for each player
-    "player" => array(
-
-        "turns_number" => array("id"=> 10,
-                    "name" => totranslate("Number of turns"),
-                    "type" => "int" ),
-    
-/*
-        Examples:    
-        
-        
-        "player_teststat1" => array(   "id"=> 10,
-                                "name" => totranslate("player test stat 1"), 
-                                "type" => "int" ),
-                                
-        "player_teststat2" => array(   "id"=> 11,
-                                "name" => totranslate("player test stat 2"), 
-                                "type" => "float" )
-
-*/    
-    )
-
-);
+    "player" => $commonStats + [
+    ]
+];

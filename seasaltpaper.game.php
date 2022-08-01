@@ -92,10 +92,26 @@ class SeaSaltPaper extends Table {
         
         // Init game statistics
         // (note: statistics used in this file must be defined in your stats.inc.php file)
-        //self::initStat( 'table', 'table_teststat1', 0 );    // Init a table statistics
-        //self::initStat( 'player', 'player_teststat1', 0 );  // Init a player statistics (for all players)
+        $this->initStat('table', 'roundNumber', 0); 
+        foreach(['table', 'player'] as $statType) {
+            $this->initStat($statType, 'turnsNumber', 0);
+            $this->initStat($statType, 'takeCardFromDeck', 0);
+            $this->initStat($statType, 'takeFromDiscard', 0);
+            $this->initStat($statType, 'playedDuoCards', 0);
+            foreach([1,2,3,4] as $number) {
+                $this->initStat($statType, 'playedDuoCards'.$number, 0);
+            }
+            $this->initStat($statType, 'announce', 0);
+            $this->initStat($statType, 'announceStop', 0);
+            $this->initStat($statType, 'announceLastChance', 0);
+            $this->initStat($statType, 'lastChanceBetWon', 0);
+            $this->initStat($statType, 'lastChanceBetLost', 0);
+            foreach([1,2,3,4] as $number) {
+                $this->initStat($statType, 'cardsCollected'.$number, 0);
+            }
+        }
 
-        // TODO: setup the initial game situation here
+        // setup the initial game situation here
         $this->setupCards();
 
         // Activate first player (which is in general a good idea :) )

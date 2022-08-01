@@ -172,6 +172,7 @@ trait UtilTrait {
         if ($cardsNumber > 0) {
             $card = $cardsInHand[bga_rand(1, $cardsNumber) - 1];
             $this->cards->moveCard($card->id, 'hand'.$stealerId);
+            $this->cardCollected($stealerId, $card);
 
             $args = [
                 'playerId' => $stealerId,
@@ -259,6 +260,12 @@ trait UtilTrait {
 
     function getRemainingCardsInDiscard(int $number) {
         return intval($this->cards->countCardInLocation('discard'.$number));
+    }
+
+    function cardCollected(int $playerId, Card $card) {
+        $number = $card->category;
+        $this->incStat(1, 'cardsCollected'.$number);
+        $this->incStat(1, 'cardsCollected'.$number, $playerId);
     }
 
 }

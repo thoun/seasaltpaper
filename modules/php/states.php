@@ -23,6 +23,8 @@ trait StateTrait {
             ]);
         }
 
+        $this->incStat(1, 'roundNumber');
+
         self::notifyAllPlayers('log', clienttranslate('A new round begins!'), []);
 
         $this->gamestate->nextState('start');
@@ -33,8 +35,8 @@ trait StateTrait {
 
         $this->giveExtraTime($playerId);
 
-        //self::incStat(1, 'turnNumber');
-        //self::incStat(1, 'turnNumber', $playerId);
+        $this->incStat(1, 'turnsNumber');
+        $this->incStat(1, 'turnsNumber', $playerId);
 
         $endRound = intval($this->getGameStateValue(END_ROUND_TYPE));
         $lastChanceCaller = intval($this->getGameStateValue(LAST_CHANCE_CALLER));
@@ -110,6 +112,11 @@ trait StateTrait {
                         'cardsPoints' => $playerPoints[$playerId],
                         'colorBonus' => $cardsPoints[$playerId]->colorBonus,
                     ]);
+
+                    if ($isBetCaller) {
+                        $this->incStat(1, 'lastChanceBetWon');
+                        $this->incStat(1, 'lastChanceBetWon', $playerId);
+                    }
                 } else {
 
                     $roundPoints = $isBetCaller ? 
@@ -122,6 +129,11 @@ trait StateTrait {
                     $this->incPlayerScore($playerId, $roundPoints, $message, [
                         'roundPoints' => $roundPoints,
                     ]);
+
+                    if ($isBetCaller) {
+                        $this->incStat(1, 'lastChanceBetLost');
+                        $this->incStat(1, 'lastChanceBetLost', $playerId);
+                    }
                 }
             }
 

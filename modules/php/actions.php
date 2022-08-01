@@ -24,6 +24,9 @@ trait ActionTrait {
             'number' => count($cards),
         ]);
 
+        $this->incStat(1, 'takeCardFromDeck');
+        $this->incStat(1, 'takeCardFromDeck', $playerId);
+
         $this->gamestate->nextState('chooseCard');
     }
 
@@ -42,6 +45,7 @@ trait ActionTrait {
         }
 
         $this->cards->moveCard($card->id, 'hand'.$playerId);
+        $this->cardCollected($playerId, $card);
 
         self::notifyAllPlayers('cardInHandFromDiscard', clienttranslate('${player_name} takes ${cardColor} ${cardName} from discard pile ${discardNumber}'), [
             'playerId' => $playerId,
@@ -55,6 +59,9 @@ trait ActionTrait {
             'newDiscardTopCard' => $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber)),
             'remainingCardsInDiscard' => $this->getRemainingCardsInDiscard($discardNumber),
         ]);
+
+        $this->incStat(1, 'takeFromDiscard');
+        $this->incStat(1, 'takeFromDiscard', $playerId);
 
         $this->updateCardsPoints($playerId);
         $this->gamestate->nextState('playCards');
@@ -71,6 +78,7 @@ trait ActionTrait {
         }
 
         $this->cards->moveCard($card->id, 'hand'.$playerId);
+        $this->cardCollected($playerId, $card);
 
         self::notifyPlayer($playerId, 'cardInHandFromPick', clienttranslate('You choose ${cardColor} ${cardName} card'), [
             'playerId' => $playerId,
@@ -170,20 +178,28 @@ trait ActionTrait {
             $this->cards->moveCard($card->id, 'table'.$playerId, ++$count);
         }
 
+
+        
+
         $action = '';
+        $power = 0;
         switch ($cards[0]->family) {
             case CRAB:
                 $action = clienttranslate('takes a card from a discard pile');
+                $power = 1;
                 break;
             case BOAT:
                 $action = clienttranslate('plays a new turn');
+                $power = 2;
                 break;
             case FISH:
                 $action = clienttranslate('adds the top card from the deck to hand');
+                $power = 3;
                 break;
             case SWIMMER:
             case SHARK:
                 $action = clienttranslate('steals a random card from another player');
+                $power = 4;
                 break;
         }
 
@@ -198,6 +214,11 @@ trait ActionTrait {
             'action' => $action,
             'i18n' => ['cardName1', 'cardName2', 'cardColor1', 'cardColor2', 'action'],
         ]);
+
+        $this->incStat(1, 'playedDuoCards');
+        $this->incStat(1, 'playedDuoCards', $playerId);
+        $this->incStat(1, 'playedDuoCards'.$power);
+        $this->incStat(1, 'playedDuoCards'.$power, $playerId);
 
         switch ($cards[0]->family) {
             case CRAB:
@@ -219,6 +240,7 @@ trait ActionTrait {
             case FISH:
                 if (intval($this->cards->countCardInLocation('deck')) > 0) {
                     $card = $this->getCardFromDb($this->cards->pickCardForLocation('deck', 'hand'.$playerId));
+                    $this->cardCollected($playerId, $card);
 
                     self::notifyPlayer($playerId, 'cardInHandFromPick', clienttranslate('You take ${cardColor} ${cardName} card from deck'), [
                         'playerId' => $playerId,
@@ -284,11 +306,25 @@ trait ActionTrait {
     public function endRound() {
         $this->checkAction('endRound');
 
+        $playerId = intval($this->getActivePlayerId());
+
+        $this->incStat(1, 'announce');
+        $this->incStat(1, 'announce', $playerId);
+        $this->incStat(1, 'announceLastChance');
+        $this->incStat(1, 'announceLastChance', $playerId);
+
         $this->applyEndRound(LAST_CHANCE, _('LAST CHANCE'));
     }
 
     public function immediateEndRound() {
-        $this->checkAction('endTurn');
+        $this->checkAction('immediateEndRound');
+
+        $playerId = intval($this->getActivePlayerId());
+
+        $this->incStat(1, 'announce');
+        $this->incStat(1, 'announce', $playerId);
+        $this->incStat(1, 'announceStop');
+        $this->incStat(1, 'announceStop', $playerId);
 
         $this->applyEndRound(STOP, _('STOP'));
     }
@@ -342,6 +378,7 @@ trait ActionTrait {
         $playerId = intval($this->getActivePlayerId());
 
         $this->cards->moveCard($card->id, 'hand'.$playerId);
+        $this->cardCollected($playerId, $card);
 
         self::notifyAllPlayers('cardInHandFromDiscard', clienttranslate('${player_name} takes ${cardColor} ${cardName} from discard pile ${discardNumber}'), [
             'playerId' => $playerId,
