@@ -608,7 +608,7 @@ var SeaSaltPaper = /** @class */ (function () {
             var prefId = +match[1];
             var prefValue = +e.target.value;
             _this.prefs[prefId].value = prefValue;
-            _this.onPreferenceChange(prefId, prefValue);
+            //this.onPreferenceChange(prefId, prefValue);
         };
         // Call onPreferenceChange() when any value changes
         dojo.query(".preference_control").connect("onchange", onchange);
@@ -621,9 +621,9 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.onPreferenceChange = function (prefId, prefValue) {
         switch (prefId) {
-            case 201:
+            /*case 201:
                 document.getElementsByTagName('html')[0].dataset.origamiFont = (prefValue == 2).toString();
-                break;
+                break;*/
         }
     };
     SeaSaltPaper.prototype.getOrderedPlayers = function (gamedatas) {
