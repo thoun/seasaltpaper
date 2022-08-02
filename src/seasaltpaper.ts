@@ -65,6 +65,10 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             this.setZoom(this.zoom);
         }
 
+        (this as any).onScreenWidthChange = () => {
+            this.updateTableHeight();
+        }
+
         log( "Ending game setup" );
     }
 
@@ -151,7 +155,8 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                 document.getElementById(`card-${card.id}`).classList.add('selectable');
             }
         });
-        this.updateTableHeight();
+
+        setTimeout(() => this.updateTableHeight(), 600);
     }
 
     public onLeavingState(stateName: string) {
@@ -197,6 +202,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     private onLeavingChooseDiscardCard() {
         const pickDiv = document.getElementById('discard-pick');
         pickDiv.dataset.visible = 'false';
+        this.updateTableHeight();
     }
 
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
@@ -690,6 +696,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         const notifs = [
             ['cardInDiscardFromDeck', ANIMATION_MS],
             ['cardInHandFromDiscard', ANIMATION_MS],
+            ['cardInHandFromDiscardCrab', ANIMATION_MS],
             ['cardInHandFromPick', ANIMATION_MS],
             ['cardInDiscardFromPick', ANIMATION_MS],
             ['playCards', ANIMATION_MS],
@@ -709,6 +716,9 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         (this as any).notifqueue.setIgnoreNotificationCheck('cardInHandFromPick', (notif: Notif<NotifCardInHandFromPickArgs>) => 
             notif.args.playerId == this.getPlayerId() && !notif.args.card.category
         );
+        (this as any).notifqueue.setIgnoreNotificationCheck('cardInHandFromDiscardCrab', (notif: Notif<NotifCardInHandFromDiscardArgs>) => 
+            notif.args.playerId == this.getPlayerId() && !notif.args.card.category
+        );
         (this as any).notifqueue.setIgnoreNotificationCheck('stealCard', (notif: Notif<NotifStealCardArgs>) => 
             [notif.args.playerId, notif.args.opponentId].includes(this.getPlayerId()) && !(notif.args as any).cardName
         );
@@ -722,6 +732,20 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     } 
 
     notif_cardInHandFromDiscard(notif: Notif<NotifCardInHandFromDiscardArgs>) {
+        const card = notif.args.card;
+        const playerId = notif.args.playerId;
+        const discardNumber = notif.args.discardId;
+        const maskedCard = playerId == this.getPlayerId() ? card : { id: card.id } as Card;
+        this.getPlayerTable(playerId).addCardsToHand([maskedCard]);
+
+        if (notif.args.newDiscardTopCard) {
+            this.cards.createMoveOrUpdateCard(notif.args.newDiscardTopCard, `discard${discardNumber}`, true);
+        }
+        this.stacks.discardCounters[discardNumber].setValue(notif.args.remainingCardsInDiscard);
+        this.updateTableHeight();
+    } 
+
+    notif_cardInHandFromDiscardCrab(notif: Notif<NotifCardInHandFromDiscardArgs>) {
         const card = notif.args.card;
         const playerId = notif.args.playerId;
         const discardNumber = notif.args.discardId;

@@ -385,6 +385,9 @@ var SeaSaltPaper = /** @class */ (function () {
         if (this.zoom !== 1) {
             this.setZoom(this.zoom);
         }
+        this.onScreenWidthChange = function () {
+            _this.updateTableHeight();
+        };
         log("Ending game setup");
     };
     ///////////////////////////////////////////////////
@@ -463,7 +466,7 @@ var SeaSaltPaper = /** @class */ (function () {
                 document.getElementById("card-".concat(card.id)).classList.add('selectable');
             }
         });
-        this.updateTableHeight();
+        setTimeout(function () { return _this.updateTableHeight(); }, 600);
     };
     SeaSaltPaper.prototype.onLeavingState = function (stateName) {
         log('Leaving state: ' + stateName);
@@ -503,6 +506,7 @@ var SeaSaltPaper = /** @class */ (function () {
     SeaSaltPaper.prototype.onLeavingChooseDiscardCard = function () {
         var pickDiv = document.getElementById('discard-pick');
         pickDiv.dataset.visible = 'false';
+        this.updateTableHeight();
     };
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
     //                        action status bar (ie: the HTML links in the status bar).
@@ -895,6 +899,7 @@ var SeaSaltPaper = /** @class */ (function () {
         var notifs = [
             ['cardInDiscardFromDeck', ANIMATION_MS],
             ['cardInHandFromDiscard', ANIMATION_MS],
+            ['cardInHandFromDiscardCrab', ANIMATION_MS],
             ['cardInHandFromPick', ANIMATION_MS],
             ['cardInDiscardFromPick', ANIMATION_MS],
             ['playCards', ANIMATION_MS],
@@ -912,6 +917,9 @@ var SeaSaltPaper = /** @class */ (function () {
         this.notifqueue.setIgnoreNotificationCheck('cardInHandFromPick', function (notif) {
             return notif.args.playerId == _this.getPlayerId() && !notif.args.card.category;
         });
+        this.notifqueue.setIgnoreNotificationCheck('cardInHandFromDiscardCrab', function (notif) {
+            return notif.args.playerId == _this.getPlayerId() && !notif.args.card.category;
+        });
         this.notifqueue.setIgnoreNotificationCheck('stealCard', function (notif) {
             return [notif.args.playerId, notif.args.opponentId].includes(_this.getPlayerId()) && !notif.args.cardName;
         });
@@ -923,6 +931,18 @@ var SeaSaltPaper = /** @class */ (function () {
         this.updateTableHeight();
     };
     SeaSaltPaper.prototype.notif_cardInHandFromDiscard = function (notif) {
+        var card = notif.args.card;
+        var playerId = notif.args.playerId;
+        var discardNumber = notif.args.discardId;
+        var maskedCard = playerId == this.getPlayerId() ? card : { id: card.id };
+        this.getPlayerTable(playerId).addCardsToHand([maskedCard]);
+        if (notif.args.newDiscardTopCard) {
+            this.cards.createMoveOrUpdateCard(notif.args.newDiscardTopCard, "discard".concat(discardNumber), true);
+        }
+        this.stacks.discardCounters[discardNumber].setValue(notif.args.remainingCardsInDiscard);
+        this.updateTableHeight();
+    };
+    SeaSaltPaper.prototype.notif_cardInHandFromDiscardCrab = function (notif) {
         var card = notif.args.card;
         var playerId = notif.args.playerId;
         var discardNumber = notif.args.discardId;

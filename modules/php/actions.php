@@ -380,13 +380,21 @@ trait ActionTrait {
         $this->cards->moveCard($card->id, 'hand'.$playerId);
         $this->cardCollected($playerId, $card);
 
-        self::notifyAllPlayers('cardInHandFromDiscard', clienttranslate('${player_name} takes ${cardColor} ${cardName} from discard pile ${discardNumber}'), [
+        self::notifyPlayer($playerId, 'cardInHandFromDiscardCrab', clienttranslate('You take ${cardColor} ${cardName} from discard pile ${discardNumber}'), [
             'playerId' => $playerId,
-            'player_name' => $this->getPlayerName($playerId),
             'card' => $card,
             'cardName' => $this->getCardName($card),
             'cardColor' => $this->COLORS[$card->color],
             'i18n' => ['cardName', 'cardColor'],
+            'discardId' => $discardNumber,
+            'discardNumber' => $discardNumber,
+            'newDiscardTopCard' => $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber)),
+            'remainingCardsInDiscard' => $this->getRemainingCardsInDiscard($discardNumber),
+        ]);
+        self::notifyAllPlayers('cardInHandFromDiscardCrab', clienttranslate('${player_name} takes a card from discard pile ${discardNumber}'), [
+            'playerId' => $playerId,
+            'player_name' => $this->getPlayerName($playerId),
+            'card' => Card::onlyId($card),
             'discardId' => $discardNumber,
             'discardNumber' => $discardNumber,
             'newDiscardTopCard' => $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber)),
