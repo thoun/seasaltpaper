@@ -15,6 +15,7 @@ function slideToObjectAndAttach(game: Game, object: HTMLElement, destinationId: 
         
         object.style.zIndex = '10';
         object.style.transform = `translate(${-deltaX}px, ${-deltaY}px)`;
+        object.style.position = 'absolute';
 
         setTimeout(() => {
             object.style.transition = `transform 0.5s linear`;
@@ -23,6 +24,7 @@ function slideToObjectAndAttach(game: Game, object: HTMLElement, destinationId: 
         setTimeout(() => {
             object.style.zIndex = null;
             object.style.transition = null;
+            object.style.position = null;
         }, 600);
     }
 }
@@ -39,6 +41,7 @@ function slideFromObject(game: Game, object: HTMLElement, fromId: string) {
 
         object.style.zIndex = '10';
         object.style.transform = `translate(${-deltaX}px, ${-deltaY}px)`;
+        object.style.position = 'absolute';
 
         setTimeout(() => {
             object.style.transition = `transform 0.5s linear`;
@@ -47,6 +50,7 @@ function slideFromObject(game: Game, object: HTMLElement, fromId: string) {
         setTimeout(() => {
             object.style.zIndex = null;
             object.style.transition = null;
+            object.style.position = null;
         }, 600);
     }
 }

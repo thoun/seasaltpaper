@@ -12,6 +12,7 @@ function slideToObjectAndAttach(game, object, destinationId, changeSide) {
         var deltaY = destinationBR.top - originBR.top;
         object.style.zIndex = '10';
         object.style.transform = "translate(".concat(-deltaX, "px, ").concat(-deltaY, "px)");
+        object.style.position = 'absolute';
         setTimeout(function () {
             object.style.transition = "transform 0.5s linear";
             object.style.transform = null;
@@ -19,6 +20,7 @@ function slideToObjectAndAttach(game, object, destinationId, changeSide) {
         setTimeout(function () {
             object.style.zIndex = null;
             object.style.transition = null;
+            object.style.position = null;
         }, 600);
     }
 }
@@ -31,6 +33,7 @@ function slideFromObject(game, object, fromId) {
         var deltaY = destinationBR.top - originBR.top;
         object.style.zIndex = '10';
         object.style.transform = "translate(".concat(-deltaX, "px, ").concat(-deltaY, "px)");
+        object.style.position = 'absolute';
         setTimeout(function () {
             object.style.transition = "transform 0.5s linear";
             object.style.transform = null;
@@ -38,6 +41,7 @@ function slideFromObject(game, object, fromId) {
         setTimeout(function () {
             object.style.zIndex = null;
             object.style.transition = null;
+            object.style.position = null;
         }, 600);
     }
 }
@@ -95,7 +99,7 @@ var Cards = /** @class */ (function () {
                 this.setVisibleInformations(existingDiv, card);
             }
             else if (oldType && !card.category) {
-                this.removeVisibleInformations(existingDiv);
+                setTimeout(function () { return _this.removeVisibleInformations(existingDiv); }, 500); // so we don't change face while it is still visible
             }
             this.game.setTooltip(existingDiv.id, this.getTooltip(card.category, card.family));
         }
