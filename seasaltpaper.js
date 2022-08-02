@@ -248,7 +248,7 @@ var PlayerTable = /** @class */ (function () {
         this.game = game;
         this.playerId = Number(player.id);
         this.currentPlayer = this.playerId == this.game.getPlayerId();
-        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div id=\"player-table-").concat(this.playerId, "-hand-cards\" class=\"hand cards\" data-current-player=\"").concat(this.currentPlayer.toString(), "\" data-my-hand=\"").concat(this.currentPlayer.toString(), "\"></div>\n            <div class=\"name-wrapper\">\n                <span id=\"player-table-").concat(this.playerId, "-name\" class=\"name-and-bubble\">\n                    <span class=\"name\" style=\"color: #").concat(player.color, ";\">").concat(player.name, "</span>\n                </span>");
+        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div id=\"player-table-").concat(this.playerId, "-hand-cards\" class=\"hand cards\" data-current-player=\"").concat(this.currentPlayer.toString(), "\" data-my-hand=\"").concat(this.currentPlayer.toString(), "\"></div>\n            <div class=\"name-wrapper\">\n                <span id=\"player-table-").concat(this.playerId, "-name\" class=\"name-and-bubble\">\n                    <span class=\"name\" style=\"color: #").concat(player.color, ";\">").concat(player.name, "</span>\n                    <div id=\"player-table-").concat(this.playerId, "-discussion-bubble\" class=\"discussion_bubble\" data-visible=\"false\"></div>\n                </span>");
         if (this.currentPlayer) {
             html += "<span class=\"counter\">\n                    (".concat(_('Cards points:'), "&nbsp;<span id=\"cards-points-counter\"></span>)\n                </span>");
         }
@@ -290,12 +290,30 @@ var PlayerTable = /** @class */ (function () {
         }, "deck"); });
         setTimeout(function () { return cards.forEach(function (cardDiv) { return cardDiv === null || cardDiv === void 0 ? void 0 : cardDiv.parentElement.removeChild(cardDiv); }); }, 500);
         this.game.updateTableHeight();
+        this.clearAnnouncement();
     };
     PlayerTable.prototype.setHandPoints = function (cardsPoints) {
         this.cardsPointsCounter.toValue(cardsPoints);
     };
+    PlayerTable.prototype.showAnnouncementPoints = function (playerPoints) {
+        var bubble = document.getElementById("player-table-".concat(this.playerId, "-discussion-bubble"));
+        bubble.innerHTML += _('I got ${points} points.').replace('${points}', playerPoints) + ' ';
+        bubble.dataset.visible = 'true';
+    };
     PlayerTable.prototype.showAnnouncement = function (announcement) {
-        this.game.showBubble("player-table-".concat(this.playerId, "-name"), _('I announce ${announcement}!').replace('${announcement}', _(announcement)), 0, 5000);
+        var bubble = document.getElementById("player-table-".concat(this.playerId, "-discussion-bubble"));
+        bubble.innerHTML += _('I announce ${announcement}!').replace('${announcement}', _(announcement)) + ' ';
+        bubble.dataset.visible = 'true';
+    };
+    PlayerTable.prototype.clearAnnouncement = function () {
+        var bubble = document.getElementById("player-table-".concat(this.playerId, "-discussion-bubble"));
+        bubble.innerHTML = '';
+        bubble.dataset.visible = 'false';
+    };
+    PlayerTable.prototype.showAnnouncementBetResult = function (result) {
+        var bubble = document.getElementById("player-table-".concat(this.playerId, "-discussion-bubble"));
+        bubble.innerHTML += _('I ${result} my bet!').replace('${result}', _(result)) + ' ';
+        bubble.dataset.visible = 'true';
     };
     PlayerTable.prototype.setSelectable = function (selectable) {
         var cards = Array.from(this.handCardsDiv.getElementsByClassName('card'));
@@ -466,7 +484,7 @@ var SeaSaltPaper = /** @class */ (function () {
                 document.getElementById("card-".concat(card.id)).classList.add('selectable');
             }
         });
-        setTimeout(function () { return _this.updateTableHeight(); }, 600);
+        this.updateTableHeight();
     };
     SeaSaltPaper.prototype.onLeavingState = function (stateName) {
         log('Leaving state: ' + stateName);
@@ -603,7 +621,7 @@ var SeaSaltPaper = /** @class */ (function () {
         this.setZoom(ZOOM_LEVELS[newIndex]);
     };
     SeaSaltPaper.prototype.updateTableHeight = function () {
-        document.getElementById('zoom-wrapper').style.height = "".concat(document.getElementById('full-table').getBoundingClientRect().height, "px");
+        setTimeout(function () { return document.getElementById('zoom-wrapper').style.height = "".concat(document.getElementById('full-table').getBoundingClientRect().height, "px"); }, 600);
     };
     SeaSaltPaper.prototype.setupPreferences = function () {
         var _this = this;
@@ -904,7 +922,9 @@ var SeaSaltPaper = /** @class */ (function () {
             ['cardInDiscardFromPick', ANIMATION_MS],
             ['playCards', ANIMATION_MS],
             ['stealCard', ANIMATION_MS],
-            ['announceEndRound', ANIMATION_MS],
+            ['revealHand', ANIMATION_MS * 2],
+            ['announceEndRound', ANIMATION_MS * 2],
+            ['betResult', ANIMATION_MS * 2],
             ['endRound', ANIMATION_MS * 2],
             ['score', ANIMATION_MS * 3],
             ['newRound', 1],
@@ -970,11 +990,23 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.notif_score = function (notif) {
         var _a;
-        (_a = this.scoreCtrl[notif.args.playerId]) === null || _a === void 0 ? void 0 : _a.toValue(notif.args.newScore);
+        var playerId = notif.args.playerId;
+        (_a = this.scoreCtrl[playerId]) === null || _a === void 0 ? void 0 : _a.toValue(notif.args.newScore);
+        var incScore = notif.args.incScore;
+        if (incScore != null && incScore !== undefined) {
+            this.displayScoring("player-table-".concat(playerId, "-table-cards"), this.getPlayerColor(playerId), incScore, ANIMATION_MS * 3);
+        }
     };
     SeaSaltPaper.prototype.notif_newRound = function () { };
     SeaSaltPaper.prototype.notif_playCards = function (notif) {
-        this.getPlayerTable(notif.args.playerId).addCardsToTable(notif.args.cards);
+        var playerTable = this.getPlayerTable(notif.args.playerId);
+        playerTable.addCardsToTable(notif.args.cards);
+    };
+    SeaSaltPaper.prototype.notif_revealHand = function (notif) {
+        var playerPoints = notif.args.playerPoints;
+        var playerTable = this.getPlayerTable(notif.args.playerId);
+        playerTable.showAnnouncementPoints(playerPoints);
+        this.notif_playCards(notif);
     };
     SeaSaltPaper.prototype.notif_stealCard = function (notif) {
         var stealerId = notif.args.playerId;
@@ -1000,6 +1032,9 @@ var SeaSaltPaper = /** @class */ (function () {
         var _a;
         (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setHandPoints(notif.args.cardsPoints);
     };
+    SeaSaltPaper.prototype.notif_betResult = function (notif) {
+        this.getPlayerTable(notif.args.playerId).showAnnouncementBetResult(notif.args.result);
+    };
     /* This enable to inject translatable styled things to logs or action bar */
     /* @Override */
     SeaSaltPaper.prototype.format_string_recursive = function (log, args) {
@@ -1008,9 +1043,9 @@ var SeaSaltPaper = /** @class */ (function () {
                 if (args.announcement && args.announcement[0] != '<') {
                     args.announcement = "<strong style=\"color: darkred;\">".concat(_(args.announcement), "</strong>");
                 }
-                ['discardNumber', 'roundPoints', 'cardsPoints', 'colorBonus', 'cardName', 'cardName1', 'cardName2', 'cardColor', 'cardColor1', 'cardColor2'].forEach(function (field) {
+                ['discardNumber', 'roundPoints', 'cardsPoints', 'colorBonus', 'cardName', 'cardName1', 'cardName2', 'cardColor', 'cardColor1', 'cardColor2', 'points', 'result'].forEach(function (field) {
                     if (args[field] && args[field][0] != '<') {
-                        args[field] = "<strong>".concat(args[field], "</strong>");
+                        args[field] = "<strong>".concat(_(args[field]), "</strong>");
                     }
                 });
             }

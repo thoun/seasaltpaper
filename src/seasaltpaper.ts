@@ -156,7 +156,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             }
         });
 
-        setTimeout(() => this.updateTableHeight(), 600);
+        this.updateTableHeight();
     }
 
     public onLeavingState(stateName: string) {
@@ -315,8 +315,8 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.setZoom(ZOOM_LEVELS[newIndex]);
     }
 
-    private updateTableHeight() {
-        document.getElementById('zoom-wrapper').style.height = `${document.getElementById('full-table').getBoundingClientRect().height}px`;
+    public updateTableHeight() {
+        setTimeout(() => document.getElementById('zoom-wrapper').style.height = `${document.getElementById('full-table').getBoundingClientRect().height}px`, 600);
     }
 
     private setupPreferences() {
@@ -701,9 +701,11 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             ['cardInDiscardFromPick', ANIMATION_MS],
             ['playCards', ANIMATION_MS],
             ['stealCard', ANIMATION_MS],
-            ['announceEndRound', ANIMATION_MS],
+            ['revealHand', ANIMATION_MS * 2],
+            ['announceEndRound', ANIMATION_MS * 2],
+            ['betResult', ANIMATION_MS * 2],
             ['endRound', ANIMATION_MS * 2],
-            ['score', ANIMATION_MS * 3], // TODO animate ?
+            ['score', ANIMATION_MS * 3],
             ['newRound', 1],
             ['updateCardsPoints', 1],
         ];
@@ -777,12 +779,27 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     notif_score(notif: Notif<NotifScoreArgs>) {
-        (this as any).scoreCtrl[notif.args.playerId]?.toValue(notif.args.newScore);
+        const playerId = notif.args.playerId;
+        (this as any).scoreCtrl[playerId]?.toValue(notif.args.newScore);
+
+        const incScore = notif.args.incScore;
+        if (incScore != null && incScore !== undefined) {
+            (this as any).displayScoring(`player-table-${playerId}-table-cards`, this.getPlayerColor(playerId), incScore, ANIMATION_MS * 3);
+        }
     }
     notif_newRound() {}
 
     notif_playCards(notif: Notif<NotifPlayCardsArgs>) {
-        this.getPlayerTable(notif.args.playerId).addCardsToTable(notif.args.cards);
+        const playerTable = this.getPlayerTable(notif.args.playerId);
+        playerTable.addCardsToTable(notif.args.cards);
+    }
+
+    notif_revealHand(notif: Notif<NotifRevealHandArgs>) {
+        const playerPoints = notif.args.playerPoints;
+        const playerTable = this.getPlayerTable(notif.args.playerId);
+        playerTable.showAnnouncementPoints(playerPoints);
+
+        this.notif_playCards(notif);
     }
 
     notif_stealCard(notif: Notif<NotifStealCardArgs>) {
@@ -812,6 +829,10 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.getCurrentPlayerTable()?.setHandPoints(notif.args.cardsPoints);
     }
 
+    notif_betResult(notif: Notif<NotifBetResultArgs>) {
+        this.getPlayerTable(notif.args.playerId).showAnnouncementBetResult(notif.args.result);
+    }
+
     /* This enable to inject translatable styled things to logs or action bar */
     /* @Override */
     public format_string_recursive(log: string, args: any) {
@@ -821,9 +842,9 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                     args.announcement = `<strong style="color: darkred;">${_(args.announcement)}</strong>`;
                 }
 
-                ['discardNumber', 'roundPoints', 'cardsPoints', 'colorBonus', 'cardName', 'cardName1', 'cardName2', 'cardColor', 'cardColor1', 'cardColor2'].forEach(field => {
+                ['discardNumber', 'roundPoints', 'cardsPoints', 'colorBonus', 'cardName', 'cardName1', 'cardName2', 'cardColor', 'cardColor1', 'cardColor2', 'points', 'result'].forEach(field => {
                     if (args[field] && args[field][0] != '<') {
-                        args[field] = `<strong>${args[field]}</strong>`;
+                        args[field] = `<strong>${_(args[field])}</strong>`;
                     }
                 })
 

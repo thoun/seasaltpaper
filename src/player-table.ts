@@ -24,6 +24,7 @@ class PlayerTable {
             <div class="name-wrapper">
                 <span id="player-table-${this.playerId}-name" class="name-and-bubble">
                     <span class="name" style="color: #${player.color};">${player.name}</span>
+                    <div id="player-table-${this.playerId}-discussion-bubble" class="discussion_bubble" data-visible="false"></div>
                 </span>`
         if (this.currentPlayer) {
             html += `<span class="counter">
@@ -67,14 +68,35 @@ class PlayerTable {
 
         setTimeout(() => cards.forEach(cardDiv => cardDiv?.parentElement.removeChild(cardDiv)), 500);
         this.game.updateTableHeight();
+        this.clearAnnouncement();
     }
     
     public setHandPoints(cardsPoints: number) {
         this.cardsPointsCounter.toValue(cardsPoints);
     }
 
+    public showAnnouncementPoints(playerPoints: number) {
+        const bubble = document.getElementById(`player-table-${this.playerId}-discussion-bubble`);
+        bubble.innerHTML += _('I got ${points} points.').replace('${points}', playerPoints) + ' ';
+        bubble.dataset.visible = 'true';
+    }
+
     public showAnnouncement(announcement: string) {
-        (this.game as any).showBubble(`player-table-${this.playerId}-name`, _('I announce ${announcement}!').replace('${announcement}', _(announcement)), 0, 5000);        
+        const bubble = document.getElementById(`player-table-${this.playerId}-discussion-bubble`);
+        bubble.innerHTML += _('I announce ${announcement}!').replace('${announcement}', _(announcement)) + ' ';
+        bubble.dataset.visible = 'true';
+    }
+
+    public clearAnnouncement() {
+        const bubble = document.getElementById(`player-table-${this.playerId}-discussion-bubble`);
+        bubble.innerHTML = '';
+        bubble.dataset.visible = 'false';
+    }
+
+    public showAnnouncementBetResult(result: string) {
+        const bubble = document.getElementById(`player-table-${this.playerId}-discussion-bubble`);
+        bubble.innerHTML += _('I ${result} my bet!').replace('${result}', _(result)) + ' ';
+        bubble.dataset.visible = 'true';
     }
     
     public setSelectable(selectable: boolean) {

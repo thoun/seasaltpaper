@@ -326,6 +326,8 @@ trait ActionTrait {
         $this->incStat(1, 'announceStop');
         $this->incStat(1, 'announceStop', $playerId);
 
+        $this->setGameStateValue(STOP_CALLER, $playerId);
+
         $this->applyEndRound(STOP, _('STOP'));
     }
 

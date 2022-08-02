@@ -104,6 +104,7 @@ interface NotifCardInDiscardFromPickArgs {
 interface NotifScoreArgs {
     playerId: number;
     newScore: number;
+    incScore: number;
 }
 
 interface NotifPlayCardsArgs {
@@ -111,9 +112,18 @@ interface NotifPlayCardsArgs {
     cards: Card[];
 }
 
+interface NotifRevealHandArgs extends NotifPlayCardsArgs {
+    playerPoints: number;
+}
+
 interface NotifAnnounceEndRoundArgs {
     playerId: number;
     announcement: string;
+}
+
+interface NotifBetResultArgs {
+    playerId: number;
+    result: string;
 }
 
 interface NotifUpdateCardsPointsArgs {

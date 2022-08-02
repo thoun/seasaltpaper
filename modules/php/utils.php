@@ -125,9 +125,13 @@ trait UtilTrait {
         if (count($handCards) > 0) {
             $this->cards->moveAllCardsInLocation('hand'.$playerId, 'table'.$playerId);
 
-            $this->notifyAllPlayers('playCards', '', [
+            $playerPoints = $this->getCardsPoints($playerId)->totalPoints;
+            $this->notifyAllPlayers('revealHand', clienttranslate('${player_name} reveals a hand worth ${points} points'), [
                 'playerId' => $playerId,
+                'player_name' => $this->getPlayerName($playerId),
                 'cards' => $this->getCardsFromDb($this->cards->getCardsInLocation('table'.$playerId)),
+                'points' => $playerPoints,
+                'playerPoints' => $playerPoints,
             ]);
         }
     }
@@ -143,6 +147,7 @@ trait UtilTrait {
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'newScore' => $this->getPlayerScore($playerId),
+            'incScore' => $amount,
         ] + $args);
     }
 

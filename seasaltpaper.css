@@ -371,6 +371,12 @@
 }
 .player-table .name-wrapper .name-and-bubble .discussion_bubble {
   white-space: nowrap;
+  display: unset;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+.player-table .name-wrapper .name-and-bubble .discussion_bubble[data-visible=true] {
+  opacity: 1;
 }
 .player-table .name-wrapper .counter {
   margin-left: 8px;

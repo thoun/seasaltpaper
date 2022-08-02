@@ -39,10 +39,11 @@ trait StateTrait {
         $this->incStat(1, 'turnsNumber', $playerId);
 
         $endRound = intval($this->getGameStateValue(END_ROUND_TYPE));
-        $lastChanceCaller = intval($this->getGameStateValue(LAST_CHANCE_CALLER));
 
         $newPlayerId = $this->activeNextPlayer();
         if ($endRound == LAST_CHANCE) {
+            $lastChanceCaller = intval($this->getGameStateValue(LAST_CHANCE_CALLER));
+
             $this->revealHand($playerId);
 
             if ($lastChanceCaller == $newPlayerId) {
@@ -65,9 +66,12 @@ trait StateTrait {
 
         $immediateEndRound = $emptyDeck || $endRound == STOP;
         if ($immediateEndRound) {
-            $playersIds = $this->getPlayersIds();
-            foreach($playersIds as $pId) {
+            $endCaller = intval($this->getGameStateValue(STOP_CALLER));
+            $this->revealHand($endCaller);
+            $pId = intval($this->getPlayerAfter($endCaller));
+            while ($pId != $endCaller) {
                 $this->revealHand($pId);
+                $pId = intval($this->getPlayerAfter($pId));
             }
         }
 
@@ -87,7 +91,7 @@ trait StateTrait {
             $lastChanceCaller = intval($this->getGameStateValue(LAST_CHANCE_CALLER));
             $betWon = $playerPoints[$lastChanceCaller] >= max($playerPoints);
             
-            self::notifyAllPlayers('log', clienttranslate('${player_name} announced ${announcement}, and the bet is ${result}!'), [
+            self::notifyAllPlayers('betResult', clienttranslate('${player_name} announced ${announcement}, and the bet is ${result}!'), [
                 'playerId' => $lastChanceCaller,
                 'player_name' => $this->getPlayerName($lastChanceCaller),
                 'announcement' => _('LAST CHANCE'),
@@ -138,10 +142,10 @@ trait StateTrait {
             }
 
         } else if ($endRound == STOP) {
-            $playerId = intval($this->getActivePlayerId());
+            $endCaller = intval($this->getGameStateValue(STOP_CALLER));
             self::notifyAllPlayers('log', clienttranslate('${player_name} announced ${announcement}, every player score the points for their cards'), [
-                'playerId' => $playerId,
-                'player_name' => $this->getPlayerName($playerId),
+                'playerId' => $endCaller,
+                'player_name' => $this->getPlayerName($endCaller),
                 'announcement' => _('STOP'),
                 'i18n' => ['announcement'],
             ]);
@@ -163,6 +167,7 @@ trait StateTrait {
 
         $this->setGameStateValue(END_ROUND_TYPE, 0);
         $this->setGameStateValue(LAST_CHANCE_CALLER, 0);
+        $this->setGameStateValue(STOP_CALLER, 0);
 
         $maxScore = $this->END_GAME_POINTS[count($this->getPlayersIds())];
         $topScore = $this->getPlayerTopScore();
@@ -176,40 +181,6 @@ trait StateTrait {
         self::notifyAllPlayers('endRound', '', []);
 
         $this->gamestate->nextState($lastRound ? 'endScore' : 'newRound');
-    }
-
-    function computeStats(int $playerId) {
-        /*$scoreSheets = $this->getScoreSheets($playerId, $this->getPlacedRoutes($playerId), $this->getCommonObjectives(), true);
-        $scoreSheet = $scoreSheets->validated;
-        
-        $this->setStat(count(array_filter($scoreSheet->commonObjectives->subTotals, fn($subTotal) => $subTotal == 10)), 'commonObjectivesFirst', $playerId);
-        $this->setStat(count(array_filter($scoreSheet->commonObjectives->subTotals, fn($subTotal) => $subTotal == 6)), 'commonObjectivesSecond', $playerId);
-        $this->setStat($scoreSheet->personalObjective->total > 0 ? 1 : 0, 'personalObjectives', $playerId);
-        $this->setStat($scoreSheet->oldLadies->total, 'finalScoreOldLadies', $playerId);
-        $this->setStat($scoreSheet->students->total, 'finalScoreStudents', $playerId);
-        $this->setStat($scoreSheet->tourists->total, 'finalScoreTourists', $playerId);
-        $this->setStat($scoreSheet->businessmen->total, 'finalScoreBusinessmen', $playerId);
-        if ($scoreSheet->oldLadies->checked > 0) {
-            $this->setStat((float)$scoreSheet->oldLadies->total / (float)$scoreSheet->oldLadies->checked, 'averagePointsByCheckedOldLadies', $playerId);
-        }
-        $checkedStudents = $scoreSheet->students->checkedStudents + $scoreSheet->students->checkedInternships;
-        if ($checkedStudents > 0) {
-            $this->setStat((float)$scoreSheet->students->total / (float)$checkedStudents, 'averagePointsByCheckedStudents', $playerId);
-        }
-        $checkedTourists = 0;
-        foreach ($scoreSheet->tourists->checkedTourists as $checkedTourist) {
-            $checkedTourists += $checkedTourist;
-        }
-        if ($checkedTourists > 0) {
-            $this->setStat((float)$scoreSheet->tourists->total / (float)$checkedTourists, 'averagePointsByCheckedTourists', $playerId);
-        }
-        $checkedBusinessmen = 0;
-        foreach ($scoreSheet->businessmen->checkedBusinessmen as $checkedBusinessman) {
-            $checkedBusinessmen += $checkedBusinessman;
-        }
-        if ($checkedBusinessmen > 0) {
-            $this->setStat((float)$scoreSheet->businessmen->total / (float)$checkedBusinessmen, 'averagePointsByCheckedBusinessmen', $playerId);
-        }*/
     }
 
     function stEndScore() {
@@ -229,8 +200,6 @@ trait StateTrait {
             if (count($mermaids) == 4) {
                 $this->setPlayerScore($playerId, 100, clienttranslate('${player_name} placed 4 mermaid cards and immediately wins the game!'), []);
             }
-
-            $this->computeStats($playerId);
         }
 
         $this->gamestate->nextState('endGame');

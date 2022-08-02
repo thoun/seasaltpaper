@@ -46,6 +46,7 @@ class SeaSaltPaper extends Table {
             CHOSEN_DISCARD => CHOSEN_DISCARD,
             END_ROUND_TYPE => END_ROUND_TYPE,
             LAST_CHANCE_CALLER => LAST_CHANCE_CALLER,
+            STOP_CALLER => STOP_CALLER,
         ]);  
 
         $this->cards = self::getNew("module.common.deck");
@@ -89,6 +90,7 @@ class SeaSaltPaper extends Table {
         // Init global values with their initial values
         $this->setGameStateInitialValue(END_ROUND_TYPE, 0);
         $this->setGameStateInitialValue(LAST_CHANCE_CALLER, 0);
+        $this->setGameStateInitialValue(STOP_CALLER, 0);
         
         // Init game statistics
         // (note: statistics used in this file must be defined in your stats.inc.php file)
