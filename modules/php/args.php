@@ -29,20 +29,17 @@ trait ArgsTrait {
 
     function argChooseCard() {        
         $playerId = intval($this->getActivePlayerId());
-        $playersIds = $this->getPlayersIds();
 
         $cards = $this->getCardsFromDb($this->cards->getCardsInLocation('pick'));
         $maskedCards = Card::onlyIds($cards);
-
-        $private = [];
-        foreach ($playersIds as $pId) {
-            $private[$pId] = [
-                'cards' => ($pId == $playerId) ? $cards : $maskedCards
-            ];
-        }
     
         return [
-            '_private' => $private,
+            '_private' => [
+                $playerId => [
+                    'cards' => $cards,
+                ]
+            ],
+            'cards' => $maskedCards,
             'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
         ];
     }
@@ -65,22 +62,19 @@ trait ArgsTrait {
 
     function argChooseDiscardCard() {
         $playerId = intval($this->getActivePlayerId());
-        $playersIds = $this->getPlayersIds();
 
         $discardNumber = $this->getGameStateValue(CHOSEN_DISCARD);
         $cards = $this->getCardsFromDb($this->cards->getCardsInLocation('discard'.$discardNumber, null, 'location_arg'));
         $maskedCards = Card::onlyIds($cards);
-
-        $private = [];
-        foreach ($playersIds as $pId) {
-            $private[$pId] = [
-                'cards' => ($pId == $playerId) ? $cards : $maskedCards
-            ];
-        }
     
         return [
             'discardNumber' => $discardNumber,
-            '_private' => $private,
+            '_private' => [
+                $playerId => [
+                    'cards' => $cards,
+                ]
+            ],
+            'cards' => $maskedCards,
         ];
     }
 

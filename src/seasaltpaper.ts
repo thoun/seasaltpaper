@@ -118,13 +118,13 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
     
     private onEnteringChooseCard(args: EnteringChooseCardArgs) {
-        this.stacks.showPickCards(true, args._private?.cards);
+        this.stacks.showPickCards(true, args._private?.cards ?? args.cards);
         this.stacks.makePickSelectable((this as any).isCurrentPlayerActive());        
         this.stacks.deckCounter.setValue(args.remainingCardsInDeck);
     }
     
     private onEnteringPutDiscardPile(args: EnteringChooseCardArgs) {
-        this.stacks.showPickCards(true, args._private?.cards);
+        this.stacks.showPickCards(true, args._private?.cards ?? args.cards);
         this.stacks.makeDiscardSelectable((this as any).isCurrentPlayerActive());
     }
 
@@ -140,7 +140,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
     
     private onEnteringChooseDiscardCard(args: EnteringChooseCardArgs) {
-        const cards = args._private?.cards;
+        const cards = args._private?.cards || args.cards;
         const pickDiv = document.getElementById('discard-pick');
         pickDiv.innerHTML = '';
         pickDiv.dataset.visible = 'true';
@@ -323,7 +323,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
           var prefId = +match[1];
           var prefValue = +e.target.value;
           (this as any).prefs[prefId].value = prefValue;
-          //this.onPreferenceChange(prefId, prefValue);
         }
         
         // Call onPreferenceChange() when any value changes
@@ -334,18 +333,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
           dojo.query("#ingame_menu_content .preference_control"),
           el => onchange({ target: el })
         );
-
-        try {
-            (document.getElementById('preference_control_203').closest(".preference_choice") as HTMLDivElement).style.display = 'none';
-        } catch (e) {}
-    }
-      
-    private onPreferenceChange(prefId: number, prefValue: number) {
-        switch (prefId) {
-            /*case 201: 
-                document.getElementsByTagName('html')[0].dataset.origamiFont = (prefValue == 2).toString();
-                break;*/
-        }
     }
 
     private getOrderedPlayers(gamedatas: SeaSaltPaperGamedatas) {

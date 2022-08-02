@@ -428,14 +428,14 @@ var SeaSaltPaper = /** @class */ (function () {
         }
     };
     SeaSaltPaper.prototype.onEnteringChooseCard = function (args) {
-        var _a;
-        this.stacks.showPickCards(true, (_a = args._private) === null || _a === void 0 ? void 0 : _a.cards);
+        var _a, _b;
+        this.stacks.showPickCards(true, (_b = (_a = args._private) === null || _a === void 0 ? void 0 : _a.cards) !== null && _b !== void 0 ? _b : args.cards);
         this.stacks.makePickSelectable(this.isCurrentPlayerActive());
         this.stacks.deckCounter.setValue(args.remainingCardsInDeck);
     };
     SeaSaltPaper.prototype.onEnteringPutDiscardPile = function (args) {
-        var _a;
-        this.stacks.showPickCards(true, (_a = args._private) === null || _a === void 0 ? void 0 : _a.cards);
+        var _a, _b;
+        this.stacks.showPickCards(true, (_b = (_a = args._private) === null || _a === void 0 ? void 0 : _a.cards) !== null && _b !== void 0 ? _b : args.cards);
         this.stacks.makeDiscardSelectable(this.isCurrentPlayerActive());
     };
     SeaSaltPaper.prototype.onEnteringPlayCards = function () {
@@ -449,7 +449,7 @@ var SeaSaltPaper = /** @class */ (function () {
     SeaSaltPaper.prototype.onEnteringChooseDiscardCard = function (args) {
         var _this = this;
         var _a;
-        var cards = (_a = args._private) === null || _a === void 0 ? void 0 : _a.cards;
+        var cards = ((_a = args._private) === null || _a === void 0 ? void 0 : _a.cards) || args.cards;
         var pickDiv = document.getElementById('discard-pick');
         pickDiv.innerHTML = '';
         pickDiv.dataset.visible = 'true';
@@ -608,23 +608,11 @@ var SeaSaltPaper = /** @class */ (function () {
             var prefId = +match[1];
             var prefValue = +e.target.value;
             _this.prefs[prefId].value = prefValue;
-            //this.onPreferenceChange(prefId, prefValue);
         };
         // Call onPreferenceChange() when any value changes
         dojo.query(".preference_control").connect("onchange", onchange);
         // Call onPreferenceChange() now
         dojo.forEach(dojo.query("#ingame_menu_content .preference_control"), function (el) { return onchange({ target: el }); });
-        try {
-            document.getElementById('preference_control_203').closest(".preference_choice").style.display = 'none';
-        }
-        catch (e) { }
-    };
-    SeaSaltPaper.prototype.onPreferenceChange = function (prefId, prefValue) {
-        switch (prefId) {
-            /*case 201:
-                document.getElementsByTagName('html')[0].dataset.origamiFont = (prefValue == 2).toString();
-                break;*/
-        }
     };
     SeaSaltPaper.prototype.getOrderedPlayers = function (gamedatas) {
         var _this = this;

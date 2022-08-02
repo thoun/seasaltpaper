@@ -59,6 +59,7 @@ interface EnteringChooseCardArgs {
     _private?: {
         cards: Card[];
     }
+    cards: Card[];
     discardNumber?: number;
     remainingCardsInDeck: number;
 }
