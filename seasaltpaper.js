@@ -12,7 +12,9 @@ function slideToObjectAndAttach(game, object, destinationId, changeSide) {
         var deltaY = destinationBR.top - originBR.top;
         object.style.zIndex = '10';
         object.style.transform = "translate(".concat(-deltaX, "px, ").concat(-deltaY, "px)");
-        object.style.position = 'absolute';
+        if (destination.dataset.currentPlayer == 'false') {
+            object.style.position = 'absolute';
+        }
         setTimeout(function () {
             object.style.transition = "transform 0.5s linear";
             object.style.transform = null;
@@ -33,7 +35,9 @@ function slideFromObject(game, object, fromId) {
         var deltaY = destinationBR.top - originBR.top;
         object.style.zIndex = '10';
         object.style.transform = "translate(".concat(-deltaX, "px, ").concat(-deltaY, "px)");
-        object.style.position = 'absolute';
+        if (object.dataset.currentPlayer == 'false') {
+            object.style.position = 'absolute';
+        }
         setTimeout(function () {
             object.style.transition = "transform 0.5s linear";
             object.style.transform = null;
@@ -354,7 +358,10 @@ var PlayerTable = /** @class */ (function () {
     };
     PlayerTable.prototype.addCards = function (cards, to, from) {
         var _this = this;
-        cards.forEach(function (card) { return _this.game.cards.createMoveOrUpdateCard(card, "player-table-".concat(_this.playerId, "-").concat(to, "-cards"), false, from); });
+        cards.forEach(function (card) {
+            _this.game.cards.createMoveOrUpdateCard(card, "player-table-".concat(_this.playerId, "-").concat(to, "-cards"), false, from);
+            document.getElementById("card-".concat(card.id)).style.order = '' + (card.category * 100 + card.family * 10 + card.color);
+        });
         this.game.updateTableHeight();
     };
     return PlayerTable;

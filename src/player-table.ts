@@ -136,7 +136,10 @@ class PlayerTable {
     }
     
     private addCards(cards: Card[], to: 'hand' | 'table', from?: string) {
-        cards.forEach(card => this.game.cards.createMoveOrUpdateCard(card, `player-table-${this.playerId}-${to}-cards`, false, from));
+        cards.forEach(card => {
+            this.game.cards.createMoveOrUpdateCard(card, `player-table-${this.playerId}-${to}-cards`, false, from);
+            document.getElementById(`card-${card.id}`).style.order = ''+(card.category*100 + card.family * 10 + card.color);
+        });
         this.game.updateTableHeight();
     }
 }
