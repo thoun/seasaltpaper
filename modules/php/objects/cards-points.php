@@ -27,12 +27,10 @@ class CardsPoints {
 
         $numberByColor = [];
         foreach($cards as $card) {
-            if ($card->color > 0) {
-                if (array_key_exists($card->color, $numberByColor)) {
-                    $numberByColor[$card->color]++;
-                } else {
-                    $numberByColor[$card->color] = 1;
-                }
+            if (array_key_exists($card->color, $numberByColor)) {
+                $numberByColor[$card->color]++;
+            } else {
+                $numberByColor[$card->color] = 1;
             }
         }
         $this->colorBonus = count($numberByColor) > 0 ? max($numberByColor) : 0;
