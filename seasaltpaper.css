@@ -38,9 +38,9 @@
   transform-origin: center center;
   border-radius: 5px;
   box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.5);
-  background-size: auto 100%;
 }
 .card .card-sides .card-side.front {
+  background-size: auto 600%;
   background-image: url("img/cards.jpg");
 }
 .card .card-sides .card-side.front > * {
@@ -48,6 +48,7 @@
   user-select: none;
 }
 .card .card-sides .card-side.back {
+  background-size: auto 100%;
   background-image: url("img/card-back.jpg");
   transform: rotateY(180deg);
 }
@@ -68,168 +69,223 @@
 }
 .card[data-category="1"] .front {
   background-position-x: 0%;
+  background-position-y: 0%;
 }
 .card[data-category="2"][data-family="1"][data-color="1"][data-index="0"] .front {
-  background-position-x: 1.8518518519%;
+  background-position-x: 11.1111111111%;
+  background-position-y: 0%;
 }
 .card[data-category="2"][data-family="1"][data-color="1"][data-index="1"] .front {
-  background-position-x: 3.7037037037%;
+  background-position-x: 22.2222222222%;
+  background-position-y: 0%;
 }
 .card[data-category="2"][data-family="1"][data-color="2"][data-index="0"] .front {
-  background-position-x: 5.5555555556%;
+  background-position-x: 33.3333333333%;
+  background-position-y: 0%;
 }
 .card[data-category="2"][data-family="1"][data-color="2"][data-index="1"] .front {
-  background-position-x: 7.4074074074%;
+  background-position-x: 44.4444444444%;
+  background-position-y: 0%;
 }
 .card[data-category="2"][data-family="1"][data-color="3"][data-index="0"] .front {
-  background-position-x: 9.2592592593%;
+  background-position-x: 55.5555555556%;
+  background-position-y: 0%;
 }
 .card[data-category="2"][data-family="1"][data-color="4"][data-index="0"] .front {
-  background-position-x: 11.1111111111%;
+  background-position-x: 66.6666666667%;
+  background-position-y: 0%;
 }
 .card[data-category="2"][data-family="1"][data-color="4"][data-index="1"] .front {
-  background-position-x: 12.962962963%;
+  background-position-x: 77.7777777778%;
+  background-position-y: 0%;
 }
 .card[data-category="2"][data-family="1"][data-color="5"][data-index="0"] .front {
-  background-position-x: 14.8148148148%;
+  background-position-x: 88.8888888889%;
+  background-position-y: 0%;
 }
 .card[data-category="2"][data-family="1"][data-color="7"][data-index="0"] .front {
-  background-position-x: 16.6666666667%;
+  background-position-x: 100%;
+  background-position-y: 0%;
 }
 .card[data-category="2"][data-family="2"][data-color="1"][data-index="0"] .front {
-  background-position-x: 18.5185185185%;
+  background-position-x: 0%;
+  background-position-y: 20%;
 }
 .card[data-category="2"][data-family="2"][data-color="1"][data-index="1"] .front {
-  background-position-x: 20.3703703704%;
+  background-position-x: 11.1111111111%;
+  background-position-y: 20%;
 }
 .card[data-category="2"][data-family="2"][data-color="2"][data-index="0"] .front {
   background-position-x: 22.2222222222%;
+  background-position-y: 20%;
 }
 .card[data-category="2"][data-family="2"][data-color="2"][data-index="1"] .front {
-  background-position-x: 24.0740740741%;
+  background-position-x: 33.3333333333%;
+  background-position-y: 20%;
 }
 .card[data-category="2"][data-family="2"][data-color="3"][data-index="0"] .front {
-  background-position-x: 25.9259259259%;
+  background-position-x: 44.4444444444%;
+  background-position-y: 20%;
 }
 .card[data-category="2"][data-family="2"][data-color="3"][data-index="1"] .front {
-  background-position-x: 27.7777777778%;
+  background-position-x: 55.5555555556%;
+  background-position-y: 20%;
 }
 .card[data-category="2"][data-family="2"][data-color="4"][data-index="0"] .front {
-  background-position-x: 29.6296296296%;
+  background-position-x: 66.6666666667%;
+  background-position-y: 20%;
 }
 .card[data-category="2"][data-family="2"][data-color="4"][data-index="1"] .front {
-  background-position-x: 31.4814814815%;
+  background-position-x: 77.7777777778%;
+  background-position-y: 20%;
 }
 .card[data-category="2"][data-family="3"][data-color="1"][data-index="0"] .front {
-  background-position-x: 33.3333333333%;
+  background-position-x: 88.8888888889%;
+  background-position-y: 20%;
 }
 .card[data-category="2"][data-family="3"][data-color="1"][data-index="1"] .front {
-  background-position-x: 35.1851851852%;
+  background-position-x: 100%;
+  background-position-y: 20%;
 }
 .card[data-category="2"][data-family="3"][data-color="2"][data-index="0"] .front {
-  background-position-x: 37.037037037%;
+  background-position-x: 0%;
+  background-position-y: 40%;
 }
 .card[data-category="2"][data-family="3"][data-color="3"][data-index="0"] .front {
-  background-position-x: 38.8888888889%;
+  background-position-x: 11.1111111111%;
+  background-position-y: 40%;
 }
 .card[data-category="2"][data-family="3"][data-color="3"][data-index="1"] .front {
-  background-position-x: 40.7407407407%;
+  background-position-x: 22.2222222222%;
+  background-position-y: 40%;
 }
 .card[data-category="2"][data-family="3"][data-color="4"][data-index="0"] .front {
-  background-position-x: 42.5925925926%;
+  background-position-x: 33.3333333333%;
+  background-position-y: 40%;
 }
 .card[data-category="2"][data-family="3"][data-color="5"][data-index="0"] .front {
   background-position-x: 44.4444444444%;
+  background-position-y: 40%;
 }
 .card[data-category="2"][data-family="4"][data-color="1"][data-index="0"] .front {
-  background-position-x: 46.2962962963%;
+  background-position-x: 55.5555555556%;
+  background-position-y: 40%;
 }
 .card[data-category="2"][data-family="4"][data-color="2"][data-index="0"] .front {
-  background-position-x: 48.1481481481%;
+  background-position-x: 66.6666666667%;
+  background-position-y: 40%;
 }
 .card[data-category="2"][data-family="4"][data-color="3"][data-index="0"] .front {
-  background-position-x: 50%;
+  background-position-x: 77.7777777778%;
+  background-position-y: 40%;
 }
 .card[data-category="2"][data-family="4"][data-color="4"][data-index="0"] .front {
-  background-position-x: 51.8518518519%;
+  background-position-x: 88.8888888889%;
+  background-position-y: 40%;
 }
 .card[data-category="2"][data-family="4"][data-color="8"][data-index="0"] .front {
-  background-position-x: 53.7037037037%;
+  background-position-x: 100%;
+  background-position-y: 40%;
 }
 .card[data-category="2"][data-family="5"][data-color="1"][data-index="0"] .front {
-  background-position-x: 55.5555555556%;
+  background-position-x: 0%;
+  background-position-y: 60%;
 }
 .card[data-category="2"][data-family="5"][data-color="2"][data-index="0"] .front {
-  background-position-x: 57.4074074074%;
+  background-position-x: 11.1111111111%;
+  background-position-y: 60%;
 }
 .card[data-category="2"][data-family="5"][data-color="3"][data-index="0"] .front {
-  background-position-x: 59.2592592593%;
+  background-position-x: 22.2222222222%;
+  background-position-y: 60%;
 }
 .card[data-category="2"][data-family="5"][data-color="5"][data-index="0"] .front {
-  background-position-x: 61.1111111111%;
+  background-position-x: 33.3333333333%;
+  background-position-y: 60%;
 }
 .card[data-category="2"][data-family="5"][data-color="6"][data-index="0"] .front {
-  background-position-x: 62.962962963%;
+  background-position-x: 44.4444444444%;
+  background-position-y: 60%;
 }
 .card[data-category="3"][data-family="1"][data-color="1"][data-index="0"] .front {
-  background-position-x: 64.8148148148%;
+  background-position-x: 55.5555555556%;
+  background-position-y: 60%;
 }
 .card[data-category="3"][data-family="1"][data-color="2"][data-index="0"] .front {
   background-position-x: 66.6666666667%;
+  background-position-y: 60%;
 }
 .card[data-category="3"][data-family="1"][data-color="3"][data-index="0"] .front {
-  background-position-x: 68.5185185185%;
+  background-position-x: 77.7777777778%;
+  background-position-y: 60%;
 }
 .card[data-category="3"][data-family="1"][data-color="4"][data-index="0"] .front {
-  background-position-x: 70.3703703704%;
+  background-position-x: 88.8888888889%;
+  background-position-y: 60%;
 }
 .card[data-category="3"][data-family="1"][data-color="5"][data-index="0"] .front {
-  background-position-x: 72.2222222222%;
+  background-position-x: 100%;
+  background-position-y: 60%;
 }
 .card[data-category="3"][data-family="1"][data-color="7"][data-index="0"] .front {
-  background-position-x: 74.0740740741%;
+  background-position-x: 0%;
+  background-position-y: 80%;
 }
 .card[data-category="3"][data-family="2"][data-color="2"][data-index="0"] .front {
-  background-position-x: 75.9259259259%;
+  background-position-x: 11.1111111111%;
+  background-position-y: 80%;
 }
 .card[data-category="3"][data-family="2"][data-color="4"][data-index="0"] .front {
-  background-position-x: 77.7777777778%;
+  background-position-x: 22.2222222222%;
+  background-position-y: 80%;
 }
 .card[data-category="3"][data-family="2"][data-color="5"][data-index="0"] .front {
-  background-position-x: 79.6296296296%;
+  background-position-x: 33.3333333333%;
+  background-position-y: 80%;
 }
 .card[data-category="3"][data-family="2"][data-color="6"][data-index="0"] .front {
-  background-position-x: 81.4814814815%;
+  background-position-x: 44.4444444444%;
+  background-position-y: 80%;
 }
 .card[data-category="3"][data-family="2"][data-color="7"][data-index="0"] .front {
-  background-position-x: 83.3333333333%;
+  background-position-x: 55.5555555556%;
+  background-position-y: 80%;
 }
 .card[data-category="3"][data-family="3"][data-color="6"][data-index="0"] .front {
-  background-position-x: 85.1851851852%;
+  background-position-x: 66.6666666667%;
+  background-position-y: 80%;
 }
 .card[data-category="3"][data-family="3"][data-color="8"][data-index="0"] .front {
-  background-position-x: 87.037037037%;
+  background-position-x: 77.7777777778%;
+  background-position-y: 80%;
 }
 .card[data-category="3"][data-family="3"][data-color="9"][data-index="0"] .front {
   background-position-x: 88.8888888889%;
+  background-position-y: 80%;
 }
 .card[data-category="3"][data-family="4"][data-color="9"][data-index="0"] .front {
-  background-position-x: 90.7407407407%;
+  background-position-x: 100%;
+  background-position-y: 80%;
 }
 .card[data-category="3"][data-family="4"][data-color="10"][data-index="0"] .front {
-  background-position-x: 92.5925925926%;
+  background-position-x: 0%;
+  background-position-y: 100%;
 }
 .card[data-category="4"][data-family="1"] .front {
-  background-position-x: 94.4444444444%;
+  background-position-x: 11.1111111111%;
+  background-position-y: 100%;
 }
 .card[data-category="4"][data-family="2"] .front {
-  background-position-x: 96.2962962963%;
+  background-position-x: 22.2222222222%;
+  background-position-y: 100%;
 }
 .card[data-category="4"][data-family="3"] .front {
-  background-position-x: 98.1481481481%;
+  background-position-x: 33.3333333333%;
+  background-position-y: 100%;
 }
 .card[data-category="4"][data-family="4"] .front {
-  background-position-x: 100%;
+  background-position-x: 44.4444444444%;
+  background-position-y: 100%;
 }
 
 @keyframes selectable-card-animation {

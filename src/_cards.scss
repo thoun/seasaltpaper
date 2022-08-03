@@ -76,10 +76,9 @@ $ORANGE: 10;
             transform-origin: center center;
             border-radius: 5px;
             box-shadow: 1px 1px 2px 1px rgba(0,0,0,0.5);
-            
-            background-size: auto 100%;
 
             &.front {
+                background-size: auto 600%;
                 background-image: url('img/cards.jpg');
 
                 &>* {
@@ -88,7 +87,8 @@ $ORANGE: 10;
                 }
             } 
             
-            &.back {                
+            &.back {    
+                background-size: auto 100%;            
                 background-image: url('img/card-back.jpg');
                 transform: rotateY(180deg);
             }
@@ -116,110 +116,137 @@ $ORANGE: 10;
 
     &[data-category="#{$MERMAID}"] .front {
         background-position-x: 0%;
+        background-position-y: 0%;
     }
 
     &[data-category="#{$PAIR}"] {
         &[data-family="#{$CRAB}"] {
             @for $index from 0 through 1 {
                 &[data-color="#{$DARK_BLUE}"][data-index="#{$index}"] .front {
-                    background-position-x: #{($index + 1) * 100% / 54};
+                    background-position-x: #{($index + 1) * 100% / 9};
+                    background-position-y: 0%;
                 }
             }
             @for $index from 0 through 1 {
                 &[data-color="#{$LIGHT_BLUE}"][data-index="#{$index}"] .front {
-                    background-position-x: #{($index + 3) * 100% / 54};
+                    background-position-x: #{($index + 3) * 100% / 9};
+                    background-position-y: 0%;
                 }
             }
             &[data-color="#{$BLACK}"][data-index="0"] .front {
-                background-position-x: #{5 * 100% / 54};
+                background-position-x: #{5 * 100% / 9};
+                background-position-y: 0%;
             }
             @for $index from 0 through 1 {
                 &[data-color="#{$YELLOW}"][data-index="#{$index}"] .front { 
-                    background-position-x: #{($index + 6) * 100% / 54};
+                    background-position-x: #{($index + 6) * 100% / 9};
+                    background-position-y: 0%;
+                    
                 }
             }
             &[data-color="#{$GREEN}"][data-index="0"] .front {
-                background-position-x: #{8 * 100% / 54};
+                background-position-x: #{8 * 100% / 9};
+                background-position-y: 0%;
             }
             &[data-color="#{$GREY}"][data-index="0"] .front {
-                background-position-x: #{9 * 100% / 54};
+                background-position-x: #{9 * 100% / 9};
+                background-position-y: 0%;
             }
         }
         &[data-family="#{$BOAT}"] {
             @for $index from 0 through 1 {
                 &[data-color="#{$DARK_BLUE}"][data-index="#{$index}"] .front {
-                    background-position-x: #{($index + 10) * 100% / 54};
+                    background-position-x: #{$index * 100% / 9};
+                    background-position-y: 20%;
                 }
             }
             @for $index from 0 through 1 {
                 &[data-color="#{$LIGHT_BLUE}"][data-index="#{$index}"] .front {
-                    background-position-x: #{($index + 12) * 100% / 54};
+                    background-position-x: #{($index + 2) * 100% / 9};
+                    background-position-y: 20%;
                 }
             }
             @for $index from 0 through 1 {
                 &[data-color="#{$BLACK}"][data-index="#{$index}"] .front {
-                    background-position-x: #{($index + 14) * 100% / 54};
+                    background-position-x: #{($index + 4) * 100% / 9};
+                    background-position-y: 20%;
                 }
             }
             @for $index from 0 through 1 {
                 &[data-color="#{$YELLOW}"][data-index="#{$index}"] .front { 
-                    background-position-x: #{($index + 16) * 100% / 54};
+                    background-position-x: #{($index + 6) * 100% / 9};
+                    background-position-y: 20%;
                 }
             }
         }
         &[data-family="#{$FISH}"] {
             @for $index from 0 through 1 {
                 &[data-color="#{$DARK_BLUE}"][data-index="#{$index}"] .front {
-                    background-position-x: #{($index + 18) * 100% / 54};
+                    background-position-x: #{($index + 8) * 100% / 9};
+                    background-position-y: 20%;
                 }
             }
             &[data-color="#{$LIGHT_BLUE}"][data-index="0"] .front {
-                background-position-x: #{20 * 100% / 54};
+                background-position-x: #{0 * 100% / 9};
+                background-position-y: 40%;
             }
             @for $index from 0 through 1 {
                 &[data-color="#{$BLACK}"][data-index="#{$index}"] .front {
-                    background-position-x: #{($index + 21) * 100% / 54};
+                    background-position-x: #{($index + 1) * 100% / 9};
+                    background-position-y: 40%;
                 }
             }
             &[data-color="#{$YELLOW}"][data-index="0"] .front {
-                background-position-x: #{23 * 100% / 54};
+                background-position-x: #{3 * 100% / 9};
+                background-position-y: 40%;
             }
             &[data-color="#{$GREEN}"][data-index="0"] .front {
-                background-position-x: #{24 * 100% / 54};
+                background-position-x: #{4 * 100% / 9};
+                background-position-y: 40%;
             }
         }
         &[data-family="#{$SWIMMER}"] {
             &[data-color="#{$DARK_BLUE}"][data-index="0"] .front {
-                background-position-x: #{25 * 100% / 54};
+                background-position-x: #{5 * 100% / 9};
+                background-position-y: 40%;
             }
             &[data-color="#{$LIGHT_BLUE}"][data-index="0"] .front {
-                background-position-x: #{26 * 100% / 54};
+                background-position-x: #{6 * 100% / 9};
+                background-position-y: 40%;
             }
             &[data-color="#{$BLACK}"][data-index="0"] .front {
-                background-position-x: #{27 * 100% / 54};
+                background-position-x: #{7 * 100% / 9};
+                background-position-y: 40%;
             }
             &[data-color="#{$YELLOW}"][data-index="0"] .front {
-                background-position-x: #{28 * 100% / 54};
+                background-position-x: #{8 * 100% / 9};
+                background-position-y: 40%;
             }
             &[data-color="#{$LIGHT_ORANGE}"][data-index="0"] .front {
-                background-position-x: #{29 * 100% / 54};
+                background-position-x: #{9 * 100% / 9};
+                background-position-y: 40%;
             }
         }
         &[data-family="#{$SHARK}"] {
             &[data-color="#{$DARK_BLUE}"][data-index="0"] .front {
-                background-position-x: #{30 * 100% / 54};
+                background-position-x: #{0 * 100% / 9};
+                background-position-y: 60%;
             }
             &[data-color="#{$LIGHT_BLUE}"][data-index="0"] .front {
-                background-position-x: #{31 * 100% / 54};
+                background-position-x: #{1 * 100% / 9};
+                background-position-y: 60%;
             }
             &[data-color="#{$BLACK}"][data-index="0"] .front {
-                background-position-x: #{32 * 100% / 54};
+                background-position-x: #{2 * 100% / 9};
+                background-position-y: 60%;
             }
             &[data-color="#{$GREEN}"][data-index="0"] .front {
-                background-position-x: #{33 * 100% / 54};
+                background-position-x: #{3 * 100% / 9};
+                background-position-y: 60%;
             }
             &[data-color="#{$PURPLE}"][data-index="0"] .front {
-                background-position-x: #{34 * 100% / 54};
+                background-position-x: #{4 * 100% / 9};
+                background-position-y: 60%;
             }
         }
     }
@@ -227,74 +254,94 @@ $ORANGE: 10;
     &[data-category="#{$COLLECTION}"] {
         &[data-family="#{$SHELL}"] {
             &[data-color="#{$DARK_BLUE}"][data-index="0"] .front {
-                background-position-x: #{35 * 100% / 54};
+                background-position-x: #{5 * 100% / 9};
+                background-position-y: 60%;
             }
             &[data-color="#{$LIGHT_BLUE}"][data-index="0"] .front {
-                background-position-x: #{36 * 100% / 54};
+                background-position-x: #{6 * 100% / 9};
+                background-position-y: 60%;
             }
             &[data-color="#{$BLACK}"][data-index="0"] .front {
-                background-position-x: #{37 * 100% / 54};
+                background-position-x: #{7 * 100% / 9};
+                background-position-y: 60%;
             }
             &[data-color="#{$YELLOW}"][data-index="0"] .front {
-                background-position-x: #{38 * 100% / 54};
+                background-position-x: #{8 * 100% / 9};
+                background-position-y: 60%;
             }
             &[data-color="#{$GREEN}"][data-index="0"] .front {
-                background-position-x: #{39 * 100% / 54};
+                background-position-x: #{9 * 100% / 9};
+                background-position-y: 60%;
             }
             &[data-color="#{$GREY}"][data-index="0"] .front {
-                background-position-x: #{40 * 100% / 54};
+                background-position-x: #{0 * 100% / 9};
+                background-position-y: 80%;
             }
         }
         &[data-family="#{$OCTOPUS}"] {
             &[data-color="#{$LIGHT_BLUE}"][data-index="0"] .front {
-                background-position-x: #{41 * 100% / 54};
+                background-position-x: #{1 * 100% / 9};
+                background-position-y: 80%;
             }
             &[data-color="#{$YELLOW}"][data-index="0"] .front {
-                background-position-x: #{42 * 100% / 54};
+                background-position-x: #{2 * 100% / 9};
+                background-position-y: 80%;
             }
             &[data-color="#{$GREEN}"][data-index="0"] .front {
-                background-position-x: #{43 * 100% / 54};
+                background-position-x: #{3 * 100% / 9};
+                background-position-y: 80%;
             }
             &[data-color="#{$PURPLE}"][data-index="0"] .front {
-                background-position-x: #{44 * 100% / 54};
+                background-position-x: #{4 * 100% / 9};
+                background-position-y: 80%;
             }
             &[data-color="#{$GREY}"][data-index="0"] .front {
-                background-position-x: #{45 * 100% / 54};
+                background-position-x: #{5 * 100% / 9};
+                background-position-y: 80%;
             }
         }
         &[data-family="#{$PENGUIN}"] {
             &[data-color="#{$PURPLE}"][data-index="0"] .front {
-                background-position-x: #{46 * 100% / 54};
+                background-position-x: #{6 * 100% / 9};
+                background-position-y: 80%;
             }
             &[data-color="#{$LIGHT_ORANGE}"][data-index="0"] .front {
-                background-position-x: #{47 * 100% / 54};
+                background-position-x: #{7 * 100% / 9};
+                background-position-y: 80%;
             }
             &[data-color="#{$PINK}"][data-index="0"] .front {
-                background-position-x: #{48 * 100% / 54};
+                background-position-x: #{8 * 100% / 9};
+                background-position-y: 80%;
             }
         }
         &[data-family="#{$SAILOR}"] {
             &[data-color="#{$PINK}"][data-index="0"] .front {
-                background-position-x: #{49 * 100% / 54};
+                background-position-x: #{9 * 100% / 9};
+                background-position-y: 80%;
             }
             &[data-color="#{$ORANGE}"][data-index="0"] .front {
-                background-position-x: #{50 * 100% / 54};
+                background-position-x: #{0 * 100% / 9};
+                background-position-y: 100%;
             }
         }
     }
     
     &[data-category="#{$MULTIPLIER}"] {
         &[data-family="#{$LIGHTHOUSE}"] .front {
-            background-position-x: #{51 * 100% / 54};
+            background-position-x: #{1 * 100% / 9};
+            background-position-y: 100%;
         }
         &[data-family="#{$SHOAL_FISH}"] .front {
-            background-position-x: #{52 * 100% / 54};
+            background-position-x: #{2 * 100% / 9};
+            background-position-y: 100%;
         }
         &[data-family="#{$PENGUIN_COLONY}"] .front {
-            background-position-x: #{53 * 100% / 54};
+            background-position-x: #{3 * 100% / 9};
+            background-position-y: 100%;
         }
         &[data-family="#{$CAPTAIN}"] .front {
-            background-position-x: #{54 * 100% / 54};
+            background-position-x: #{4 * 100% / 9};
+            background-position-y: 100%;
         }
     }
 }
