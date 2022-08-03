@@ -27,6 +27,11 @@ $this->END_GAME_POINTS = [
   4 => 30,
 ];
 
+$this->ANNOUNCEMENTS = [
+  LAST_CHANCE => _('LAST CHANCE'),
+  STOP => _('STOP'),
+];
+
 $this->COLORS = [
   '',
   clienttranslate('Dark blue'),

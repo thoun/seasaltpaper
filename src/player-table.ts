@@ -43,10 +43,14 @@ class PlayerTable {
             this.cardsPointsCounter.create(`cards-points-counter`);
             this.cardsPointsCounter.setValue(player.cardsPoints);
         }
-        
 
         this.addCardsToHand(player.handCards);
         this.addCardsToTable(player.tableCards);
+
+        if (player.endCall) {
+            this.showAnnouncement(_(player.endCall.announcement));
+            this.showAnnouncementPoints(player.endCall.cardsPoints);
+        }
     }
     
     public addCardsToHand(cards: Card[], from?: string) {

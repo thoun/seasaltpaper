@@ -15,6 +15,10 @@ interface SeaSaltPaperPlayer extends Player {
     handCards: Card[];
     tableCards: Card[];
     cardsPoints?: number;
+    endCall?: {
+        announcement: string;
+        cardsPoints: number;
+    };
 }
 
 interface SeaSaltPaperGamedatas {

@@ -265,6 +265,10 @@ var PlayerTable = /** @class */ (function () {
         }
         this.addCardsToHand(player.handCards);
         this.addCardsToTable(player.tableCards);
+        if (player.endCall) {
+            this.showAnnouncement(_(player.endCall.announcement));
+            this.showAnnouncementPoints(player.endCall.cardsPoints);
+        }
     }
     Object.defineProperty(PlayerTable.prototype, "handCardsDiv", {
         get: function () {

@@ -94,7 +94,7 @@ trait StateTrait {
             self::notifyAllPlayers('betResult', clienttranslate('${player_name} announced ${announcement}, and the bet is ${result}!'), [
                 'playerId' => $lastChanceCaller,
                 'player_name' => $this->getPlayerName($lastChanceCaller),
-                'announcement' => _('LAST CHANCE'),
+                'announcement' => $this->ANNOUNCEMENTS[LAST_CHANCE],
                 'result' => $betWon ? _('won') : _('lost'),
                 'i18n' => ['announcement', 'result'],
                 'preserve' => ['playerId'],
@@ -147,7 +147,7 @@ trait StateTrait {
             self::notifyAllPlayers('log', clienttranslate('${player_name} announced ${announcement}, every player score the points for their cards'), [
                 'playerId' => $endCaller,
                 'player_name' => $this->getPlayerName($endCaller),
-                'announcement' => _('STOP'),
+                'announcement' => $this->ANNOUNCEMENTS[STOP],
                 'i18n' => ['announcement'],
                 'preserve' => ['playerId'],
             ]);

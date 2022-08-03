@@ -322,7 +322,7 @@ trait ActionTrait {
         $this->incStat(1, 'announceLastChance');
         $this->incStat(1, 'announceLastChance', $playerId);
 
-        $this->applyEndRound(LAST_CHANCE, _('LAST CHANCE'));
+        $this->applyEndRound(LAST_CHANCE, $this->ANNOUNCEMENTS[LAST_CHANCE]);
     }
 
     public function immediateEndRound() {
@@ -337,7 +337,7 @@ trait ActionTrait {
 
         $this->setGameStateValue(STOP_CALLER, $playerId);
 
-        $this->applyEndRound(STOP, _('STOP'));
+        $this->applyEndRound(STOP, $this->ANNOUNCEMENTS[STOP]);
     }
 
     public function chooseDiscardPile(int $discardNumber) {

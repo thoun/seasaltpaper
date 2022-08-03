@@ -132,7 +132,7 @@ class SeaSaltPaper extends Table {
         _ when a player refreshes the game page (F5)
     */
     protected function getAllDatas() {
-        $result = array();
+        $result = [];
     
         $currentPlayerId = intval($this->getCurrentPlayerId());    // !! We must only return informations visible by this player !!
     
@@ -141,6 +141,16 @@ class SeaSaltPaper extends Table {
         $sql = "SELECT player_id id, player_score score, player_no playerNo FROM player ";
         $result['players'] = self::getCollectionFromDb( $sql );
 
+        
+
+        $endRound = intval($this->getGameStateValue(END_ROUND_TYPE));
+        $endCaller = 0;
+        if ($endRound == LAST_CHANCE) {
+            $endCaller = intval($this->getGameStateValue(LAST_CHANCE_CALLER));
+        } else if ($endRound == STOP) {
+            $endCaller = intval($this->getGameStateValue(STOP_CALLER));
+        }
+
         foreach($result['players'] as $playerId => &$player) {
             $player['playerNo'] = intval($player['playerNo']);
             $handCards = $this->getCardsFromDb($this->cards->getCardsInLocation('hand'.$playerId, null, 'location_arg'));
@@ -148,6 +158,13 @@ class SeaSaltPaper extends Table {
             $player['tableCards'] = $this->getCardsFromDb($this->cards->getCardsInLocation('table'.$playerId, null, 'location_arg'));
             if ($playerId == $currentPlayerId) {
                 $player['cardsPoints'] = $this->getCardsPoints($playerId)->totalPoints;
+            }
+
+            if ($endCaller == $playerId) {
+                $player['endCall'] = [
+                    'announcement' => $this->ANNOUNCEMENTS[$endRound],
+                    'cardsPoints' => $this->getCardsPoints($playerId)->totalPoints,
+                ];
             }
         }
 
