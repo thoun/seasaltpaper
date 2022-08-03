@@ -97,6 +97,7 @@ trait StateTrait {
                 'announcement' => _('LAST CHANCE'),
                 'result' => $betWon ? _('won') : _('lost'),
                 'i18n' => ['announcement', 'result'],
+                'preserve' => ['playerId'],
             ]);
 
             foreach($playersIds as $playerId) {
@@ -148,6 +149,7 @@ trait StateTrait {
                 'player_name' => $this->getPlayerName($endCaller),
                 'announcement' => _('STOP'),
                 'i18n' => ['announcement'],
+                'preserve' => ['playerId'],
             ]);
 
             foreach($playersIds as $playerId) {

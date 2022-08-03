@@ -132,6 +132,7 @@ trait UtilTrait {
                 'cards' => $this->getCardsFromDb($this->cards->getCardsInLocation('table'.$playerId)),
                 'points' => $playerPoints,
                 'playerPoints' => $playerPoints,
+                'preserve' => ['playerId'],
             ]);
         }
     }
@@ -148,6 +149,7 @@ trait UtilTrait {
             'player_name' => $this->getPlayerName($playerId),
             'newScore' => $this->getPlayerScore($playerId),
             'incScore' => $amount,
+            'preserve' => ['playerId'],
         ] + $args);
     }
 
@@ -158,6 +160,7 @@ trait UtilTrait {
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'newScore' => $amount,
+            'preserve' => ['playerId'],
         ] + $args);
     }
 
@@ -184,6 +187,7 @@ trait UtilTrait {
                 'opponentId' => $robbedPlayerId,
                 'player_name' => $this->getPlayerName($stealerId),
                 'player_name2' => $this->getPlayerName($robbedPlayerId),
+                'preserve' => ['playerId'],
             ];
             $argCardName = [
                 'cardName' => $this->getCardName($card),

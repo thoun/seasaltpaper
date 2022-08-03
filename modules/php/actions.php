@@ -22,6 +22,7 @@ trait ActionTrait {
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'number' => count($cards),
+            'preserve' => ['playerId'],
         ]);
 
         $this->incStat(1, 'takeCardFromDeck');
@@ -58,6 +59,7 @@ trait ActionTrait {
             'discardNumber' => $discardNumber,
             'newDiscardTopCard' => $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber)),
             'remainingCardsInDiscard' => $this->getRemainingCardsInDiscard($discardNumber),
+            'preserve' => ['playerId'],
         ]);
 
         $this->incStat(1, 'takeFromDiscard');
@@ -87,11 +89,13 @@ trait ActionTrait {
             'cardName' => $this->getCardName($card),
             'cardColor' => $this->COLORS[$card->color],
             'i18n' => ['cardName', 'cardColor'],
+            'preserve' => ['playerId'],
         ]);
         self::notifyAllPlayers('cardInHandFromPick', clienttranslate('${player_name} chooses a card'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'card' => Card::onlyId($card),
+            'preserve' => ['playerId'],
         ]);
 
         $this->updateCardsPoints($playerId);
@@ -136,6 +140,7 @@ trait ActionTrait {
             'discardId' => $discardNumber,
             'discardNumber' => $discardNumber,
             'remainingCardsInDiscard' => $this->getRemainingCardsInDiscard($discardNumber),
+            'preserve' => ['playerId'],
         ]);
     }
 
@@ -213,6 +218,7 @@ trait ActionTrait {
             'cardColor2' => $this->COLORS[$cards[0]->color],
             'action' => $action,
             'i18n' => ['cardName1', 'cardName2', 'cardColor1', 'cardColor2', 'action'],
+            'preserve' => ['playerId'],
         ]);
 
         $this->incStat(1, 'playedDuoCards');
@@ -249,11 +255,13 @@ trait ActionTrait {
                         'cardName' => $this->getCardName($card),
                         'cardColor' => $this->COLORS[$card->color],
                         'i18n' => ['cardName', 'cardColor'],
+                        'preserve' => ['playerId'],
                     ]);
                     self::notifyAllPlayers('cardInHandFromPick', clienttranslate('${player_name} took a card from deck'), [
                         'playerId' => $playerId,
                         'player_name' => $this->getPlayerName($playerId),
                         'card' => Card::onlyId($card),
+                        'preserve' => ['playerId'],
                     ]);
                     
                     $this->updateCardsPoints($playerId);
@@ -298,6 +306,7 @@ trait ActionTrait {
             'player_name' => $this->getPlayerName($playerId),
             'announcement' => $announcement,
             'i18n' => ['announcement'],
+            'preserve' => ['playerId'],
         ]);
         
         $this->gamestate->nextState('endTurn');
@@ -360,6 +369,7 @@ trait ActionTrait {
             $this->notifyAllPlayers('playCards', '', [
                 'playerId' => $playerId,
                 'cards' => $mermaids,
+                'preserve' => ['playerId'],
             ]);
 
             $this->gamestate->nextState('mermaids');
@@ -392,6 +402,7 @@ trait ActionTrait {
             'discardNumber' => $discardNumber,
             'newDiscardTopCard' => $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber)),
             'remainingCardsInDiscard' => $this->getRemainingCardsInDiscard($discardNumber),
+            'preserve' => ['playerId'],
         ]);
         self::notifyAllPlayers('cardInHandFromDiscardCrab', clienttranslate('${player_name} takes a card from discard pile ${discardNumber}'), [
             'playerId' => $playerId,
@@ -401,6 +412,7 @@ trait ActionTrait {
             'discardNumber' => $discardNumber,
             'newDiscardTopCard' => $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber)),
             'remainingCardsInDiscard' => $this->getRemainingCardsInDiscard($discardNumber),
+            'preserve' => ['playerId'],
         ]);
 
         $this->updateCardsPoints($playerId);

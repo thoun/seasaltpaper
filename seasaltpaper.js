@@ -424,7 +424,7 @@ var SeaSaltPaper = /** @class */ (function () {
         log('Entering state: ' + stateName, args.args);
         switch (stateName) {
             case 'takeCards':
-                this.onEnteringTakeCards(args.args);
+                this.onEnteringTakeCards(args);
                 break;
             case 'chooseCard':
                 this.onEnteringChooseCard(args.args);
@@ -450,7 +450,10 @@ var SeaSaltPaper = /** @class */ (function () {
         this.gamedatas.gamestate.descriptionmyturn = "".concat(originalState['descriptionmyturn' + property]);
         this.updatePageTitle();
     };
-    SeaSaltPaper.prototype.onEnteringTakeCards = function (args) {
+    SeaSaltPaper.prototype.onEnteringTakeCards = function (argsRoot) {
+        console.log('onEnteringTakeCards', argsRoot);
+        var args = argsRoot.args;
+        this.clearLogs(argsRoot.active_player);
         if (!args.canTakeFromDiscard.length) {
             this.setGamestateDescription('NoDiscard');
         }
@@ -921,6 +924,7 @@ var SeaSaltPaper = /** @class */ (function () {
     SeaSaltPaper.prototype.setupNotifications = function () {
         //log( 'notifications subscriptions setup' );
         var _this = this;
+        dojo.connect(this.notifqueue, 'addToLog', function () { return _this.addLogClass(); });
         var notifs = [
             ['cardInDiscardFromDeck', ANIMATION_MS],
             ['cardInHandFromDiscard', ANIMATION_MS],
@@ -950,6 +954,30 @@ var SeaSaltPaper = /** @class */ (function () {
         this.notifqueue.setIgnoreNotificationCheck('stealCard', function (notif) {
             return [notif.args.playerId, notif.args.opponentId].includes(_this.getPlayerId()) && !notif.args.cardName;
         });
+    };
+    SeaSaltPaper.prototype.onPlaceLogOnChannel = function (msg) {
+        var currentLogId = this.notifqueue.next_log_id;
+        var res = this.inherited(arguments);
+        this.lastNotif = {
+            logId: currentLogId,
+            msg: msg,
+        };
+        return res;
+    };
+    SeaSaltPaper.prototype.addLogClass = function () {
+        if (this.lastNotif == null) {
+            return;
+        }
+        var notif = this.lastNotif;
+        var elem = document.getElementById("log_".concat(notif.logId));
+        if (elem) {
+            var type = notif.msg.type;
+            if (type == 'history_history')
+                type = notif.msg.args.originalType;
+            if (notif.msg.args.playerId) {
+                elem.dataset.playerId = '' + notif.msg.args.playerId;
+            }
+        }
     };
     SeaSaltPaper.prototype.notif_cardInDiscardFromDeck = function (notif) {
         this.cards.createMoveOrUpdateCard(notif.args.card, "discard".concat(notif.args.discardId), false, 'deck');
@@ -1041,6 +1069,18 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.notif_betResult = function (notif) {
         this.getPlayerTable(notif.args.playerId).showAnnouncementBetResult(notif.args.result);
+    };
+    SeaSaltPaper.prototype.clearLogs = function (activePlayer) {
+        var logDivs = Array.from(document.getElementById('logs').getElementsByClassName('log'));
+        var hide = false;
+        logDivs.forEach(function (logDiv) {
+            if (!hide && logDiv.dataset.playerId == activePlayer) {
+                hide = true;
+            }
+            if (hide) {
+                logDiv.style.display = 'none';
+            }
+        });
     };
     /* This enable to inject translatable styled things to logs or action bar */
     /* @Override */

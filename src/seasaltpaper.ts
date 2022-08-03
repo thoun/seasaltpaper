@@ -20,6 +20,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     private stacks: Stacks;
     private playersTables: PlayerTable[] = [];
     private selectedCards: number[];
+    private lastNotif: any;
     
     private TOOLTIP_DELAY = document.body.classList.contains('touch-device') ? 1500 : undefined;
 
@@ -83,7 +84,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
         switch (stateName) {
             case 'takeCards':
-                this.onEnteringTakeCards(args.args);
+                this.onEnteringTakeCards(args);
                 break;
             case 'chooseCard':
                 this.onEnteringChooseCard(args.args);
@@ -110,7 +111,12 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         (this as any).updatePageTitle();
     }
     
-    private onEnteringTakeCards(args: EnteringTakeCardsArgs) {
+    private onEnteringTakeCards(argsRoot: { args: EnteringTakeCardsArgs, active_player: string }) {
+        console.log('onEnteringTakeCards', argsRoot);
+        const args = argsRoot.args;
+
+        this.clearLogs(argsRoot.active_player);
+
         if (!args.canTakeFromDiscard.length) {
             this.setGamestateDescription('NoDiscard');
         }
@@ -693,6 +699,8 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     setupNotifications() {
         //log( 'notifications subscriptions setup' );
 
+        dojo.connect((this as any).notifqueue, 'addToLog', () => this.addLogClass());
+
         const notifs = [
             ['cardInDiscardFromDeck', ANIMATION_MS],
             ['cardInHandFromDiscard', ANIMATION_MS],
@@ -724,6 +732,33 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         (this as any).notifqueue.setIgnoreNotificationCheck('stealCard', (notif: Notif<NotifStealCardArgs>) => 
             [notif.args.playerId, notif.args.opponentId].includes(this.getPlayerId()) && !(notif.args as any).cardName
         );
+    }
+
+    onPlaceLogOnChannel(msg) {
+        var currentLogId = (this as any).notifqueue.next_log_id;
+        var res = (this as any).inherited(arguments);
+        this.lastNotif = {
+          logId: currentLogId,
+          msg,
+        };
+        return res;
+    }
+  
+    addLogClass() {
+        if (this.lastNotif == null) {
+            return;
+        }
+  
+        let notif = this.lastNotif;
+        const elem = document.getElementById(`log_${notif.logId}`);
+        if (elem) {
+            let type = notif.msg.type;
+            if (type == 'history_history') type = notif.msg.args.originalType;
+    
+            if (notif.msg.args.playerId) {
+                elem.dataset.playerId = ''+notif.msg.args.playerId;
+            }
+        }
     }
 
     notif_cardInDiscardFromDeck(notif: Notif<NotifCardInDiscardFromDeckArgs>) {
@@ -831,6 +866,19 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
     notif_betResult(notif: Notif<NotifBetResultArgs>) {
         this.getPlayerTable(notif.args.playerId).showAnnouncementBetResult(notif.args.result);
+    }
+
+    private clearLogs(activePlayer: string) {
+        const logDivs = Array.from(document.getElementById('logs').getElementsByClassName('log')) as HTMLElement[];
+        let hide = false;
+        logDivs.forEach(logDiv => {
+            if (!hide && logDiv.dataset.playerId == activePlayer) {
+                hide = true;
+            }
+            if (hide) {
+                logDiv.style.display = 'none';
+            }
+        })
     }
 
     /* This enable to inject translatable styled things to logs or action bar */
