@@ -20,6 +20,7 @@ define('ST_PLAYER_CHOOSE_OPPONENT', 50);
 
 define('ST_NEXT_PLAYER', 75);
 
+define('ST_MULTIPLAYER_BEFORE_END_ROUND', 79);
 define('ST_END_ROUND', 80);
 
 define('ST_END_SCORE', 90);

@@ -577,6 +577,9 @@ var SeaSaltPaper = /** @class */ (function () {
                         document.getElementById("choosePlayer".concat(playerId, "-button")).style.border = "3px solid #".concat(player.color);
                     });
                     break;
+                case 'beforeEndRound':
+                    this.addActionButton("seen_button", _("Seen"), function () { return _this.seen(); });
+                    break;
             }
         }
     };
@@ -883,6 +886,12 @@ var SeaSaltPaper = /** @class */ (function () {
             return;
         }
         this.takeAction('immediateEndRound');
+    };
+    SeaSaltPaper.prototype.seen = function () {
+        if (!this.checkAction('seen')) {
+            return;
+        }
+        this.takeAction('seen');
     };
     SeaSaltPaper.prototype.takeAction = function (action, data) {
         data = data || {};

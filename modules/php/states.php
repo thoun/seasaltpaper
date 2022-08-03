@@ -133,6 +133,8 @@ trait StateTrait {
 
                     $this->incPlayerScore($playerId, $roundPoints, $message, [
                         'roundPoints' => $roundPoints,
+                        'cardsPoints' => $playerPoints[$playerId],
+                        'colorBonus' => $cardsPoints[$playerId]->colorBonus,
                     ]);
 
                     if ($isBetCaller) {
@@ -163,9 +165,14 @@ trait StateTrait {
         }
     }
 
-    function stEndRound() {
+    function stBeforeEndRound() {
         $endRound = intval($this->getGameStateValue(END_ROUND_TYPE));
         $this->updateScores($endRound);
+
+        $this->gamestate->setAllPlayersMultiactive();
+    }
+
+    function stEndRound() {
 
         $this->setGameStateValue(END_ROUND_TYPE, 0);
         $this->setGameStateValue(LAST_CHANCE_CALLER, 0);

@@ -428,4 +428,12 @@ trait ActionTrait {
 
         $this->gamestate->nextState('playCards');
     }
+
+    public function seen() {
+        $this->checkAction('seen');
+
+        $playerId = intval($this->getCurrentPlayerId());
+
+        $this->gamestate->setPlayerNonMultiactive($playerId, 'endRound');
+    }
 }

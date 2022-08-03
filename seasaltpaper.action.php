@@ -146,4 +146,12 @@
 
         self::ajaxResponse();
     }
+
+    public function seen() {
+        self::setAjaxMode();
+
+        $this->game->seen();
+
+        self::ajaxResponse();
+    }
 }

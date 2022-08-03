@@ -252,6 +252,9 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                         document.getElementById(`choosePlayer${playerId}-button`).style.border = `3px solid #${player.color}`;
                     });
                     break;
+                case 'beforeEndRound':
+                    (this as any).addActionButton(`seen_button`, _("Seen"), () => this.seen());
+                    break;
             }
         }
     }
@@ -651,6 +654,14 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         }
 
         this.takeAction('immediateEndRound');
+    }
+
+    public seen() {
+        if(!(this as any).checkAction('seen')) {
+            return;
+        }
+
+        this.takeAction('seen');
     }
 
     public takeAction(action: string, data?: any) {
