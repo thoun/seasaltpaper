@@ -305,6 +305,7 @@
   padding: 5px;
   border-radius: 15px;
   background: rgba(96, 194, 203, 0.4);
+  min-width: 505px;
 }
 #table-center #deck-and-discards {
   display: flex;
@@ -613,11 +614,24 @@ html, .mode_3d #game_play_area_background {
   position: relative;
   transform-origin: left top;
 }
-#zoom-wrapper #full-table #tables {
+#zoom-wrapper #full-table #tables-and-center {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  gap: 20px;
+}
+#zoom-wrapper #full-table #tables-and-center #tables {
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
   gap: 20px;
+}
+
+@media (max-width: 1165px) {
+  #tables-and-center {
+    flex-wrap: wrap;
+  }
 }

@@ -44,13 +44,27 @@ html, .mode_3d #game_play_area_background {
     position: relative;
     transform-origin: left top;
 
-    #tables {
+    #tables-and-center {
       position: relative;
       display: flex;
       justify-content: center;
-      align-items: center;
-      flex-wrap: wrap;
+      align-items: start;
       gap: 20px;
+
+      #tables {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
     }
+  }
+}
+
+@media (max-width: 1165px) { 
+  #tables-and-center {
+    flex-wrap: wrap;
   }
 }

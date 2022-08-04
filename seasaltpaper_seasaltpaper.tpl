@@ -3,7 +3,7 @@
 <div id="zoom-wrapper">
     <div id="full-table">
         <div id="discard-pick" data-visible="false"></div>
-        <div id="tables">        
+        <div id="tables-and-center">        
             <div id="table-center">
                 <div id="deck-and-discards">
                     <div id="deck" class="cards-stack">
@@ -20,6 +20,7 @@
                 </div>
                 <div id="pick" data-visible="false"></div>
             </div>
+            <div id="tables"></div>
         </div>
     </div>
     <div id="zoom-controls">
