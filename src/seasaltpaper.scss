@@ -44,6 +44,11 @@ html, .mode_3d #game_play_area_background {
     position: relative;
     transform-origin: left top;
 
+    #centered-table {
+      display: flex;
+      justify-content: center;
+    }
+
     #tables-and-center {
       position: relative;
       display: flex;

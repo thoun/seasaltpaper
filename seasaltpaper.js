@@ -416,6 +416,7 @@ var SeaSaltPaper = /** @class */ (function () {
         }
         this.onScreenWidthChange = function () {
             _this.updateTableHeight();
+            _this.onTableCenterSizeChange();
         };
         log("Ending game setup");
     };
@@ -455,7 +456,6 @@ var SeaSaltPaper = /** @class */ (function () {
         this.updatePageTitle();
     };
     SeaSaltPaper.prototype.onEnteringTakeCards = function (argsRoot) {
-        console.log('onEnteringTakeCards', argsRoot);
         var args = argsRoot.args;
         this.clearLogs(argsRoot.active_player);
         if (!args.canTakeFromDiscard.length) {
@@ -622,6 +622,7 @@ var SeaSaltPaper = /** @class */ (function () {
             div.style.marginRight = "".concat(ZOOM_LEVELS_MARGIN[newIndex], "%");
         }
         this.updateTableHeight();
+        this.onTableCenterSizeChange();
     };
     SeaSaltPaper.prototype.zoomIn = function () {
         if (this.zoom === ZOOM_LEVELS[ZOOM_LEVELS.length - 1]) {
@@ -639,6 +640,20 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.updateTableHeight = function () {
         setTimeout(function () { return document.getElementById('zoom-wrapper').style.height = "".concat(document.getElementById('full-table').getBoundingClientRect().height, "px"); }, 600);
+    };
+    SeaSaltPaper.prototype.onTableCenterSizeChange = function () {
+        var maxWidth = document.getElementById('full-table').clientWidth;
+        var tableCenterWidth = document.getElementById('table-center').clientWidth + 20;
+        var playerTableWidth = 650 + 20;
+        var tablesMaxWidth = maxWidth - tableCenterWidth;
+        var width = 'unset';
+        if (tablesMaxWidth < playerTableWidth * this.gamedatas.playerorder.length) {
+            var reduced = (Math.floor(tablesMaxWidth / playerTableWidth) * playerTableWidth);
+            if (reduced > 0) {
+                width = "".concat(reduced, "px");
+            }
+        }
+        document.getElementById('tables').style.width = width;
     };
     SeaSaltPaper.prototype.setupPreferences = function () {
         var _this = this;

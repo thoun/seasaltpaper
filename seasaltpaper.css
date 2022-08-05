@@ -614,6 +614,10 @@ html, .mode_3d #game_play_area_background {
   position: relative;
   transform-origin: left top;
 }
+#zoom-wrapper #full-table #centered-table {
+  display: flex;
+  justify-content: center;
+}
 #zoom-wrapper #full-table #tables-and-center {
   position: relative;
   display: flex;

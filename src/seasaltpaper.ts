@@ -68,7 +68,8 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
         (this as any).onScreenWidthChange = () => {
             this.updateTableHeight();
-        }
+            this.onTableCenterSizeChange();
+        };
 
         log( "Ending game setup" );
     }
@@ -112,7 +113,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
     
     private onEnteringTakeCards(argsRoot: { args: EnteringTakeCardsArgs, active_player: string }) {
-        console.log('onEnteringTakeCards', argsRoot);
         const args = argsRoot.args;
 
         this.clearLogs(argsRoot.active_player);
@@ -306,6 +306,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         }
 
         this.updateTableHeight();
+        this.onTableCenterSizeChange();
     }
 
     public zoomIn() {
@@ -326,6 +327,22 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
     public updateTableHeight() {
         setTimeout(() => document.getElementById('zoom-wrapper').style.height = `${document.getElementById('full-table').getBoundingClientRect().height}px`, 600);
+    }
+
+    private onTableCenterSizeChange() {
+        const maxWidth = document.getElementById('full-table').clientWidth;
+        const tableCenterWidth = document.getElementById('table-center').clientWidth + 20;
+        const playerTableWidth = 650 + 20;
+        const tablesMaxWidth = maxWidth - tableCenterWidth;
+     
+        let width = 'unset';
+        if (tablesMaxWidth < playerTableWidth * this.gamedatas.playerorder.length) {
+            const reduced = (Math.floor(tablesMaxWidth / playerTableWidth) * playerTableWidth);
+            if (reduced > 0) {
+                width = `${reduced}px`;
+            }
+        }
+        document.getElementById('tables').style.width = width;
     }
 
     private setupPreferences() {
