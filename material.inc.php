@@ -28,8 +28,8 @@ $this->END_GAME_POINTS = [
 ];
 
 $this->ANNOUNCEMENTS = [
-  LAST_CHANCE => _('LAST CHANCE'),
-  STOP => _('STOP'),
+  LAST_CHANCE => clienttranslate('LAST CHANCE'),
+  STOP => clienttranslate('STOP'),
 ];
 
 $this->COLORS = [

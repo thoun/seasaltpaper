@@ -225,8 +225,8 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                     }
                     (this as any).addActionButton(`endTurn_button`, _("End turn"), () => this.endTurn());
                     if (playCardsArgs.canCallEndRound) {
-                        (this as any).addActionButton(`endRound_button`, _('End round ("LAST CHANCE")'), () => this.endRound(), null, null, 'red');
-                        (this as any).addActionButton(`immediateEndRound_button`, _('End round ("STOP")'), () => this.immediateEndRound(), null, null, 'red');
+                        (this as any).addActionButton(`endRound_button`, _('End round') + ' ("' + _('LAST CHANCE') + '")', () => this.endRound(), null, null, 'red');
+                        (this as any).addActionButton(`immediateEndRound_button`, _('End round') + ' ("' + _('STOP') + '")', () => this.immediateEndRound(), null, null, 'red');
 
                         this.setTooltip(`endRound_button`, `${_("Say <strong>LAST CHANCE</strong> if you are willing to take the bet of having the most points at the end of the round. The other players each take a final turn (take a card + play cards) which they complete by revealing their hand, which is now protected from attacks. Then, all players count the points on their cards (in their hand and in front of them).")}<br><br>
                         ${_("If your hand is higher or equal to that of your opponents, bet won! You score the points for your cards + the color bonus (1 point per card of the color they have the most of). Your opponents only score their color bonus.")}<br><br>
@@ -915,6 +915,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         try {
             if (log && args && !args.processed) {
                 if (args.announcement && args.announcement[0] != '<') {
+                    console.log(args.announcement, _(args.announcement));
                     args.announcement = `<strong style="color: darkred;">${_(args.announcement)}</strong>`;
                 }
 
