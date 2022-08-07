@@ -95,7 +95,7 @@ trait StateTrait {
                 'playerId' => $lastChanceCaller,
                 'player_name' => $this->getPlayerName($lastChanceCaller),
                 'announcement' => $this->ANNOUNCEMENTS[LAST_CHANCE],
-                'result' => $betWon ? _('won') : _('lost'),
+                'result' => $betWon ? clienttranslate('won') : clienttranslate('lost'),
                 'i18n' => ['announcement', 'result'],
                 'preserve' => ['playerId'],
             ]);
