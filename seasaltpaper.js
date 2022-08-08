@@ -987,6 +987,8 @@ var SeaSaltPaper = /** @class */ (function () {
         this.notifqueue.setIgnoreNotificationCheck('stealCard', function (notif) {
             return [notif.args.playerId, notif.args.opponentId].includes(_this.getPlayerId()) && !notif.args.cardName;
         });
+        this.addLogClass();
+        this.clearLogsInit(this.gamedatas.gamestate.active_player);
     };
     SeaSaltPaper.prototype.onPlaceLogOnChannel = function (msg) {
         var currentLogId = this.notifqueue.next_log_id;
@@ -1118,6 +1120,15 @@ var SeaSaltPaper = /** @class */ (function () {
                 logDiv.style.display = 'none';
             }
         });
+    };
+    SeaSaltPaper.prototype.clearLogsInit = function (activePlayer) {
+        var _this = this;
+        if (this.log_history_loading_status.downloaded && this.log_history_loading_status.loaded >= this.log_history_loading_status.total) {
+            this.clearLogs(activePlayer);
+        }
+        else {
+            setTimeout(function () { return _this.clearLogsInit(activePlayer); }, 100);
+        }
     };
     /* This enable to inject translatable styled things to logs or action bar */
     /* @Override */

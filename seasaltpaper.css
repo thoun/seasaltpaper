@@ -639,3 +639,6 @@ html, .mode_3d #game_play_area_background {
     flex-wrap: wrap;
   }
 }
+.log p {
+  display: none !important;
+}

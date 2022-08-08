@@ -764,6 +764,9 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         (this as any).notifqueue.setIgnoreNotificationCheck('stealCard', (notif: Notif<NotifStealCardArgs>) => 
             [notif.args.playerId, notif.args.opponentId].includes(this.getPlayerId()) && !(notif.args as any).cardName
         );
+
+        this.addLogClass();
+        this.clearLogsInit(this.gamedatas.gamestate.active_player);
     }
 
     onPlaceLogOnChannel(msg) {
@@ -915,7 +918,15 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             if (hide) {
                 logDiv.style.display = 'none';
             }
-        })
+        });
+    }
+
+    private clearLogsInit(activePlayer: string) {
+        if ((this as any).log_history_loading_status.downloaded && (this as any).log_history_loading_status.loaded >= (this as any).log_history_loading_status.total) {
+            this.clearLogs(activePlayer);
+        } else {
+            setTimeout(() => this.clearLogsInit(activePlayer), 100);
+        }
     }
 
     /* This enable to inject translatable styled things to logs or action bar */
