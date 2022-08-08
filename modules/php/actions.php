@@ -128,7 +128,9 @@ trait ActionTrait {
             throw new BgaUserException("No card in pick");
         }
 
-        $this->cards->moveCard($card->id, 'discard'.$discardNumber, intval($this->cards->countCardInLocation('discard'.$discardNumber)) + 1);
+        $location = 'discard'.$discardNumber;
+        $maxLocationArg = intval($this->getUniqueValueFromDB("SELECT max(card_location_arg) FROM card where `card_location` = '$location'"));
+        $this->cards->moveCard($card->id, $location, $maxLocationArg + 1);
 
         self::notifyAllPlayers('cardInDiscardFromPick', clienttranslate('${player_name} puts ${cardColor} ${cardName} to discard pile ${discardNumber}'), [
             'playerId' => $playerId,
