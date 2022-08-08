@@ -43,9 +43,10 @@ function slideFromObject(game: Game, object: HTMLElement, fromId: string) {
 
         object.style.zIndex = '10';
         object.style.transform = `translate(${-deltaX}px, ${-deltaY}px)`;
-        if (object.dataset.currentPlayer == 'false') {
+        if (object.parentElement.dataset.currentPlayer == 'false') {
             object.style.position = 'absolute';
         }
+        console.log(object.parentElement, object.parentElement.dataset.currentPlayer, object.style.position);
 
         setTimeout(() => {
             object.style.transition = `transform 0.5s linear`;

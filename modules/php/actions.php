@@ -248,7 +248,7 @@ trait ActionTrait {
                     $card = $this->getCardFromDb($this->cards->pickCardForLocation('deck', 'hand'.$playerId));
                     $this->cardCollected($playerId, $card);
 
-                    self::notifyPlayer($playerId, 'cardInHandFromPick', clienttranslate('You take ${cardColor} ${cardName} card from deck'), [
+                    self::notifyPlayer($playerId, 'cardInHandFromDeck', clienttranslate('You take ${cardColor} ${cardName} card from deck'), [
                         'playerId' => $playerId,
                         'player_name' => $this->getPlayerName($playerId),
                         'card' => $card,
@@ -257,7 +257,7 @@ trait ActionTrait {
                         'i18n' => ['cardName', 'cardColor'],
                         'preserve' => ['playerId'],
                     ]);
-                    self::notifyAllPlayers('cardInHandFromPick', clienttranslate('${player_name} took a card from deck'), [
+                    self::notifyAllPlayers('cardInHandFromDeck', clienttranslate('${player_name} took a card from deck'), [
                         'playerId' => $playerId,
                         'player_name' => $this->getPlayerName($playerId),
                         'card' => Card::onlyId($card),

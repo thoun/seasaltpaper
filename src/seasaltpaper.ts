@@ -734,6 +734,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             ['cardInHandFromDiscard', ANIMATION_MS],
             ['cardInHandFromDiscardCrab', ANIMATION_MS],
             ['cardInHandFromPick', ANIMATION_MS],
+            ['cardInHandFromDeck', ANIMATION_MS],
             ['cardInDiscardFromPick', ANIMATION_MS],
             ['playCards', ANIMATION_MS],
             ['stealCard', ANIMATION_MS],
@@ -752,6 +753,9 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         });
 
         (this as any).notifqueue.setIgnoreNotificationCheck('cardInHandFromPick', (notif: Notif<NotifCardInHandFromPickArgs>) => 
+            notif.args.playerId == this.getPlayerId() && !notif.args.card.category
+        );
+        (this as any).notifqueue.setIgnoreNotificationCheck('cardInHandFromDeck', (notif: Notif<NotifCardInHandFromPickArgs>) => 
             notif.args.playerId == this.getPlayerId() && !notif.args.card.category
         );
         (this as any).notifqueue.setIgnoreNotificationCheck('cardInHandFromDiscardCrab', (notif: Notif<NotifCardInHandFromDiscardArgs>) => 
@@ -827,6 +831,11 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     notif_cardInHandFromPick(notif: Notif<NotifCardInHandFromPickArgs>) {
         const playerId = notif.args.playerId;
         this.getPlayerTable(playerId).addCardsToHand([notif.args.card]);
+    }
+
+    notif_cardInHandFromDeck(notif: Notif<NotifCardInHandFromPickArgs>) {
+        const playerId = notif.args.playerId;
+        this.getPlayerTable(playerId).addCardsToHand([notif.args.card], 'deck');
     }   
 
     notif_cardInDiscardFromPick(notif: Notif<NotifCardInDiscardFromPickArgs>) {

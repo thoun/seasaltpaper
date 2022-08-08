@@ -35,9 +35,10 @@ function slideFromObject(game, object, fromId) {
         var deltaY = destinationBR.top - originBR.top;
         object.style.zIndex = '10';
         object.style.transform = "translate(".concat(-deltaX, "px, ").concat(-deltaY, "px)");
-        if (object.dataset.currentPlayer == 'false') {
+        if (object.parentElement.dataset.currentPlayer == 'false') {
             object.style.position = 'absolute';
         }
+        console.log(object.parentElement, object.parentElement.dataset.currentPlayer, object.style.position);
         setTimeout(function () {
             object.style.transition = "transform 0.5s linear";
             object.style.transform = null;
@@ -958,6 +959,7 @@ var SeaSaltPaper = /** @class */ (function () {
             ['cardInHandFromDiscard', ANIMATION_MS],
             ['cardInHandFromDiscardCrab', ANIMATION_MS],
             ['cardInHandFromPick', ANIMATION_MS],
+            ['cardInHandFromDeck', ANIMATION_MS],
             ['cardInDiscardFromPick', ANIMATION_MS],
             ['playCards', ANIMATION_MS],
             ['stealCard', ANIMATION_MS],
@@ -974,6 +976,9 @@ var SeaSaltPaper = /** @class */ (function () {
             _this.notifqueue.setSynchronous(notif[0], notif[1]);
         });
         this.notifqueue.setIgnoreNotificationCheck('cardInHandFromPick', function (notif) {
+            return notif.args.playerId == _this.getPlayerId() && !notif.args.card.category;
+        });
+        this.notifqueue.setIgnoreNotificationCheck('cardInHandFromDeck', function (notif) {
             return notif.args.playerId == _this.getPlayerId() && !notif.args.card.category;
         });
         this.notifqueue.setIgnoreNotificationCheck('cardInHandFromDiscardCrab', function (notif) {
@@ -1040,6 +1045,10 @@ var SeaSaltPaper = /** @class */ (function () {
     SeaSaltPaper.prototype.notif_cardInHandFromPick = function (notif) {
         var playerId = notif.args.playerId;
         this.getPlayerTable(playerId).addCardsToHand([notif.args.card]);
+    };
+    SeaSaltPaper.prototype.notif_cardInHandFromDeck = function (notif) {
+        var playerId = notif.args.playerId;
+        this.getPlayerTable(playerId).addCardsToHand([notif.args.card], 'deck');
     };
     SeaSaltPaper.prototype.notif_cardInDiscardFromPick = function (notif) {
         var currentCardDiv = this.stacks.getDiscardCard(notif.args.discardId);
