@@ -240,7 +240,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                     }*/
                     
                     if (!playCardsArgs.canDoAction) {
-                        this.startActionTimer('endTurn_button', ACTION_TIMER_DURATION);
+                        this.startActionTimer('endTurn_button', ACTION_TIMER_DURATION + Math.round(3 * Math.random()));
                     }
                     break;
                 case 'chooseOpponent':

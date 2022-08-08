@@ -567,7 +567,7 @@ var SeaSaltPaper = /** @class */ (function () {
                         dojo.addClass(`immediateEndRound_button`, `disabled`);
                     }*/
                     if (!playCardsArgs.canDoAction) {
-                        this.startActionTimer('endTurn_button', ACTION_TIMER_DURATION);
+                        this.startActionTimer('endTurn_button', ACTION_TIMER_DURATION + Math.round(3 * Math.random()));
                     }
                     break;
                 case 'chooseOpponent':
