@@ -790,8 +790,8 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             let type = notif.msg.type;
             if (type == 'history_history') type = notif.msg.args.originalType;
     
-            if (notif.msg.args.playerId) {
-                elem.dataset.playerId = ''+notif.msg.args.playerId;
+            if (notif.msg.args.actionPlayerId) {
+                elem.dataset.playerId = ''+notif.msg.args.actionPlayerId;
             }
         }
     }
