@@ -135,14 +135,14 @@ class Cards {
                 <div>${_("${points} points depending on whether the player has ${numbers} ${card} cards.").replace('${points}', collector[0]).replace('${numbers}', collector[1]).replace('${card}', collector[2])}</div>`;
             case 4:
                 const multiplierCards = [
-                    [_('The lighthouse'), _('Boat')],
-                    [_('The shoal of fish'), _('Fish')],
-                    [_('The penguin colony'), _('Penguin')],
-                    [_('The captain'), _('Sailor')],
+                    [_('The lighthouse'), _('Boat'), 1],
+                    [_('The shoal of fish'), _('Fish'), 1],
+                    [_('The penguin colony'), _('Penguin'), 2],
+                    [_('The captain'), _('Sailor'), 3],
                 ];
                 const multiplier = multiplierCards[family - 1];
                 return `<div><strong>${multiplier[0]}</strong></div>
-                <div>${_("1 point per ${card} card.").replace('${card}', multiplier[1])}</div>
+                <div>${_("${points} point(s) per ${card} card.").replace('${points}', multiplier[2]).replace('${card}', multiplier[1])}</div>
                 <div>${_("This card does not count as a ${card} card.").replace('${card}', multiplier[1])}</div>`;
         }
             

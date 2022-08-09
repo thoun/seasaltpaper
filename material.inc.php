@@ -33,13 +33,12 @@ $this->ANNOUNCEMENTS = [
 ];
 
 $this->COLORS = [
-  '',
+  clienttranslate('White'),
   clienttranslate('Dark blue'),
   clienttranslate('Light blue'),
   clienttranslate('Black'),
   clienttranslate('Yellow'),
   clienttranslate('Green'),
-  clienttranslate('White'),
   clienttranslate('Purple'),
   clienttranslate('Gray'),
   clienttranslate('Light orange'),
