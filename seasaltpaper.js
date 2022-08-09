@@ -107,7 +107,9 @@ var Cards = /** @class */ (function () {
             else if (oldType && !card.category) {
                 setTimeout(function () { return _this.removeVisibleInformations(existingDiv); }, 500); // so we don't change face while it is still visible
             }
-            this.game.setTooltip(existingDiv.id, this.getTooltip(card.category, card.family));
+            if (card.category) {
+                this.game.setTooltip(existingDiv.id, this.getTooltip(card.category, card.family));
+            }
         }
         else {
             var div = document.createElement('div');

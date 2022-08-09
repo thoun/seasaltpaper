@@ -53,7 +53,9 @@ class Cards {
             } else if (oldType && !card.category) {
                 setTimeout(() => this.removeVisibleInformations(existingDiv), 500); // so we don't change face while it is still visible
             }
-            this.game.setTooltip(existingDiv.id, this.getTooltip(card.category, card.family));
+            if (card.category) {
+                this.game.setTooltip(existingDiv.id, this.getTooltip(card.category, card.family));
+            }
         } else {
             const div = document.createElement('div');
             div.id = `card-${card.id}`;
