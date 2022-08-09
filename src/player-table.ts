@@ -48,8 +48,18 @@ class PlayerTable {
         this.addCardsToTable(player.tableCards);
 
         if (player.endCall) {
-            this.showAnnouncement(_(player.endCall.announcement));
+            const args = {
+                announcement: player.endCall.announcement,
+                result: player.endCall.betResult,
+            };
+            (this.game as any).format_string_recursive('log', args);
+            this.showAnnouncement(args.announcement);
             this.showAnnouncementPoints(player.endCall.cardsPoints);
+            if (player.endCall.betResult) {
+                this.showAnnouncementBetResult(args.result);
+            }
+        } else if (player.endRoundPoints) {
+            this.showAnnouncementPoints(player.endRoundPoints.cardsPoints);
         }
     }
     

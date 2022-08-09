@@ -13,6 +13,7 @@ function slideToObjectAndAttach(game, object, destinationId, changeSide) {
         object.style.zIndex = '10';
         object.style.transform = "translate(".concat(-deltaX, "px, ").concat(-deltaY, "px)");
         if (destination.dataset.currentPlayer == 'false') {
+            object.style.order = null;
             object.style.position = 'absolute';
         }
         setTimeout(function () {
@@ -267,8 +268,19 @@ var PlayerTable = /** @class */ (function () {
         this.addCardsToHand(player.handCards);
         this.addCardsToTable(player.tableCards);
         if (player.endCall) {
-            this.showAnnouncement(_(player.endCall.announcement));
+            var args = {
+                announcement: player.endCall.announcement,
+                result: player.endCall.betResult,
+            };
+            this.game.format_string_recursive('log', args);
+            this.showAnnouncement(args.announcement);
             this.showAnnouncementPoints(player.endCall.cardsPoints);
+            if (player.endCall.betResult) {
+                this.showAnnouncementBetResult(args.result);
+            }
+        }
+        else if (player.endRoundPoints) {
+            this.showAnnouncementPoints(player.endRoundPoints.cardsPoints);
         }
     }
     Object.defineProperty(PlayerTable.prototype, "handCardsDiv", {
@@ -1136,7 +1148,6 @@ var SeaSaltPaper = /** @class */ (function () {
         try {
             if (log && args && !args.processed) {
                 if (args.announcement && args.announcement[0] != '<') {
-                    console.log(args.announcement, _(args.announcement));
                     args.announcement = "<strong style=\"color: darkred;\">".concat(_(args.announcement), "</strong>");
                 }
                 ['discardNumber', 'roundPoints', 'cardsPoints', 'colorBonus', 'cardName', 'cardName1', 'cardName2', 'cardColor', 'cardColor1', 'cardColor2', 'points', 'result'].forEach(function (field) {

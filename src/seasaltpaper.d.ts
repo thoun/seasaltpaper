@@ -18,6 +18,10 @@ interface SeaSaltPaperPlayer extends Player {
     endCall?: {
         announcement: string;
         cardsPoints: number;
+        betResult?: string;
+    };
+    endRoundPoints?: {
+        cardsPoints: number;
     };
 }
 

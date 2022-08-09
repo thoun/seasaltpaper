@@ -935,7 +935,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         try {
             if (log && args && !args.processed) {
                 if (args.announcement && args.announcement[0] != '<') {
-                    console.log(args.announcement, _(args.announcement));
                     args.announcement = `<strong style="color: darkred;">${_(args.announcement)}</strong>`;
                 }
 

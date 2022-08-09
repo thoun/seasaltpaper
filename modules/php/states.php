@@ -90,6 +90,7 @@ trait StateTrait {
         if ($endRound == LAST_CHANCE) {
             $lastChanceCaller = intval($this->getGameStateValue(LAST_CHANCE_CALLER));
             $betWon = $playerPoints[$lastChanceCaller] >= max($playerPoints);
+            $this->setGameStateValue(BET_RESULT, $betWon ? 2 : 1);
             
             self::notifyAllPlayers('betResult', clienttranslate('${player_name} announced ${announcement}, and the bet is ${result}!'), [
                 'playerId' => $lastChanceCaller,
@@ -177,6 +178,7 @@ trait StateTrait {
         $this->setGameStateValue(END_ROUND_TYPE, 0);
         $this->setGameStateValue(LAST_CHANCE_CALLER, 0);
         $this->setGameStateValue(STOP_CALLER, 0);
+        $this->setGameStateValue(BET_RESULT, 0);
 
         $maxScore = $this->END_GAME_POINTS[count($this->getPlayersIds())];
         $topScore = $this->getPlayerTopScore();

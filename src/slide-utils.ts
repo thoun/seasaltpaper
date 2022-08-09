@@ -16,6 +16,7 @@ function slideToObjectAndAttach(game: Game, object: HTMLElement, destinationId: 
         object.style.zIndex = '10';
         object.style.transform = `translate(${-deltaX}px, ${-deltaY}px)`;
         if (destination.dataset.currentPlayer == 'false') {
+            object.style.order = null;
             object.style.position = 'absolute';
         }
 

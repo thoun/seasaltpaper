@@ -47,6 +47,7 @@ class SeaSaltPaper extends Table {
             END_ROUND_TYPE => END_ROUND_TYPE,
             LAST_CHANCE_CALLER => LAST_CHANCE_CALLER,
             STOP_CALLER => STOP_CALLER,
+            BET_RESULT => BET_RESULT,
         ]);  
 
         $this->cards = self::getNew("module.common.deck");
@@ -91,6 +92,7 @@ class SeaSaltPaper extends Table {
         $this->setGameStateInitialValue(END_ROUND_TYPE, 0);
         $this->setGameStateInitialValue(LAST_CHANCE_CALLER, 0);
         $this->setGameStateInitialValue(STOP_CALLER, 0);
+        $this->setGameStateInitialValue(BET_RESULT, 0);
         
         // Init game statistics
         // (note: statistics used in this file must be defined in your stats.inc.php file)
@@ -161,8 +163,18 @@ class SeaSaltPaper extends Table {
             }
 
             if ($endCaller == $playerId) {
+                $betResult = intval($this->getGameStateValue(BET_RESULT));
+
                 $player['endCall'] = [
                     'announcement' => $this->ANNOUNCEMENTS[$endRound],
+                    'cardsPoints' => $this->getCardsPoints($playerId)->totalPoints,
+                ];
+                
+                if (in_array($betResult, [1, 2])) {
+                    $player['endCall']['betResult'] = $betResult == 2 ? clienttranslate('won') : clienttranslate('lost');
+                }
+            } else if (count($player['handCards']) == 0 && count($player['tableCards']) > 0) {
+                $player['endRoundPoints'] = [
                     'cardsPoints' => $this->getCardsPoints($playerId)->totalPoints,
                 ];
             }
