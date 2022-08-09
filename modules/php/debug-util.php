@@ -19,6 +19,14 @@ trait DebugUtilTrait {
         $this->cards->moveCards(array_map(fn($card) => $card->id, $cards), 'hand'.$playerId, 99);
     }
 
+    function debugSetMermaidOnDeckTop() {
+        $this->DbQuery("UPDATE card SET card_location_arg=1000 WHERE card_type = 10 AND card_location = 'deck' LIMIT 1" );
+    }
+
+    function debugSetMermaidsOnDeckTop() {
+        $this->DbQuery("UPDATE card SET card_location_arg=1000 WHERE card_type = 10 AND card_location = 'deck'" );
+    }
+
     public function debugReplacePlayersIds() {
         if ($this->getBgaEnvironment() != 'studio') { 
             return;
@@ -38,7 +46,7 @@ trait DebugUtilTrait {
 			// basic tables
 			$this->DbQuery("UPDATE player SET player_id=$sid WHERE player_id = $id" );
 			$this->DbQuery("UPDATE global SET global_value=$sid WHERE global_value = $id" );
-			$this->DbQuery("UPDATE stats SET stats_player_id=$sid WHERE stats_player_id = $id" );
+			$this->DbQuery("UPDATE card SET card_location_arg=$sid WHERE card_location_arg = $id" );
 
 			// 'other' game specific tables. example:
 			// tables specific to your schema that use player_ids

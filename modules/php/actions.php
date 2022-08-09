@@ -301,6 +301,11 @@ trait ActionTrait {
     private function applyEndRound(int $type, string $announcement) {
         $playerId = intval($this->getActivePlayerId());
 
+        $mermaids = $this->getPlayerMermaids($playerId);
+        if (count($mermaids) == 4) {
+            $this->endGameWithMermaids();
+        }
+
         $this->setGameStateValue(END_ROUND_TYPE, $type);
 
         self::notifyAllPlayers('announceEndRound', clienttranslate('${player_name} announces ${announcement}!'), [
