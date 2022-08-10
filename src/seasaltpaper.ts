@@ -956,6 +956,9 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                 if (args.announcement && args.announcement[0] != '<') {
                     args.announcement = `<strong style="color: darkred;">${_(args.announcement)}</strong>`;
                 }
+                if (args.call && args.call.length && args.call[0] != '<') {
+                    args.call = `<strong style="color: darkred;">[${_(args.call)}]</strong>`;
+                }
 
                 ['discardNumber', 'roundPoints', 'cardsPoints', 'colorBonus', 'cardName', 'cardName1', 'cardName2', 'cardColor', 'cardColor1', 'cardColor2', 'points', 'result'].forEach(field => {
                     if (args[field] && args[field][0] != '<') {

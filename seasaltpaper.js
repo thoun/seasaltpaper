@@ -1163,6 +1163,9 @@ var SeaSaltPaper = /** @class */ (function () {
                 if (args.announcement && args.announcement[0] != '<') {
                     args.announcement = "<strong style=\"color: darkred;\">".concat(_(args.announcement), "</strong>");
                 }
+                if (args.call && args.call.length && args.call[0] != '<') {
+                    args.call = "<strong style=\"color: darkred;\">[".concat(_(args.call), "]</strong>");
+                }
                 ['discardNumber', 'roundPoints', 'cardsPoints', 'colorBonus', 'cardName', 'cardName1', 'cardName2', 'cardColor', 'cardColor1', 'cardColor2', 'points', 'result'].forEach(function (field) {
                     if (args[field] && args[field][0] != '<') {
                         args[field] = "<strong>".concat(_(args[field]), "</strong>");

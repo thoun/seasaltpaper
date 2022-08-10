@@ -20,10 +20,12 @@ trait ArgsTrait {
                 $canTakeFromDiscard[] = $discardNumber;
             }
         }
+        $endRound = intval($this->getGameStateValue(END_ROUND_TYPE));
     
         return [
             'canTakeFromDeck' => $canTakeFromDeck,
             'canTakeFromDiscard' => $canTakeFromDiscard,
+            'call' => in_array($endRound, [LAST_CHANCE, STOP]) ? $this->ANNOUNCEMENTS[$endRound] : '',
         ];
     }
 

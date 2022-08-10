@@ -78,10 +78,10 @@ $playerActionsGameStates = [
 
     ST_PLAYER_TAKE_CARDS => [
         "name" => "takeCards",
-        "description" => clienttranslate('${actplayer} must take two cards from deck or one card from a discard pile'),
-        "descriptionmyturn" => clienttranslate('${you} must take two cards from deck or one card from a discard pile'),
-        "descriptionNoDiscard" => clienttranslate('${actplayer} must take two cards from deck'),
-        "descriptionmyturnNoDiscard" => clienttranslate('${you} must take two cards from deck'),
+        "description" => clienttranslate('${actplayer} must take two cards from deck or one card from a discard pile ${call}'),
+        "descriptionmyturn" => clienttranslate('${you} must take two cards from deck or one card from a discard pile ${call}'),
+        "descriptionNoDiscard" => clienttranslate('${actplayer} must take two cards from deck ${call}'),
+        "descriptionmyturnNoDiscard" => clienttranslate('${you} must take two cards from deck ${call}'),
         "type" => "activeplayer",
         "args" => "argTakeCards",        
         "updateGameProgression" => true,
