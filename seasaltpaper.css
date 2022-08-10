@@ -481,52 +481,52 @@
   cursor: pointer;
   z-index: 949;
   overflow: hidden;
+  background-size: contain;
   transition: width 0.5s, height 0.5s, border-radius 0.5s, background-image 0.5s;
 }
 #color-help-button .label {
   position: absolute;
   color: white;
-  font-size: 7pt;
+  font-size: 10pt;
   opacity: 0;
   text-transform: uppercase;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 46px;
-  height: 28px;
+  width: 69px;
+  height: 42px;
 }
 #color-help-button .label[data-row="0"] {
-  top: 8px;
+  top: 11px;
 }
 #color-help-button .label[data-row="1"] {
-  top: 41.2px;
+  top: 60.8px;
 }
 #color-help-button .label[data-row="2"] {
-  top: 74.4px;
+  top: 110.6px;
 }
 #color-help-button .label[data-row="3"] {
-  top: 107.6px;
+  top: 160.4px;
 }
 #color-help-button .label[data-row="4"] {
-  top: 140.8px;
+  top: 210.2px;
 }
 #color-help-button .label[data-row="5"] {
-  top: 174px;
+  top: 260px;
 }
 #color-help-button .label[data-column="0"] {
-  left: 26px;
+  left: 38px;
 }
 #color-help-button .label[data-column="1"] {
-  left: 96px;
+  left: 143px;
 }
 #color-help-button[data-folded=true] {
   background-image: url("img/logo-coloradd.svg");
-  background-size: contain;
 }
 #color-help-button[data-folded=false] {
   background-image: url("img/color-legend.jpg");
-  width: 149px;
-  height: 208px;
+  width: 223px;
+  height: 312px;
   border-radius: 10px;
 }
 #color-help-button[data-folded=false] .label {

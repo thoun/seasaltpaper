@@ -25,40 +25,40 @@
     cursor: pointer;
     z-index: 949;
     overflow: hidden;
+    background-size: contain;
     transition: width 0.5s, height 0.5s, border-radius 0.5s, background-image 0.5s;
 
     .label {
         position: absolute;
         color: white;
-        font-size: 7pt;
+        font-size: 10pt;
         opacity: 0;
         text-transform: uppercase;
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 46px;
-        height: 28px;
+        width: 69px;
+        height: 42px;
 
         @for $i from 0 through 5 {
             &[data-row="#{$i}"] {
-              top: #{8 + $i * 33.2}px;
+              top: #{11 + $i * 49.8}px;
             }
         }
         @for $i from 0 through 1 {
             &[data-column="#{$i}"] {
-              left: #{26 + $i * 70}px;
+              left: #{38 + $i * 105}px;
             }
         }
     }
 
     &[data-folded="true"] {
         background-image: url('img/logo-coloradd.svg');
-        background-size: contain;
     }
     &[data-folded="false"] {
         background-image: url('img/color-legend.jpg');
-        width: 149px;
-        height: 208px;
+        width: 223px;
+        height: 312px;
         border-radius: 10px;
         
         .label {
