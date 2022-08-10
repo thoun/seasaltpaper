@@ -405,6 +405,25 @@
   background: white !important;
 }
 
+.counters {
+  display: flex;
+  align-items: center;
+  margin: 5px 0;
+}
+.counters .icon {
+  margin-right: 5px;
+}
+
+.player-hand-card {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  background-image: url("img/cards.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  vertical-align: bottom;
+}
+
 .player-table {
   width: 650px;
   position: relative;

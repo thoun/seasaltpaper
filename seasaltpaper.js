@@ -335,7 +335,7 @@ var PlayerTable = /** @class */ (function () {
     };
     PlayerTable.prototype.showAnnouncementBetResult = function (result) {
         var bubble = document.getElementById("player-table-".concat(this.playerId, "-discussion-bubble"));
-        bubble.innerHTML += _('I ${result} my bet!').replace('${result}', _(result)) + ' ';
+        bubble.innerHTML += "<div>".concat(_('I ${result} my bet!').replace('${result}', _(result)), "</div>");
         bubble.dataset.visible = 'true';
     };
     PlayerTable.prototype.setSelectable = function (selectable) {
@@ -394,6 +394,7 @@ var SeaSaltPaper = /** @class */ (function () {
     function SeaSaltPaper() {
         this.zoom = 1;
         this.playersTables = [];
+        this.handCounters = [];
         this.TOOLTIP_DELAY = document.body.classList.contains('touch-device') ? 1500 : undefined;
         var zoomStr = localStorage.getItem(LOCAL_STORAGE_ZOOM_KEY);
         if (zoomStr) {
@@ -419,7 +420,7 @@ var SeaSaltPaper = /** @class */ (function () {
         log('gamedatas', gamedatas);
         this.cards = new Cards(this);
         this.stacks = new Stacks(this, this.gamedatas);
-        //this.createPlayerPanels(gamedatas);
+        this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
         this.setupNotifications();
         this.setupPreferences();
@@ -604,6 +605,9 @@ var SeaSaltPaper = /** @class */ (function () {
     SeaSaltPaper.prototype.setTooltip = function (id, html) {
         this.addTooltipHtml(id, html, this.TOOLTIP_DELAY);
     };
+    SeaSaltPaper.prototype.setTooltipToClass = function (className, html) {
+        this.addTooltipHtmlToClass(className, html, this.TOOLTIP_DELAY);
+    };
     SeaSaltPaper.prototype.getPlayerId = function () {
         return Number(this.player_id);
     };
@@ -694,26 +698,19 @@ var SeaSaltPaper = /** @class */ (function () {
         var orderedPlayers = playerIndex > 0 ? __spreadArray(__spreadArray([], players.slice(playerIndex), true), players.slice(0, playerIndex), true) : players;
         return orderedPlayers;
     };
-    /*private createPlayerPanels(gamedatas: SeaSaltPaperGamedatas) {
-
-        Object.values(gamedatas.players).forEach(player => {
-            const playerId = Number(player.id);
-            
-            if (playerId == this.getPlayerId()) {
-                // cards points counter
-                dojo.place(`
-                <div class="counter">
-                    ${_('Cards points:')}&nbsp;
-                    <span id="cards-points-counter"></span>
-                </div>
-                `, `player_board_${player.id}`);
-
-                this.cardsPointsCounter = new ebg.counter();
-                this.cardsPointsCounter.create(`cards-points-counter`);
-                this.cardsPointsCounter.setValue(player.cardsPoints);
-            }
+    SeaSaltPaper.prototype.createPlayerPanels = function (gamedatas) {
+        var _this = this;
+        Object.values(gamedatas.players).forEach(function (player) {
+            var playerId = Number(player.id);
+            // hand cards counter
+            dojo.place("<div class=\"counters\">\n                <div id=\"playerhand-counter-wrapper-".concat(player.id, "\" class=\"playerhand-counter\">\n                    <div class=\"player-hand-card\"></div> \n                    <span id=\"playerhand-counter-").concat(player.id, "\"></span>\n                </div>\n            </div>"), "player_board_".concat(player.id));
+            var handCounter = new ebg.counter();
+            handCounter.create("playerhand-counter-".concat(playerId));
+            handCounter.setValue(player.handCards.length);
+            _this.handCounters[playerId] = handCounter;
         });
-    }*/
+        this.setTooltipToClass('playerhand-counter', _('Number of cards in hand'));
+    };
     SeaSaltPaper.prototype.createPlayerTables = function (gamedatas) {
         var _this = this;
         var orderedPlayers = this.getOrderedPlayers(gamedatas);
@@ -1040,6 +1037,7 @@ var SeaSaltPaper = /** @class */ (function () {
         var discardNumber = notif.args.discardId;
         var maskedCard = playerId == this.getPlayerId() ? card : { id: card.id };
         this.getPlayerTable(playerId).addCardsToHand([maskedCard]);
+        this.handCounters[playerId].incValue(1);
         if (notif.args.newDiscardTopCard) {
             this.cards.createMoveOrUpdateCard(notif.args.newDiscardTopCard, "discard".concat(discardNumber), true);
         }
@@ -1052,6 +1050,7 @@ var SeaSaltPaper = /** @class */ (function () {
         var discardNumber = notif.args.discardId;
         var maskedCard = playerId == this.getPlayerId() ? card : { id: card.id };
         this.getPlayerTable(playerId).addCardsToHand([maskedCard]);
+        this.handCounters[playerId].incValue(1);
         if (notif.args.newDiscardTopCard) {
             this.cards.createMoveOrUpdateCard(notif.args.newDiscardTopCard, "discard".concat(discardNumber), true);
         }
@@ -1061,10 +1060,12 @@ var SeaSaltPaper = /** @class */ (function () {
     SeaSaltPaper.prototype.notif_cardInHandFromPick = function (notif) {
         var playerId = notif.args.playerId;
         this.getPlayerTable(playerId).addCardsToHand([notif.args.card]);
+        this.handCounters[playerId].incValue(1);
     };
     SeaSaltPaper.prototype.notif_cardInHandFromDeck = function (notif) {
         var playerId = notif.args.playerId;
         this.getPlayerTable(playerId).addCardsToHand([notif.args.card], 'deck');
+        this.handCounters[playerId].incValue(1);
     };
     SeaSaltPaper.prototype.notif_cardInDiscardFromPick = function (notif) {
         var currentCardDiv = this.stacks.getDiscardCard(notif.args.discardId);
@@ -1087,19 +1088,26 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.notif_newRound = function () { };
     SeaSaltPaper.prototype.notif_playCards = function (notif) {
-        var playerTable = this.getPlayerTable(notif.args.playerId);
-        playerTable.addCardsToTable(notif.args.cards);
+        var playerId = notif.args.playerId;
+        var cards = notif.args.cards;
+        var playerTable = this.getPlayerTable(playerId);
+        playerTable.addCardsToTable(cards);
+        this.handCounters[playerId].incValue(-cards.length);
     };
     SeaSaltPaper.prototype.notif_revealHand = function (notif) {
+        var playerId = notif.args.playerId;
         var playerPoints = notif.args.playerPoints;
-        var playerTable = this.getPlayerTable(notif.args.playerId);
+        var playerTable = this.getPlayerTable(playerId);
         playerTable.showAnnouncementPoints(playerPoints);
         this.notif_playCards(notif);
+        this.handCounters[playerId].toValue(0);
     };
     SeaSaltPaper.prototype.notif_stealCard = function (notif) {
         var stealerId = notif.args.playerId;
         var card = notif.args.card;
         this.getPlayerTable(stealerId).addCardsToHand([card]);
+        this.handCounters[notif.args.opponentId].incValue(-1);
+        this.handCounters[stealerId].incValue(1);
     };
     SeaSaltPaper.prototype.notif_announceEndRound = function (notif) {
         this.getPlayerTable(notif.args.playerId).showAnnouncement(notif.args.announcement);
@@ -1107,7 +1115,10 @@ var SeaSaltPaper = /** @class */ (function () {
     SeaSaltPaper.prototype.notif_endRound = function () {
         var _this = this;
         var _a;
-        this.playersTables.forEach(function (playerTable) { return playerTable.cleanTable(); });
+        this.playersTables.forEach(function (playerTable) {
+            playerTable.cleanTable();
+            _this.handCounters[playerTable.playerId].setValue(0);
+        });
         (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setHandPoints(0);
         [1, 2].forEach(function (discardNumber) {
             var currentCardDiv = _this.stacks.getDiscardCard(discardNumber);

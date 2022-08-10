@@ -109,7 +109,7 @@ class PlayerTable {
 
     public showAnnouncementBetResult(result: string) {
         const bubble = document.getElementById(`player-table-${this.playerId}-discussion-bubble`);
-        bubble.innerHTML += _('I ${result} my bet!').replace('${result}', _(result)) + ' ';
+        bubble.innerHTML += `<div>${_('I ${result} my bet!').replace('${result}', _(result))}</div>`;
         bubble.dataset.visible = 'true';
     }
     

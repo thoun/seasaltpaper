@@ -21,6 +21,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     private playersTables: PlayerTable[] = [];
     private selectedCards: number[];
     private lastNotif: any;
+    private handCounters: Counter[] = [];
     
     private TOOLTIP_DELAY = document.body.classList.contains('touch-device') ? 1500 : undefined;
 
@@ -53,7 +54,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
         this.cards = new Cards(this);
         this.stacks = new Stacks(this, this.gamedatas);
-        //this.createPlayerPanels(gamedatas);
+        this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
 
         this.setupNotifications();
@@ -268,6 +269,9 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     public setTooltip(id: string, html: string) {
         (this as any).addTooltipHtml(id, html, this.TOOLTIP_DELAY);
     }
+    public setTooltipToClass(className: string, html: string) {
+        (this as any).addTooltipHtmlToClass(className, html, this.TOOLTIP_DELAY);
+    }
 
     public getPlayerId(): number {
         return Number((this as any).player_id);
@@ -374,26 +378,27 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         return orderedPlayers;
     }
 
-    /*private createPlayerPanels(gamedatas: SeaSaltPaperGamedatas) {
+    private createPlayerPanels(gamedatas: SeaSaltPaperGamedatas) {
 
         Object.values(gamedatas.players).forEach(player => {
-            const playerId = Number(player.id);    
-            
-            if (playerId == this.getPlayerId()) {
-                // cards points counter
-                dojo.place(`
-                <div class="counter">
-                    ${_('Cards points:')}&nbsp;
-                    <span id="cards-points-counter"></span>
-                </div>
-                `, `player_board_${player.id}`);
+            const playerId = Number(player.id);   
 
-                this.cardsPointsCounter = new ebg.counter();
-                this.cardsPointsCounter.create(`cards-points-counter`);
-                this.cardsPointsCounter.setValue(player.cardsPoints);
-            }
+            // hand cards counter
+            dojo.place(`<div class="counters">
+                <div id="playerhand-counter-wrapper-${player.id}" class="playerhand-counter">
+                    <div class="player-hand-card"></div> 
+                    <span id="playerhand-counter-${player.id}"></span>
+                </div>
+            </div>`, `player_board_${player.id}`);
+
+            const handCounter = new ebg.counter();
+            handCounter.create(`playerhand-counter-${playerId}`);
+            handCounter.setValue(player.handCards.length);
+            this.handCounters[playerId] = handCounter;
         });
-    }*/
+
+        this.setTooltipToClass('playerhand-counter', _('Number of cards in hand'));
+    }
 
     private createPlayerTables(gamedatas: SeaSaltPaperGamedatas) {
         const orderedPlayers = this.getOrderedPlayers(gamedatas);
@@ -809,6 +814,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         const discardNumber = notif.args.discardId;
         const maskedCard = playerId == this.getPlayerId() ? card : { id: card.id } as Card;
         this.getPlayerTable(playerId).addCardsToHand([maskedCard]);
+        this.handCounters[playerId].incValue(1);
 
         if (notif.args.newDiscardTopCard) {
             this.cards.createMoveOrUpdateCard(notif.args.newDiscardTopCard, `discard${discardNumber}`, true);
@@ -823,6 +829,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         const discardNumber = notif.args.discardId;
         const maskedCard = playerId == this.getPlayerId() ? card : { id: card.id } as Card;
         this.getPlayerTable(playerId).addCardsToHand([maskedCard]);
+        this.handCounters[playerId].incValue(1);
 
         if (notif.args.newDiscardTopCard) {
             this.cards.createMoveOrUpdateCard(notif.args.newDiscardTopCard, `discard${discardNumber}`, true);
@@ -834,11 +841,13 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     notif_cardInHandFromPick(notif: Notif<NotifCardInHandFromPickArgs>) {
         const playerId = notif.args.playerId;
         this.getPlayerTable(playerId).addCardsToHand([notif.args.card]);
+        this.handCounters[playerId].incValue(1);
     }
 
     notif_cardInHandFromDeck(notif: Notif<NotifCardInHandFromPickArgs>) {
         const playerId = notif.args.playerId;
         this.getPlayerTable(playerId).addCardsToHand([notif.args.card], 'deck');
+        this.handCounters[playerId].incValue(1);
     }   
 
     notif_cardInDiscardFromPick(notif: Notif<NotifCardInDiscardFromPickArgs>) {
@@ -865,22 +874,29 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     notif_newRound() {}
 
     notif_playCards(notif: Notif<NotifPlayCardsArgs>) {
-        const playerTable = this.getPlayerTable(notif.args.playerId);
-        playerTable.addCardsToTable(notif.args.cards);
+        const playerId = notif.args.playerId;
+        const cards = notif.args.cards;
+        const playerTable = this.getPlayerTable(playerId);
+        playerTable.addCardsToTable(cards);
+        this.handCounters[playerId].incValue(-cards.length);
     }
 
     notif_revealHand(notif: Notif<NotifRevealHandArgs>) {
+        const playerId = notif.args.playerId;
         const playerPoints = notif.args.playerPoints;
-        const playerTable = this.getPlayerTable(notif.args.playerId);
+        const playerTable = this.getPlayerTable(playerId);
         playerTable.showAnnouncementPoints(playerPoints);
 
         this.notif_playCards(notif);
+        this.handCounters[playerId].toValue(0);
     }
 
     notif_stealCard(notif: Notif<NotifStealCardArgs>) {
         const stealerId = notif.args.playerId;
         const card = notif.args.card;
         this.getPlayerTable(stealerId).addCardsToHand([card]);
+        this.handCounters[notif.args.opponentId].incValue(-1);
+        this.handCounters[stealerId].incValue(1);
     }
 
     notif_announceEndRound(notif: Notif<NotifAnnounceEndRoundArgs>) {
@@ -888,7 +904,10 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     notif_endRound() {
-        this.playersTables.forEach(playerTable => playerTable.cleanTable());
+        this.playersTables.forEach(playerTable => {
+            playerTable.cleanTable();
+            this.handCounters[playerTable.playerId].setValue(0);
+        });
         
         this.getCurrentPlayerTable()?.setHandPoints(0);
         [1, 2].forEach(discardNumber => {
