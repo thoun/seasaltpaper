@@ -54,6 +54,19 @@ function slideFromObject(game, object, fromId) {
 var Cards = /** @class */ (function () {
     function Cards(game) {
         this.game = game;
+        this.COLORS = [
+            _('White'),
+            _('Dark blue'),
+            _('Light blue'),
+            _('Black'),
+            _('Yellow'),
+            _('Green'),
+            _('Purple'),
+            _('Gray'),
+            _('Light orange'),
+            _('Pink'),
+            _('Orange'),
+        ];
     }
     // gameui.cards.debugSeeAllCards()
     Cards.prototype.debugSeeAllCards = function () {
@@ -108,7 +121,7 @@ var Cards = /** @class */ (function () {
                 setTimeout(function () { return _this.removeVisibleInformations(existingDiv); }, 500); // so we don't change face while it is still visible
             }
             if (card.category) {
-                this.game.setTooltip(existingDiv.id, this.getTooltip(card.category, card.family));
+                this.game.setTooltip(existingDiv.id, this.getTooltip(card.category, card.family) + "<br><br><i>".concat(this.COLORS[card.color], "</i>"));
             }
         }
         else {
@@ -127,7 +140,7 @@ var Cards = /** @class */ (function () {
             if (card.category) {
                 this.setVisibleInformations(div, card);
                 if (!destinationId.startsWith('help-')) {
-                    this.game.setTooltip(div.id, this.getTooltip(card.category, card.family));
+                    this.game.setTooltip(div.id, this.getTooltip(card.category, card.family) + "<br><br><i>".concat(this.COLORS[card.color], "</i>"));
                 }
             }
         }

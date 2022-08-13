@@ -1,5 +1,21 @@
 class Cards {
-    constructor(private game: SeaSaltPaperGame) {}  
+    private COLORS: string[];
+
+    constructor(private game: SeaSaltPaperGame) {
+        this.COLORS = [
+            _('White'),
+            _('Dark blue'),
+            _('Light blue'),
+            _('Black'),
+            _('Yellow'),
+            _('Green'),
+            _('Purple'),
+            _('Gray'),
+            _('Light orange'),
+            _('Pink'),
+            _('Orange'),
+          ];
+    }  
 
     // gameui.cards.debugSeeAllCards()
     private debugSeeAllCards() {
@@ -54,7 +70,7 @@ class Cards {
                 setTimeout(() => this.removeVisibleInformations(existingDiv), 500); // so we don't change face while it is still visible
             }
             if (card.category) {
-                this.game.setTooltip(existingDiv.id, this.getTooltip(card.category, card.family));
+                this.game.setTooltip(existingDiv.id, this.getTooltip(card.category, card.family) + `<br><br><i>${this.COLORS[card.color]}</i>`);
             }
         } else {
             const div = document.createElement('div');
@@ -82,7 +98,7 @@ class Cards {
             if (card.category) {
                 this.setVisibleInformations(div, card);
                 if (!destinationId.startsWith('help-')) {
-                    this.game.setTooltip(div.id, this.getTooltip(card.category, card.family));
+                    this.game.setTooltip(div.id, this.getTooltip(card.category, card.family) + `<br><br><i>${this.COLORS[card.color]}</i>`);
                 }
             }
         }
