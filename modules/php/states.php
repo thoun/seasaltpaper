@@ -13,8 +13,10 @@ trait StateTrait {
 
     function stNewRound() {
         // init round discard
+        $cards = [];
         foreach([1, 2] as $discardNumber) {
             $card = $this->getCardFromDb($this->cards->pickCardForLocation('deck', 'discard'.$discardNumber));
+            $cards[] = $card;
 
             self::notifyAllPlayers('cardInDiscardFromDeck', '', [
                 'card' => $card,
@@ -26,6 +28,12 @@ trait StateTrait {
         $this->incStat(1, 'roundNumber');
 
         self::notifyAllPlayers('log', clienttranslate('A new round begins!'), []);
+        self::notifyAllPlayers('log', clienttranslate('The cards ${cardColor1} ${cardName1} and ${cardColor2} ${cardName2} form the discard piles'), [
+            'cardName1' => $this->getCardName($cards[0]),
+            'cardName2' => $this->getCardName($cards[1]),
+            'cardColor1' => $this->COLORS[$cards[0]->color],
+            'cardColor2' => $this->COLORS[$cards[1]->color],
+        ]);
 
         $this->gamestate->nextState('start');
     }    

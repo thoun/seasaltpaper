@@ -222,7 +222,7 @@ trait ActionTrait {
             'cardName1' => $this->getCardName($cards[0]),
             'cardName2' => $this->getCardName($cards[1]),
             'cardColor1' => $this->COLORS[$cards[0]->color],
-            'cardColor2' => $this->COLORS[$cards[0]->color],
+            'cardColor2' => $this->COLORS[$cards[1]->color],
             'action' => $action,
             'i18n' => ['cardName1', 'cardName2', 'cardColor1', 'cardColor2', 'action'],
             'preserve' => ['actionPlayerId'],
