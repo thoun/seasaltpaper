@@ -75,7 +75,7 @@ interface EnteringChooseCardArgs {
 interface EnteringPlayCardsArgs {
     canDoAction: boolean;
     playableDuoCards: number[];
-    hasFourMermaids: boolean;
+    //hasFourMermaids: boolean;
     canCallEndRound: boolean;
 }
 

@@ -133,6 +133,7 @@ $playerActionsGameStates = [
         "descriptionmyturn" => clienttranslate('${you} may play cards duo'),
         "type" => "activeplayer",    
         "args" => "argPlayCards",     
+        "action" => "stPlayCards",
         "updateGameProgression" => true,
         "possibleactions" => [ 
             "playCards",

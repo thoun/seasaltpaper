@@ -10,11 +10,14 @@ trait DebugUtilTrait {
         if ($this->getBgaEnvironment() != 'studio') { 
             return;
         } 
+
+        $this->debugSetMermaids();
+        $this->debugSetMermaidOnDeckTop();
     }
 
     function debugSetMermaids() {
         $playerId = 2343492;
-        $number = 4;
+        $number = 3;
         $cards = array_slice($this->getCardsFromDb(array_values($this->cards->getCardsOfType(10))), 0, $number);
         $this->cards->moveCards(array_map(fn($card) => $card->id, $cards), 'hand'.$playerId, 99);
     }

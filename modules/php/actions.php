@@ -307,12 +307,12 @@ trait ActionTrait {
     }
 
     private function applyEndRound(int $type, string $announcement) {
-        $playerId = intval($this->getActivePlayerId());
+        $playerId = intval($this->getActivePlayerId());/*
 
         $mermaids = $this->getPlayerMermaids($playerId);
         if (count($mermaids) == 4) {
             $this->endGameWithMermaids();
-        }
+        }*/
 
         $this->setGameStateValue(END_ROUND_TYPE, $type);
 
@@ -375,8 +375,8 @@ trait ActionTrait {
         $this->gamestate->nextState('chooseCard');
     }
 
-    public function endGameWithMermaids() {
-        $playerId = intval($this->getActivePlayerId());
+    public function endGameWithMermaids(int $playerId) {
+        //$playerId = intval($this->getActivePlayerId());
 
         $mermaids = $this->getPlayerMermaids($playerId);
         if (count($mermaids) == 4) {

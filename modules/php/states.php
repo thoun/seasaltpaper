@@ -38,6 +38,15 @@ trait StateTrait {
         $this->gamestate->nextState('start');
     }    
 
+    function stPlayCards() {
+        $playerId = intval($this->getActivePlayerId());        
+
+        $mermaids = $this->getPlayerMermaids($playerId);
+        if (count($mermaids) == 4) {
+            $this->endGameWithMermaids($playerId);
+        }
+    }
+
     function stNextPlayer() {
         $playerId = intval($this->getActivePlayerId());
 

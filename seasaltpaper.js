@@ -580,9 +580,9 @@ var SeaSaltPaper = /** @class */ (function () {
                 case 'playCards':
                     var playCardsArgs = args;
                     this.addActionButton("playCards_button", _("Play selected cards"), function () { return _this.playSelectedCards(); });
-                    if (playCardsArgs.hasFourMermaids) {
-                        this.addActionButton("endGameWithMermaids_button", _("Play the four Mermaids"), function () { return _this.endGameWithMermaids(); }, null, true, 'red');
-                    }
+                    /*if (playCardsArgs.hasFourMermaids) {
+                        (this as any).addActionButton(`endGameWithMermaids_button`, _("Play the four Mermaids"), () => this.endGameWithMermaids(), null, true, 'red');
+                    }*/
                     this.addActionButton("endTurn_button", _("End turn"), function () { return _this.endTurn(); });
                     if (playCardsArgs.canCallEndRound) {
                         this.addActionButton("endRound_button", _('End round') + ' ("' + _('LAST CHANCE') + '")', function () { return _this.endRound(); }, null, null, 'red');
@@ -910,12 +910,13 @@ var SeaSaltPaper = /** @class */ (function () {
         }
         this.takeAction('endTurn');
     };
-    SeaSaltPaper.prototype.endGameWithMermaids = function () {
-        if (!this.checkAction('endGameWithMermaids')) {
+    /*public endGameWithMermaids() {
+        if(!(this as any).checkAction('endGameWithMermaids')) {
             return;
         }
+
         this.takeAction('endGameWithMermaids');
-    };
+    }*/
     SeaSaltPaper.prototype.endRound = function () {
         if (!this.checkAction('endRound')) {
             return;
