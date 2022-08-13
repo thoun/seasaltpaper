@@ -157,21 +157,22 @@ var Cards = /** @class */ (function () {
         div.removeAttribute('data-color');
         div.removeAttribute('data-index');
     };
-    Cards.prototype.getTooltip = function (category, family) {
+    Cards.prototype.getTooltip = function (category, family /*, withCount: boolean = false*/) {
+        var withCount = true;
         switch (category) {
             case 1:
-                return "\n                <div><strong>".concat(_("Mermaid"), "</strong></div>\n                ").concat(_("1 point for each card of the color the player has the most of. If they have more mermaid cards, they must look at which of the other colors they have more of. The same color cannot be counted for more than one mermaid card."), "\n                <br><br>\n                <strong>").concat(_("Effect: If they place 4 mermaid cards, the player immediately wins the game."), "</strong>");
+                return "\n                <div><strong>".concat(_("Mermaid"), "</strong> ").concat(withCount ? '(x4)' : '', "</div>\n                ").concat(_("1 point for each card of the color the player has the most of. If they have more mermaid cards, they must look at which of the other colors they have more of. The same color cannot be counted for more than one mermaid card."), "\n                <br><br>\n                <strong>").concat(_("Effect: If they place 4 mermaid cards, the player immediately wins the game."), "</strong>");
             case 2:
                 if (family >= 4) {
-                    return "<div><strong>".concat(_("Swimmer"), "/").concat(_("Shark"), "</strong></div>\n                    <div>").concat(_("1 point for each combination of swimmer and shark cards."), "</div><br>\n                    <div>").concat(_("Effect:"), " ").concat(_("The player steals a random card from another player and adds it to their hand."), "</div>");
+                    return "<div><strong>".concat(_("Swimmer"), "/").concat(_("Shark"), "</strong> ").concat(withCount ? '(' + _('${number} of each').replace('${number}', 'x5') + ')' : '', "</div>\n                    <div>").concat(_("1 point for each combination of swimmer and shark cards."), "</div><br>\n                    <div>").concat(_("Effect:"), " ").concat(_("The player steals a random card from another player and adds it to their hand."), "</div>");
                 }
                 var duoCards = [
-                    [_('Crab'), _("The player chooses a discard pile, consults it without shuffling it, and chooses a card from it to add to their hand. They do not have to show it to the other players.")],
-                    [_('Boat'), _("The player immediately takes another turn.")],
-                    [_('Fish'), _("The player adds the top card from the deck to their hand.")]
+                    [_('Crab'), _("The player chooses a discard pile, consults it without shuffling it, and chooses a card from it to add to their hand. They do not have to show it to the other players."), 9],
+                    [_('Boat'), _("The player immediately takes another turn."), 8],
+                    [_('Fish'), _("The player adds the top card from the deck to their hand."), 7]
                 ];
                 var duo = duoCards[family - 1];
-                return "<div><strong>".concat(duo[0], "</strong></div>\n                <div>").concat(_("1 point for each pair of ${card} cards.").replace('${card}', duo[0]), "</div><br>\n                <div>").concat(_("Effect:"), " ").concat(_(duo[1]), "</div>");
+                return "<div><strong>".concat(duo[0], "</strong> ").concat(withCount ? "(x".concat(duo[2], ")") : '', "</div>\n                <div>").concat(_("1 point for each pair of ${card} cards.").replace('${card}', duo[0]), "</div><br>\n                <div>").concat(_("Effect:"), " ").concat(_(duo[1]), "</div>");
             case 3:
                 var collectorCards = [
                     ['0, 2, 4, 6, 8, 10', '1, 2, 3, 4, 5, 6', _('Shell')],
@@ -180,7 +181,7 @@ var Cards = /** @class */ (function () {
                     ['0, 5', '1,  2', _('Sailor')],
                 ];
                 var collector = collectorCards[family - 1];
-                return "<div><strong>".concat(collector[2], "</strong></div>\n                <div>").concat(_("${points} points depending on whether the player has ${numbers} ${card} cards.").replace('${points}', collector[0]).replace('${numbers}', collector[1]).replace('${card}', collector[2]), "</div>");
+                return "<div><strong>".concat(collector[2], "</strong> ").concat(withCount ? "(x".concat(collector[0].split(',').length, ")") : '', "</div>\n                <div>").concat(_("${points} points depending on whether the player has ${numbers} ${card} cards.").replace('${points}', collector[0]).replace('${numbers}', collector[1]).replace('${card}', collector[2]), "</div>");
             case 4:
                 var multiplierCards = [
                     [_('The lighthouse'), _('Boat'), 1],
@@ -189,7 +190,7 @@ var Cards = /** @class */ (function () {
                     [_('The captain'), _('Sailor'), 3],
                 ];
                 var multiplier = multiplierCards[family - 1];
-                return "<div><strong>".concat(multiplier[0], "</strong></div>\n                <div>").concat(_("${points} point(s) per ${card} card.").replace('${points}', multiplier[2]).replace('${card}', multiplier[1]), "</div>\n                <div>").concat(_("This card does not count as a ${card} card.").replace('${card}', multiplier[1]), "</div>");
+                return "<div><strong>".concat(multiplier[0], "</strong> (x1)</div>\n                <div>").concat(_("${points} point(s) per ${card} card.").replace('${points}', multiplier[2]).replace('${card}', multiplier[1]), "</div>\n                <div>").concat(_("This card does not count as a ${card} card.").replace('${card}', multiplier[1]), "</div>");
         }
     };
     return Cards;
