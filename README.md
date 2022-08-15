@@ -1,5 +1,5 @@
 # What is this project ? 
-This project is an adaptation for BoardGameArena of game Sea, Salt & Paper edited by Bombyx.
+This project is an adaptation for BoardGameArena of game Sea Salt & Paper edited by Bombyx.
 You can play here : https://boardgamearena.com
 
 # How to install the auto-build stack

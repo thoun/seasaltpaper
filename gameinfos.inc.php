@@ -13,7 +13,7 @@
 $gameinfos = [
 
 // Name of the game in English (will serve as the basis for translation) 
-'game_name' => "Sea, Salt & Paper",
+'game_name' => "Sea Salt & Paper",
 
 // Game designer (or game designers, separated by commas)
 'designer' => 'Bruno Cathala, Théo Rivière',       
