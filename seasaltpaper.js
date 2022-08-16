@@ -1153,11 +1153,13 @@ var SeaSaltPaper = /** @class */ (function () {
         var logDivs = Array.from(document.getElementById('logs').getElementsByClassName('log'));
         var hide = false;
         logDivs.forEach(function (logDiv) {
+            var _a;
             if (!hide && logDiv.dataset.playerId == activePlayer) {
                 hide = true;
             }
             if (hide) {
                 logDiv.style.display = 'none';
+                (_a = document.getElementById("docked".concat(logDiv.id))) === null || _a === void 0 ? void 0 : _a.classList.add('hidden-log-action');
             }
         });
     };

@@ -936,6 +936,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             }
             if (hide) {
                 logDiv.style.display = 'none';
+                document.getElementById(`docked${logDiv.id}`)?.classList.add('hidden-log-action');
             }
         });
     }

@@ -74,6 +74,6 @@ html, .mode_3d #game_play_area_background {
   }
 }
 
-.log p /*.replay_last_move_button*/ {
+.log p /*.replay_last_move_button*/, .hidden-log-action {
   display: none !important;
 }
