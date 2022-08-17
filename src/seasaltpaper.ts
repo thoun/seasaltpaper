@@ -12,6 +12,8 @@ const ZOOM_LEVELS = [0.5, 0.625, 0.75, 0.875, 1];
 const ZOOM_LEVELS_MARGIN = [-100, -60, -33, -14, 0];
 const LOCAL_STORAGE_ZOOM_KEY = 'SeaSaltPaper-zoom';
 
+const POINTS_FOR_PLAYERS = [null, null, 40, 35, 30];
+
 class SeaSaltPaper implements SeaSaltPaperGame {
     public zoom: number = 1;
     public cards: Cards;
@@ -382,6 +384,9 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
         Object.values(gamedatas.players).forEach(player => {
             const playerId = Number(player.id);   
+
+            // show end game points
+            dojo.place(`<span class="end-game-points">&nbsp;/&nbsp;${POINTS_FOR_PLAYERS[gamedatas.playerorder.length]}</span>`, `player_score_${playerId}`, 'after');
 
             // hand cards counter
             dojo.place(`<div class="counters">

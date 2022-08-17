@@ -406,6 +406,10 @@
   background: white !important;
 }
 
+.end-game-points {
+  font-size: 80%;
+}
+
 .counters {
   display: flex;
   align-items: center;

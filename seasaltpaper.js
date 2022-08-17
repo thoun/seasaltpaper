@@ -404,6 +404,7 @@ var ACTION_TIMER_DURATION = 5;
 var ZOOM_LEVELS = [0.5, 0.625, 0.75, 0.875, 1];
 var ZOOM_LEVELS_MARGIN = [-100, -60, -33, -14, 0];
 var LOCAL_STORAGE_ZOOM_KEY = 'SeaSaltPaper-zoom';
+var POINTS_FOR_PLAYERS = [null, null, 40, 35, 30];
 var SeaSaltPaper = /** @class */ (function () {
     function SeaSaltPaper() {
         this.zoom = 1;
@@ -716,6 +717,8 @@ var SeaSaltPaper = /** @class */ (function () {
         var _this = this;
         Object.values(gamedatas.players).forEach(function (player) {
             var playerId = Number(player.id);
+            // show end game points
+            dojo.place("<span class=\"end-game-points\">&nbsp;/&nbsp;".concat(POINTS_FOR_PLAYERS[gamedatas.playerorder.length], "</span>"), "player_score_".concat(playerId), 'after');
             // hand cards counter
             dojo.place("<div class=\"counters\">\n                <div id=\"playerhand-counter-wrapper-".concat(player.id, "\" class=\"playerhand-counter\">\n                    <div class=\"player-hand-card\"></div> \n                    <span id=\"playerhand-counter-").concat(player.id, "\"></span>\n                </div>\n            </div>"), "player_board_".concat(player.id));
             var handCounter = new ebg.counter();
