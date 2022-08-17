@@ -386,7 +386,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             const playerId = Number(player.id);   
 
             // show end game points
-            dojo.place(`<span class="end-game-points">&nbsp;/&nbsp;${POINTS_FOR_PLAYERS[gamedatas.playerorder.length]}</span>`, `player_score_${playerId}`, 'after');
+            dojo.place(`<span class="end-game-points">&nbsp;/&nbsp;${POINTS_FOR_PLAYERS[Object.keys(gamedatas.players).length]}</span>`, `player_score_${playerId}`, 'after');
 
             // hand cards counter
             dojo.place(`<div class="counters">
