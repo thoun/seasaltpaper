@@ -47,7 +47,6 @@ function slideFromObject(game: Game, object: HTMLElement, fromId: string) {
         if (object.parentElement.dataset.currentPlayer == 'false') {
             object.style.position = 'absolute';
         }
-        console.log(object.parentElement, object.parentElement.dataset.currentPlayer, object.style.position);
 
         setTimeout(() => {
             object.style.transition = `transform 0.5s linear`;

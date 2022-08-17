@@ -39,7 +39,6 @@ function slideFromObject(game, object, fromId) {
         if (object.parentElement.dataset.currentPlayer == 'false') {
             object.style.position = 'absolute';
         }
-        console.log(object.parentElement, object.parentElement.dataset.currentPlayer, object.style.position);
         setTimeout(function () {
             object.style.transition = "transform 0.5s linear";
             object.style.transform = null;
@@ -1153,6 +1152,7 @@ var SeaSaltPaper = /** @class */ (function () {
         this.getPlayerTable(notif.args.playerId).showAnnouncementBetResult(notif.args.result);
     };
     SeaSaltPaper.prototype.clearLogs = function (activePlayer) {
+        var _this = this;
         var logDivs = Array.from(document.getElementById('logs').getElementsByClassName('log'));
         var hide = false;
         logDivs.forEach(function (logDiv) {
@@ -1162,7 +1162,7 @@ var SeaSaltPaper = /** @class */ (function () {
             }
             if (hide) {
                 logDiv.style.display = 'none';
-                (_a = document.getElementById("docked".concat(logDiv.id))) === null || _a === void 0 ? void 0 : _a.classList.add('hidden-log-action');
+                (_a = document.querySelector("#chatwindowlogs_zone_tablelog_".concat(_this.table_id, " #docked").concat(logDiv.id))) === null || _a === void 0 ? void 0 : _a.classList.add('hidden-log-action');
             }
         });
     };
