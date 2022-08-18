@@ -61,6 +61,9 @@ class PlayerTable {
         } else if (player.endRoundPoints) {
             this.showAnnouncementPoints(player.endRoundPoints.cardsPoints);
         }
+        if (player.scoringDetail) {
+            this.showScoreDetails(player.scoringDetail);
+        }
     }
     
     public addCardsToHand(cards: Card[], from?: string) {
@@ -110,6 +113,20 @@ class PlayerTable {
     public showAnnouncementBetResult(result: string) {
         const bubble = document.getElementById(`player-table-${this.playerId}-discussion-bubble`);
         bubble.innerHTML += `<div>${_('I ${result} my bet!').replace('${result}', _(result))}</div>`;
+        bubble.dataset.visible = 'true';
+    }
+    
+    public showScoreDetails(scoreDetails: ScoreDetails) {
+        let scoreDetailStr = '<div class="bubble-score">';
+        if (scoreDetails.cardsPoints !== null && scoreDetails.colorBonus !== null) {
+            scoreDetailStr += _('I score my ${cardPoints} card points plus my color bonus of ${colorBonus}.').replace('${cardPoints}', scoreDetails.cardsPoints).replace('${colorBonus}', scoreDetails.colorBonus);
+        } else if (scoreDetails.cardsPoints === null && scoreDetails.colorBonus !== null) {
+            scoreDetailStr += _('I only score my color bonus of ${colorBonus}.').replace('${colorBonus}', scoreDetails.colorBonus);
+        } else if (scoreDetails.cardsPoints !== null && scoreDetails.colorBonus === null) {
+            scoreDetailStr += _('I score my ${cardPoints} card points.').replace('${cardPoints}', scoreDetails.cardsPoints);
+        }
+        const bubble = document.getElementById(`player-table-${this.playerId}-discussion-bubble`);
+        bubble.innerHTML += scoreDetailStr + "</div>";
         bubble.dataset.visible = 'true';
     }
     

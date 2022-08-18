@@ -133,6 +133,13 @@ trait StateTrait {
                         'roundPoints' => $roundPoints,
                         'cardsPoints' => $playerPoints[$playerId],
                         'colorBonus' => $cardsPoints[$playerId]->colorBonus,
+                        'details' => $isBetCaller ? [
+                            'cardsPoints' => $roundPoints,
+                            'colorBonus' => $cardsPoints[$playerId]->colorBonus,
+                        ] : [
+                            'cardsPoints' => null,
+                            'colorBonus' => $cardsPoints[$playerId]->colorBonus,
+                        ],
                     ]);
 
                     if ($isBetCaller) {
@@ -152,6 +159,13 @@ trait StateTrait {
                         'roundPoints' => $roundPoints,
                         'cardsPoints' => $playerPoints[$playerId],
                         'colorBonus' => $cardsPoints[$playerId]->colorBonus,
+                        'details' => $isBetCaller ? [
+                            'cardsPoints' => null,
+                            'colorBonus' => $cardsPoints[$playerId]->colorBonus,
+                        ] : [
+                            'cardsPoints' => $roundPoints,
+                            'colorBonus' => null,
+                        ],
                     ]);
 
                     if ($isBetCaller) {
@@ -163,7 +177,8 @@ trait StateTrait {
 
         } else if ($endRound == STOP) {
             $endCaller = intval($this->getGameStateValue(STOP_CALLER));
-            self::notifyAllPlayers('log', clienttranslate('${player_name} announced ${announcement}, every player score the points for their cards'), [
+            
+            $this->notifyAllPlayers('log', clienttranslate('${player_name} announced ${announcement}, every player score the points for their cards'), [
                 'playerId' => $endCaller,
                 'player_name' => $this->getPlayerName($endCaller),
                 'announcement' => $this->ANNOUNCEMENTS[STOP],
@@ -171,9 +186,14 @@ trait StateTrait {
             ]);
 
             foreach($playersIds as $playerId) {
-                $roundPoints = $playerPoints[$playerId];
+                $roundPoints = $playerPoints[$playerId];                
+
                 $this->incPlayerScore($playerId, $roundPoints, clienttranslate('${player_name} scores ${roundPoints} points in this round for cards points'), [
                     'roundPoints' => $roundPoints,
+                    'details' => [
+                        'cardsPoints' => $roundPoints,
+                        'colorBonus' => null,
+                    ],
                 ]);
             }
         } else if ($endRound == EMPTY_DECK) {

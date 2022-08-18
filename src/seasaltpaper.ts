@@ -875,6 +875,8 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         if (incScore != null && incScore !== undefined) {
             (this as any).displayScoring(`player-table-${playerId}-table-cards`, this.getPlayerColor(playerId), incScore, ANIMATION_MS * 3);
         }
+
+        this.getPlayerTable(notif.args.playerId).showScoreDetails(notif.args.details);
     }
     notif_newRound() {}
 
@@ -967,7 +969,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                 }
 
                 ['discardNumber', 'roundPoints', 'cardsPoints', 'colorBonus', 'cardName', 'cardName1', 'cardName2', 'cardColor', 'cardColor1', 'cardColor2', 'points', 'result'].forEach(field => {
-                    if (args[field] && args[field][0] != '<') {
+                    if (args[field] !== null && args[field] !== undefined && args[field][0] != '<') {
                         args[field] = `<strong>${_(args[field])}</strong>`;
                     }
                 })

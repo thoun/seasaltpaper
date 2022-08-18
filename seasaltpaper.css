@@ -459,6 +459,9 @@
 .player-table .name-wrapper .name-and-bubble .discussion_bubble[data-visible=true] {
   opacity: 1;
 }
+.player-table .name-wrapper .name-and-bubble .discussion_bubble .bubble-score {
+  margin-top: 8px;
+}
 .player-table .name-wrapper .counter {
   margin-left: 8px;
   font-size: 80%;

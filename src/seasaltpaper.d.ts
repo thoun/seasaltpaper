@@ -10,6 +10,11 @@ interface Card {
     index: number;
 }
 
+interface ScoreDetails {
+    cardsPoints: number | null;
+    colorBonus: number | null;
+}
+
 interface SeaSaltPaperPlayer extends Player {
     playerNo: number;
     handCards: Card[];
@@ -20,9 +25,8 @@ interface SeaSaltPaperPlayer extends Player {
         cardsPoints: number;
         betResult?: string;
     };
-    endRoundPoints?: {
-        cardsPoints: number;
-    };
+    endRoundPoints?: NotifUpdateCardsPointsArgs;
+    scoringDetail?: ScoreDetails;
 }
 
 interface SeaSaltPaperGamedatas {
@@ -113,6 +117,7 @@ interface NotifScoreArgs {
     playerId: number;
     newScore: number;
     incScore: number;
+    details: ScoreDetails;
 }
 
 interface NotifPlayCardsArgs {

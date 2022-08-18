@@ -297,6 +297,9 @@ var PlayerTable = /** @class */ (function () {
         else if (player.endRoundPoints) {
             this.showAnnouncementPoints(player.endRoundPoints.cardsPoints);
         }
+        if (player.scoringDetail) {
+            this.showScoreDetails(player.scoringDetail);
+        }
     }
     Object.defineProperty(PlayerTable.prototype, "handCardsDiv", {
         get: function () {
@@ -349,6 +352,21 @@ var PlayerTable = /** @class */ (function () {
     PlayerTable.prototype.showAnnouncementBetResult = function (result) {
         var bubble = document.getElementById("player-table-".concat(this.playerId, "-discussion-bubble"));
         bubble.innerHTML += "<div>".concat(_('I ${result} my bet!').replace('${result}', _(result)), "</div>");
+        bubble.dataset.visible = 'true';
+    };
+    PlayerTable.prototype.showScoreDetails = function (scoreDetails) {
+        var scoreDetailStr = '<div class="bubble-score">';
+        if (scoreDetails.cardsPoints !== null && scoreDetails.colorBonus !== null) {
+            scoreDetailStr += _('I score my ${cardPoints} card points plus my color bonus of ${colorBonus}.').replace('${cardPoints}', scoreDetails.cardsPoints).replace('${colorBonus}', scoreDetails.colorBonus);
+        }
+        else if (scoreDetails.cardsPoints === null && scoreDetails.colorBonus !== null) {
+            scoreDetailStr += _('I only score my color bonus of ${colorBonus}.').replace('${colorBonus}', scoreDetails.colorBonus);
+        }
+        else if (scoreDetails.cardsPoints !== null && scoreDetails.colorBonus === null) {
+            scoreDetailStr += _('I score my ${cardPoints} card points.').replace('${cardPoints}', scoreDetails.cardsPoints);
+        }
+        var bubble = document.getElementById("player-table-".concat(this.playerId, "-discussion-bubble"));
+        bubble.innerHTML += scoreDetailStr + "</div>";
         bubble.dataset.visible = 'true';
     };
     PlayerTable.prototype.setSelectable = function (selectable) {
@@ -1102,6 +1120,7 @@ var SeaSaltPaper = /** @class */ (function () {
         if (incScore != null && incScore !== undefined) {
             this.displayScoring("player-table-".concat(playerId, "-table-cards"), this.getPlayerColor(playerId), incScore, ANIMATION_MS * 3);
         }
+        this.getPlayerTable(notif.args.playerId).showScoreDetails(notif.args.details);
     };
     SeaSaltPaper.prototype.notif_newRound = function () { };
     SeaSaltPaper.prototype.notif_playCards = function (notif) {
@@ -1187,7 +1206,7 @@ var SeaSaltPaper = /** @class */ (function () {
                     args.call = "<strong style=\"color: darkred;\">[".concat(_(args.call), "]</strong>");
                 }
                 ['discardNumber', 'roundPoints', 'cardsPoints', 'colorBonus', 'cardName', 'cardName1', 'cardName2', 'cardColor', 'cardColor1', 'cardColor2', 'points', 'result'].forEach(function (field) {
-                    if (args[field] && args[field][0] != '<') {
+                    if (args[field] !== null && args[field] !== undefined && args[field][0] != '<') {
                         args[field] = "<strong>".concat(_(args[field]), "</strong>");
                     }
                 });

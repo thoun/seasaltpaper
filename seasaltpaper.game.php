@@ -162,9 +162,8 @@ class SeaSaltPaper extends Table {
                 $player['cardsPoints'] = $this->getCardsPoints($playerId)->totalPoints;
             }
 
+            $betResult = intval($this->getGameStateValue(BET_RESULT));
             if ($endCaller == $playerId) {
-                $betResult = intval($this->getGameStateValue(BET_RESULT));
-
                 $player['endCall'] = [
                     'announcement' => $this->ANNOUNCEMENTS[$endRound],
                     'cardsPoints' => $this->getCardsPoints($playerId)->totalPoints,
@@ -176,6 +175,40 @@ class SeaSaltPaper extends Table {
             } else if (count($player['handCards']) == 0 && count($player['tableCards']) > 0) {
                 $player['endRoundPoints'] = [
                     'cardsPoints' => $this->getCardsPoints($playerId)->totalPoints,
+                ];
+            }
+
+            if ($endRound == LAST_CHANCE) {
+                $playerScoreDetails = $this->getCardsPoints($playerId);
+                if ($betResult == 2) { // won
+                    if ($endCaller == $playerId) {
+                        $player['scoringDetail'] = [
+                            'cardsPoints' => $playerScoreDetails->totalPoints,
+                            'colorBonus' => $playerScoreDetails->colorBonus,
+                        ];
+                    } else {
+                        $player['scoringDetail'] = [
+                            'cardsPoints' => null,
+                            'colorBonus' => $playerScoreDetails->colorBonus,
+                        ];
+                    }
+                } else if ($betResult == 1) { // lost
+                    if ($endCaller == $playerId) {
+                        $player['scoringDetail'] = [
+                            'cardsPoints' => null,
+                            'colorBonus' => $playerScoreDetails->colorBonus,
+                        ];
+                    } else {
+                        $player['scoringDetail'] = [
+                            'cardsPoints' => $playerScoreDetails->totalPoints,
+                            'colorBonus' => null,
+                        ];
+                    }
+                }
+            } else if ($endRound == STOP) {
+                $player['scoringDetail'] = [
+                    'cardsPoints' => $this->getCardsPoints($playerId)->totalPoints,
+                    'colorBonus' => null,
                 ];
             }
         }
