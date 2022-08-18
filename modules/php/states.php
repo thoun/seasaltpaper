@@ -134,7 +134,7 @@ trait StateTrait {
                         'cardsPoints' => $playerPoints[$playerId],
                         'colorBonus' => $cardsPoints[$playerId]->colorBonus,
                         'details' => $isBetCaller ? [
-                            'cardsPoints' => $roundPoints,
+                            'cardsPoints' => $playerPoints[$playerId],
                             'colorBonus' => $cardsPoints[$playerId]->colorBonus,
                         ] : [
                             'cardsPoints' => null,
@@ -163,7 +163,7 @@ trait StateTrait {
                             'cardsPoints' => null,
                             'colorBonus' => $cardsPoints[$playerId]->colorBonus,
                         ] : [
-                            'cardsPoints' => $roundPoints,
+                            'cardsPoints' =>  $roundPoints,
                             'colorBonus' => null,
                         ],
                     ]);
