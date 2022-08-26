@@ -327,6 +327,10 @@
   cursor: pointer;
   animation: selectable-card-animation 1s alternate infinite ease-in-out;
 }
+#table-center #deck-and-discards #deck.hidden {
+  background: rgba(96, 194, 203, 0.4);
+  box-shadow: 5px 5px 3px rgba(96, 194, 203, 0.4);
+}
 #table-center #deck-and-discards .discard-stack {
   display: inline-block;
   position: relative;

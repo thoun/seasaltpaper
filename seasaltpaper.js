@@ -205,7 +205,7 @@ var Stacks = /** @class */ (function () {
         this.deckDiv.addEventListener('click', function () { return _this.game.takeCardsFromDeck(); });
         this.deckCounter = new ebg.counter();
         this.deckCounter.create("deck-counter");
-        this.deckCounter.setValue(gamedatas.remainingCardsInDeck);
+        this.setDeckCount(gamedatas.remainingCardsInDeck);
         [1, 2].forEach(function (number) {
             if (gamedatas["discardTopCard".concat(number)]) {
                 game.cards.createMoveOrUpdateCard(gamedatas["discardTopCard".concat(number)], "discard".concat(number));
@@ -252,6 +252,10 @@ var Stacks = /** @class */ (function () {
     Stacks.prototype.getDiscardCard = function (discardNumber) {
         var currentCardDivs = Array.from(document.getElementById("discard".concat(discardNumber)).getElementsByClassName('card'));
         return currentCardDivs.length > 0 ? currentCardDivs[0] : null;
+    };
+    Stacks.prototype.setDeckCount = function (number) {
+        this.deckCounter.setValue(number);
+        document.getElementById("deck").classList.toggle('hidden', number == 0);
     };
     return Stacks;
 }());
@@ -527,7 +531,7 @@ var SeaSaltPaper = /** @class */ (function () {
         var _a, _b;
         this.stacks.showPickCards(true, (_b = (_a = args._private) === null || _a === void 0 ? void 0 : _a.cards) !== null && _b !== void 0 ? _b : args.cards);
         this.stacks.makePickSelectable(this.isCurrentPlayerActive());
-        this.stacks.deckCounter.setValue(args.remainingCardsInDeck);
+        this.stacks.setDeckCount(args.remainingCardsInDeck);
     };
     SeaSaltPaper.prototype.onEnteringPutDiscardPile = function (args) {
         var _a, _b;
@@ -1072,7 +1076,7 @@ var SeaSaltPaper = /** @class */ (function () {
     SeaSaltPaper.prototype.notif_cardInDiscardFromDeck = function (notif) {
         this.cards.createMoveOrUpdateCard(notif.args.card, "discard".concat(notif.args.discardId), false, 'deck');
         this.stacks.discardCounters[notif.args.discardId].setValue(1);
-        this.stacks.deckCounter.setValue(notif.args.remainingCardsInDeck);
+        this.stacks.setDeckCount(notif.args.remainingCardsInDeck);
         this.updateTableHeight();
     };
     SeaSaltPaper.prototype.notif_cardInHandFromDiscard = function (notif) {
@@ -1172,7 +1176,7 @@ var SeaSaltPaper = /** @class */ (function () {
             currentCardDiv === null || currentCardDiv === void 0 ? void 0 : currentCardDiv.parentElement.removeChild(currentCardDiv); // animate cards to deck?
         });
         [1, 2].forEach(function (discardNumber) { return _this.stacks.discardCounters[discardNumber].setValue(0); });
-        this.stacks.deckCounter.setValue(58);
+        this.stacks.setDeckCount(58);
     };
     SeaSaltPaper.prototype.notif_updateCardsPoints = function (notif) {
         var _a;

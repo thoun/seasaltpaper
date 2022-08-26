@@ -29,6 +29,11 @@
                 cursor: pointer;
                 animation: selectable-card-animation 1s alternate infinite ease-in-out;
             }  
+
+            &.hidden {
+                background: #60c2cb66;
+                box-shadow: 5px 5px 3px #60c2cb66;
+            }
         }
 
         .discard-stack {

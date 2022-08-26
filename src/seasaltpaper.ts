@@ -133,7 +133,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     private onEnteringChooseCard(args: EnteringChooseCardArgs) {
         this.stacks.showPickCards(true, args._private?.cards ?? args.cards);
         this.stacks.makePickSelectable((this as any).isCurrentPlayerActive());        
-        this.stacks.deckCounter.setValue(args.remainingCardsInDeck);
+        this.stacks.setDeckCount(args.remainingCardsInDeck);
     }
     
     private onEnteringPutDiscardPile(args: EnteringChooseCardArgs) {
@@ -810,7 +810,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     notif_cardInDiscardFromDeck(notif: Notif<NotifCardInDiscardFromDeckArgs>) {
         this.cards.createMoveOrUpdateCard(notif.args.card, `discard${notif.args.discardId}`, false, 'deck');
         this.stacks.discardCounters[notif.args.discardId].setValue(1);
-        this.stacks.deckCounter.setValue(notif.args.remainingCardsInDeck);
+        this.stacks.setDeckCount(notif.args.remainingCardsInDeck);
         this.updateTableHeight();
     } 
 
@@ -926,7 +926,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         });
 
         [1, 2].forEach(discardNumber => this.stacks.discardCounters[discardNumber].setValue(0));
-        this.stacks.deckCounter.setValue(58);
+        this.stacks.setDeckCount(58);
     }
 
     notif_updateCardsPoints(notif: Notif<NotifUpdateCardsPointsArgs>) {

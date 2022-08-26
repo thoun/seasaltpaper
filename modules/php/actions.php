@@ -13,6 +13,11 @@ trait ActionTrait {
 
     public function takeCardsFromDeck() {
         $this->checkAction('takeCardsFromDeck'); 
+
+        $canTakeFromDeck = intval($this->cards->countCardInLocation('deck')) > 0;
+        if (!$canTakeFromDeck) {
+            throw new BgaUserException("No card in deck");
+        }
         
         $playerId = intval($this->getActivePlayerId());
 
@@ -302,7 +307,7 @@ trait ActionTrait {
 
     public function endTurn() {
         $this->checkAction('endTurn'); 
-        
+
         $playerId = intval($this->getActivePlayerId());
 
         $mermaids = $this->getPlayerMermaids($playerId);

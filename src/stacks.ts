@@ -1,5 +1,5 @@
 class Stacks {
-    public deckCounter: Counter;
+    private deckCounter: Counter;
     public discardCounters: Counter[] = [];
 
     private get deckDiv() {
@@ -13,7 +13,7 @@ class Stacks {
         this.deckDiv.addEventListener('click', () => this.game.takeCardsFromDeck());
         this.deckCounter = new ebg.counter();
         this.deckCounter.create(`deck-counter`);
-        this.deckCounter.setValue(gamedatas.remainingCardsInDeck);
+        this.setDeckCount(gamedatas.remainingCardsInDeck);
 
         [1, 2].forEach(number => {
             if (gamedatas[`discardTopCard${number}`]) {
@@ -55,5 +55,10 @@ class Stacks {
     public getDiscardCard(discardNumber: number): HTMLDivElement | null {
         const currentCardDivs = Array.from(document.getElementById(`discard${discardNumber}`).getElementsByClassName('card')) as HTMLDivElement[];
         return currentCardDivs.length > 0 ? currentCardDivs[0] : null;
+    }
+
+    public setDeckCount(number: number) {
+        this.deckCounter.setValue(number);
+        document.getElementById(`deck`).classList.toggle('hidden', number == 0);
     }
 }
