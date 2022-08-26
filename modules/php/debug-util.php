@@ -30,6 +30,12 @@ trait DebugUtilTrait {
         $this->DbQuery("UPDATE card SET card_location_arg=1000 WHERE card_type = 10 AND card_location = 'deck'" );
     }
 
+    function debugEmptyDeck() {
+        $leave = 2;
+        $move = intval($this->cards->countCardInLocation('deck')) - $leave;
+        $this->cards->pickCardsForLocation($move, 'deck', 'discard');
+    }
+
     public function debugReplacePlayersIds() {
         if ($this->getBgaEnvironment() != 'studio') { 
             return;

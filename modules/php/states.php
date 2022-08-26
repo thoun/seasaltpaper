@@ -81,8 +81,7 @@ trait StateTrait {
             }
         }
 
-        $immediateEndRound = $emptyDeck || $endRound == STOP;
-        if ($immediateEndRound) {
+        if ($endRound == STOP) {
             $endCaller = intval($this->getGameStateValue(STOP_CALLER));
             $this->revealHand($endCaller);
             $pId = intval($this->getPlayerAfter($endCaller));
@@ -92,7 +91,7 @@ trait StateTrait {
             }
         }
 
-        $this->gamestate->nextState($immediateEndRound ? 'endRound' : 'newTurn');
+        $this->gamestate->nextState($emptyDeck || $endRound == STOP ? 'endRound' : 'newTurn');
     }
 
     function updateScores(int $endRound) {
@@ -197,7 +196,7 @@ trait StateTrait {
                 ]);
             }
         } else if ($endRound == EMPTY_DECK) {
-            self::notifyAllPlayers('log', clienttranslate('The round ends immediately without scoring because the deck is empty'), []);
+            self::notifyAllPlayers('emptyDeck', clienttranslate('The round ends immediately without scoring because the deck is empty'), []);
         }
     }
 

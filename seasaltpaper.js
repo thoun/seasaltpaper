@@ -358,6 +358,11 @@ var PlayerTable = /** @class */ (function () {
         bubble.innerHTML += "<div>".concat(_('I ${result} my bet!').replace('${result}', _(result)), "</div>");
         bubble.dataset.visible = 'true';
     };
+    PlayerTable.prototype.showEmptyDeck = function () {
+        var bubble = document.getElementById("player-table-".concat(this.playerId, "-discussion-bubble"));
+        bubble.innerHTML += "<div>".concat(_('I score no points, because deck is empty and no one called the end of the round'), "</div>");
+        bubble.dataset.visible = 'true';
+    };
     PlayerTable.prototype.showScoreDetails = function (scoreDetails) {
         var scoreDetailStr = '<div class="bubble-score">';
         if (scoreDetails.cardsPoints !== null && scoreDetails.colorBonus !== null) {
@@ -1019,6 +1024,7 @@ var SeaSaltPaper = /** @class */ (function () {
             ['score', ANIMATION_MS * 3],
             ['newRound', 1],
             ['updateCardsPoints', 1],
+            ['emptyDeck', 1],
         ];
         notifs.forEach(function (notif) {
             dojo.subscribe(notif[0], _this, "notif_".concat(notif[0]));
@@ -1174,6 +1180,9 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.notif_betResult = function (notif) {
         this.getPlayerTable(notif.args.playerId).showAnnouncementBetResult(notif.args.result);
+    };
+    SeaSaltPaper.prototype.notif_emptyDeck = function () {
+        this.playersTables.forEach(function (playerTable) { return playerTable.showEmptyDeck(); });
     };
     SeaSaltPaper.prototype.clearLogs = function (activePlayer) {
         var _this = this;

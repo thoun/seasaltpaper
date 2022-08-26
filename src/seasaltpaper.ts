@@ -755,6 +755,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             ['score', ANIMATION_MS * 3],
             ['newRound', 1],
             ['updateCardsPoints', 1],
+            ['emptyDeck', 1],
         ];
     
         notifs.forEach((notif) => {
@@ -934,6 +935,10 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
     notif_betResult(notif: Notif<NotifBetResultArgs>) {
         this.getPlayerTable(notif.args.playerId).showAnnouncementBetResult(notif.args.result);
+    }
+
+    notif_emptyDeck() {
+        this.playersTables.forEach(playerTable => playerTable.showEmptyDeck());
     }
 
     private clearLogs(activePlayer: string) {

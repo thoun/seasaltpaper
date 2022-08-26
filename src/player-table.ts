@@ -117,6 +117,12 @@ class PlayerTable {
         bubble.innerHTML += `<div>${_('I ${result} my bet!').replace('${result}', _(result))}</div>`;
         bubble.dataset.visible = 'true';
     }
+
+    public showEmptyDeck(): void {
+        const bubble = document.getElementById(`player-table-${this.playerId}-discussion-bubble`);
+        bubble.innerHTML += `<div>${_('I score no points, because deck is empty and no one called the end of the round')}</div>`;
+        bubble.dataset.visible = 'true';
+    }
     
     public showScoreDetails(scoreDetails: ScoreDetails) {
         let scoreDetailStr = '<div class="bubble-score">';
