@@ -39,12 +39,12 @@ trait StateTrait {
     }    
 
     function stPlayCards() {
-        $playerId = intval($this->getActivePlayerId());        
+        /*$playerId = intval($this->getActivePlayerId());        
 
         $mermaids = $this->getPlayerMermaids($playerId);
         if (count($mermaids) == 4) {
             $this->endGameWithMermaids($playerId);
-        }
+        }*/
     }
 
     function stNextPlayer() {

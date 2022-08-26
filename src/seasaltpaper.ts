@@ -223,9 +223,9 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                 case 'playCards':
                     const playCardsArgs = args as EnteringPlayCardsArgs;
                     (this as any).addActionButton(`playCards_button`, _("Play selected cards"), () => this.playSelectedCards());
-                    /*if (playCardsArgs.hasFourMermaids) {
+                    if (playCardsArgs.hasFourMermaids) {
                         (this as any).addActionButton(`endGameWithMermaids_button`, _("Play the four Mermaids"), () => this.endGameWithMermaids(), null, true, 'red');
-                    }*/
+                    }
                     (this as any).addActionButton(`endTurn_button`, _("End turn"), () => this.endTurn());
                     if (playCardsArgs.canCallEndRound) {
                         (this as any).addActionButton(`endRound_button`, _('End round') + ' ("' + _('LAST CHANCE') + '")', () => this.endRound(), null, null, 'red');
@@ -659,13 +659,13 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.takeAction('endTurn');
     }
 
-    /*public endGameWithMermaids() {
+    public endGameWithMermaids() {
         if(!(this as any).checkAction('endGameWithMermaids')) {
             return;
         }
 
         this.takeAction('endGameWithMermaids');
-    }*/
+    }
 
     public endRound() {
         if(!(this as any).checkAction('endRound')) {
@@ -876,7 +876,9 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             (this as any).displayScoring(`player-table-${playerId}-table-cards`, this.getPlayerColor(playerId), incScore, ANIMATION_MS * 3);
         }
 
-        this.getPlayerTable(notif.args.playerId).showScoreDetails(notif.args.details);
+        if (notif.args.details) {
+            this.getPlayerTable(notif.args.playerId).showScoreDetails(notif.args.details);
+        }
     }
     notif_newRound() {}
 

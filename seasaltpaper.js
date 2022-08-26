@@ -602,9 +602,9 @@ var SeaSaltPaper = /** @class */ (function () {
                 case 'playCards':
                     var playCardsArgs = args;
                     this.addActionButton("playCards_button", _("Play selected cards"), function () { return _this.playSelectedCards(); });
-                    /*if (playCardsArgs.hasFourMermaids) {
-                        (this as any).addActionButton(`endGameWithMermaids_button`, _("Play the four Mermaids"), () => this.endGameWithMermaids(), null, true, 'red');
-                    }*/
+                    if (playCardsArgs.hasFourMermaids) {
+                        this.addActionButton("endGameWithMermaids_button", _("Play the four Mermaids"), function () { return _this.endGameWithMermaids(); }, null, true, 'red');
+                    }
                     this.addActionButton("endTurn_button", _("End turn"), function () { return _this.endTurn(); });
                     if (playCardsArgs.canCallEndRound) {
                         this.addActionButton("endRound_button", _('End round') + ' ("' + _('LAST CHANCE') + '")', function () { return _this.endRound(); }, null, null, 'red');
@@ -934,13 +934,12 @@ var SeaSaltPaper = /** @class */ (function () {
         }
         this.takeAction('endTurn');
     };
-    /*public endGameWithMermaids() {
-        if(!(this as any).checkAction('endGameWithMermaids')) {
+    SeaSaltPaper.prototype.endGameWithMermaids = function () {
+        if (!this.checkAction('endGameWithMermaids')) {
             return;
         }
-
         this.takeAction('endGameWithMermaids');
-    }*/
+    };
     SeaSaltPaper.prototype.endRound = function () {
         if (!this.checkAction('endRound')) {
             return;
@@ -1124,7 +1123,9 @@ var SeaSaltPaper = /** @class */ (function () {
         if (incScore != null && incScore !== undefined) {
             this.displayScoring("player-table-".concat(playerId, "-table-cards"), this.getPlayerColor(playerId), incScore, ANIMATION_MS * 3);
         }
-        this.getPlayerTable(notif.args.playerId).showScoreDetails(notif.args.details);
+        if (notif.args.details) {
+            this.getPlayerTable(notif.args.playerId).showScoreDetails(notif.args.details);
+        }
     };
     SeaSaltPaper.prototype.notif_newRound = function () { };
     SeaSaltPaper.prototype.notif_playCards = function (notif) {
