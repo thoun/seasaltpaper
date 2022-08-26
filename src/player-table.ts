@@ -1,6 +1,8 @@
 const isDebug = window.location.host == 'studio.boardgamearena.com' || window.location.hash.indexOf('debug') > -1;;
 const log = isDebug ? console.log.bind(window.console) : function () { };
 
+const CATEGORY_ORDER = [null, 4, 1, 2, 3];
+
 class PlayerTable {
     public playerId: number;
 
@@ -169,7 +171,7 @@ class PlayerTable {
     private addCards(cards: Card[], to: 'hand' | 'table', from?: string) {
         cards.forEach(card => {
             this.game.cards.createMoveOrUpdateCard(card, `player-table-${this.playerId}-${to}-cards`, false, from);
-            document.getElementById(`card-${card.id}`).style.order = ''+(card.category*100 + card.family * 10 + card.color);
+            document.getElementById(`card-${card.id}`).style.order = ''+(CATEGORY_ORDER[card.category]*100 + card.family * 10 + card.color);
         });
         this.game.updateTableHeight();
     }

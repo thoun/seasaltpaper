@@ -29,6 +29,8 @@ function slideToObjectAndAttach(game: Game, object: HTMLElement, destinationId: 
             object.style.transition = null;
             object.style.position = null;
         }, 600);
+    } else {        
+        object.style.order = null;
     }
 }
 

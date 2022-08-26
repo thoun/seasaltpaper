@@ -26,6 +26,9 @@ function slideToObjectAndAttach(game, object, destinationId, changeSide) {
             object.style.position = null;
         }, 600);
     }
+    else {
+        object.style.order = null;
+    }
 }
 function slideFromObject(game, object, fromId) {
     var from = document.getElementById(fromId);
@@ -264,6 +267,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 var isDebug = window.location.host == 'studio.boardgamearena.com' || window.location.hash.indexOf('debug') > -1;
 ;
 var log = isDebug ? console.log.bind(window.console) : function () { };
+var CATEGORY_ORDER = [null, 4, 1, 2, 3];
 var PlayerTable = /** @class */ (function () {
     function PlayerTable(game, player) {
         this.game = game;
@@ -410,7 +414,7 @@ var PlayerTable = /** @class */ (function () {
         var _this = this;
         cards.forEach(function (card) {
             _this.game.cards.createMoveOrUpdateCard(card, "player-table-".concat(_this.playerId, "-").concat(to, "-cards"), false, from);
-            document.getElementById("card-".concat(card.id)).style.order = '' + (card.category * 100 + card.family * 10 + card.color);
+            document.getElementById("card-".concat(card.id)).style.order = '' + (CATEGORY_ORDER[card.category] * 100 + card.family * 10 + card.color);
         });
         this.game.updateTableHeight();
     };
