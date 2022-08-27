@@ -244,6 +244,9 @@ trait StateTrait {
             $mermaids = $this->getPlayerMermaids($playerId);
             if (count($mermaids) == 4) {
                 $this->setPlayerScore($playerId, 100, clienttranslate('${player_name} placed 4 mermaid cards and immediately wins the game!'), []);
+
+                $this->setStat(1, 'winWithMermaids');
+                $this->setStat(1, 'winWithMermaids', $playerId);
             }
         }
 

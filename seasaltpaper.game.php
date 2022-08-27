@@ -113,6 +113,7 @@ class SeaSaltPaper extends Table {
             foreach([1,2,3,4] as $number) {
                 $this->initStat($statType, 'cardsCollected'.$number, 0);
             }
+            $this->initStat($statType, 'winWithMermaids', 0);
         }
 
         // setup the initial game situation here
