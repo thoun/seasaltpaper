@@ -230,6 +230,7 @@ $gameGameStates = [
         "possibleactions" => [ "seen" ],
         "transitions" => [
             "endRound" => ST_END_ROUND,
+            "endScore" => ST_END_SCORE,
         ],
     ],
 

@@ -200,11 +200,22 @@ trait StateTrait {
         }
     }
 
+    function isLastRound() {
+        $maxScore = $this->END_GAME_POINTS[count($this->getPlayersIds())];
+        $topScore = $this->getPlayerTopScore();
+
+        return $topScore >= $maxScore;
+    }
+
     function stBeforeEndRound() {
         $endRound = intval($this->getGameStateValue(END_ROUND_TYPE));
         $this->updateScores($endRound);
 
-        $this->gamestate->setAllPlayersMultiactive();
+        if ($this->isLastRound()) {
+            $this->gamestate->nextState('endScore');
+        } else {
+            $this->gamestate->setAllPlayersMultiactive();
+        }
     }
 
     function stEndRound() {
@@ -214,10 +225,7 @@ trait StateTrait {
         $this->setGameStateValue(STOP_CALLER, 0);
         $this->setGameStateValue(BET_RESULT, 0);
 
-        $maxScore = $this->END_GAME_POINTS[count($this->getPlayersIds())];
-        $topScore = $this->getPlayerTopScore();
-
-        $lastRound = $topScore >= $maxScore;
+        $lastRound = $this->isLastRound();
         if (!$lastRound) {
             $this->cards->moveAllCardsInLocation(null, 'deck');
             $this->cards->shuffle('deck');
