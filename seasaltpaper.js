@@ -277,7 +277,7 @@ var PlayerTable = /** @class */ (function () {
         this.game = game;
         this.playerId = Number(player.id);
         this.currentPlayer = this.playerId == this.game.getPlayerId();
-        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div id=\"player-table-").concat(this.playerId, "-hand-cards\" class=\"hand cards\" data-current-player=\"").concat(this.currentPlayer.toString(), "\" data-my-hand=\"").concat(this.currentPlayer.toString(), "\"></div>\n            <div class=\"name-wrapper\">\n                <span id=\"player-table-").concat(this.playerId, "-name\" class=\"name-and-bubble\">\n                    <span class=\"name\" style=\"color: #").concat(player.color, ";\">").concat(player.name, "</span>\n                    <div id=\"player-table-").concat(this.playerId, "-discussion-bubble\" class=\"discussion_bubble\" data-visible=\"false\"></div>\n                </span>");
+        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div id=\"player-table-").concat(this.playerId, "-hand-cards\" class=\"hand cards\" data-current-player=\"").concat(this.currentPlayer.toString(), "\" data-my-hand=\"").concat(this.currentPlayer.toString(), "\"></div>\n            <div class=\"name-wrapper\">\n                <span class=\"name\" style=\"color: #").concat(player.color, ";\">").concat(player.name, "</span>\n                <div class=\"bubble-wrapper\">\n                    <div id=\"player-table-").concat(this.playerId, "-discussion-bubble\" class=\"discussion_bubble\" data-visible=\"false\"></div>\n                </div>\n        ");
         if (this.currentPlayer) {
             html += "<span class=\"counter\">\n                    (".concat(_('Cards points:'), "&nbsp;<span id=\"cards-points-counter\"></span>)\n                </span>");
         }
@@ -368,6 +368,10 @@ var PlayerTable = /** @class */ (function () {
         bubble.dataset.visible = 'true';
     };
     PlayerTable.prototype.showScoreDetails = function (scoreDetails) {
+        if (scoreDetails.cardsPoints === null && scoreDetails.colorBonus === null) {
+            this.showEmptyDeck();
+            return;
+        }
         var scoreDetailStr = '<div class="bubble-score">';
         if (scoreDetails.cardsPoints !== null && scoreDetails.colorBonus !== null) {
             scoreDetailStr += _('I score my ${cardPoints} card points plus my color bonus of ${colorBonus}.').replace('${cardPoints}', scoreDetails.cardsPoints).replace('${colorBonus}', scoreDetails.colorBonus);

@@ -24,10 +24,11 @@ class PlayerTable {
         <div id="player-table-${this.playerId}" class="player-table">
             <div id="player-table-${this.playerId}-hand-cards" class="hand cards" data-current-player="${this.currentPlayer.toString()}" data-my-hand="${this.currentPlayer.toString()}"></div>
             <div class="name-wrapper">
-                <span id="player-table-${this.playerId}-name" class="name-and-bubble">
-                    <span class="name" style="color: #${player.color};">${player.name}</span>
+                <span class="name" style="color: #${player.color};">${player.name}</span>
+                <div class="bubble-wrapper">
                     <div id="player-table-${this.playerId}-discussion-bubble" class="discussion_bubble" data-visible="false"></div>
-                </span>`
+                </div>
+        `;
         if (this.currentPlayer) {
             html += `<span class="counter">
                     (${_('Cards points:')}&nbsp;<span id="cards-points-counter"></span>)
@@ -125,6 +126,11 @@ class PlayerTable {
     }
     
     public showScoreDetails(scoreDetails: ScoreDetails) {
+        if (scoreDetails.cardsPoints === null && scoreDetails.colorBonus === null) {
+            this.showEmptyDeck();
+            return;
+        }
+
         let scoreDetailStr = '<div class="bubble-score">';
         if (scoreDetails.cardsPoints !== null && scoreDetails.colorBonus !== null) {
             scoreDetailStr += _('I score my ${cardPoints} card points plus my color bonus of ${colorBonus}.').replace('${cardPoints}', scoreDetails.cardsPoints).replace('${colorBonus}', scoreDetails.colorBonus);

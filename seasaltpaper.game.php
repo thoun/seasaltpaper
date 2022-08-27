@@ -210,6 +210,11 @@ class SeaSaltPaper extends Table {
                     'cardsPoints' => $this->getCardsPoints($playerId)->totalPoints,
                     'colorBonus' => null,
                 ];
+            } else if ($endRound == EMPTY_DECK) {
+                $player['scoringDetail'] = [
+                    'cardsPoints' => null,
+                    'colorBonus' => null,
+                ];
             }
         }
 

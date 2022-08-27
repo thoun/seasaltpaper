@@ -441,30 +441,40 @@
   border-radius: 15px;
 }
 .player-table .name-wrapper {
+  position: relative;
   display: flex;
   background: rgba(255, 255, 255, 0.6666666667);
   padding: 5px;
   justify-content: center;
   align-items: center;
 }
-.player-table .name-wrapper .name-and-bubble {
-  position: relative;
-}
-.player-table .name-wrapper .name-and-bubble .name {
+.player-table .name-wrapper .name {
   font-size: 20pt;
   font-weight: bold;
 }
-.player-table .name-wrapper .name-and-bubble .discussion_bubble {
+.player-table .name-wrapper .bubble-wrapper {
+  position: absolute;
+  bottom: 110%;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+.player-table .name-wrapper .bubble-wrapper .discussion_bubble {
+  position: unset;
   white-space: nowrap;
   display: unset;
   opacity: 0;
   transition: opacity 0.5s;
+  bottom: 110%;
 }
-.player-table .name-wrapper .name-and-bubble .discussion_bubble[data-visible=true] {
+.player-table .name-wrapper .bubble-wrapper .discussion_bubble[data-visible=true] {
   opacity: 1;
 }
-.player-table .name-wrapper .name-and-bubble .discussion_bubble .bubble-score {
+.player-table .name-wrapper .bubble-wrapper .discussion_bubble .bubble-score {
   margin-top: 8px;
+}
+.player-table .name-wrapper .bubble-wrapper .discussion_bubble::after {
+  left: calc(50% - 15px);
 }
 .player-table .name-wrapper .counter {
   margin-left: 8px;

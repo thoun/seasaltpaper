@@ -6,32 +6,43 @@
   border-radius: 15px;
 
   .name-wrapper {
+    position: relative;
     display: flex;
     background: #FFFFFFAA;
     padding: 5px;
     justify-content: center;
     align-items: center;
 
-    .name-and-bubble {
-      position: relative;
+    .name {
+      font-size: 20pt;
+      font-weight: bold;
+    }
 
-      .name {
-        font-size: 20pt;
-        font-weight: bold;
-      }
+    .bubble-wrapper {
+      position: absolute;
+      bottom: 110%;
+      display: flex;
+      justify-content: center;
+      width: 100%;
 
       .discussion_bubble {
+        position: unset;
         white-space: nowrap;
         display: unset;
         opacity: 0;
         transition: opacity 0.5s;
-
+        bottom: 110%;
+  
         &[data-visible="true"] {
           opacity: 1;
         }
-
+  
         .bubble-score {
           margin-top: 8px;
+        }
+  
+        &::after {
+          left: calc(50% - 15px);
         }
       }
     }
