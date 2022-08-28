@@ -113,8 +113,8 @@ trait UtilTrait {
     function getPlayerMermaids(int $playerId) {
         $tableCards = $this->getCardsFromDb($this->cards->getCardsInLocation('table'.$playerId));
         $handCards = $this->getCardsFromDb($this->cards->getCardsInLocation('hand'.$playerId));
-        $cards = $tableCards + $handCards;
-        $mermaidCards = array_values(array_filter($cards, fn($card) => $card->category == MERMAID));
+        $playerCards = array_merge($tableCards, $handCards);        
+        $mermaidCards = array_values(array_filter($playerCards, fn($card) => $card->category == MERMAID));
 
         return $mermaidCards;
     }
