@@ -289,11 +289,17 @@ trait ActionTrait {
                 break;
             case SWIMMER:
             case SHARK:
-                //$possibleOpponentsToSteal = $this->getPossibleOpponentsToSteal($playerId);
+                $possibleOpponentsToSteal = $this->getPossibleOpponentsToSteal($playerId);
 
-                /*if (count($possibleOpponentsToSteal) > 1) {*/
+                if (count($possibleOpponentsToSteal) > 0) {
                     $this->gamestate->nextState('chooseOpponent');
-                /*} else {
+                } else {
+                    self::notifyAllPlayers('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
+                }
+
+                /*if (count($possibleOpponentsToSteal) > 1) {
+                    $this->gamestate->nextState('chooseOpponent');
+                } else {
                     if (count($possibleOpponentsToSteal) == 1) {
                         $this->applySteal($playerId, $possibleOpponentsToSteal[0]);
                     } else {
