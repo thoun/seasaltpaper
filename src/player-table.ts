@@ -22,7 +22,7 @@ class PlayerTable {
 
         let html = `
         <div id="player-table-${this.playerId}" class="player-table">
-            <div id="player-table-${this.playerId}-hand-cards" class="hand cards" data-current-player="${this.currentPlayer.toString()}" data-my-hand="${this.currentPlayer.toString()}"></div>
+            <div id="player-table-${this.playerId}-hand-cards" class="hand cards" data-player-id="${this.playerId}" data-current-player="${this.currentPlayer.toString()}" data-my-hand="${this.currentPlayer.toString()}"></div>
             <div class="name-wrapper">
                 <span class="name" style="color: #${player.color};">${player.name}</span>
                 <div class="bubble-wrapper">

@@ -105,6 +105,9 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             case 'chooseDiscardCard':
                 this.onEnteringChooseDiscardCard(args.args);
                 break;
+            case 'chooseOpponent':
+                this.onEnteringChooseOpponent(args.args);
+                break;
         }
     }
     
@@ -167,6 +170,14 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
         this.updateTableHeight();
     }
+    
+    private onEnteringChooseOpponent(args: EnteringChooseOpponentArgs) {
+        args.playersIds.forEach(playerId => 
+            document.getElementById(`player-table-${playerId}-hand-cards`).dataset.canSteal = 'true'
+        );
+
+        this.updateTableHeight();
+    }
 
     public onLeavingState(stateName: string) {
         log( 'Leaving state: '+stateName );
@@ -186,6 +197,9 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                 break;
             case 'chooseDiscardCard':
                 this.onLeavingChooseDiscardCard();
+                break;
+            case 'chooseOpponent':
+                this.onLeavingChooseOpponent();
                 break;
         }
     }
@@ -212,6 +226,10 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         const pickDiv = document.getElementById('discard-pick');
         pickDiv.dataset.visible = 'false';
         this.updateTableHeight();
+    }
+
+    private onLeavingChooseOpponent() {
+        (Array.from(document.querySelectorAll('[data-can-steal]')) as HTMLElement[]).forEach(elem => elem.dataset.canSteal = 'false');
     }
 
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
@@ -246,7 +264,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                         this.startActionTimer('endTurn_button', ACTION_TIMER_DURATION + Math.round(3 * Math.random()));
                     }
                     break;
-                case 'chooseOpponent':
+                /*case 'chooseOpponent':
                     const chooseOpponentArgs = args as EnteringChooseOpponentArgs;
         
                     chooseOpponentArgs.playersIds.forEach(playerId => {
@@ -254,7 +272,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                         (this as any).addActionButton(`choosePlayer${playerId}-button`, player.name, () => this.chooseOpponent(playerId));
                         document.getElementById(`choosePlayer${playerId}-button`).style.border = `3px solid #${player.color}`;
                     });
-                    break;
+                    break;*/
                 case 'beforeEndRound':
                     (this as any).addActionButton(`seen_button`, _("Seen"), () => this.seen());
                     break;
@@ -458,6 +476,16 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                 if (parentDiv.id == 'discard-pick') {
                     this.chooseDiscardCard(card.id);
                 }
+                break;
+            case 'chooseOpponent':
+                const chooseOpponentArgs = this.gamedatas.gamestate.args as EnteringChooseOpponentArgs;
+                if (parentDiv.dataset.currentPlayer == 'false') {
+                    const stealPlayerId = Number(parentDiv.dataset.playerId);
+                    if (chooseOpponentArgs.playersIds.includes(stealPlayerId)) {
+                        this.chooseOpponent(stealPlayerId);
+                    }
+                }
+                break;
         }
     }
 

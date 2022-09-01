@@ -184,8 +184,8 @@ $playerActionsGameStates = [
 
     ST_PLAYER_CHOOSE_OPPONENT => [
         "name" => "chooseOpponent",
-        "description" => clienttranslate('${actplayer} must choose an opponent to steal'),
-        "descriptionmyturn" => clienttranslate('${you} must choose an opponent to steal'),
+        "description" => clienttranslate('${actplayer} must choose a card to steal'),
+        "descriptionmyturn" => clienttranslate('${you} must choose a card to steal'),
         "type" => "activeplayer",
         "args" => "argChooseOpponent", 
         "possibleactions" => [ 

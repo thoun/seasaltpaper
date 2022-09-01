@@ -458,6 +458,7 @@
   display: flex;
   justify-content: center;
   width: 100%;
+  pointer-events: none;
 }
 .player-table .name-wrapper .bubble-wrapper .discussion_bubble {
   position: unset;
@@ -492,6 +493,10 @@
 }
 .player-table .cards.hand[data-current-player=false] .card:not(:first-child) {
   margin-left: -120px;
+}
+.player-table .cards.hand[data-can-steal=true] .card {
+  cursor: pointer;
+  animation: selectable-card-animation 1s alternate infinite ease-in-out;
 }
 
 #seasaltpaper-help-button {

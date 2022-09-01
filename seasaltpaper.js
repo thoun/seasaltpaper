@@ -277,7 +277,7 @@ var PlayerTable = /** @class */ (function () {
         this.game = game;
         this.playerId = Number(player.id);
         this.currentPlayer = this.playerId == this.game.getPlayerId();
-        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div id=\"player-table-").concat(this.playerId, "-hand-cards\" class=\"hand cards\" data-current-player=\"").concat(this.currentPlayer.toString(), "\" data-my-hand=\"").concat(this.currentPlayer.toString(), "\"></div>\n            <div class=\"name-wrapper\">\n                <span class=\"name\" style=\"color: #").concat(player.color, ";\">").concat(player.name, "</span>\n                <div class=\"bubble-wrapper\">\n                    <div id=\"player-table-").concat(this.playerId, "-discussion-bubble\" class=\"discussion_bubble\" data-visible=\"false\"></div>\n                </div>\n        ");
+        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div id=\"player-table-").concat(this.playerId, "-hand-cards\" class=\"hand cards\" data-player-id=\"").concat(this.playerId, "\" data-current-player=\"").concat(this.currentPlayer.toString(), "\" data-my-hand=\"").concat(this.currentPlayer.toString(), "\"></div>\n            <div class=\"name-wrapper\">\n                <span class=\"name\" style=\"color: #").concat(player.color, ";\">").concat(player.name, "</span>\n                <div class=\"bubble-wrapper\">\n                    <div id=\"player-table-").concat(this.playerId, "-discussion-bubble\" class=\"discussion_bubble\" data-visible=\"false\"></div>\n                </div>\n        ");
         if (this.currentPlayer) {
             html += "<span class=\"counter\">\n                    (".concat(_('Cards points:'), "&nbsp;<span id=\"cards-points-counter\"></span>)\n                </span>");
         }
@@ -511,6 +511,9 @@ var SeaSaltPaper = /** @class */ (function () {
             case 'chooseDiscardCard':
                 this.onEnteringChooseDiscardCard(args.args);
                 break;
+            case 'chooseOpponent':
+                this.onEnteringChooseOpponent(args.args);
+                break;
         }
     };
     SeaSaltPaper.prototype.setGamestateDescription = function (property) {
@@ -565,6 +568,12 @@ var SeaSaltPaper = /** @class */ (function () {
         });
         this.updateTableHeight();
     };
+    SeaSaltPaper.prototype.onEnteringChooseOpponent = function (args) {
+        args.playersIds.forEach(function (playerId) {
+            return document.getElementById("player-table-".concat(playerId, "-hand-cards")).dataset.canSteal = 'true';
+        });
+        this.updateTableHeight();
+    };
     SeaSaltPaper.prototype.onLeavingState = function (stateName) {
         log('Leaving state: ' + stateName);
         switch (stateName) {
@@ -582,6 +591,9 @@ var SeaSaltPaper = /** @class */ (function () {
                 break;
             case 'chooseDiscardCard':
                 this.onLeavingChooseDiscardCard();
+                break;
+            case 'chooseOpponent':
+                this.onLeavingChooseOpponent();
                 break;
         }
     };
@@ -604,6 +616,9 @@ var SeaSaltPaper = /** @class */ (function () {
         var pickDiv = document.getElementById('discard-pick');
         pickDiv.dataset.visible = 'false';
         this.updateTableHeight();
+    };
+    SeaSaltPaper.prototype.onLeavingChooseOpponent = function () {
+        Array.from(document.querySelectorAll('[data-can-steal]')).forEach(function (elem) { return elem.dataset.canSteal = 'false'; });
     };
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
     //                        action status bar (ie: the HTML links in the status bar).
@@ -634,14 +649,15 @@ var SeaSaltPaper = /** @class */ (function () {
                         this.startActionTimer('endTurn_button', ACTION_TIMER_DURATION + Math.round(3 * Math.random()));
                     }
                     break;
-                case 'chooseOpponent':
-                    var chooseOpponentArgs = args;
-                    chooseOpponentArgs.playersIds.forEach(function (playerId) {
-                        var player = _this.getPlayer(playerId);
-                        _this.addActionButton("choosePlayer".concat(playerId, "-button"), player.name, function () { return _this.chooseOpponent(playerId); });
-                        document.getElementById("choosePlayer".concat(playerId, "-button")).style.border = "3px solid #".concat(player.color);
+                /*case 'chooseOpponent':
+                    const chooseOpponentArgs = args as EnteringChooseOpponentArgs;
+        
+                    chooseOpponentArgs.playersIds.forEach(playerId => {
+                        const player = this.getPlayer(playerId);
+                        (this as any).addActionButton(`choosePlayer${playerId}-button`, player.name, () => this.chooseOpponent(playerId));
+                        document.getElementById(`choosePlayer${playerId}-button`).style.border = `3px solid #${player.color}`;
                     });
-                    break;
+                    break;*/
                 case 'beforeEndRound':
                     this.addActionButton("seen_button", _("Seen"), function () { return _this.seen(); });
                     break;
@@ -812,6 +828,16 @@ var SeaSaltPaper = /** @class */ (function () {
                 if (parentDiv.id == 'discard-pick') {
                     this.chooseDiscardCard(card.id);
                 }
+                break;
+            case 'chooseOpponent':
+                var chooseOpponentArgs = this.gamedatas.gamestate.args;
+                if (parentDiv.dataset.currentPlayer == 'false') {
+                    var stealPlayerId = Number(parentDiv.dataset.playerId);
+                    if (chooseOpponentArgs.playersIds.includes(stealPlayerId)) {
+                        this.chooseOpponent(stealPlayerId);
+                    }
+                }
+                break;
         }
     };
     SeaSaltPaper.prototype.onDiscardPileClick = function (number) {

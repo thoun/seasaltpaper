@@ -36,6 +36,13 @@ trait DebugUtilTrait {
         $this->cards->pickCardsForLocation($move, 'deck', 'discard');
     }
 
+    function debugFillHands() {
+        $playersIds = $this->getPlayersIds();
+        foreach($playersIds as $playerId) {
+            $this->cards->pickCardsForLocation(8, 'deck', 'hand'.$playerId);
+        }
+    }
+
     public function debugReplacePlayersIds() {
         if ($this->getBgaEnvironment() != 'studio') { 
             return;
