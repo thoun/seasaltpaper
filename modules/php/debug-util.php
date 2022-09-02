@@ -37,9 +37,10 @@ trait DebugUtilTrait {
     }
 
     function debugFillHands() {
+        $number = 20;
         $playersIds = $this->getPlayersIds();
         foreach($playersIds as $playerId) {
-            $this->cards->pickCardsForLocation(8, 'deck', 'hand'.$playerId);
+            $this->cards->pickCardsForLocation($number, 'deck', 'hand'.$playerId);
         }
     }
 

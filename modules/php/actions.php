@@ -295,6 +295,7 @@ trait ActionTrait {
                     $this->gamestate->nextState('chooseOpponent');
                 } else {
                     self::notifyAllPlayers('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
+                    $this->gamestate->nextState('playCards');
                 }
 
                 /*if (count($possibleOpponentsToSteal) > 1) {
