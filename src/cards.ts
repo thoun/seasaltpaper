@@ -166,4 +166,14 @@ class Cards {
         }
             
     }
+
+    public removeCard(div: HTMLElement) {
+        if (!div) {
+            return;
+        }
+
+        div.id = `deleted${div.id}`;
+        this.removeVisibleInformations(div);
+        div.remove();
+    }
 }

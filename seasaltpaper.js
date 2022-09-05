@@ -195,6 +195,14 @@ var Cards = /** @class */ (function () {
                 return "<div><strong>".concat(multiplier[0], "</strong> (x1)</div>\n                <div>").concat(_("${points} point(s) per ${card} card.").replace('${points}', multiplier[2]).replace('${card}', multiplier[1]), "</div>\n                <div>").concat(_("This card does not count as a ${card} card.").replace('${card}', multiplier[1]), "</div>");
         }
     };
+    Cards.prototype.removeCard = function (div) {
+        if (!div) {
+            return;
+        }
+        div.id = "deleted".concat(div.id);
+        this.removeVisibleInformations(div);
+        div.remove();
+    };
     return Cards;
 }());
 var Stacks = /** @class */ (function () {
@@ -335,7 +343,7 @@ var PlayerTable = /** @class */ (function () {
         cards.forEach(function (cardDiv) { return _this.game.cards.createMoveOrUpdateCard({
             id: Number(cardDiv.dataset.id),
         }, "deck"); });
-        setTimeout(function () { return cards.forEach(function (cardDiv) { return cardDiv === null || cardDiv === void 0 ? void 0 : cardDiv.parentElement.removeChild(cardDiv); }); }, 500);
+        setTimeout(function () { return cards.forEach(function (cardDiv) { return _this.game.cards.removeCard(cardDiv); }); }, 500);
         this.game.updateTableHeight();
         this.clearAnnouncement();
     };
@@ -1146,11 +1154,12 @@ var SeaSaltPaper = /** @class */ (function () {
         this.handCounters[playerId].incValue(1);
     };
     SeaSaltPaper.prototype.notif_cardInDiscardFromPick = function (notif) {
+        var _this = this;
         var currentCardDiv = this.stacks.getDiscardCard(notif.args.discardId);
         var discardNumber = notif.args.discardId;
         this.cards.createMoveOrUpdateCard(notif.args.card, "discard".concat(discardNumber));
         if (currentCardDiv) {
-            setTimeout(function () { return currentCardDiv.parentElement.removeChild(currentCardDiv); }, 500);
+            setTimeout(function () { return _this.cards.removeCard(currentCardDiv); }, 500);
         }
         this.stacks.discardCounters[discardNumber].setValue(notif.args.remainingCardsInDiscard);
         this.updateTableHeight();
@@ -1203,7 +1212,7 @@ var SeaSaltPaper = /** @class */ (function () {
         (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setHandPoints(0);
         [1, 2].forEach(function (discardNumber) {
             var currentCardDiv = _this.stacks.getDiscardCard(discardNumber);
-            currentCardDiv === null || currentCardDiv === void 0 ? void 0 : currentCardDiv.parentElement.removeChild(currentCardDiv); // animate cards to deck?
+            _this.cards.removeCard(currentCardDiv); // animate cards to deck?
         });
         [1, 2].forEach(function (discardNumber) { return _this.stacks.discardCounters[discardNumber].setValue(0); });
         this.stacks.setDeckCount(58);

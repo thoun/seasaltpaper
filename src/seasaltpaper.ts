@@ -890,7 +890,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.cards.createMoveOrUpdateCard(notif.args.card, `discard${discardNumber}`);
         
         if (currentCardDiv) {
-            setTimeout(() => currentCardDiv.parentElement.removeChild(currentCardDiv), 500);
+            setTimeout(() => this.cards.removeCard(currentCardDiv), 500);
         }
         this.stacks.discardCounters[discardNumber].setValue(notif.args.remainingCardsInDiscard);
         this.updateTableHeight();
@@ -950,7 +950,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.getCurrentPlayerTable()?.setHandPoints(0);
         [1, 2].forEach(discardNumber => {
             const currentCardDiv = this.stacks.getDiscardCard(discardNumber);
-            currentCardDiv?.parentElement.removeChild(currentCardDiv); // animate cards to deck?
+            this.cards.removeCard(currentCardDiv); // animate cards to deck?
         });
 
         [1, 2].forEach(discardNumber => this.stacks.discardCounters[discardNumber].setValue(0));

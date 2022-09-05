@@ -86,7 +86,7 @@ class PlayerTable {
             id: Number(cardDiv.dataset.id),
         } as any, `deck`));
 
-        setTimeout(() => cards.forEach(cardDiv => cardDiv?.parentElement.removeChild(cardDiv)), 500);
+        setTimeout(() => cards.forEach(cardDiv => this.game.cards.removeCard(cardDiv)), 500);
         this.game.updateTableHeight();
         this.clearAnnouncement();
     }
