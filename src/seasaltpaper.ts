@@ -172,11 +172,11 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
     
     private onEnteringChooseOpponent(args: EnteringChooseOpponentArgs) {
-        args.playersIds.forEach(playerId => 
-            document.getElementById(`player-table-${playerId}-hand-cards`).dataset.canSteal = 'true'
-        );
-
-        this.updateTableHeight();
+        if ((this as any).isCurrentPlayerActive()) {
+            args.playersIds.forEach(playerId => 
+                document.getElementById(`player-table-${playerId}-hand-cards`).dataset.canSteal = 'true'
+            );
+        }
     }
 
     public onLeavingState(stateName: string) {

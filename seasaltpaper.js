@@ -577,10 +577,11 @@ var SeaSaltPaper = /** @class */ (function () {
         this.updateTableHeight();
     };
     SeaSaltPaper.prototype.onEnteringChooseOpponent = function (args) {
-        args.playersIds.forEach(function (playerId) {
-            return document.getElementById("player-table-".concat(playerId, "-hand-cards")).dataset.canSteal = 'true';
-        });
-        this.updateTableHeight();
+        if (this.isCurrentPlayerActive()) {
+            args.playersIds.forEach(function (playerId) {
+                return document.getElementById("player-table-".concat(playerId, "-hand-cards")).dataset.canSteal = 'true';
+            });
+        }
     };
     SeaSaltPaper.prototype.onLeavingState = function (stateName) {
         log('Leaving state: ' + stateName);
