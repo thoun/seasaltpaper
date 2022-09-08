@@ -46,28 +46,31 @@ class Cards {
         );
     }
 
-    public createMoveOrUpdateCard(card: Card, destinationId: string, init: boolean = false, from: string = null) {
+    public createMoveOrUpdateCard(card: Card, destinationId: string, instant: boolean = false, from: string = null) {
         const existingDiv = document.getElementById(`card-${card.id}`);
         const side = card.category ? 'front' : 'back';
         if (existingDiv) {
-            if (existingDiv.parentElement.id == destinationId) {
-                return;
-            }
-
             (this.game as any).removeTooltip(`card-${card.id}`);
             const oldType = Number(existingDiv.dataset.category);
             existingDiv.classList.remove('selectable', 'selected', 'disabled');
 
-            if (init) {
-                document.getElementById(destinationId).appendChild(existingDiv);
-            } else {
-                slideToObjectAndAttach(this.game, existingDiv, destinationId);
+            if (existingDiv.parentElement.id != destinationId) {
+                if (instant) {
+                    document.getElementById(destinationId).appendChild(existingDiv);
+                } else {
+                    slideToObjectAndAttach(this.game, existingDiv, destinationId);
+                }
             }
+
             existingDiv.dataset.side = ''+side;
             if (!oldType && card.category) {
                 this.setVisibleInformations(existingDiv, card);
             } else if (oldType && !card.category) {
-                setTimeout(() => this.removeVisibleInformations(existingDiv), 500); // so we don't change face while it is still visible
+                if (instant) {
+                    this.removeVisibleInformations(existingDiv);
+                } else {
+                    setTimeout(() => this.removeVisibleInformations(existingDiv), 500); // so we don't change face while it is still visible
+                }
             }
             if (card.category) {
                 this.game.setTooltip(existingDiv.id, this.getTooltip(card.category, card.family) + `<br><br><i>${this.COLORS[card.color]}</i>`);
@@ -100,6 +103,24 @@ class Cards {
                 if (!destinationId.startsWith('help-')) {
                     this.game.setTooltip(div.id, this.getTooltip(card.category, card.family) + `<br><br><i>${this.COLORS[card.color]}</i>`);
                 }
+            }
+        }
+    }
+
+    public updateCard(card: Card) {
+        const existingDiv = document.getElementById(`card-${card.id}`);
+        const side = card.category ? 'front' : 'back';
+        if (existingDiv) {
+            (this.game as any).removeTooltip(`card-${card.id}`);
+            const oldType = Number(existingDiv.dataset.category);
+            existingDiv.dataset.side = ''+side;
+            if (!oldType && card.category) {
+                this.setVisibleInformations(existingDiv, card);
+            } else if (oldType && !card.category) {
+                setTimeout(() => this.removeVisibleInformations(existingDiv), 500); // so we don't change face while it is still visible
+            }
+            if (card.category) {
+                this.game.setTooltip(existingDiv.id, this.getTooltip(card.category, card.family) + `<br><br><i>${this.COLORS[card.color]}</i>`);
             }
         }
     }

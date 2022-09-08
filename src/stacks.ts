@@ -46,9 +46,16 @@ class Stacks {
     public showPickCards(show: boolean, cards?: Card[]) {
         this.pickDiv.dataset.visible = show.toString();
 
-        cards?.forEach(card => 
-            this.game.cards.createMoveOrUpdateCard(card, `pick`, false, 'deck')
-        );
+        cards?.forEach(card => {
+            if (document.getElementById(`card-${card.id}`)?.parentElement?.id !== 'pick') {
+                // start hidden
+                this.game.cards.createMoveOrUpdateCard({
+                    id: card.id
+                } as Card, `pick`, true, 'deck');
+                // set card informations
+                setTimeout(() => this.game.cards.updateCard(card), 1);
+            }
+        });
         this.game.updateTableHeight();
     }
 

@@ -135,7 +135,11 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     
     private onEnteringChooseCard(args: EnteringChooseCardArgs) {
         this.stacks.showPickCards(true, args._private?.cards ?? args.cards);
-        this.stacks.makePickSelectable((this as any).isCurrentPlayerActive());        
+        if ((this as any).isCurrentPlayerActive()) {
+            setTimeout(() => this.stacks.makePickSelectable(true), 500);
+        } else {
+            this.stacks.makePickSelectable(false);
+        }        
         this.stacks.setDeckCount(args.remainingCardsInDeck);
     }
     
@@ -880,6 +884,10 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
     notif_cardInHandFromDeck(notif: Notif<NotifCardInHandFromPickArgs>) {
         const playerId = notif.args.playerId;
+        // start hidden
+        this.cards.createMoveOrUpdateCard({
+            id: notif.args.card.id
+        } as Card, `pick`, true, 'deck');
         this.getPlayerTable(playerId).addCardsToHand([notif.args.card], 'deck');
         this.handCounters[playerId].incValue(1);
     }   
