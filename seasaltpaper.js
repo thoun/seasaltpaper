@@ -789,7 +789,7 @@ var SeaSaltPaper = /** @class */ (function () {
         var _this = this;
         // Extract the ID and value from the UI control
         var onchange = function (e) {
-            var match = e.target.id.match(/^preference_control_(\d+)$/);
+            var match = e.target.id.match(/^preference_[cf]ontrol_(\d+)$/);
             if (!match) {
                 return;
             }
@@ -1302,7 +1302,7 @@ var SeaSaltPaper = /** @class */ (function () {
                     args.announcement = "<strong style=\"color: darkred;\">".concat(_(args.announcement), "</strong>");
                 }
                 if (args.call && args.call.length && args.call[0] != '<') {
-                    args.call = "<strong style=\"color: darkred;\">[".concat(_(args.call), "]</strong>");
+                    args.call = "<strong class=\"title-bar-call\">".concat(_(args.call), "</strong>");
                 }
                 ['discardNumber', 'roundPoints', 'cardsPoints', 'colorBonus', 'cardName', 'cardName1', 'cardName2', 'cardColor', 'cardColor1', 'cardColor2', 'points', 'result'].forEach(function (field) {
                     if (args[field] !== null && args[field] !== undefined && args[field][0] != '<') {

@@ -376,7 +376,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     private setupPreferences() {
         // Extract the ID and value from the UI control
         const onchange = (e) => {
-          var match = e.target.id.match(/^preference_control_(\d+)$/);
+          var match = e.target.id.match(/^preference_[cf]ontrol_(\d+)$/);
           if (!match) {
             return;
           }
@@ -1008,7 +1008,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                     args.announcement = `<strong style="color: darkred;">${_(args.announcement)}</strong>`;
                 }
                 if (args.call && args.call.length && args.call[0] != '<') {
-                    args.call = `<strong style="color: darkred;">[${_(args.call)}]</strong>`;
+                    args.call = `<strong class="title-bar-call">${_(args.call)}</strong>`;
                 }
 
                 ['discardNumber', 'roundPoints', 'cardsPoints', 'colorBonus', 'cardName', 'cardName1', 'cardName2', 'cardColor', 'cardColor1', 'cardColor2', 'points', 'result'].forEach(field => {

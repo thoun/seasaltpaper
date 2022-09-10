@@ -85,3 +85,21 @@ html, .mode_3d #game_play_area_background {
 .log p /*.replay_last_move_button*/, .hidden-log-action {
   display: none !important;
 }
+
+.title-bar-call {
+  background: #8B0000;
+  color: white;
+  padding: 5px 8px;
+  margin-left: 8px;
+  border-radius: 8px;
+  animation: title-bar-call-animation 1s alternate infinite ease-in-out;
+}
+
+@keyframes title-bar-call-animation {
+  0% { 
+    box-shadow: 0 0 6px 2px #8B0000;
+  }
+  100% { 
+    box-shadow: 0 0 6px 2px #8B000088;
+  }
+}
