@@ -540,6 +540,7 @@
   align-items: center;
   width: 69px;
   height: 42px;
+  word-break: break-word;
 }
 #color-help-button .label[data-row="0"] {
   top: 11px;

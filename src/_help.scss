@@ -39,6 +39,7 @@
         align-items: center;
         width: 69px;
         height: 42px;
+        word-break: break-word;
 
         @for $i from 0 through 5 {
             &[data-row="#{$i}"] {
