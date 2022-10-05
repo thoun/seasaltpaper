@@ -12,6 +12,11 @@ trait StateTrait {
     */
 
     function stNewRound() {
+        $this->setGameStateValue(END_ROUND_TYPE, 0);
+        $this->setGameStateValue(LAST_CHANCE_CALLER, 0);
+        $this->setGameStateValue(STOP_CALLER, 0);
+        $this->setGameStateValue(BET_RESULT, 0);
+
         // init round discard
         $cards = [];
         foreach([1, 2] as $discardNumber) {
@@ -219,12 +224,6 @@ trait StateTrait {
     }
 
     function stEndRound() {
-
-        $this->setGameStateValue(END_ROUND_TYPE, 0);
-        $this->setGameStateValue(LAST_CHANCE_CALLER, 0);
-        $this->setGameStateValue(STOP_CALLER, 0);
-        $this->setGameStateValue(BET_RESULT, 0);
-
         $lastRound = $this->isLastRound();
         if (!$lastRound) {
             $this->cards->moveAllCardsInLocation(null, 'deck');
@@ -240,7 +239,11 @@ trait StateTrait {
         $playersIds = $this->getPlayersIds();
 
         // update player_score_aux
-        $playerId = intval($this->getPlayerBefore($this->getActivePlayerId()));
+        $endRound = intval($this->getGameStateValue(END_ROUND_TYPE));
+        $playerId = intval($this->getPlayerBefore($this->getActivePlayerId())); // if STOP, last player is the one before the newly activated player (next round starter)
+        if ($endRound == LAST_CHANCE) { // if LAST_CHANCE, it's the player before (before the Caller)
+            $playerId = intval($this->getPlayerBefore($playerId));
+        }
         $scoreAux = count($playersIds);
         while ($scoreAux >= 1) {
             $this->DbQuery("UPDATE `player` SET `player_score_aux` = $scoreAux WHERE `player_id` = $playerId"); 
