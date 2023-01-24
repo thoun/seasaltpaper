@@ -238,19 +238,6 @@ trait StateTrait {
     function stEndScore() {
         $playersIds = $this->getPlayersIds();
 
-        // update player_score_aux
-        $endRound = intval($this->getGameStateValue(END_ROUND_TYPE));
-        $playerId = intval($this->getPlayerBefore($this->getActivePlayerId())); // if STOP, last player is the one before the newly activated player (next round starter)
-        if ($endRound == LAST_CHANCE) { // if LAST_CHANCE, it's the player before (before the Caller)
-            $playerId = intval($this->getPlayerBefore($playerId));
-        }
-        $scoreAux = count($playersIds);
-        while ($scoreAux >= 1) {
-            $this->DbQuery("UPDATE `player` SET `player_score_aux` = $scoreAux WHERE `player_id` = $playerId"); 
-            $playerId = intval($this->getPlayerBefore($playerId));
-            $scoreAux--;
-        }
-
         foreach ($playersIds as $playerId) {
             $mermaids = $this->getPlayerMermaids($playerId);
             if (count($mermaids) == 4) {

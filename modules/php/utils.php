@@ -140,14 +140,14 @@ trait UtilTrait {
         return intval($this->getUniqueValueFromDB("SELECT player_score FROM player where `player_id` = $playerId"));
     }
 
-    function incPlayerScore(int $playerId, int $amount, $message = '', $args = []) {
-        $this->DbQuery("UPDATE player SET `player_score` = `player_score` + $amount WHERE player_id = $playerId");
+    function incPlayerScore(int $playerId, int $roundScore, $message = '', $args = []) {
+        $this->DbQuery("UPDATE player SET `player_score` = `player_score` + $roundScore,  `player_score_aux` = $roundScore WHERE player_id = $playerId");
             
         $this->notifyAllPlayers('score', $message, [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'newScore' => $this->getPlayerScore($playerId),
-            'incScore' => $amount,
+            'incScore' => $roundScore,
         ] + $args);
     }
 
