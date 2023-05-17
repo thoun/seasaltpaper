@@ -1,7 +1,7 @@
 /*
  * Colors
  */
-.card {
+.old-card {
   display: inline-block;
   position: relative;
   width: 149px;
@@ -10,14 +10,14 @@
   border-radius: 10px;
   text-align: center;
 }
-.card[data-side=back] .card-sides {
+.old-card[data-side=back] .old-card-sides {
   transform: rotateY(180deg);
 }
-.card.disabled {
+.old-card.disabled {
   cursor: not-allowed;
   filter: contrast(0.6);
 }
-.card .card-sides {
+.old-card .old-card-sides {
   position: absolute;
   top: 0;
   left: 0;
@@ -26,7 +26,7 @@
   transform-style: preserve-3d;
   transition: transform 0.5s;
 }
-.card .card-sides .card-side {
+.old-card .old-card-sides .old-card-side {
   position: absolute;
   top: 0;
   left: 0;
@@ -39,251 +39,251 @@
   border-radius: 5px;
   box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.5);
 }
-.card .card-sides .card-side.front {
+.old-card .old-card-sides .old-card-side.front {
   background-size: auto 600%;
   background-image: url("img/cards.jpg");
 }
-.card .card-sides .card-side.front > * {
+.old-card .old-card-sides .old-card-side.front > * {
   pointer-events: none;
   user-select: none;
 }
-.card .card-sides .card-side.back {
+.old-card .old-card-sides .old-card-side.back {
   background-size: auto 100%;
   background-image: url("img/card-back.jpg");
   transform: rotateY(180deg);
 }
-.card.selectable:not(.disabled) {
+.old-card.selectable:not(.disabled) {
   cursor: pointer;
 }
-.card.selectable:not(.disabled):not(.selected) {
+.old-card.selectable:not(.disabled):not(.selected) {
   animation: selectable-card-animation 1s alternate infinite ease-in-out;
 }
-.card.selectable:not(.disabled) .card-side {
+.old-card.selectable:not(.disabled) .old-card-side {
   box-shadow: unset;
 }
-.card.selected:not(.disabled) {
+.old-card.selected:not(.disabled) {
   box-shadow: 0 0 5px 8px orange;
 }
-.card.selected:not(.disabled) .card-side {
+.old-card.selected:not(.disabled) .old-card-side {
   box-shadow: unset;
 }
-.card[data-category="1"] .front {
+.old-card[data-category="1"] .front {
   background-position-x: 0%;
   background-position-y: 0%;
 }
-.card[data-category="2"][data-family="1"][data-color="1"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="1"][data-color="1"][data-index="0"] .front {
   background-position-x: 11.1111111111%;
   background-position-y: 0%;
 }
-.card[data-category="2"][data-family="1"][data-color="1"][data-index="1"] .front {
+.old-card[data-category="2"][data-family="1"][data-color="1"][data-index="1"] .front {
   background-position-x: 22.2222222222%;
   background-position-y: 0%;
 }
-.card[data-category="2"][data-family="1"][data-color="2"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="1"][data-color="2"][data-index="0"] .front {
   background-position-x: 33.3333333333%;
   background-position-y: 0%;
 }
-.card[data-category="2"][data-family="1"][data-color="2"][data-index="1"] .front {
+.old-card[data-category="2"][data-family="1"][data-color="2"][data-index="1"] .front {
   background-position-x: 44.4444444444%;
   background-position-y: 0%;
 }
-.card[data-category="2"][data-family="1"][data-color="3"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="1"][data-color="3"][data-index="0"] .front {
   background-position-x: 55.5555555556%;
   background-position-y: 0%;
 }
-.card[data-category="2"][data-family="1"][data-color="4"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="1"][data-color="4"][data-index="0"] .front {
   background-position-x: 66.6666666667%;
   background-position-y: 0%;
 }
-.card[data-category="2"][data-family="1"][data-color="4"][data-index="1"] .front {
+.old-card[data-category="2"][data-family="1"][data-color="4"][data-index="1"] .front {
   background-position-x: 77.7777777778%;
   background-position-y: 0%;
 }
-.card[data-category="2"][data-family="1"][data-color="5"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="1"][data-color="5"][data-index="0"] .front {
   background-position-x: 88.8888888889%;
   background-position-y: 0%;
 }
-.card[data-category="2"][data-family="1"][data-color="7"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="1"][data-color="7"][data-index="0"] .front {
   background-position-x: 100%;
   background-position-y: 0%;
 }
-.card[data-category="2"][data-family="2"][data-color="1"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="2"][data-color="1"][data-index="0"] .front {
   background-position-x: 0%;
   background-position-y: 20%;
 }
-.card[data-category="2"][data-family="2"][data-color="1"][data-index="1"] .front {
+.old-card[data-category="2"][data-family="2"][data-color="1"][data-index="1"] .front {
   background-position-x: 11.1111111111%;
   background-position-y: 20%;
 }
-.card[data-category="2"][data-family="2"][data-color="2"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="2"][data-color="2"][data-index="0"] .front {
   background-position-x: 22.2222222222%;
   background-position-y: 20%;
 }
-.card[data-category="2"][data-family="2"][data-color="2"][data-index="1"] .front {
+.old-card[data-category="2"][data-family="2"][data-color="2"][data-index="1"] .front {
   background-position-x: 33.3333333333%;
   background-position-y: 20%;
 }
-.card[data-category="2"][data-family="2"][data-color="3"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="2"][data-color="3"][data-index="0"] .front {
   background-position-x: 44.4444444444%;
   background-position-y: 20%;
 }
-.card[data-category="2"][data-family="2"][data-color="3"][data-index="1"] .front {
+.old-card[data-category="2"][data-family="2"][data-color="3"][data-index="1"] .front {
   background-position-x: 55.5555555556%;
   background-position-y: 20%;
 }
-.card[data-category="2"][data-family="2"][data-color="4"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="2"][data-color="4"][data-index="0"] .front {
   background-position-x: 66.6666666667%;
   background-position-y: 20%;
 }
-.card[data-category="2"][data-family="2"][data-color="4"][data-index="1"] .front {
+.old-card[data-category="2"][data-family="2"][data-color="4"][data-index="1"] .front {
   background-position-x: 77.7777777778%;
   background-position-y: 20%;
 }
-.card[data-category="2"][data-family="3"][data-color="1"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="3"][data-color="1"][data-index="0"] .front {
   background-position-x: 88.8888888889%;
   background-position-y: 20%;
 }
-.card[data-category="2"][data-family="3"][data-color="1"][data-index="1"] .front {
+.old-card[data-category="2"][data-family="3"][data-color="1"][data-index="1"] .front {
   background-position-x: 100%;
   background-position-y: 20%;
 }
-.card[data-category="2"][data-family="3"][data-color="2"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="3"][data-color="2"][data-index="0"] .front {
   background-position-x: 0%;
   background-position-y: 40%;
 }
-.card[data-category="2"][data-family="3"][data-color="3"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="3"][data-color="3"][data-index="0"] .front {
   background-position-x: 11.1111111111%;
   background-position-y: 40%;
 }
-.card[data-category="2"][data-family="3"][data-color="3"][data-index="1"] .front {
+.old-card[data-category="2"][data-family="3"][data-color="3"][data-index="1"] .front {
   background-position-x: 22.2222222222%;
   background-position-y: 40%;
 }
-.card[data-category="2"][data-family="3"][data-color="4"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="3"][data-color="4"][data-index="0"] .front {
   background-position-x: 33.3333333333%;
   background-position-y: 40%;
 }
-.card[data-category="2"][data-family="3"][data-color="5"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="3"][data-color="5"][data-index="0"] .front {
   background-position-x: 44.4444444444%;
   background-position-y: 40%;
 }
-.card[data-category="2"][data-family="4"][data-color="1"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="4"][data-color="1"][data-index="0"] .front {
   background-position-x: 55.5555555556%;
   background-position-y: 40%;
 }
-.card[data-category="2"][data-family="4"][data-color="2"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="4"][data-color="2"][data-index="0"] .front {
   background-position-x: 66.6666666667%;
   background-position-y: 40%;
 }
-.card[data-category="2"][data-family="4"][data-color="3"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="4"][data-color="3"][data-index="0"] .front {
   background-position-x: 77.7777777778%;
   background-position-y: 40%;
 }
-.card[data-category="2"][data-family="4"][data-color="4"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="4"][data-color="4"][data-index="0"] .front {
   background-position-x: 88.8888888889%;
   background-position-y: 40%;
 }
-.card[data-category="2"][data-family="4"][data-color="8"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="4"][data-color="8"][data-index="0"] .front {
   background-position-x: 100%;
   background-position-y: 40%;
 }
-.card[data-category="2"][data-family="5"][data-color="1"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="5"][data-color="1"][data-index="0"] .front {
   background-position-x: 0%;
   background-position-y: 60%;
 }
-.card[data-category="2"][data-family="5"][data-color="2"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="5"][data-color="2"][data-index="0"] .front {
   background-position-x: 11.1111111111%;
   background-position-y: 60%;
 }
-.card[data-category="2"][data-family="5"][data-color="3"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="5"][data-color="3"][data-index="0"] .front {
   background-position-x: 22.2222222222%;
   background-position-y: 60%;
 }
-.card[data-category="2"][data-family="5"][data-color="5"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="5"][data-color="5"][data-index="0"] .front {
   background-position-x: 33.3333333333%;
   background-position-y: 60%;
 }
-.card[data-category="2"][data-family="5"][data-color="6"][data-index="0"] .front {
+.old-card[data-category="2"][data-family="5"][data-color="6"][data-index="0"] .front {
   background-position-x: 44.4444444444%;
   background-position-y: 60%;
 }
-.card[data-category="3"][data-family="1"][data-color="1"][data-index="0"] .front {
+.old-card[data-category="3"][data-family="1"][data-color="1"][data-index="0"] .front {
   background-position-x: 55.5555555556%;
   background-position-y: 60%;
 }
-.card[data-category="3"][data-family="1"][data-color="2"][data-index="0"] .front {
+.old-card[data-category="3"][data-family="1"][data-color="2"][data-index="0"] .front {
   background-position-x: 66.6666666667%;
   background-position-y: 60%;
 }
-.card[data-category="3"][data-family="1"][data-color="3"][data-index="0"] .front {
+.old-card[data-category="3"][data-family="1"][data-color="3"][data-index="0"] .front {
   background-position-x: 77.7777777778%;
   background-position-y: 60%;
 }
-.card[data-category="3"][data-family="1"][data-color="4"][data-index="0"] .front {
+.old-card[data-category="3"][data-family="1"][data-color="4"][data-index="0"] .front {
   background-position-x: 88.8888888889%;
   background-position-y: 60%;
 }
-.card[data-category="3"][data-family="1"][data-color="5"][data-index="0"] .front {
+.old-card[data-category="3"][data-family="1"][data-color="5"][data-index="0"] .front {
   background-position-x: 100%;
   background-position-y: 60%;
 }
-.card[data-category="3"][data-family="1"][data-color="7"][data-index="0"] .front {
+.old-card[data-category="3"][data-family="1"][data-color="7"][data-index="0"] .front {
   background-position-x: 0%;
   background-position-y: 80%;
 }
-.card[data-category="3"][data-family="2"][data-color="2"][data-index="0"] .front {
+.old-card[data-category="3"][data-family="2"][data-color="2"][data-index="0"] .front {
   background-position-x: 11.1111111111%;
   background-position-y: 80%;
 }
-.card[data-category="3"][data-family="2"][data-color="4"][data-index="0"] .front {
+.old-card[data-category="3"][data-family="2"][data-color="4"][data-index="0"] .front {
   background-position-x: 22.2222222222%;
   background-position-y: 80%;
 }
-.card[data-category="3"][data-family="2"][data-color="5"][data-index="0"] .front {
+.old-card[data-category="3"][data-family="2"][data-color="5"][data-index="0"] .front {
   background-position-x: 33.3333333333%;
   background-position-y: 80%;
 }
-.card[data-category="3"][data-family="2"][data-color="6"][data-index="0"] .front {
+.old-card[data-category="3"][data-family="2"][data-color="6"][data-index="0"] .front {
   background-position-x: 44.4444444444%;
   background-position-y: 80%;
 }
-.card[data-category="3"][data-family="2"][data-color="7"][data-index="0"] .front {
+.old-card[data-category="3"][data-family="2"][data-color="7"][data-index="0"] .front {
   background-position-x: 55.5555555556%;
   background-position-y: 80%;
 }
-.card[data-category="3"][data-family="3"][data-color="6"][data-index="0"] .front {
+.old-card[data-category="3"][data-family="3"][data-color="6"][data-index="0"] .front {
   background-position-x: 66.6666666667%;
   background-position-y: 80%;
 }
-.card[data-category="3"][data-family="3"][data-color="8"][data-index="0"] .front {
+.old-card[data-category="3"][data-family="3"][data-color="8"][data-index="0"] .front {
   background-position-x: 77.7777777778%;
   background-position-y: 80%;
 }
-.card[data-category="3"][data-family="3"][data-color="9"][data-index="0"] .front {
+.old-card[data-category="3"][data-family="3"][data-color="9"][data-index="0"] .front {
   background-position-x: 88.8888888889%;
   background-position-y: 80%;
 }
-.card[data-category="3"][data-family="4"][data-color="9"][data-index="0"] .front {
+.old-card[data-category="3"][data-family="4"][data-color="9"][data-index="0"] .front {
   background-position-x: 100%;
   background-position-y: 80%;
 }
-.card[data-category="3"][data-family="4"][data-color="10"][data-index="0"] .front {
+.old-card[data-category="3"][data-family="4"][data-color="10"][data-index="0"] .front {
   background-position-x: 0%;
   background-position-y: 100%;
 }
-.card[data-category="4"][data-family="1"] .front {
+.old-card[data-category="4"][data-family="1"] .front {
   background-position-x: 11.1111111111%;
   background-position-y: 100%;
 }
-.card[data-category="4"][data-family="2"] .front {
+.old-card[data-category="4"][data-family="2"] .front {
   background-position-x: 22.2222222222%;
   background-position-y: 100%;
 }
-.card[data-category="4"][data-family="3"] .front {
+.old-card[data-category="4"][data-family="3"] .front {
   background-position-x: 33.3333333333%;
   background-position-y: 100%;
 }
-.card[data-category="4"][data-family="4"] .front {
+.old-card[data-category="4"][data-family="4"] .front {
   background-position-x: 44.4444444444%;
   background-position-y: 100%;
 }
@@ -388,7 +388,7 @@
 .cards-stack {
   position: relative;
 }
-.cards-stack .card {
+.cards-stack .old-card {
   position: absolute;
   top: 0;
   left: 0;
@@ -491,10 +491,10 @@
   max-height: 45px;
   overflow: hidden;
 }
-.player-table .cards.hand[data-current-player=false] .card:not(:first-child) {
+.player-table .cards.hand[data-current-player=false] .old-card:not(:first-child) {
   margin-left: -120px;
 }
-.player-table .cards.hand[data-can-steal=true] .card {
+.player-table .cards.hand[data-can-steal=true] .old-card {
   cursor: pointer;
   animation: selectable-card-animation 1s alternate infinite ease-in-out;
 }

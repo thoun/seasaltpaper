@@ -39,7 +39,7 @@ class Stacks {
     }
 
     public makePickSelectable(selectable: boolean) {
-        const cards = Array.from(this.pickDiv.getElementsByClassName('card')) as HTMLDivElement[];
+        const cards = Array.from(this.pickDiv.getElementsByClassName('old-card')) as HTMLDivElement[];
         cards.forEach(card => card.classList.toggle('selectable', selectable));
     }
     
@@ -60,7 +60,7 @@ class Stacks {
     }
 
     public getDiscardCard(discardNumber: number): HTMLDivElement | null {
-        const currentCardDivs = Array.from(document.getElementById(`discard${discardNumber}`).getElementsByClassName('card')) as HTMLDivElement[];
+        const currentCardDivs = Array.from(document.getElementById(`discard${discardNumber}`).getElementsByClassName('old-card')) as HTMLDivElement[];
         return currentCardDivs.length > 0 ? currentCardDivs[0] : null;
     }
 

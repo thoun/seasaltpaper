@@ -78,8 +78,8 @@ class PlayerTable {
 
     public cleanTable(): void {
         const cards = [
-            ...Array.from(this.handCardsDiv.getElementsByClassName('card')) as HTMLDivElement[],
-            ...Array.from(this.tableCardsDiv.getElementsByClassName('card')) as HTMLDivElement[],
+            ...Array.from(this.handCardsDiv.getElementsByClassName('old-card')) as HTMLDivElement[],
+            ...Array.from(this.tableCardsDiv.getElementsByClassName('old-card')) as HTMLDivElement[],
         ];
         
         cards.forEach(cardDiv => this.game.cards.createMoveOrUpdateCard({
@@ -145,7 +145,7 @@ class PlayerTable {
     }
     
     public setSelectable(selectable: boolean) {
-        const cards = Array.from(this.handCardsDiv.getElementsByClassName('card')) as HTMLDivElement[];
+        const cards = Array.from(this.handCardsDiv.getElementsByClassName('old-card')) as HTMLDivElement[];
         if (selectable) {
             cards.forEach(card => card.classList.add('selectable'));
         } else {
@@ -158,7 +158,7 @@ class PlayerTable {
             return;
         }
 
-        const cards = Array.from(this.handCardsDiv.getElementsByClassName('card')) as HTMLDivElement[];
+        const cards = Array.from(this.handCardsDiv.getElementsByClassName('old-card')) as HTMLDivElement[];
         cards.forEach(card => {
             let disabled = false;
             if (card.dataset.category != '2') {

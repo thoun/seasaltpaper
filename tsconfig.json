@@ -12,6 +12,7 @@
         "src/counter.d.ts",
         "src/seasaltpaper.d.ts",
         "src/slide-utils.ts",
+        "src/old-cards.ts",
         "src/cards.ts",
         "src/stacks.ts",
         "src/player-table.ts",

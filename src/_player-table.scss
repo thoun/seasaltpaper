@@ -66,12 +66,12 @@
         max-height: 45px;
         overflow: hidden;
 
-        .card:not(:first-child) {
+        .old-card:not(:first-child) {
           margin-left: -120px;
         }
       }
 
-      &[data-can-steal="true"] .card {
+      &[data-can-steal="true"] .old-card {
         cursor: pointer;
         animation: selectable-card-animation 1s alternate infinite ease-in-out;
       }

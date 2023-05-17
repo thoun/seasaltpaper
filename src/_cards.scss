@@ -35,7 +35,7 @@ $LIGHT_ORANGE: 8;
 $PINK: 9;
 $ORANGE: 10;
 
-.card {
+.old-card {
     display: inline-block;
     position: relative;
     width: 149px;
@@ -45,7 +45,7 @@ $ORANGE: 10;
     text-align: center;
 
     &[data-side="back"] {
-        .card-sides { 
+        .old-card-sides { 
             transform: rotateY(180deg);
         }
     }
@@ -55,7 +55,7 @@ $ORANGE: 10;
       filter: contrast(0.6);
     }
 
-    .card-sides {
+    .old-card-sides {
         position: absolute;
         top: 0;
         left: 0;
@@ -64,7 +64,7 @@ $ORANGE: 10;
         transform-style: preserve-3d;
         transition: transform 0.5s;
 
-        .card-side {
+        .old-card-side {
             position: absolute;
             top: 0;
             left: 0;
@@ -101,7 +101,7 @@ $ORANGE: 10;
             animation: selectable-card-animation 1s alternate infinite ease-in-out;
         }
 
-        .card-side {
+        .old-card-side {
             box-shadow: unset;
         }
     }    
@@ -109,7 +109,7 @@ $ORANGE: 10;
     &.selected:not(.disabled) {
         box-shadow: 0 0 5px 8px orange;
 
-        .card-side {
+        .old-card-side {
             box-shadow: unset;
         }
     } 

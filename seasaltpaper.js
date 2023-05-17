@@ -73,7 +73,7 @@ var Cards = /** @class */ (function () {
     // gameui.cards.debugSeeAllCards()
     Cards.prototype.debugSeeAllCards = function () {
         var _this = this;
-        document.querySelectorAll('.card').forEach(function (card) { return card.remove(); });
+        document.querySelectorAll('.old-card').forEach(function (card) { return card.remove(); });
         var html = "<div id=\"all-cards\">";
         html += "</div>";
         dojo.place(html, 'full-table', 'before');
@@ -133,10 +133,10 @@ var Cards = /** @class */ (function () {
         else {
             var div = document.createElement('div');
             div.id = "card-".concat(card.id);
-            div.classList.add('card');
+            div.classList.add('old-card');
             div.dataset.id = '' + card.id;
             div.dataset.side = '' + side;
-            div.innerHTML = "\n                <div class=\"card-sides\">\n                    <div class=\"card-side front\">\n                    </div>\n                    <div class=\"card-side back\">\n                    </div>\n                </div>\n            ";
+            div.innerHTML = "\n                <div class=\"old-card-sides\">\n                    <div class=\"old-card-side front\">\n                    </div>\n                    <div class=\"old-card-side back\">\n                    </div>\n                </div>\n            ";
             document.getElementById(destinationId).appendChild(div);
             div.addEventListener('click', function () { return _this.game.onCardClick(card); });
             if (from) {
@@ -269,7 +269,7 @@ var Stacks = /** @class */ (function () {
         [1, 2].forEach(function (number) { var _a; return (_a = _this.getDiscardCard(number)) === null || _a === void 0 ? void 0 : _a.classList.toggle('selectable', selectable); });
     };
     Stacks.prototype.makePickSelectable = function (selectable) {
-        var cards = Array.from(this.pickDiv.getElementsByClassName('card'));
+        var cards = Array.from(this.pickDiv.getElementsByClassName('old-card'));
         cards.forEach(function (card) { return card.classList.toggle('selectable', selectable); });
     };
     Stacks.prototype.showPickCards = function (show, cards) {
@@ -289,7 +289,7 @@ var Stacks = /** @class */ (function () {
         this.game.updateTableHeight();
     };
     Stacks.prototype.getDiscardCard = function (discardNumber) {
-        var currentCardDivs = Array.from(document.getElementById("discard".concat(discardNumber)).getElementsByClassName('card'));
+        var currentCardDivs = Array.from(document.getElementById("discard".concat(discardNumber)).getElementsByClassName('old-card'));
         return currentCardDivs.length > 0 ? currentCardDivs[0] : null;
     };
     Stacks.prototype.setDeckCount = function (number) {
@@ -370,7 +370,7 @@ var PlayerTable = /** @class */ (function () {
     };
     PlayerTable.prototype.cleanTable = function () {
         var _this = this;
-        var cards = __spreadArray(__spreadArray([], Array.from(this.handCardsDiv.getElementsByClassName('card')), true), Array.from(this.tableCardsDiv.getElementsByClassName('card')), true);
+        var cards = __spreadArray(__spreadArray([], Array.from(this.handCardsDiv.getElementsByClassName('old-card')), true), Array.from(this.tableCardsDiv.getElementsByClassName('old-card')), true);
         cards.forEach(function (cardDiv) { return _this.game.cards.createMoveOrUpdateCard({
             id: Number(cardDiv.dataset.id),
         }, "deck"); });
@@ -426,7 +426,7 @@ var PlayerTable = /** @class */ (function () {
         bubble.dataset.visible = 'true';
     };
     PlayerTable.prototype.setSelectable = function (selectable) {
-        var cards = Array.from(this.handCardsDiv.getElementsByClassName('card'));
+        var cards = Array.from(this.handCardsDiv.getElementsByClassName('old-card'));
         if (selectable) {
             cards.forEach(function (card) { return card.classList.add('selectable'); });
         }
@@ -438,7 +438,7 @@ var PlayerTable = /** @class */ (function () {
         if (!this.game.isCurrentPlayerActive()) {
             return;
         }
-        var cards = Array.from(this.handCardsDiv.getElementsByClassName('card'));
+        var cards = Array.from(this.handCardsDiv.getElementsByClassName('old-card'));
         cards.forEach(function (card) {
             var disabled = false;
             if (card.dataset.category != '2') {
