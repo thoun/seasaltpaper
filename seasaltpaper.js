@@ -1210,65 +1210,19 @@ var CardManager = /** @class */ (function () {
     };
     return CardManager;
 }());
-function slideToObjectAndAttach(game, object, destinationId, changeSide) {
-    if (changeSide === void 0) { changeSide = false; }
-    var destination = document.getElementById(destinationId);
-    if (destination.contains(object)) {
-        return;
-    }
-    var originBR = object.getBoundingClientRect();
-    destination.appendChild(object);
-    if (document.visibilityState !== 'hidden' && !game.instantaneousMode) {
-        var destinationBR = object.getBoundingClientRect();
-        var deltaX = destinationBR.left - originBR.left;
-        var deltaY = destinationBR.top - originBR.top;
-        object.style.zIndex = '10';
-        object.style.transform = "translate(".concat(-deltaX, "px, ").concat(-deltaY, "px)");
-        if (destination.dataset.currentPlayer == 'false') {
-            object.style.order = null;
-            object.style.position = 'absolute';
-        }
-        setTimeout(function () {
-            object.style.transition = "transform 0.5s linear";
-            object.style.transform = null;
-        });
-        setTimeout(function () {
-            object.style.zIndex = null;
-            object.style.transition = null;
-            object.style.position = null;
-        }, 600);
-    }
-    else {
-        object.style.order = null;
-    }
-}
-function slideFromObject(game, object, fromId) {
-    var from = document.getElementById(fromId);
-    var originBR = from.getBoundingClientRect();
-    if (document.visibilityState !== 'hidden' && !game.instantaneousMode) {
-        var destinationBR = object.getBoundingClientRect();
-        var deltaX = destinationBR.left - originBR.left;
-        var deltaY = destinationBR.top - originBR.top;
-        object.style.zIndex = '10';
-        object.style.transform = "translate(".concat(-deltaX, "px, ").concat(-deltaY, "px)");
-        if (object.parentElement.dataset.currentPlayer == 'false') {
-            object.style.position = 'absolute';
-        }
-        setTimeout(function () {
-            object.style.transition = "transform 0.5s linear";
-            object.style.transform = null;
-        });
-        setTimeout(function () {
-            object.style.zIndex = null;
-            object.style.transition = null;
-            object.style.position = null;
-        }, 600);
-    }
-}
-var Cards = /** @class */ (function () {
-    function Cards(game) {
-        this.game = game;
-        this.COLORS = [
+var CardsManager = /** @class */ (function (_super) {
+    __extends(CardsManager, _super);
+    function CardsManager(game) {
+        var _this = _super.call(this, game, {
+            getId: function (card) { return "ssp-card-".concat(card.id); },
+            setupDiv: function (card, div) {
+                div.dataset.cardId = '' + card.id;
+            },
+            setupFrontDiv: function (card, div) { return _this.setupFrontDiv(card, div); },
+            animationManager: game.animationManager,
+        }) || this;
+        _this.game = game;
+        _this.COLORS = [
             _('White'),
             _('Dark blue'),
             _('Light blue'),
@@ -1281,150 +1235,19 @@ var Cards = /** @class */ (function () {
             _('Pink'),
             _('Orange'),
         ];
+        return _this;
     }
-    // gameui.cards.debugSeeAllCards()
-    Cards.prototype.debugSeeAllCards = function () {
-        var _this = this;
-        document.querySelectorAll('.old-card').forEach(function (card) { return card.remove(); });
-        var html = "<div id=\"all-cards\">";
-        html += "</div>";
-        dojo.place(html, 'full-table', 'before');
-        [1, 2, 3, 4, 5, 6].forEach(function (subType) {
-            var card = {
-                id: 10 + subType,
-                type: 1,
-                subType: subType,
-            };
-            _this.createMoveOrUpdateCard(card, "all-cards");
-        });
-        [2, 3, 4, 5, 6].forEach(function (type) {
-            return [1, 2, 3].forEach(function (subType) {
-                var card = {
-                    id: 10 * type + subType,
-                    type: type,
-                    subType: subType,
-                };
-                _this.createMoveOrUpdateCard(card, "all-cards");
-            });
-        });
-    };
-    Cards.prototype.createMoveOrUpdateCard = function (card, destinationId, instant, from) {
-        var _this = this;
-        if (instant === void 0) { instant = false; }
-        if (from === void 0) { from = null; }
-        var existingDiv = document.getElementById("card-".concat(card.id));
-        var side = card.category ? 'front' : 'back';
-        if (existingDiv) {
-            this.game.removeTooltip("card-".concat(card.id));
-            var oldType = Number(existingDiv.dataset.category);
-            existingDiv.classList.remove('selectable', 'selected', 'disabled');
-            if (existingDiv.parentElement.id != destinationId) {
-                if (instant) {
-                    document.getElementById(destinationId).appendChild(existingDiv);
-                }
-                else {
-                    slideToObjectAndAttach(this.game, existingDiv, destinationId);
-                }
-            }
-            existingDiv.dataset.side = '' + side;
-            if (!oldType && card.category) {
-                this.setVisibleInformations(existingDiv, card);
-            }
-            else if (oldType && !card.category) {
-                if (instant) {
-                    this.removeVisibleInformations(existingDiv);
-                }
-                else {
-                    setTimeout(function () { return _this.removeVisibleInformations(existingDiv); }, 500); // so we don't change face while it is still visible
-                }
-            }
-            if (card.category) {
-                this.game.setTooltip(existingDiv.id, this.game.cardsManager.getTooltip(card.category, card.family) + "<br><br><i>".concat(this.COLORS[card.color], "</i>"));
-            }
-        }
-        else {
-            var div = document.createElement('div');
-            div.id = "card-".concat(card.id);
-            div.classList.add('old-card');
-            div.dataset.id = '' + card.id;
-            div.dataset.side = '' + side;
-            div.innerHTML = "\n                <div class=\"old-card-sides\">\n                    <div class=\"old-card-side front\">\n                    </div>\n                    <div class=\"old-card-side back\">\n                    </div>\n                </div>\n            ";
-            document.getElementById(destinationId).appendChild(div);
-            div.addEventListener('click', function () { return _this.game.onCardClick(card); });
-            if (from) {
-                var fromCardId = document.getElementById(from).id;
-                slideFromObject(this.game, div, fromCardId);
-            }
-            if (card.category) {
-                this.setVisibleInformations(div, card);
-                if (!destinationId.startsWith('help-')) {
-                    this.game.setTooltip(div.id, this.game.cardsManager.getTooltip(card.category, card.family) + "<br><br><i>".concat(this.COLORS[card.color], "</i>"));
-                }
-            }
-        }
-    };
-    Cards.prototype.updateCard = function (card) {
-        var _this = this;
-        var existingDiv = document.getElementById("card-".concat(card.id));
-        var side = card.category ? 'front' : 'back';
-        if (existingDiv) {
-            this.game.removeTooltip("card-".concat(card.id));
-            var oldType = Number(existingDiv.dataset.category);
-            existingDiv.dataset.side = '' + side;
-            if (!oldType && card.category) {
-                this.setVisibleInformations(existingDiv, card);
-            }
-            else if (oldType && !card.category) {
-                setTimeout(function () { return _this.removeVisibleInformations(existingDiv); }, 500); // so we don't change face while it is still visible
-            }
-            if (card.category) {
-                this.game.setTooltip(existingDiv.id, this.game.cardsManager.getTooltip(card.category, card.family) + "<br><br><i>".concat(this.COLORS[card.color], "</i>"));
-            }
-        }
-    };
-    Cards.prototype.setVisibleInformations = function (div, card) {
+    CardsManager.prototype.setupFrontDiv = function (card, div, ignoreTooltip) {
+        if (ignoreTooltip === void 0) { ignoreTooltip = false; }
+        div.id = "".concat(this.getId(card), "-front");
         div.dataset.category = '' + card.category;
         div.dataset.family = '' + card.family;
         div.dataset.color = '' + card.color;
         div.dataset.index = '' + card.index;
-    };
-    Cards.prototype.removeVisibleInformations = function (div) {
-        div.removeAttribute('data-category');
-        div.removeAttribute('data-family');
-        div.removeAttribute('data-color');
-        div.removeAttribute('data-index');
-    };
-    Cards.prototype.removeCard = function (div) {
-        if (!div) {
-            return;
+        if (!ignoreTooltip) {
+            this.game.setTooltip(div.id, this.getTooltip(card.category, card.family) + "<br><br><i>".concat(this.COLORS[card.color], "</i>"));
         }
-        div.id = "deleted".concat(div.id);
-        this.removeVisibleInformations(div);
-        div.remove();
     };
-    return Cards;
-}());
-var CardsManager = /** @class */ (function (_super) {
-    __extends(CardsManager, _super);
-    function CardsManager(game) {
-        var _this = _super.call(this, game, {
-            getId: function (card) { return "ssp-card-".concat(card.id); },
-            setupDiv: function (card, div) {
-                div.dataset.cardId = '' + card.id;
-            },
-            setupFrontDiv: function (card, div) {
-                div.id = "".concat(_this.getId(card), "-front");
-                div.dataset.category = '' + card.category;
-                div.dataset.family = '' + card.family;
-                div.dataset.color = '' + card.color;
-                div.dataset.index = '' + card.index;
-                game.setTooltip(div.id, _this.getTooltip(card.category, card.family));
-            },
-            animationManager: game.animationManager,
-        }) || this;
-        _this.game = game;
-        return _this;
-    }
     CardsManager.prototype.getTooltip = function (category, family /*, withCount: boolean = false*/) {
         var withCount = true;
         switch (category) {
@@ -1461,6 +1284,38 @@ var CardsManager = /** @class */ (function (_super) {
                 return "<div><strong>".concat(multiplier[0], "</strong> (x1)</div>\n                <div>").concat(_("${points} point(s) per ${card} card.").replace('${points}', multiplier[2]).replace('${card}', multiplier[1]), "</div>\n                <div>").concat(_("This card does not count as a ${card} card.").replace('${card}', multiplier[1]), "</div>");
         }
     };
+    CardsManager.prototype.setForHelp = function (card, divId) {
+        var div = document.getElementById(divId);
+        div.classList.add('card');
+        div.dataset.side = 'front';
+        div.innerHTML = "\n        <div class=\"card-sides\">\n            <div class=\"card-side front\">\n            </div>\n            <div class=\"card-side back\">\n            </div>\n        </div>";
+        this.setupFrontDiv(card, div.querySelector('.front'), true);
+    };
+    // gameui.cards.debugSeeAllCards()
+    CardsManager.prototype.debugSeeAllCards = function () {
+        var html = "<div id=\"all-cards\">";
+        html += "</div>";
+        dojo.place(html, 'full-table', 'before');
+        var debugStock = new LineStock(this.game.cardsManager, document.getElementById("all-cards"), { gap: '0', });
+        [1, 2, 3, 4, 5, 6].forEach(function (subType) {
+            var card = {
+                id: 10 + subType,
+                type: 1,
+                subType: subType,
+            };
+            debugStock.addCard(card);
+        });
+        [2, 3, 4, 5, 6].forEach(function (type) {
+            return [1, 2, 3].forEach(function (subType) {
+                var card = {
+                    id: 10 * type + subType,
+                    type: type,
+                    subType: subType,
+                };
+                debugStock.addCard(card);
+            });
+        });
+    };
     return CardsManager;
 }(CardManager));
 var Stacks = /** @class */ (function () {
@@ -1468,30 +1323,37 @@ var Stacks = /** @class */ (function () {
         var _this = this;
         this.game = game;
         this.discardCounters = [];
+        this.discardStocks = [];
         this.deckDiv.addEventListener('click', function () { return _this.game.takeCardsFromDeck(); });
         this.deckCounter = new ebg.counter();
         this.deckCounter.create("deck-counter");
         this.setDeckCount(gamedatas.remainingCardsInDeck);
         [1, 2].forEach(function (number) {
+            var discardDiv = document.getElementById("discard".concat(number));
+            var cardNumber = gamedatas["remainingCardsInDiscard".concat(number)];
+            _this.discardStocks[number] = new VisibleDeck(_this.game.cardsManager, discardDiv, {
+                width: 149,
+                height: 208,
+                autoUpdateCardNumber: false,
+                cardNumber: cardNumber
+            });
+            discardDiv.addEventListener('click', function () { return _this.game.onDiscardPileClick(number); });
+            // this.discardStocks[number].onCardClick = () => this.game.onDiscardPileClick(number);
             if (gamedatas["discardTopCard".concat(number)]) {
-                game.cards.createMoveOrUpdateCard(gamedatas["discardTopCard".concat(number)], "discard".concat(number));
+                _this.discardStocks[number].addCard(gamedatas["discardTopCard".concat(number)]);
             }
-            document.getElementById("discard".concat(number)).addEventListener('click', function () { return _this.game.onDiscardPileClick(number); });
             _this.discardCounters[number] = new ebg.counter();
             _this.discardCounters[number].create("discard".concat(number, "-counter"));
-            _this.discardCounters[number].setValue(gamedatas["remainingCardsInDiscard".concat(number)]);
+            _this.discardCounters[number].setValue(cardNumber);
         });
+        this.pickStock = new LineStock(this.game.cardsManager, document.getElementById('pick'), {
+            gap: '0px',
+        });
+        this.pickStock.onCardClick = function (card) { return _this.game.onCardClick(card); };
     }
     Object.defineProperty(Stacks.prototype, "deckDiv", {
         get: function () {
             return document.getElementById('deck');
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Stacks.prototype, "pickDiv", {
-        get: function () {
-            return document.getElementById('pick');
         },
         enumerable: false,
         configurable: true
@@ -1501,35 +1363,57 @@ var Stacks = /** @class */ (function () {
     };
     Stacks.prototype.makeDiscardSelectable = function (selectable) {
         var _this = this;
-        [1, 2].forEach(function (number) { var _a; return (_a = _this.getDiscardCard(number)) === null || _a === void 0 ? void 0 : _a.classList.toggle('selectable', selectable); });
+        [1, 2].forEach(function (number) {
+            return _this.discardStocks[number].getCards().forEach(function (card) { return _this.discardStocks[number].getCardElement(card).classList.toggle('selectable', selectable); });
+        });
     };
     Stacks.prototype.makePickSelectable = function (selectable) {
-        var cards = Array.from(this.pickDiv.getElementsByClassName('old-card'));
-        cards.forEach(function (card) { return card.classList.toggle('selectable', selectable); });
-    };
-    Stacks.prototype.showPickCards = function (show, cards) {
         var _this = this;
-        this.pickDiv.dataset.visible = show.toString();
+        this.pickStock.getCards().forEach(function (card) { return _this.pickStock.getCardElement(card).classList.toggle('selectable', selectable); });
+    };
+    Stacks.prototype.showPickCards = function (show, cards, currentPlayer) {
+        var _this = this;
+        if (currentPlayer === void 0) { currentPlayer = false; }
+        document.getElementById('pick').dataset.visible = show.toString();
         cards === null || cards === void 0 ? void 0 : cards.forEach(function (card) {
             var _a, _b;
-            if (((_b = (_a = document.getElementById("card-".concat(card.id))) === null || _a === void 0 ? void 0 : _a.parentElement) === null || _b === void 0 ? void 0 : _b.id) !== 'pick') {
-                // start hidden
-                _this.game.cards.createMoveOrUpdateCard({
-                    id: card.id
-                }, "pick", true, 'deck');
+            if (((_b = (_a = document.getElementById("ssp-card-".concat(card.id))) === null || _a === void 0 ? void 0 : _a.parentElement) === null || _b === void 0 ? void 0 : _b.id) !== 'pick') {
+                _this.pickStock.addCard(card, {
+                    fromElement: document.getElementById('deck')
+                }, {
+                    visible: false, // start hidden
+                });
                 // set card informations
-                setTimeout(function () { return _this.game.cards.updateCard(card); }, 1);
+                if (currentPlayer) {
+                    _this.pickStock.setCardVisible(card, true, { updateData: true, updateFront: true, updateBack: true, });
+                }
             }
         });
         this.game.updateTableHeight();
     };
-    Stacks.prototype.getDiscardCard = function (discardNumber) {
-        var currentCardDivs = Array.from(document.getElementById("discard".concat(discardNumber)).getElementsByClassName('old-card'));
-        return currentCardDivs.length > 0 ? currentCardDivs[0] : null;
-    };
     Stacks.prototype.setDeckCount = function (number) {
         this.deckCounter.setValue(number);
         document.getElementById("deck").classList.toggle('hidden', number == 0);
+    };
+    Stacks.prototype.setDiscardCard = function (discardNumber, card, newCount, from) {
+        if (newCount === void 0) { newCount = null; }
+        if (from === void 0) { from = undefined; }
+        if (card) {
+            this.discardStocks[discardNumber].addCard(card, { fromElement: from });
+            this.discardStocks[discardNumber].setCardVisible(card, true);
+        }
+        if (newCount !== null) {
+            this.discardStocks[discardNumber].setCardNumber(newCount);
+            this.discardCounters[discardNumber].setValue(newCount);
+        }
+    };
+    Stacks.prototype.cleanDiscards = function (deckStock) {
+        var _this = this;
+        [1, 2].forEach(function (discardNumber) {
+            deckStock.addCards(_this.discardStocks[discardNumber].getCards(), undefined, { visible: false });
+            _this.discardStocks[discardNumber].setCardNumber(0);
+            _this.discardCounters[discardNumber].setValue(0);
+        });
     };
     return Stacks;
 }());
@@ -1592,19 +1476,19 @@ var PlayerTable = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
-    PlayerTable.prototype.addCardsToHand = function (cards, from) {
+    PlayerTable.prototype.addCardsToHand = function (cards, fromDeck) {
         var _this = this;
+        if (fromDeck === void 0) { fromDeck = false; }
         cards.forEach(function (card) {
-            var _a;
-            return _this.handCards.addCard(card, {
-                fromElement: (_a = document.getElementById("card-".concat(card.id))) !== null && _a !== void 0 ? _a : (from ? document.getElementById(from) : undefined),
+            _this.handCards.addCard(card, {
+                fromElement: fromDeck ? document.getElementById('deck') : undefined,
             }, {
-                visible: _this.currentPlayer
+                visible: fromDeck ? false : _this.currentPlayer
             });
+            if (fromDeck && _this.currentPlayer) {
+                _this.game.cardsManager.setCardVisible(card, true);
+            }
         });
-        var cardsIds = cards.map(function (card) { return card.id; });
-        var cardsDiv = Array.from(document.getElementsByClassName('old-card'));
-        cardsDiv.filter(function (cardDiv) { return cardsIds.includes(Number(cardDiv.dataset.id)); }).forEach(function (cardDiv) { return _this.game.cards.removeCard(cardDiv); });
         //this.tableCards.addCards(cards);
         this.game.updateTableHeight();
     };
@@ -1615,15 +1499,10 @@ var PlayerTable = /** @class */ (function () {
         this.game.updateTableHeight();
     };
     PlayerTable.prototype.cleanTable = function (deckStock) {
-        var _this = this;
-        var cards = Array.from(this.handCardsDiv.getElementsByClassName('old-card'));
-        cards.forEach(function (cardDiv) { return _this.game.cards.createMoveOrUpdateCard({
-            id: Number(cardDiv.dataset.id),
-        }, "deck"); });
-        deckStock.addCards(this.tableCards.getCards(), undefined, {
+        var cards = __spreadArray(__spreadArray([], this.tableCards.getCards(), true), this.handCards.getCards(), true);
+        deckStock.addCards(cards, undefined, {
             visible: false,
         });
-        setTimeout(function () { return cards.forEach(function (cardDiv) { return _this.game.cards.removeCard(cardDiv); }); }, 500);
         this.game.updateTableHeight();
         this.clearAnnouncement();
     };
@@ -1743,7 +1622,6 @@ var SeaSaltPaper = /** @class */ (function () {
         log('gamedatas', gamedatas);
         this.animationManager = new AnimationManager(this);
         this.cardsManager = new CardsManager(this);
-        this.cards = new Cards(this);
         this.stacks = new Stacks(this, this.gamedatas);
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
@@ -1817,8 +1695,9 @@ var SeaSaltPaper = /** @class */ (function () {
     SeaSaltPaper.prototype.onEnteringChooseCard = function (args) {
         var _this = this;
         var _a, _b;
-        this.stacks.showPickCards(true, (_b = (_a = args._private) === null || _a === void 0 ? void 0 : _a.cards) !== null && _b !== void 0 ? _b : args.cards);
-        if (this.isCurrentPlayerActive()) {
+        var currentPlayer = this.isCurrentPlayerActive();
+        this.stacks.showPickCards(true, (_b = (_a = args._private) === null || _a === void 0 ? void 0 : _a.cards) !== null && _b !== void 0 ? _b : args.cards, currentPlayer);
+        if (currentPlayer) {
             setTimeout(function () { return _this.stacks.makePickSelectable(true); }, 500);
         }
         else {
@@ -1828,8 +1707,9 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.onEnteringPutDiscardPile = function (args) {
         var _a, _b;
-        this.stacks.showPickCards(true, (_b = (_a = args._private) === null || _a === void 0 ? void 0 : _a.cards) !== null && _b !== void 0 ? _b : args.cards);
-        this.stacks.makeDiscardSelectable(this.isCurrentPlayerActive());
+        var currentPlayer = this.isCurrentPlayerActive();
+        this.stacks.showPickCards(true, (_b = (_a = args._private) === null || _a === void 0 ? void 0 : _a.cards) !== null && _b !== void 0 ? _b : args.cards, currentPlayer);
+        this.stacks.makeDiscardSelectable(currentPlayer);
     };
     SeaSaltPaper.prototype.onEnteringPlayCards = function () {
         this.stacks.showPickCards(false);
@@ -1842,14 +1722,19 @@ var SeaSaltPaper = /** @class */ (function () {
     SeaSaltPaper.prototype.onEnteringChooseDiscardCard = function (args) {
         var _this = this;
         var _a;
+        var currentPlayer = this.isCurrentPlayerActive();
         var cards = ((_a = args._private) === null || _a === void 0 ? void 0 : _a.cards) || args.cards;
         var pickDiv = document.getElementById('discard-pick');
         pickDiv.innerHTML = '';
         pickDiv.dataset.visible = 'true';
+        if (!this.discardStock) {
+            this.discardStock = new LineStock(this.cardsManager, pickDiv, { gap: '0px' });
+            this.discardStock.onCardClick = function (card) { return _this.chooseDiscardCard(card.id); };
+        }
         cards === null || cards === void 0 ? void 0 : cards.forEach(function (card) {
-            _this.cards.createMoveOrUpdateCard(card, "discard-pick", false, 'discard' + args.discardNumber);
-            if (_this.isCurrentPlayerActive()) {
-                document.getElementById("card-".concat(card.id)).classList.add('selectable');
+            _this.discardStock.addCard(card, undefined, { visible: currentPlayer });
+            if (currentPlayer) {
+                _this.discardStock.getCardElement(card).classList.add('selectable');
             }
         });
         this.updateTableHeight();
@@ -1900,8 +1785,10 @@ var SeaSaltPaper = /** @class */ (function () {
         (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setSelectable(false);
     };
     SeaSaltPaper.prototype.onLeavingChooseDiscardCard = function () {
+        var _a;
         var pickDiv = document.getElementById('discard-pick');
         pickDiv.dataset.visible = 'false';
+        (_a = this.discardStock) === null || _a === void 0 ? void 0 : _a.removeAll();
         this.updateTableHeight();
     };
     SeaSaltPaper.prototype.onLeavingChooseOpponent = function () {
@@ -2098,6 +1985,9 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.onDiscardPileClick = function (number) {
         switch (this.gamedatas.gamestate.name) {
+            case 'takeCards':
+                this.takeCardFromDiscard(number);
+                break;
             case 'putDiscardPile':
                 this.putDiscardPile(number);
                 break;
@@ -2148,17 +2038,17 @@ var SeaSaltPaper = /** @class */ (function () {
         // pair
         [[1, 1], [2, 2], [3, 3], [4, 4], [5, 5]].forEach(function (_a) {
             var family = _a[0], color = _a[1];
-            return _this.cards.createMoveOrUpdateCard({ id: 1020 + family, category: 2, family: family, color: color, index: 0 }, "help-pair-".concat(family));
+            return _this.cardsManager.setForHelp({ id: 1020 + family, category: 2, family: family, color: color, index: 0 }, "help-pair-".concat(family));
         });
         // mermaid
-        this.cards.createMoveOrUpdateCard({ id: 1010, category: 1 }, "help-mermaid");
+        this.cardsManager.setForHelp({ id: 1010, category: 1 }, "help-mermaid");
         // collector
         [[1, 1], [2, 2], [3, 6], [4, 9]].forEach(function (_a) {
             var family = _a[0], color = _a[1];
-            return _this.cards.createMoveOrUpdateCard({ id: 1030 + family, category: 3, family: family, color: color, index: 0 }, "help-collector-".concat(family));
+            return _this.cardsManager.setForHelp({ id: 1030 + family, category: 3, family: family, color: color, index: 0 }, "help-collector-".concat(family));
         });
         // multiplier
-        [1, 2, 3, 4].forEach(function (family) { return _this.cards.createMoveOrUpdateCard({ id: 1040 + family, category: 4, family: family }, "help-multiplier-".concat(family)); });
+        [1, 2, 3, 4].forEach(function (family) { return _this.cardsManager.setForHelp({ id: 1040 + family, category: 4, family: family }, "help-multiplier-".concat(family)); });
     };
     SeaSaltPaper.prototype.takeCardsFromDeck = function () {
         if (!this.checkAction('takeCardsFromDeck')) {
@@ -2360,8 +2250,7 @@ var SeaSaltPaper = /** @class */ (function () {
         }
     };
     SeaSaltPaper.prototype.notif_cardInDiscardFromDeck = function (notif) {
-        this.cards.createMoveOrUpdateCard(notif.args.card, "discard".concat(notif.args.discardId), false, 'deck');
-        this.stacks.discardCounters[notif.args.discardId].setValue(1);
+        this.stacks.setDiscardCard(notif.args.discardId, notif.args.card, 1, document.getElementById('deck'));
         this.stacks.setDeckCount(notif.args.remainingCardsInDeck);
         this.updateTableHeight();
     };
@@ -2373,7 +2262,7 @@ var SeaSaltPaper = /** @class */ (function () {
         this.getPlayerTable(playerId).addCardsToHand([maskedCard]);
         this.handCounters[playerId].incValue(1);
         if (notif.args.newDiscardTopCard) {
-            this.cards.createMoveOrUpdateCard(notif.args.newDiscardTopCard, "discard".concat(discardNumber), true);
+            this.stacks.setDiscardCard(notif.args.discardId, notif.args.newDiscardTopCard);
         }
         this.stacks.discardCounters[discardNumber].setValue(notif.args.remainingCardsInDiscard);
         this.updateTableHeight();
@@ -2381,14 +2270,10 @@ var SeaSaltPaper = /** @class */ (function () {
     SeaSaltPaper.prototype.notif_cardInHandFromDiscardCrab = function (notif) {
         var card = notif.args.card;
         var playerId = notif.args.playerId;
-        var discardNumber = notif.args.discardId;
         var maskedCard = playerId == this.getPlayerId() ? card : { id: card.id };
         this.getPlayerTable(playerId).addCardsToHand([maskedCard]);
         this.handCounters[playerId].incValue(1);
-        if (notif.args.newDiscardTopCard) {
-            this.cards.createMoveOrUpdateCard(notif.args.newDiscardTopCard, "discard".concat(discardNumber), true);
-        }
-        this.stacks.discardCounters[discardNumber].setValue(notif.args.remainingCardsInDiscard);
+        this.stacks.setDiscardCard(notif.args.discardId, notif.args.newDiscardTopCard, notif.args.remainingCardsInDiscard);
         this.updateTableHeight();
     };
     SeaSaltPaper.prototype.notif_cardInHandFromPick = function (notif) {
@@ -2398,22 +2283,14 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.notif_cardInHandFromDeck = function (notif) {
         var playerId = notif.args.playerId;
-        // start hidden
-        this.cards.createMoveOrUpdateCard({
-            id: notif.args.card.id
-        }, "pick", true, 'deck');
-        this.getPlayerTable(playerId).addCardsToHand([notif.args.card], 'deck');
+        this.getPlayerTable(playerId).addCardsToHand([notif.args.card], true);
         this.handCounters[playerId].incValue(1);
     };
     SeaSaltPaper.prototype.notif_cardInDiscardFromPick = function (notif) {
-        var _this = this;
-        var currentCardDiv = this.stacks.getDiscardCard(notif.args.discardId);
+        var card = notif.args.card;
         var discardNumber = notif.args.discardId;
-        this.cards.createMoveOrUpdateCard(notif.args.card, "discard".concat(discardNumber));
-        if (currentCardDiv) {
-            setTimeout(function () { return _this.cards.removeCard(currentCardDiv); }, 500);
-        }
-        this.stacks.discardCounters[discardNumber].setValue(notif.args.remainingCardsInDiscard);
+        this.cardsManager.setCardVisible(card, true);
+        this.stacks.setDiscardCard(discardNumber, card, notif.args.remainingCardsInDiscard);
         this.updateTableHeight();
     };
     SeaSaltPaper.prototype.notif_score = function (notif) {
@@ -2462,11 +2339,7 @@ var SeaSaltPaper = /** @class */ (function () {
             _this.handCounters[playerTable.playerId].setValue(0);
         });
         (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setHandPoints(0);
-        [1, 2].forEach(function (discardNumber) {
-            var currentCardDiv = _this.stacks.getDiscardCard(discardNumber);
-            _this.cards.removeCard(currentCardDiv); // animate cards to deck?
-        });
-        [1, 2].forEach(function (discardNumber) { return _this.stacks.discardCounters[discardNumber].setValue(0); });
+        this.stacks.cleanDiscards(this.deckVoidStock);
         this.stacks.setDeckCount(58);
     };
     SeaSaltPaper.prototype.notif_updateCardsPoints = function (notif) {

@@ -1,23 +1,41 @@
 class CardsManager extends CardManager<Card> {
+    private COLORS: string[];
+    
     constructor (public game: SeaSaltPaperGame) {
         super(game, {
             getId: (card) => `ssp-card-${card.id}`,
             setupDiv: (card: Card, div: HTMLElement) => {
                 div.dataset.cardId = ''+card.id;
             },
-            setupFrontDiv: (card: Card, div: HTMLElement) => { 
-                div.id = `${this.getId(card)}-front`;
-                div.dataset.category = ''+card.category;
-                div.dataset.family = ''+card.family;
-                div.dataset.color = ''+card.color;
-                div.dataset.index = ''+card.index;
-                game.setTooltip(div.id, this.getTooltip(card.category, card.family));
-            },
+            setupFrontDiv: (card: Card, div: HTMLElement) => this.setupFrontDiv(card, div),
             animationManager: game.animationManager,
         });
+
+        this.COLORS = [
+            _('White'),
+            _('Dark blue'),
+            _('Light blue'),
+            _('Black'),
+            _('Yellow'),
+            _('Green'),
+            _('Purple'),
+            _('Gray'),
+            _('Light orange'),
+            _('Pink'),
+            _('Orange'),
+        ];
     }
 
-    
+    public setupFrontDiv(card: Card, div: HTMLElement, ignoreTooltip: boolean = false) { 
+        div.id = `${this.getId(card)}-front`;
+        div.dataset.category = ''+card.category;
+        div.dataset.family = ''+card.family;
+        div.dataset.color = ''+card.color;
+        div.dataset.index = ''+card.index;
+        if (!ignoreTooltip) {
+            this.game.setTooltip(div.id, this.getTooltip(card.category, card.family) + `<br><br><i>${this.COLORS[card.color]}</i>`);
+        }
+    }
 
     public getTooltip(category: number, family?: number/*, withCount: boolean = false*/) {
         const withCount = true;
@@ -66,5 +84,48 @@ class CardsManager extends CardManager<Card> {
                 <div>${_("This card does not count as a ${card} card.").replace('${card}', multiplier[1])}</div>`;
         }
             
+    }
+    
+    public setForHelp(card: Card, divId: string): void {
+        const div = document.getElementById(divId);
+        div.classList.add('card');
+        div.dataset.side = 'front';
+        div.innerHTML = `
+        <div class="card-sides">
+            <div class="card-side front">
+            </div>
+            <div class="card-side back">
+            </div>
+        </div>`
+        this.setupFrontDiv(card, div.querySelector('.front'), true);
+    }
+
+    // gameui.cards.debugSeeAllCards()
+    private debugSeeAllCards() {
+        let html = `<div id="all-cards">`;
+        html += `</div>`;
+        dojo.place(html, 'full-table', 'before');
+
+        const debugStock = new LineStock<Card>(this.game.cardsManager, document.getElementById(`all-cards`), { gap: '0', });
+
+        [1, 2, 3, 4, 5, 6].forEach(subType => {
+            const card = {
+                id: 10+subType,
+                type: 1,
+                subType,
+            } as any as Card;
+            debugStock.addCard(card);
+        });
+
+        [2, 3, 4, 5, 6].forEach(type => 
+            [1, 2, 3].forEach(subType => {
+                const card = {
+                    id: 10*type+subType,
+                    type,
+                    subType,
+                } as any as Card;
+                debugStock.addCard(card);
+            })
+        );
     }
 }

@@ -25,8 +25,6 @@
         "node_modules/bga-cards/src/stocks/all-visible-deck.ts",
         "node_modules/bga-cards/src/card-manager.ts",
         "src/seasaltpaper.d.ts",
-        "src/slide-utils.ts",
-        "src/old-cards.ts",
         "src/cards.ts",
         "src/stacks.ts",
         "src/player-table.ts",

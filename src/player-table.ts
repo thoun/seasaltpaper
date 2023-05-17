@@ -87,15 +87,17 @@ class PlayerTable {
         }
     }
     
-    public addCardsToHand(cards: Card[], from?: string) {
-        cards.forEach(card => this.handCards.addCard(card, {
-            fromElement: document.getElementById(`card-${card.id}`) ?? (from ? document.getElementById(from) : undefined),
-        }, {
-            visible: this.currentPlayer
-        }));        
-        const cardsIds = cards.map(card => card.id);
-        const cardsDiv = Array.from(document.getElementsByClassName('old-card')) as HTMLDivElement[];        
-        cardsDiv.filter(cardDiv => cardsIds.includes(Number(cardDiv.dataset.id))).forEach(cardDiv => this.game.cards.removeCard(cardDiv));
+    public addCardsToHand(cards: Card[], fromDeck: boolean = false) {
+        cards.forEach(card => {
+            this.handCards.addCard(card, {
+                fromElement: fromDeck ? document.getElementById('deck') : undefined,
+            }, {
+                visible: fromDeck ? false : this.currentPlayer
+            });
+            if (fromDeck && this.currentPlayer) {
+                this.game.cardsManager.setCardVisible(card, true);
+            }
+        });
 
         //this.tableCards.addCards(cards);
         this.game.updateTableHeight();
@@ -108,16 +110,15 @@ class PlayerTable {
     }
 
     public cleanTable(deckStock: CardStock<Card>): void {
-        const cards = Array.from(this.handCardsDiv.getElementsByClassName('old-card')) as HTMLDivElement[];        
-        cards.forEach(cardDiv => this.game.cards.createMoveOrUpdateCard({
-            id: Number(cardDiv.dataset.id),
-        } as any, `deck`));
+        const cards = [
+            ...this.tableCards.getCards(),
+            ...this.handCards.getCards(),
+        ];
 
-        deckStock.addCards(this.tableCards.getCards(), undefined, {
+        deckStock.addCards(cards, undefined, {
             visible: false,
         });
 
-        setTimeout(() => cards.forEach(cardDiv => this.game.cards.removeCard(cardDiv)), 500);
         this.game.updateTableHeight();
         this.clearAnnouncement();
     }

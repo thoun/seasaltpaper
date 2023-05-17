@@ -52,7 +52,6 @@ interface SeaSaltPaperGamedatas {
 interface SeaSaltPaperGame extends Game {
     animationManager: AnimationManager;
     cardsManager: CardsManager;
-    cards: Cards;
 
     getPlayerId(): number;
     getPlayerColor(playerId: number): string;
