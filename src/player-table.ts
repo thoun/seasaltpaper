@@ -94,7 +94,7 @@ class PlayerTable {
             }, {
                 visible: fromDeck ? false : this.currentPlayer
             });
-            if (fromDeck && this.currentPlayer) {
+            if (this.currentPlayer) {
                 this.game.cardsManager.setCardVisible(card, true);
             }
         });

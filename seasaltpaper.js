@@ -1485,7 +1485,7 @@ var PlayerTable = /** @class */ (function () {
             }, {
                 visible: fromDeck ? false : _this.currentPlayer
             });
-            if (fromDeck && _this.currentPlayer) {
+            if (_this.currentPlayer) {
                 _this.game.cardsManager.setCardVisible(card, true);
             }
         });
