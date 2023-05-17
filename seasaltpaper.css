@@ -996,10 +996,10 @@ body > .card {
   max-height: 45px;
   overflow: hidden;
 }
-.player-table .cards.hand[data-current-player=false] .old-card:not(:first-child) {
+.player-table .cards.hand[data-current-player=false] .card:not(:first-child) {
   margin-left: -120px;
 }
-.player-table .cards.hand[data-can-steal=true] .old-card {
+.player-table .cards.hand[data-can-steal=true] .card {
   cursor: pointer;
   animation: selectable-card-animation 1s alternate infinite ease-in-out;
 }

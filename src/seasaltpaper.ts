@@ -415,7 +415,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
     
     public onCardClick(card: Card): void {
-        const cardDiv = document.getElementById(`card-${card.id}`);
+        const cardDiv = document.getElementById(`card-${card.id}`) ?? document.getElementById(`ssp-card-${card.id}`);
         const parentDiv = cardDiv.parentElement;
 
         if (cardDiv.classList.contains('disabled')) {

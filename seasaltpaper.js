@@ -1413,7 +1413,7 @@ var CardsManager = /** @class */ (function (_super) {
                 div.dataset.cardId = '' + card.id;
             },
             setupFrontDiv: function (card, div) {
-                div.dataset.cardId = "".concat(_this.getId(card), "-front");
+                div.id = "".concat(_this.getId(card), "-front");
                 div.dataset.category = '' + card.category;
                 div.dataset.family = '' + card.family;
                 div.dataset.color = '' + card.color;
@@ -1537,8 +1537,12 @@ var isDebug = window.location.host == 'studio.boardgamearena.com' || window.loca
 ;
 var log = isDebug ? console.log.bind(window.console) : function () { };
 var CATEGORY_ORDER = [null, 4, 1, 2, 3];
+function sortCards(a, b) {
+    return (CATEGORY_ORDER[a.category] * 100 + a.family * 10 + a.color) - (CATEGORY_ORDER[b.category] * 100 + b.family * 10 + b.color);
+}
 var PlayerTable = /** @class */ (function () {
     function PlayerTable(game, player) {
+        var _this = this;
         this.game = game;
         this.playerId = Number(player.id);
         this.currentPlayer = this.playerId == this.game.getPlayerId();
@@ -1553,9 +1557,13 @@ var PlayerTable = /** @class */ (function () {
             this.cardsPointsCounter.create("cards-points-counter");
             this.cardsPointsCounter.setValue(player.cardsPoints);
         }
-        this.tableCards = new LineStock(this.game.cardsManager, document.getElementById("player-table-".concat(this.playerId, "-table-cards")), {
+        var stockSettings = {
             gap: '0px',
-        });
+            sort: sortCards,
+        };
+        this.handCards = new LineStock(this.game.cardsManager, document.getElementById("player-table-".concat(this.playerId, "-hand-cards")), __assign(__assign({}, stockSettings), { wrap: this.currentPlayer ? 'wrap' : 'nowrap' }));
+        this.handCards.onCardClick = function (card) { return _this.game.onCardClick(card); };
+        this.tableCards = new LineStock(this.game.cardsManager, document.getElementById("player-table-".concat(this.playerId, "-table-cards")), stockSettings);
         this.addCardsToHand(player.handCards);
         this.addCardsToTable(player.tableCards);
         if (player.endCall) {
@@ -1585,17 +1593,26 @@ var PlayerTable = /** @class */ (function () {
         configurable: true
     });
     PlayerTable.prototype.addCardsToHand = function (cards, from) {
-        this.addCards(cards, 'hand', from);
+        var _this = this;
+        cards.forEach(function (card) {
+            var _a;
+            return _this.handCards.addCard(card, {
+                fromElement: (_a = document.getElementById("card-".concat(card.id))) !== null && _a !== void 0 ? _a : (from ? document.getElementById(from) : undefined),
+            }, {
+                visible: _this.currentPlayer
+            });
+        });
+        var cardsIds = cards.map(function (card) { return card.id; });
+        var cardsDiv = Array.from(document.getElementsByClassName('old-card'));
+        cardsDiv.filter(function (cardDiv) { return cardsIds.includes(Number(cardDiv.dataset.id)); }).forEach(function (cardDiv) { return _this.game.cards.removeCard(cardDiv); });
+        //this.tableCards.addCards(cards);
+        this.game.updateTableHeight();
     };
     PlayerTable.prototype.addCardsToTable = function (cards) {
         var _this = this;
-        cards.forEach(function (card) { return _this.tableCards.addCard(card, {
-            fromElement: document.getElementById("card-".concat(card.id)),
-        }); });
-        var cardsIds = cards.map(function (card) { return card.id; });
-        var cardsDiv = Array.from(this.handCardsDiv.getElementsByClassName('old-card'));
-        cardsDiv.filter(function (cardDiv) { return cardsIds.includes(Number(cardDiv.dataset.id)); }).forEach(function (cardDiv) { return _this.game.cards.removeCard(cardDiv); });
-        //this.tableCards.addCards(cards);
+        cards.forEach(function (card) { return _this.game.cardsManager.setCardVisible(card, true, { updateData: true, updateFront: true, updateBack: false }); });
+        this.tableCards.addCards(cards);
+        this.game.updateTableHeight();
     };
     PlayerTable.prototype.cleanTable = function (deckStock) {
         var _this = this;
@@ -1658,7 +1675,7 @@ var PlayerTable = /** @class */ (function () {
         bubble.dataset.visible = 'true';
     };
     PlayerTable.prototype.setSelectable = function (selectable) {
-        var cards = Array.from(this.handCardsDiv.getElementsByClassName('old-card'));
+        var cards = Array.from(this.handCardsDiv.getElementsByClassName('card'));
         if (selectable) {
             cards.forEach(function (card) { return card.classList.add('selectable'); });
         }
@@ -1667,40 +1684,33 @@ var PlayerTable = /** @class */ (function () {
         }
     };
     PlayerTable.prototype.updateDisabledPlayCards = function (selectedCards, playableDuoCardFamilies) {
+        var _this = this;
         if (!this.game.isCurrentPlayerActive()) {
             return;
         }
-        var cards = Array.from(this.handCardsDiv.getElementsByClassName('old-card'));
+        var cards = this.handCards.getCards();
         cards.forEach(function (card) {
             var disabled = false;
-            if (card.dataset.category != '2') {
+            if (card.category != 2) {
                 disabled = true;
             }
             else {
-                if (playableDuoCardFamilies.includes(Number(card.dataset.family))) {
+                if (playableDuoCardFamilies.includes(card.family)) {
                     if (selectedCards.length >= 2) {
-                        disabled = !selectedCards.includes(Number(card.dataset.id));
+                        disabled = !selectedCards.includes(card.id);
                     }
                     else if (selectedCards.length == 1) {
-                        var family = Number(document.getElementById("card-".concat(selectedCards[0])).dataset.family);
-                        var authorizedFamily = '' + (family >= 4 ? 9 - family : family);
-                        disabled = Number(card.dataset.id) != selectedCards[0] && card.dataset.family != authorizedFamily;
+                        var family = cards.find(function (card) { return card.id == selectedCards[0]; }).family;
+                        var authorizedFamily = family >= 4 ? 9 - family : family;
+                        disabled = card.id != selectedCards[0] && card.family != authorizedFamily;
                     }
                 }
                 else {
                     disabled = true;
                 }
             }
-            card.classList.toggle('disabled', disabled);
+            _this.handCards.getCardElement(card).classList.toggle('disabled', disabled);
         });
-    };
-    PlayerTable.prototype.addCards = function (cards, to, from) {
-        var _this = this;
-        cards.forEach(function (card) {
-            _this.game.cards.createMoveOrUpdateCard(card, "player-table-".concat(_this.playerId, "-").concat(to, "-cards"), false, from);
-            document.getElementById("card-".concat(card.id)).style.order = '' + (CATEGORY_ORDER[card.category] * 100 + card.family * 10 + card.color);
-        });
-        this.game.updateTableHeight();
     };
     return PlayerTable;
 }());
@@ -2040,7 +2050,8 @@ var SeaSaltPaper = /** @class */ (function () {
         (_b = document.getElementById("playCards_button")) === null || _b === void 0 ? void 0 : _b.classList.toggle("disabled", this.selectedCards.length != 2);
     };
     SeaSaltPaper.prototype.onCardClick = function (card) {
-        var cardDiv = document.getElementById("card-".concat(card.id));
+        var _a;
+        var cardDiv = (_a = document.getElementById("card-".concat(card.id))) !== null && _a !== void 0 ? _a : document.getElementById("ssp-card-".concat(card.id));
         var parentDiv = cardDiv.parentElement;
         if (cardDiv.classList.contains('disabled')) {
             return;

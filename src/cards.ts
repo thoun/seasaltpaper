@@ -6,7 +6,7 @@ class CardsManager extends CardManager<Card> {
                 div.dataset.cardId = ''+card.id;
             },
             setupFrontDiv: (card: Card, div: HTMLElement) => { 
-                div.dataset.cardId = `${this.getId(card)}-front`;
+                div.id = `${this.getId(card)}-front`;
                 div.dataset.category = ''+card.category;
                 div.dataset.family = ''+card.family;
                 div.dataset.color = ''+card.color;

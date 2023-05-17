@@ -54,7 +54,6 @@
   }
 
   .cards {
-
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
@@ -66,12 +65,12 @@
         max-height: 45px;
         overflow: hidden;
 
-        .old-card:not(:first-child) {
+        .card:not(:first-child) {
           margin-left: -120px;
         }
       }
 
-      &[data-can-steal="true"] .old-card {
+      &[data-can-steal="true"] .card {
         cursor: pointer;
         animation: selectable-card-animation 1s alternate infinite ease-in-out;
       }

@@ -3,12 +3,19 @@ const log = isDebug ? console.log.bind(window.console) : function () { };
 
 const CATEGORY_ORDER = [null, 4, 1, 2, 3];
 
+
+
+function sortCards(a: Card, b: Card) {
+    return (CATEGORY_ORDER[a.category]*100 + a.family * 10 + a.color) - (CATEGORY_ORDER[b.category]*100 + b.family * 10 + b.color);
+}
+
 class PlayerTable {
     public playerId: number;
 
     private currentPlayer: boolean;
     private cardsPointsCounter: Counter;
 
+    private handCards: LineStock<Card>;
     private tableCards: LineStock<Card>;
 
     private get handCardsDiv() {
@@ -46,9 +53,17 @@ class PlayerTable {
             this.cardsPointsCounter.setValue(player.cardsPoints);
         }
 
-        this.tableCards = new LineStock<Card>(this.game.cardsManager, document.getElementById(`player-table-${this.playerId}-table-cards`), {
+        const stockSettings: LineStockSettings = {
             gap: '0px',
+            sort: sortCards,
+        }
+
+        this.handCards = new LineStock<Card>(this.game.cardsManager, document.getElementById(`player-table-${this.playerId}-hand-cards`), {
+            ...stockSettings,
+            wrap: this.currentPlayer ? 'wrap' : 'nowrap',
         });
+        this.handCards.onCardClick = card => this.game.onCardClick(card);
+        this.tableCards = new LineStock<Card>(this.game.cardsManager, document.getElementById(`player-table-${this.playerId}-table-cards`), stockSettings);
 
         this.addCardsToHand(player.handCards);
         this.addCardsToTable(player.tableCards);
@@ -73,18 +88,23 @@ class PlayerTable {
     }
     
     public addCardsToHand(cards: Card[], from?: string) {
-        this.addCards(cards, 'hand', from);
-    }
-
-    public addCardsToTable(cards: Card[]) {
-        cards.forEach(card => this.tableCards.addCard(card, {
-            fromElement: document.getElementById(`card-${card.id}`),
+        cards.forEach(card => this.handCards.addCard(card, {
+            fromElement: document.getElementById(`card-${card.id}`) ?? (from ? document.getElementById(from) : undefined),
+        }, {
+            visible: this.currentPlayer
         }));        
         const cardsIds = cards.map(card => card.id);
-        const cardsDiv = Array.from(this.handCardsDiv.getElementsByClassName('old-card')) as HTMLDivElement[];        
+        const cardsDiv = Array.from(document.getElementsByClassName('old-card')) as HTMLDivElement[];        
         cardsDiv.filter(cardDiv => cardsIds.includes(Number(cardDiv.dataset.id))).forEach(cardDiv => this.game.cards.removeCard(cardDiv));
 
         //this.tableCards.addCards(cards);
+        this.game.updateTableHeight();
+    }
+
+    public addCardsToTable(cards: Card[]) {
+        cards.forEach(card => this.game.cardsManager.setCardVisible(card, true, { updateData: true, updateFront: true, updateBack: false }));
+        this.tableCards.addCards(cards);
+        this.game.updateTableHeight();
     }
 
     public cleanTable(deckStock: CardStock<Card>): void {
@@ -156,7 +176,7 @@ class PlayerTable {
     }
     
     public setSelectable(selectable: boolean) {
-        const cards = Array.from(this.handCardsDiv.getElementsByClassName('old-card')) as HTMLDivElement[];
+        const cards = Array.from(this.handCardsDiv.getElementsByClassName('card')) as HTMLDivElement[];
         if (selectable) {
             cards.forEach(card => card.classList.add('selectable'));
         } else {
@@ -169,33 +189,25 @@ class PlayerTable {
             return;
         }
 
-        const cards = Array.from(this.handCardsDiv.getElementsByClassName('old-card')) as HTMLDivElement[];
+        const cards = this.handCards.getCards();
         cards.forEach(card => {
             let disabled = false;
-            if (card.dataset.category != '2') {
+            if (card.category != 2) {
                 disabled = true;
             } else {
-                if (playableDuoCardFamilies.includes(Number(card.dataset.family))) {
+                if (playableDuoCardFamilies.includes(card.family)) {
                     if (selectedCards.length >= 2) {
-                        disabled = !selectedCards.includes(Number(card.dataset.id));
+                        disabled = !selectedCards.includes(card.id);
                     } else if (selectedCards.length == 1) {
-                        const family = Number(document.getElementById(`card-${selectedCards[0]}`).dataset.family);
-                        const authorizedFamily = ''+(family >= 4 ? 9 - family : family);
-                        disabled = Number(card.dataset.id) != selectedCards[0] && card.dataset.family != authorizedFamily;
+                        const family = cards.find(card => card.id == selectedCards[0]).family;
+                        const authorizedFamily = family >= 4 ? 9 - family : family;
+                        disabled = card.id != selectedCards[0] && card.family != authorizedFamily;
                     }
                 } else {
                     disabled = true;
                 }
             }
-            card.classList.toggle('disabled', disabled);
+            this.handCards.getCardElement(card).classList.toggle('disabled', disabled);
         });
-    }
-    
-    private addCards(cards: Card[], to: 'hand' | 'table', from?: string) {
-        cards.forEach(card => {
-            this.game.cards.createMoveOrUpdateCard(card, `player-table-${this.playerId}-${to}-cards`, false, from);
-            document.getElementById(`card-${card.id}`).style.order = ''+(CATEGORY_ORDER[card.category]*100 + card.family * 10 + card.color);
-        });
-        this.game.updateTableHeight();
     }
 }
