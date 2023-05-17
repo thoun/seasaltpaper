@@ -10,6 +10,7 @@
     "files": [
         "src/framework.d.ts",
         "src/counter.d.ts",
+        "node_modules/bga-zoom/src/zoom-manager.ts",
         "src/seasaltpaper.d.ts",
         "src/slide-utils.ts",
         "src/old-cards.ts",

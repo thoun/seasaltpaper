@@ -8,8 +8,6 @@ declare const g_gamethemeurl;
 const ANIMATION_MS = 500;
 const ACTION_TIMER_DURATION = 5;
 
-const ZOOM_LEVELS = [0.5, 0.625, 0.75, 0.875, 1];
-const ZOOM_LEVELS_MARGIN = [-100, -60, -33, -14, 0];
 const LOCAL_STORAGE_ZOOM_KEY = 'SeaSaltPaper-zoom';
 
 const POINTS_FOR_PLAYERS = [null, null, 40, 35, 30];
@@ -18,6 +16,8 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     public zoom: number = 1;
     public cards: Cards;
 
+    private zoomManager: ZoomManager;
+    //private animationManager: AnimationManager;
     private gamedatas: SeaSaltPaperGamedatas;
     private stacks: Stacks;
     private playersTables: PlayerTable[] = [];
@@ -28,10 +28,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     private TOOLTIP_DELAY = document.body.classList.contains('touch-device') ? 1500 : undefined;
 
     constructor() {
-        const zoomStr = localStorage.getItem(LOCAL_STORAGE_ZOOM_KEY);
-        if (zoomStr) {
-            this.zoom = Number(zoomStr);
-        }
     }
     
     /*
@@ -58,20 +54,23 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.stacks = new Stacks(this, this.gamedatas);
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
+        
+        this.zoomManager = new ZoomManager({
+            element: document.getElementById('full-table'),
+            smooth: false,
+            zoomControls: {
+                color: 'white',
+            },
+            localStorageZoomKey: LOCAL_STORAGE_ZOOM_KEY,
+            onDimensionsChange: () => this.onTableCenterSizeChange(),
+        });
 
         this.setupNotifications();
         this.setupPreferences();
         this.addHelp();
 
-        document.getElementById('zoom-out').addEventListener('click', () => this.zoomOut());
-        document.getElementById('zoom-in').addEventListener('click', () => this.zoomIn());
-        if (this.zoom !== 1) {
-            this.setZoom(this.zoom);
-        }
-
         (this as any).onScreenWidthChange = () => {
             this.updateTableHeight();
-            this.onTableCenterSizeChange();
         };
 
         log( "Ending game setup" );
@@ -317,44 +316,8 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         return this.playersTables.find(playerTable => playerTable.playerId === this.getPlayerId());
     }
 
-    private setZoom(zoom: number = 1) {
-        this.zoom = zoom;
-        localStorage.setItem(LOCAL_STORAGE_ZOOM_KEY, ''+this.zoom);
-        const newIndex = ZOOM_LEVELS.indexOf(this.zoom);
-        dojo.toggleClass('zoom-in', 'disabled', newIndex === ZOOM_LEVELS.length - 1);
-        dojo.toggleClass('zoom-out', 'disabled', newIndex === 0);
-
-        const div = document.getElementById('full-table');
-        if (zoom === 1) {
-            div.style.transform = '';
-            div.style.margin = '';
-        } else {
-            div.style.transform = `scale(${zoom})`;
-            div.style.marginRight = `${ZOOM_LEVELS_MARGIN[newIndex]}%`;
-        }
-
-        this.updateTableHeight();
-        this.onTableCenterSizeChange();
-    }
-
-    public zoomIn() {
-        if (this.zoom === ZOOM_LEVELS[ZOOM_LEVELS.length - 1]) {
-            return;
-        }
-        const newIndex = ZOOM_LEVELS.indexOf(this.zoom) + 1;
-        this.setZoom(ZOOM_LEVELS[newIndex]);
-    }
-
-    public zoomOut() {
-        if (this.zoom === ZOOM_LEVELS[0]) {
-            return;
-        }
-        const newIndex = ZOOM_LEVELS.indexOf(this.zoom) - 1;
-        this.setZoom(ZOOM_LEVELS[newIndex]);
-    }
-
     public updateTableHeight() {
-        setTimeout(() => document.getElementById('zoom-wrapper').style.height = `${document.getElementById('full-table').getBoundingClientRect().height}px`, 600);
+        this.zoomManager?.manualHeightUpdate();
     }
 
     private onTableCenterSizeChange() {
