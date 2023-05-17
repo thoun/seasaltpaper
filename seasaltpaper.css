@@ -60,9 +60,460 @@
   background: url('data:image/svg+xml;utf8,<svg width="100%" height="100%" viewBox="0 0 70 70" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;"><g><g transform="matrix(1,0,0,1,-7.91703,-76.2244)"><path d="M23.8,102.1L35.7,102.1" style="fill:none;fill-rule:nonzero;stroke:white;stroke-width:7px;"/></g><g transform="matrix(1,0,0,1,-7.91703,-76.2244)"><path d="M35.7,102.1L47.5,102.1" style="fill:none;fill-rule:nonzero;stroke:white;stroke-width:7px;"/></g><g transform="matrix(1,0,0,1,-7.91703,-76.2244)"><path d="M35.7,102.1L35.7,90.3" style="fill:none;fill-rule:nonzero;stroke:white;stroke-width:7px;"/></g><g transform="matrix(1,0,0,1,-7.91703,-76.2244)"><path d="M51,118C55.2,113.8 57.3,108.7 57.3,102.8C57.3,96.8 55.2,91.8 51,87.6C46.8,83.4 41.7,81.3 35.8,81.3C29.9,81.3 24.8,83.4 20.6,87.6C16.4,91.8 14.3,96.8 14.3,102.8C14.3,108.7 16.4,113.8 20.6,118C24.8,122.2 29.9,124.3 35.8,124.3C41.7,124.3 46.8,122.2 51,118" style="fill:none;fill-rule:nonzero;stroke:white;stroke-width:7px;"/></g><g transform="matrix(1,0,0,1,-7.91703,-76.2244)"><path d="M35.7,113.9L35.7,102.1" style="fill:none;fill-rule:nonzero;stroke:white;stroke-width:7px;"/></g><g transform="matrix(1,0,0,1,-7.91703,-76.2244)"><path d="M65.3,132.3L51,118" style="fill:none;fill-rule:nonzero;stroke:white;stroke-width:7px;"/></g></g></svg>');
 }
 
+body > .card {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+}
+
+.card {
+  flex-shrink: 0;
+}
+
+.card[data-side=back] .card-sides {
+  transform: rotateY(180deg);
+}
+
+.card .card-sides {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.5s;
+}
+
+.card .card-sides .card-side {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transform-style: preserve-3d;
+  -webkit-backface-visibility: hidden; /* Safari */
+  backface-visibility: hidden;
+  transform-origin: center center;
+  box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.card .card-sides .card-side.front > * {
+  pointer-events: none;
+  user-select: none;
+}
+
+.card .card-sides .card-side.back {
+  transform: rotateY(180deg);
+}
+
+.card .card-sides .card-side.back > * {
+  pointer-events: none;
+  user-select: none;
+}
+
+.card-stock.selectable .card:not(.disabled) {
+  cursor: pointer;
+}
+
+.card-stock .card.selectable:not(.disabled) {
+  cursor: pointer;
+}
+
+.card-stock.line-stock {
+  display: flex;
+  gap: var(--gap);
+  flex-wrap: var(--wrap);
+  flex-direction: var(--direction);
+}
+
+.card-stock.line-stock[data-center=true] {
+  justify-content: center;
+}
+
+.card-stock.slot-stock {
+  display: flex;
+  gap: var(--gap);
+  flex-wrap: var(--wrap);
+  flex-direction: var(--direction);
+}
+
+.card-stock.slot-stock[data-center=true] {
+  justify-content: center;
+}
+
+.card-stock.scrollable-stock {
+  display: flex;
+  gap: var(--button-gap);
+}
+
+.card-stock.scrollable-stock[data-scrollbar-visible=false] {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.card-stock.scrollable-stock[data-scrollbar-visible=false]::-webkit-scrollbar {
+  display: none;
+}
+
+.card-stock.scrollable-stock .scrollable-stock-inner {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: var(--gap);
+}
+
+.card-stock.scrollable-stock .scrollable-stock-inner[data-center=true] {
+  justify-content: center;
+}
+
+.card-stock.hand-stock {
+  display: flex;
+  justify-content: center;
+}
+
+.card-stock.hand-stock .card {
+  transform: translateY(calc(var(--card-shift) * var(--hand-stock-middle-index-abs))) rotate(calc(var(--hand-stock-middle-index) * var(--card-inclination)));
+}
+
+.card-stock.hand-stock .card:not(:first-child) {
+  margin-left: calc(-1 * var(--card-overlap));
+}
+
+.card-stock.manual-position-stock {
+  position: relative;
+}
+
+.card-stock.manual-position-stock .card {
+  position: absolute;
+}
+
+.card-stock.void-stock {
+  position: relative;
+}
+
+.card-stock.void-stock .card {
+  position: absolute;
+}
+
+.card-stock.deck {
+  position: relative;
+  width: var(--width);
+  height: var(--height);
+}
+
+.card-stock.deck > .card {
+  position: absolute;
+  top: calc(var(--thickness) * var(--xShadowShift) * -1);
+  left: calc(var(--thickness) * var(--yShadowShift) * -1);
+}
+
+.card-stock.deck > .card:first-child {
+  box-shadow: calc(var(--thickness) * var(--xShadowShift)) calc(var(--thickness) * var(--yShadowShift)) 0px 0px #111, calc(var(--thickness) * var(--xShadowShift)) calc(var(--thickness) * var(--yShadowShift)) 2px 1px rgba(0, 0, 0, 0.5);
+}
+
+.card-stock.deck[data-empty=true] > .card {
+  visibility: hidden;
+}
+
+.card-stock.all-visible-deck {
+  position: absolute;
+  --tile-count: 1;
+  width: calc(var(--width) + var(--tile-count) * var(--shift));
+  transition: height 0.5s ease-in-out, background-color 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
+  opacity: var(--tile-count);
+}
+
+.card-stock.all-visible-deck > * {
+  position: absolute;
+  margin: 0;
+  transition: left 0.5s ease-in-out, top 0.5s ease-in-out;
+  top: calc(var(--shift) * var(--order));
+  left: calc(var(--shift) * var(--order));
+}
+
+.card-stock.all-visible-deck:hover, .card-stock.all-visible-deck:active, .card-stock.all-visible-deck.opened {
+  height: calc((var(--height) + var(--shift)) * var(--tile-count) - var(--shift));
+  z-index: 1;
+}
+
+.card-stock.all-visible-deck:hover > *, .card-stock.all-visible-deck:active > *, .card-stock.all-visible-deck.opened > * {
+  top: calc((var(--height) + var(--shift)) * var(--order));
+}
+
 /*
  * Colors
  */
+.card {
+  position: relative;
+  width: 149px;
+  height: 208px;
+  margin: 5px;
+  border-radius: 10px;
+}
+.card.disabled {
+  cursor: not-allowed;
+  filter: contrast(0.6);
+}
+.card .card-sides .card-side {
+  border-radius: 8px;
+}
+.card .card-sides .card-side > * {
+  pointer-events: none;
+  user-select: none;
+}
+.card .card-sides .card-side.back {
+  background-size: auto 100%;
+  background-image: url("img/card-back.jpg");
+}
+.card .card-sides .card-side.front {
+  background-size: auto 600%;
+  background-image: url("img/cards.jpg");
+}
+.card .card-sides .card-side.front[data-category="1"] {
+  background-position-x: 0%;
+  background-position-y: 0%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="1"][data-color="1"][data-index="0"] {
+  background-position-x: 11.1111111111%;
+  background-position-y: 0%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="1"][data-color="1"][data-index="1"] {
+  background-position-x: 22.2222222222%;
+  background-position-y: 0%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="1"][data-color="2"][data-index="0"] {
+  background-position-x: 33.3333333333%;
+  background-position-y: 0%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="1"][data-color="2"][data-index="1"] {
+  background-position-x: 44.4444444444%;
+  background-position-y: 0%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="1"][data-color="3"][data-index="0"] {
+  background-position-x: 55.5555555556%;
+  background-position-y: 0%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="1"][data-color="4"][data-index="0"] {
+  background-position-x: 66.6666666667%;
+  background-position-y: 0%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="1"][data-color="4"][data-index="1"] {
+  background-position-x: 77.7777777778%;
+  background-position-y: 0%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="1"][data-color="5"][data-index="0"] {
+  background-position-x: 88.8888888889%;
+  background-position-y: 0%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="1"][data-color="7"][data-index="0"] {
+  background-position-x: 100%;
+  background-position-y: 0%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="2"][data-color="1"][data-index="0"] {
+  background-position-x: 0%;
+  background-position-y: 20%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="2"][data-color="1"][data-index="1"] {
+  background-position-x: 11.1111111111%;
+  background-position-y: 20%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="2"][data-color="2"][data-index="0"] {
+  background-position-x: 22.2222222222%;
+  background-position-y: 20%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="2"][data-color="2"][data-index="1"] {
+  background-position-x: 33.3333333333%;
+  background-position-y: 20%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="2"][data-color="3"][data-index="0"] {
+  background-position-x: 44.4444444444%;
+  background-position-y: 20%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="2"][data-color="3"][data-index="1"] {
+  background-position-x: 55.5555555556%;
+  background-position-y: 20%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="2"][data-color="4"][data-index="0"] {
+  background-position-x: 66.6666666667%;
+  background-position-y: 20%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="2"][data-color="4"][data-index="1"] {
+  background-position-x: 77.7777777778%;
+  background-position-y: 20%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="3"][data-color="1"][data-index="0"] {
+  background-position-x: 88.8888888889%;
+  background-position-y: 20%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="3"][data-color="1"][data-index="1"] {
+  background-position-x: 100%;
+  background-position-y: 20%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="3"][data-color="2"][data-index="0"] {
+  background-position-x: 0%;
+  background-position-y: 40%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="3"][data-color="3"][data-index="0"] {
+  background-position-x: 11.1111111111%;
+  background-position-y: 40%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="3"][data-color="3"][data-index="1"] {
+  background-position-x: 22.2222222222%;
+  background-position-y: 40%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="3"][data-color="4"][data-index="0"] {
+  background-position-x: 33.3333333333%;
+  background-position-y: 40%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="3"][data-color="5"][data-index="0"] {
+  background-position-x: 44.4444444444%;
+  background-position-y: 40%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="4"][data-color="1"][data-index="0"] {
+  background-position-x: 55.5555555556%;
+  background-position-y: 40%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="4"][data-color="2"][data-index="0"] {
+  background-position-x: 66.6666666667%;
+  background-position-y: 40%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="4"][data-color="3"][data-index="0"] {
+  background-position-x: 77.7777777778%;
+  background-position-y: 40%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="4"][data-color="4"][data-index="0"] {
+  background-position-x: 88.8888888889%;
+  background-position-y: 40%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="4"][data-color="8"][data-index="0"] {
+  background-position-x: 100%;
+  background-position-y: 40%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="5"][data-color="1"][data-index="0"] {
+  background-position-x: 0%;
+  background-position-y: 60%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="5"][data-color="2"][data-index="0"] {
+  background-position-x: 11.1111111111%;
+  background-position-y: 60%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="5"][data-color="3"][data-index="0"] {
+  background-position-x: 22.2222222222%;
+  background-position-y: 60%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="5"][data-color="5"][data-index="0"] {
+  background-position-x: 33.3333333333%;
+  background-position-y: 60%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="5"][data-color="6"][data-index="0"] {
+  background-position-x: 44.4444444444%;
+  background-position-y: 60%;
+}
+.card .card-sides .card-side.front[data-category="3"][data-family="1"][data-color="1"][data-index="0"] {
+  background-position-x: 55.5555555556%;
+  background-position-y: 60%;
+}
+.card .card-sides .card-side.front[data-category="3"][data-family="1"][data-color="2"][data-index="0"] {
+  background-position-x: 66.6666666667%;
+  background-position-y: 60%;
+}
+.card .card-sides .card-side.front[data-category="3"][data-family="1"][data-color="3"][data-index="0"] {
+  background-position-x: 77.7777777778%;
+  background-position-y: 60%;
+}
+.card .card-sides .card-side.front[data-category="3"][data-family="1"][data-color="4"][data-index="0"] {
+  background-position-x: 88.8888888889%;
+  background-position-y: 60%;
+}
+.card .card-sides .card-side.front[data-category="3"][data-family="1"][data-color="5"][data-index="0"] {
+  background-position-x: 100%;
+  background-position-y: 60%;
+}
+.card .card-sides .card-side.front[data-category="3"][data-family="1"][data-color="7"][data-index="0"] {
+  background-position-x: 0%;
+  background-position-y: 80%;
+}
+.card .card-sides .card-side.front[data-category="3"][data-family="2"][data-color="2"][data-index="0"] {
+  background-position-x: 11.1111111111%;
+  background-position-y: 80%;
+}
+.card .card-sides .card-side.front[data-category="3"][data-family="2"][data-color="4"][data-index="0"] {
+  background-position-x: 22.2222222222%;
+  background-position-y: 80%;
+}
+.card .card-sides .card-side.front[data-category="3"][data-family="2"][data-color="5"][data-index="0"] {
+  background-position-x: 33.3333333333%;
+  background-position-y: 80%;
+}
+.card .card-sides .card-side.front[data-category="3"][data-family="2"][data-color="6"][data-index="0"] {
+  background-position-x: 44.4444444444%;
+  background-position-y: 80%;
+}
+.card .card-sides .card-side.front[data-category="3"][data-family="2"][data-color="7"][data-index="0"] {
+  background-position-x: 55.5555555556%;
+  background-position-y: 80%;
+}
+.card .card-sides .card-side.front[data-category="3"][data-family="3"][data-color="6"][data-index="0"] {
+  background-position-x: 66.6666666667%;
+  background-position-y: 80%;
+}
+.card .card-sides .card-side.front[data-category="3"][data-family="3"][data-color="8"][data-index="0"] {
+  background-position-x: 77.7777777778%;
+  background-position-y: 80%;
+}
+.card .card-sides .card-side.front[data-category="3"][data-family="3"][data-color="9"][data-index="0"] {
+  background-position-x: 88.8888888889%;
+  background-position-y: 80%;
+}
+.card .card-sides .card-side.front[data-category="3"][data-family="4"][data-color="9"][data-index="0"] {
+  background-position-x: 100%;
+  background-position-y: 80%;
+}
+.card .card-sides .card-side.front[data-category="3"][data-family="4"][data-color="10"][data-index="0"] {
+  background-position-x: 0%;
+  background-position-y: 100%;
+}
+.card .card-sides .card-side.front[data-category="4"][data-family="1"] {
+  background-position-x: 11.1111111111%;
+  background-position-y: 100%;
+}
+.card .card-sides .card-side.front[data-category="4"][data-family="2"] {
+  background-position-x: 22.2222222222%;
+  background-position-y: 100%;
+}
+.card .card-sides .card-side.front[data-category="4"][data-family="3"] {
+  background-position-x: 33.3333333333%;
+  background-position-y: 100%;
+}
+.card .card-sides .card-side.front[data-category="4"][data-family="4"] {
+  background-position-x: 44.4444444444%;
+  background-position-y: 100%;
+}
+.card.selectable:not(.disabled) {
+  cursor: pointer;
+}
+.card.selectable:not(.disabled):not(.selected) {
+  animation: selectable-card-animation 1s alternate infinite ease-in-out;
+}
+.card.selectable:not(.disabled) .card-side {
+  box-shadow: unset;
+}
+.card.selected:not(.disabled) {
+  box-shadow: 0 0 5px 8px orange;
+}
+.card.selected:not(.disabled) .card-side {
+  box-shadow: unset;
+}
+
+@keyframes selectable-card-animation {
+  0% {
+    box-shadow: 0 0 3px 2px #FFFFFF;
+  }
+  100% {
+    box-shadow: 0 0 5px 3px #FFFFFF;
+  }
+}
 .old-card {
   display: inline-block;
   position: relative;
@@ -350,14 +801,6 @@
   background-position-y: 100%;
 }
 
-@keyframes selectable-card-animation {
-  0% {
-    box-shadow: 0 0 3px 2px #FFFFFF;
-  }
-  100% {
-    box-shadow: 0 0 5px 3px #FFFFFF;
-  }
-}
 #table-center {
   display: flex;
   flex-direction: column;

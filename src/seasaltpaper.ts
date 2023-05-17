@@ -13,17 +13,19 @@ const LOCAL_STORAGE_ZOOM_KEY = 'SeaSaltPaper-zoom';
 const POINTS_FOR_PLAYERS = [null, null, 40, 35, 30];
 
 class SeaSaltPaper implements SeaSaltPaperGame {
-    public zoom: number = 1;
+    public animationManager: AnimationManager;
+    public cardsManager: CardsManager;
     public cards: Cards;
 
     private zoomManager: ZoomManager;
-    //private animationManager: AnimationManager;
     private gamedatas: SeaSaltPaperGamedatas;
     private stacks: Stacks;
     private playersTables: PlayerTable[] = [];
     private selectedCards: number[];
     private lastNotif: any;
     private handCounters: Counter[] = [];
+
+    private deckVoidStock: VoidStock<Card>;
     
     private TOOLTIP_DELAY = document.body.classList.contains('touch-device') ? 1500 : undefined;
 
@@ -50,10 +52,14 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
         log('gamedatas', gamedatas);
 
+        this.animationManager = new AnimationManager(this);
+        this.cardsManager = new CardsManager(this);
         this.cards = new Cards(this);
         this.stacks = new Stacks(this, this.gamedatas);
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
+
+        this.deckVoidStock = new VoidStock<Card>(this.cardsManager, document.getElementById('deck'));
         
         this.zoomManager = new ZoomManager({
             element: document.getElementById('full-table'),
@@ -504,7 +510,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         const duoCards = [1, 2, 3].map(family => `
         <div class="help-section">
             <div id="help-pair-${family}"></div>
-            <div>${this.cards.getTooltip(2, family)}</div>
+            <div>${this.cardsManager.getTooltip(2, family)}</div>
         </div>
         `).join('');
 
@@ -513,27 +519,27 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         <div class="help-section">
             <div id="help-pair-4"></div>
             <div id="help-pair-5"></div>
-            <div>${this.cards.getTooltip(2, 4)}</div>
+            <div>${this.cardsManager.getTooltip(2, 4)}</div>
         </div>
         ${_("Note: The points for duo cards count whether the cards have been played or not. However, the effect is only applied when the player places the two cards in front of them.")}`;
 
         const mermaidSection = `
         <div class="help-section">
             <div id="help-mermaid"></div>
-            <div>${this.cards.getTooltip(1)}</div>
+            <div>${this.cardsManager.getTooltip(1)}</div>
         </div>`;
 
         const collectorSection = [1, 2, 3, 4].map(family => `
         <div class="help-section">
             <div id="help-collector-${family}"></div>
-            <div>${this.cards.getTooltip(3, family)}</div>
+            <div>${this.cardsManager.getTooltip(3, family)}</div>
         </div>
         `).join('');
 
         const multiplierSection = [1, 2, 3, 4].map(family => `
         <div class="help-section">
             <div id="help-multiplier-${family}"></div>
-            <div>${this.cards.getTooltip(4, family)}</div>
+            <div>${this.cardsManager.getTooltip(4, family)}</div>
         </div>
         `).join('');
         
@@ -887,6 +893,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         const cards = notif.args.cards;
         const playerTable = this.getPlayerTable(playerId);
         playerTable.addCardsToTable(cards);
+
         this.handCounters[playerId].incValue(-cards.length);
     }
 
@@ -914,7 +921,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
     notif_endRound() {
         this.playersTables.forEach(playerTable => {
-            playerTable.cleanTable();
+            playerTable.cleanTable(this.deckVoidStock);
             this.handCounters[playerTable.playerId].setValue(0);
         });
         

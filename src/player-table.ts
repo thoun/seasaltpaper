@@ -9,11 +9,10 @@ class PlayerTable {
     private currentPlayer: boolean;
     private cardsPointsCounter: Counter;
 
+    private tableCards: LineStock<Card>;
+
     private get handCardsDiv() {
         return document.getElementById(`player-table-${this.playerId}-hand-cards`);
-    }
-    private get tableCardsDiv() {
-        return document.getElementById(`player-table-${this.playerId}-table-cards`);
     }
 
     constructor(private game: SeaSaltPaperGame, player: SeaSaltPaperPlayer) {
@@ -47,6 +46,10 @@ class PlayerTable {
             this.cardsPointsCounter.setValue(player.cardsPoints);
         }
 
+        this.tableCards = new LineStock<Card>(this.game.cardsManager, document.getElementById(`player-table-${this.playerId}-table-cards`), {
+            gap: '0px',
+        });
+
         this.addCardsToHand(player.handCards);
         this.addCardsToTable(player.tableCards);
 
@@ -72,19 +75,27 @@ class PlayerTable {
     public addCardsToHand(cards: Card[], from?: string) {
         this.addCards(cards, 'hand', from);
     }
-    public addCardsToTable(cards: Card[], from?: string) {
-        this.addCards(cards, 'table', from);
+
+    public addCardsToTable(cards: Card[]) {
+        cards.forEach(card => this.tableCards.addCard(card, {
+            fromElement: document.getElementById(`card-${card.id}`),
+        }));        
+        const cardsIds = cards.map(card => card.id);
+        const cardsDiv = Array.from(this.handCardsDiv.getElementsByClassName('old-card')) as HTMLDivElement[];        
+        cardsDiv.filter(cardDiv => cardsIds.includes(Number(cardDiv.dataset.id))).forEach(cardDiv => this.game.cards.removeCard(cardDiv));
+
+        //this.tableCards.addCards(cards);
     }
 
-    public cleanTable(): void {
-        const cards = [
-            ...Array.from(this.handCardsDiv.getElementsByClassName('old-card')) as HTMLDivElement[],
-            ...Array.from(this.tableCardsDiv.getElementsByClassName('old-card')) as HTMLDivElement[],
-        ];
-        
+    public cleanTable(deckStock: CardStock<Card>): void {
+        const cards = Array.from(this.handCardsDiv.getElementsByClassName('old-card')) as HTMLDivElement[];        
         cards.forEach(cardDiv => this.game.cards.createMoveOrUpdateCard({
             id: Number(cardDiv.dataset.id),
         } as any, `deck`));
+
+        deckStock.addCards(this.tableCards.getCards(), undefined, {
+            visible: false,
+        });
 
         setTimeout(() => cards.forEach(cardDiv => this.game.cards.removeCard(cardDiv)), 500);
         this.game.updateTableHeight();
