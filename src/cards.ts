@@ -47,20 +47,53 @@ class CardsManager extends CardManager<Card> {
                 <br><br>
                 <strong>${_("Effect: If they place 4 mermaid cards, the player immediately wins the game.")}</strong>`;
             case 2:
-                if (family >= 4) {
-                    return `<div><strong>${_("Swimmer")}/${_("Shark")}</strong> ${withCount ? '('+_('${number} of each').replace('${number}', 'x5')+')' : ''}</div>
-                    <div>${_("1 point for each combination of swimmer and shark cards.")}</div><br>
-                    <div>${_("Effect:")} ${_("The player steals a random card from another player and adds it to their hand.")}</div>`;
-                }
+                const swimmerSharkEffect = _("The player steals a random card from another player and adds it to their hand.");
+                const swimmerJellyfishEffect = 'TODO';
+                const crabLobsterEffect = 'TODO';
+                
                 const duoCards = [
-                    [_('Crab'), _("The player chooses a discard pile, consults it without shuffling it, and chooses a card from it to add to their hand. They do not have to show it to the other players."), 9],
-                    [_('Boat'), _("The player immediately takes another turn."), 8],
-                    [_('Fish'), _("The player adds the top card from the deck to their hand."), 7]
+                    [_('Crab'), [
+                        [_('Crab'), _("The player chooses a discard pile, consults it without shuffling it, and chooses a card from it to add to their hand. They do not have to show it to the other players.")],
+                        
+                    ], 9],
+                    [_('Boat'), [
+                        [_('Boat'), _("The player immediately takes another turn.")]
+                    ], 8],
+                    [_('Fish'), [
+                        [_('Fish'), _("The player adds the top card from the deck to their hand.")]
+                    ], 7],
+                    [_('Swimmer'), [
+                        [_('Shark'), swimmerSharkEffect]
+                    ], 5],
+                    [_('Shark'), [
+                        [_('Swimmer'), swimmerSharkEffect]
+                    ], 5],
                 ];
+
+                if (this.game.isExpansion()) {
+                    duoCards[0][1].push(
+                        [/*TODO_*/('Lobster'), crabLobsterEffect],
+                    );
+                    duoCards[3][1].push(
+                        [/*TODO_*/('Jellyfish'), swimmerJellyfishEffect],
+                    );
+                    duoCards.push([/*TODO_*/('Jellyfish'), [
+                        [_('Swimmer'), swimmerJellyfishEffect]
+                    ], 2], 
+                    [/*TODO_*/('Lobster'), [
+                        [_('Crab'), crabLobsterEffect]
+                    ], 1], )
+                }
+
                 const duo = duoCards[family - 1];
-                return `<div><strong>${duo[0]}</strong> ${withCount ? `(x${duo[2]})` : ''}</div>
-                <div>${_("1 point for each pair of ${card} cards.").replace('${card}', duo[0])}</div><br>
-                <div>${_("Effect:")} ${_(duo[1])}</div>`;
+                let html = `<div><strong>${duo[0]}</strong> ${withCount ? `(x${duo[2]})` : ''}</div>
+                <div>${_("1 point for each valid pair of cards.")}</div><br>
+                <div>${_("Effect:")}</div>`;
+                duo[1].forEach(possiblePair => {
+                    html += `<div><i>${(possiblePair[0] == duo[0] ? _("With another ${card_type}:") : _("With a ${card_type}:")).replace('${card_type}', possiblePair[0])}</i> ${possiblePair[1]}</div>`;
+                });
+                html += `</div>`;
+                return html;
             case 3:
                 const collectorCards = [
                     ['0, 2, 4, 6, 8, 10', '1, 2, 3, 4, 5, 6', _('Shell')],
@@ -77,11 +110,20 @@ class CardsManager extends CardManager<Card> {
                     [_('The shoal of fish'), _('Fish'), 1],
                     [_('The penguin colony'), _('Penguin'), 2],
                     [_('The captain'), _('Sailor'), 3],
+                    [/*TODO_*/('The carb cab'), _('Crab'), 1], // TODO CHECK NAME
                 ];
                 const multiplier = multiplierCards[family - 1];
                 return `<div><strong>${multiplier[0]}</strong> (x1)</div>
                 <div>${_("${points} point(s) per ${card} card.").replace('${points}', multiplier[2]).replace('${card}', multiplier[1])}</div>
                 <div>${_("This card does not count as a ${card} card.").replace('${card}', multiplier[1])}</div>`;
+            case 5:
+            const specialCards = [
+                [/*TODO_*/('Starfish'), 3],
+                [/*TODO_*/('Seahorse'), 1],
+            ];
+            const special = specialCards[family - 1];
+            return `<div><strong>${special[0]}</strong> (x${special[1]})</div>
+            <div>${'TODO'}</div>`;
         }
             
     }

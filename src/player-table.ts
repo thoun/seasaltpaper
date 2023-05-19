@@ -3,7 +3,10 @@ const log = isDebug ? console.log.bind(window.console) : function () { };
 
 const CATEGORY_ORDER = [null, 4, 1, 2, 3];
 
+const PAIR = 2;
+const SPECIAL = 5;
 
+const STARFISH = 1;
 
 function sortCards(a: Card, b: Card) {
     return (CATEGORY_ORDER[a.category]*100 + a.family * 10 + a.color) - (CATEGORY_ORDER[b.category]*100 + b.family * 10 + b.color);
@@ -36,7 +39,7 @@ class PlayerTable {
                 </div>
         `;
         if (this.currentPlayer) {
-            html += `<span class="counter">
+            html += `<span class="counter" id="cards-points-tooltip">
                     (${_('Cards points:')}&nbsp;<span id="cards-points-counter"></span>)
                 </span>`;
         }
@@ -51,19 +54,18 @@ class PlayerTable {
             this.cardsPointsCounter = new ebg.counter();
             this.cardsPointsCounter.create(`cards-points-counter`);
             this.cardsPointsCounter.setValue(player.cardsPoints);
-        }
-
-        const stockSettings: LineStockSettings = {
-            gap: '0px',
-            sort: sortCards,
+            this.setHandPoints(player.cardsPoints, player.detailledPoints);
         }
 
         this.handCards = new LineStock<Card>(this.game.cardsManager, document.getElementById(`player-table-${this.playerId}-hand-cards`), {
-            ...stockSettings,
+            gap: '0px',
+            sort: sortCards,
             wrap: this.currentPlayer ? 'wrap' : 'nowrap',
         });
         this.handCards.onCardClick = card => this.game.onCardClick(card);
-        this.tableCards = new LineStock<Card>(this.game.cardsManager, document.getElementById(`player-table-${this.playerId}-table-cards`), stockSettings);
+        this.tableCards = new LineStock<Card>(this.game.cardsManager, document.getElementById(`player-table-${this.playerId}-table-cards`), {
+            gap: '0px',
+        });
 
         this.addCardsToHand(player.handCards);
         this.addCardsToTable(player.tableCards);
@@ -123,8 +125,14 @@ class PlayerTable {
         this.clearAnnouncement();
     }
     
-    public setHandPoints(cardsPoints: number) {
+    public setHandPoints(cardsPoints: number, detailledPoints: number[]) {
         this.cardsPointsCounter.toValue(cardsPoints);
+        this.game.setTooltip(`cards-points-tooltip`, `
+            <div>${_('Mermaid points:')} <strong>${detailledPoints[0]}</strong></div>
+            <div>${_('Pair points:')} <strong>${detailledPoints[1]}</strong></div>
+            <div>${_('Collection points:')} <strong>${detailledPoints[2]}</strong></div>
+            <div>${_('Multiplier points:')} <strong>${detailledPoints[3]}</strong></div>
+        `);
     }
 
     public showAnnouncementPoints(playerPoints: number) {
@@ -185,7 +193,7 @@ class PlayerTable {
         }
     }
 
-    public updateDisabledPlayCards(selectedCards: number[], playableDuoCardFamilies: number[]) {
+    public updateDisabledPlayCards(selectedCards: Card[], selectedStarfishCards: Card[], playableDuoCardFamilies: number[]) {
         if (!(this.game as any).isCurrentPlayerActive()) {
             return;
         }
@@ -193,16 +201,19 @@ class PlayerTable {
         const cards = this.handCards.getCards();
         cards.forEach(card => {
             let disabled = false;
-            if (card.category != 2) {
-                disabled = true;
+            if (card.category != PAIR) {
+                if (card.category == SPECIAL && card.family == STARFISH) {
+                    disabled = selectedStarfishCards.length > 0 && !selectedStarfishCards.some(c => c.id == card.id);
+                } else {
+                    disabled = true;
+                }
             } else {
                 if (playableDuoCardFamilies.includes(card.family)) {
                     if (selectedCards.length >= 2) {
-                        disabled = !selectedCards.includes(card.id);
+                        disabled = !selectedCards.some(c => c.id == card.id);
                     } else if (selectedCards.length == 1) {
-                        const family = cards.find(card => card.id == selectedCards[0]).family;
-                        const authorizedFamily = family >= 4 ? 9 - family : family;
-                        disabled = card.id != selectedCards[0] && card.family != authorizedFamily;
+                        const matchFamilies = selectedCards[0].matchFamilies;
+                        disabled = card.id != selectedCards[0].id && !matchFamilies.includes(card.family);
                     }
                 } else {
                     disabled = true;

@@ -20,7 +20,8 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     private gamedatas: SeaSaltPaperGamedatas;
     private stacks: Stacks;
     private playersTables: PlayerTable[] = [];
-    private selectedCards: number[];
+    private selectedCards: Card[];
+    private selectedStarfishCards: Card[];
     private lastNotif: any;
     private handCounters: Counter[] = [];
 
@@ -127,13 +128,15 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
         this.clearLogs(argsRoot.active_player);
 
-        if (!args.canTakeFromDiscard.length) {
+        if (args.forceTakeOne) {
+            this.setGamestateDescription('ForceTakeOne');
+        } else if (!args.canTakeFromDiscard.length) {
             this.setGamestateDescription('NoDiscard');
         }
 
         if ((this as any).isCurrentPlayerActive()) {
             this.stacks.makeDeckSelectable(args.canTakeFromDeck);
-            this.stacks.makeDiscardSelectable(true);
+            this.stacks.makeDiscardSelectable(!args.forceTakeOne);
         }
     }
     
@@ -157,6 +160,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     private onEnteringPlayCards() {
         this.stacks.showPickCards(false);
         this.selectedCards = [];
+        this.selectedStarfishCards = [];
 
         this.updateDisabledPlayCards();
     }
@@ -235,6 +239,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
     private onLeavingPlayCards() {
         this.selectedCards = null;
+        this.selectedStarfishCards = null;
         this.getCurrentPlayerTable()?.setSelectable(false);
     }
 
@@ -255,6 +260,12 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     public onUpdateActionButtons(stateName: string, args: any) {
         if ((this as any).isCurrentPlayerActive()) {
             switch (stateName) {
+                
+                case 'takeCards':
+                    if (args.forceTakeOne) {
+                        (this as any).addActionButton(`takeFirstCard_button`, /*TODO_*/("Take the first card"), () => this.takeCardsFromDeck());
+                    }
+                    break;
                 case 'playCards':
                     const playCardsArgs = args as EnteringPlayCardsArgs;
                     (this as any).addActionButton(`playCards_button`, _("Play selected cards"), () => this.playSelectedCards());
@@ -308,6 +319,10 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
     public setTooltipToClass(className: string, html: string) {
         (this as any).addTooltipHtmlToClass(className, html, this.TOOLTIP_DELAY);
+    }
+
+    public isExpansion(): boolean {
+        return this.gamedatas.expansion;
     }
 
     public getPlayerId(): number {
@@ -380,12 +395,16 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     private createPlayerPanels(gamedatas: SeaSaltPaperGamedatas) {
+        let endPoints = POINTS_FOR_PLAYERS[Object.keys(gamedatas.players).length];
+        if (gamedatas.doublePoints) {
+            endPoints *= 2;
+        }
 
         Object.values(gamedatas.players).forEach(player => {
             const playerId = Number(player.id);   
 
             // show end game points
-            dojo.place(`<span class="end-game-points">&nbsp;/&nbsp;${POINTS_FOR_PLAYERS[Object.keys(gamedatas.players).length]}</span>`, `player_score_${playerId}`, 'after');
+            dojo.place(`<span class="end-game-points">&nbsp;/&nbsp;${endPoints}</span>`, `player_score_${playerId}`, 'after');
 
             // hand cards counter
             dojo.place(`<div class="counters">
@@ -418,8 +437,8 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     private updateDisabledPlayCards() {
-        this.getCurrentPlayerTable()?.updateDisabledPlayCards(this.selectedCards, this.gamedatas.gamestate.args.playableDuoCards);        
-        document.getElementById(`playCards_button`)?.classList.toggle(`disabled`, this.selectedCards.length != 2);
+        this.getCurrentPlayerTable()?.updateDisabledPlayCards(this.selectedCards, this.selectedStarfishCards, this.gamedatas.gamestate.args.playableDuoCards);
+        document.getElementById(`playCards_button`)?.classList.toggle(`disabled`, this.selectedCards.length != 2 || this.selectedStarfishCards.length > 1);
     }
     
     public onCardClick(card: Card): void {
@@ -443,11 +462,12 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                 break;
             case 'playCards':
                 if (parentDiv.dataset.myHand == `true`) {
-                    if (this.selectedCards.includes(card.id)) {
-                        this.selectedCards.splice(this.selectedCards.indexOf(card.id), 1);
+                    const array = card.category == SPECIAL && card.family == STARFISH ? this.selectedStarfishCards : this.selectedCards;
+                    if (array.some(c => c.id == card.id)) {
+                        array.splice(array.findIndex(c => c.id == card.id), 1);
                         cardDiv.classList.remove('selected');
                     } else {
-                        this.selectedCards.push(card.id);
+                        array.push(card);
                         cardDiv.classList.add('selected');
                     }
                     this.updateDisabledPlayCards();
@@ -486,7 +506,13 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
     private playSelectedCards() {
         if (this.selectedCards.length == 2) {
-            this.playCards(this.selectedCards);
+            if (this.selectedStarfishCards.length > 0) {
+                if (this.selectedStarfishCards.length == 1) {
+                    this.playCardsTrio(this.selectedCards.map(card => card.id), this.selectedStarfishCards[0].id);
+                }
+            } else {
+                this.playCards(this.selectedCards.map(card => card.id));
+            }
         }
     }
 
@@ -633,6 +659,18 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         });
     }
 
+    public playCardsTrio(ids: number[], starfishId: number) {
+        if(!(this as any).checkAction('playCardsTrio')) {
+            return;
+        }
+
+        this.takeAction('playCardsTrio', {
+            'id1': ids[0],
+            'id2': ids[1],
+            'starfishId': starfishId
+        });
+    }
+
     public chooseDiscardPile(discardNumber: number) {
         if(!(this as any).checkAction('chooseDiscardPile')) {
             return;
@@ -758,6 +796,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             ['cardInHandFromPick', ANIMATION_MS],
             ['cardInHandFromDeck', ANIMATION_MS],
             ['cardInDiscardFromPick', ANIMATION_MS],
+            ['cardsInDeckFromPick', ANIMATION_MS],
             ['playCards', ANIMATION_MS],
             ['stealCard', ANIMATION_MS],
             ['revealHand', ANIMATION_MS * 2],
@@ -869,6 +908,14 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.cardsManager.setCardVisible(card, true);
         this.stacks.setDiscardCard(discardNumber, card, notif.args.remainingCardsInDiscard);
         this.updateTableHeight();
+    } 
+
+    notif_cardsInDeckFromPick(notif: Notif<NotifCardsInDeckFromPickArgs>) {
+        this.deckVoidStock.addCards(notif.args.cards, undefined, {
+            visible: false,
+        });
+        this.stacks.setDeckCount(notif.args.remainingCardsInDeck);
+        this.updateTableHeight();
     }
 
     notif_score(notif: Notif<NotifScoreArgs>) {
@@ -923,13 +970,13 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             this.handCounters[playerTable.playerId].setValue(0);
         });
         
-        this.getCurrentPlayerTable()?.setHandPoints(0);
+        this.getCurrentPlayerTable()?.setHandPoints(0, [0, 0, 0, 0]);
         this.stacks.cleanDiscards(this.deckVoidStock);
         this.stacks.setDeckCount(58);
     }
 
     notif_updateCardsPoints(notif: Notif<NotifUpdateCardsPointsArgs>) {
-        this.getCurrentPlayerTable()?.setHandPoints(notif.args.cardsPoints);
+        this.getCurrentPlayerTable()?.setHandPoints(notif.args.cardsPoints, notif.args.detailledPoints);
     }
 
     notif_betResult(notif: Notif<NotifBetResultArgs>) {
@@ -974,7 +1021,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                     args.call = `<strong class="title-bar-call">${_(args.call)}</strong>`;
                 }
 
-                ['discardNumber', 'roundPoints', 'cardsPoints', 'colorBonus', 'cardName', 'cardName1', 'cardName2', 'cardColor', 'cardColor1', 'cardColor2', 'points', 'result'].forEach(field => {
+                ['discardNumber', 'roundPoints', 'cardsPoints', 'colorBonus', 'cardName', 'cardName1', 'cardName2', 'cardName3', 'cardColor', 'cardColor1', 'cardColor2', 'cardColor3', 'points', 'result'].forEach(field => {
                     if (args[field] !== null && args[field] !== undefined && args[field][0] != '<') {
                         args[field] = `<strong>${_(args[field])}</strong>`;
                     }

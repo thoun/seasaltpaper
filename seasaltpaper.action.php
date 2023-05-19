@@ -78,9 +78,21 @@
         self::setAjaxMode();
 
         $cardId1 = self::getArg("id1", AT_posint, true);
-        $cardId2 = self::getArg("id2", AT_posint, false);
+        $cardId2 = self::getArg("id2", AT_posint, true);
 
         $this->game->playCards($cardId1, $cardId2);
+
+        self::ajaxResponse();
+    }
+
+    public function playCardsTrio() {
+        self::setAjaxMode();
+
+        $cardId1 = self::getArg("id1", AT_posint, true);
+        $cardId2 = self::getArg("id2", AT_posint, true);
+        $starfishCardId = self::getArg("starfishId", AT_posint, true);
+
+        $this->game->playCardsTrio($cardId1, $cardId2, $starfishCardId);
 
         self::ajaxResponse();
     }

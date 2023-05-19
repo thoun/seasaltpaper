@@ -11,8 +11,30 @@ trait DebugUtilTrait {
             return;
         } 
 
-        $this->debugSetMermaids();
-        $this->debugSetMermaidOnDeckTop();
+        //$this->debugSetMermaids();
+        //$this->debugSetMermaidOnDeckTop();
+        //$this->debugSetCardInHand(2343492, COLLECTION, SAILOR, ORANGE);
+        //$this->debugSetCardInHand(2343492, COLLECTION, SAILOR, PINK);
+        //$this->debugSetCardInHand(2343492, MULTIPLIER, CAPTAIN, LIGHT_ORANGE);
+
+        //$this->debugSetCardInHand(2343492, COLLECTION, OCTOPUS, YELLOW);
+        //$this->debugSetCardInHand(2343492, COLLECTION, OCTOPUS, PURPLE);
+        //$this->debugSetCardInHand(2343492, COLLECTION, PENGUIN, PURPLE);
+        //$this->debugSetCardInHand(2343492, COLLECTION, PENGUIN, PINK);
+        //$this->debugSetCardInHand(2343492, MULTIPLIER, PENGUIN_COLONY, GREEN);
+        //$this->debugSetCardInHand(2343492, SPECIAL, SEAHORSE, WHITE);
+        //$this->debugSetCardInHand(2343492, MERMAID, 0, WHITE);
+
+        /*$this->debugSetCardInHand(2343492, PAIR, SHARK, DARK_BLUE);
+        $this->debugSetCardInHand(2343492, PAIR, SHARK, PURPLE);
+        $this->debugSetCardInHand(2343492, PAIR, SWIMMER, LIGHT_BLUE);
+        $this->debugSetCardInHand(2343492, PAIR, JELLYFISH, PURPLE);
+        $this->debugSetCardInHand(2343492, PAIR, CRAB, DARK_BLUE);
+        $this->debugSetCardInHand(2343492, PAIR, CRAB, LIGHT_BLUE);
+        $this->debugSetCardInHand(2343492, PAIR, LOBSTER, BLACK);*/
+        //$this->debugSetCardInHand(2343492, SPECIAL, STARFISH, YELLOW);
+
+        $this->gamestate->changeActivePlayer(2343492);
     }
 
     function debugSetMermaids() {
@@ -28,6 +50,15 @@ trait DebugUtilTrait {
 
     function debugSetMermaidsOnDeckTop() {
         $this->DbQuery("UPDATE card SET card_location_arg=1000 WHERE card_type = 10 AND card_location = 'deck'" );
+    }
+
+    private function debugGetCardByTypes($category, $family, $color, $index = 0) {
+        return $this->getCardsFromDb($this->cards->getCardsOfType($category * 10 + $family, $color * 10 + $index))[0];
+    }
+
+    private function debugSetCardInHand($playerId, $category, $family, $color, $index = 0) {
+        $card = $this->debugGetCardByTypes($category, $family, $color, $index);
+        $this->cards->moveCard($card->id, 'hand'.$playerId);
     }
 
     function debugEmptyDeck() {

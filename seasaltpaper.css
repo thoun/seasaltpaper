@@ -410,6 +410,23 @@ body > .card {
   background-position-x: 44.4444444444%;
   background-position-y: 60%;
 }
+.card .card-sides .card-side.front[data-category="2"][data-family="6"] {
+  background-image: url("img/cards-expansion.jpg");
+  background-size: auto 100%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="6"][data-color="6"][data-index="0"] {
+  background-position-x: 0%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="6"][data-color="9"][data-index="0"] {
+  background-position-x: 14.2857142857%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="7"] {
+  background-image: url("img/cards-expansion.jpg");
+  background-size: auto 100%;
+}
+.card .card-sides .card-side.front[data-category="2"][data-family="7"][data-color="3"][data-index="0"] {
+  background-position-x: 28.5714285714%;
+}
 .card .card-sides .card-side.front[data-category="3"][data-family="1"][data-color="1"][data-index="0"] {
   background-position-x: 55.5555555556%;
   background-position-y: 60%;
@@ -490,6 +507,29 @@ body > .card {
   background-position-x: 44.4444444444%;
   background-position-y: 100%;
 }
+.card .card-sides .card-side.front[data-category="4"][data-family="5"] {
+  background-image: url("img/cards-expansion.jpg");
+  background-size: auto 100%;
+}
+.card .card-sides .card-side.front[data-category="4"][data-family="5"][data-color="5"] {
+  background-position-x: 42.8571428571%;
+}
+.card .card-sides .card-side[data-category="5"] {
+  background-image: url("img/cards-expansion.jpg");
+  background-size: auto 100%;
+}
+.card .card-sides .card-side[data-category="5"][data-family="1"][data-color="1"] {
+  background-position-x: 57.1428571429%;
+}
+.card .card-sides .card-side[data-category="5"][data-family="1"][data-color="2"] {
+  background-position-x: 71.4285714286%;
+}
+.card .card-sides .card-side[data-category="5"][data-family="1"][data-color="4"] {
+  background-position-x: 85.7142857143%;
+}
+.card .card-sides .card-side[data-category="5"][data-family="2"][data-color="0"] {
+  background-position-x: 100%;
+}
 .card.selectable:not(.disabled) {
   cursor: pointer;
 }
@@ -567,7 +607,7 @@ body > .card {
   justify-content: center;
   align-items: center;
   width: 350px;
-  height: 230px;
+  min-height: 230px;
   margin-top: 10px;
   transition: background-color 0.5s;
 }

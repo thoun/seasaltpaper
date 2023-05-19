@@ -82,8 +82,10 @@ $playerActionsGameStates = [
         "descriptionmyturn" => clienttranslate('${you} must take two cards from deck or one card from a discard pile ${call}'),
         "descriptionNoDiscard" => clienttranslate('${actplayer} must take two cards from deck ${call}'),
         "descriptionmyturnNoDiscard" => clienttranslate('${you} must take two cards from deck ${call}'),
+        "descriptionForceTakeOne" => /* TODO clienttranslate*/('${actplayer} must take the first card from deck ${call}'),
+        "descriptionmyturnForceTakeOne" => /* TODO clienttranslate*/('${you} must take the first card from deck ${call}'),
         "type" => "activeplayer",
-        "args" => "argTakeCards",        
+        "args" => "argTakeCards",
         "updateGameProgression" => true,
         "possibleactions" => [ 
             "takeCardsFromDeck",
@@ -137,6 +139,7 @@ $playerActionsGameStates = [
         "updateGameProgression" => true,
         "possibleactions" => [ 
             "playCards",
+            "playCardsTrio",
             "endGameWithMermaids",
             "endTurn",
             "endRound",
@@ -146,6 +149,7 @@ $playerActionsGameStates = [
             "chooseDiscardPile" => ST_PLAYER_CHOOSE_DISCARD_PILE,
             "newTurn" => ST_PLAYER_TAKE_CARDS,
             "chooseOpponent" => ST_PLAYER_CHOOSE_OPPONENT,
+            "chooseCard" => ST_PLAYER_CHOOSE_CARD,
             "playCards" => ST_PLAYER_PLAY_CARDS,
             "endTurn" => ST_NEXT_PLAYER,
             "mermaids" => ST_END_SCORE,

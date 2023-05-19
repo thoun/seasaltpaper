@@ -13,13 +13,18 @@ trait ActionTrait {
 
     public function takeCardsFromDeck() {
         $this->checkAction('takeCardsFromDeck'); 
-
-        $canTakeFromDeck = intval($this->cards->countCardInLocation('deck')) > 0;
-        if (!$canTakeFromDeck) {
-            throw new BgaUserException("No card in deck");
-        }
         
         $playerId = intval($this->getActivePlayerId());
+        $args = $this->argTakeCards();
+
+        if ($args['forceTakeOne']) {
+            $this->takeFirstCardFromDeck($playerId);
+            return;
+        }
+
+        if (!$args['canTakeFromDeck']) {
+            throw new BgaUserException("You can't take a card from the deck");
+        }
 
         $cards = $this->getCardsFromDb($this->cards->pickCardsForLocation(2, 'deck', 'pick'));
 
@@ -37,19 +42,52 @@ trait ActionTrait {
         $this->gamestate->nextState('chooseCard');
     }
 
+    public function takeFirstCardFromDeck(int $playerId) {
+
+        if (intval($this->cards->countCardInLocation('deck')) > 0) {
+            $card = $this->getCardFromDb($this->cards->pickCardForLocation('deck', 'hand'.$playerId));
+            $this->cardCollected($playerId, $card);
+
+            self::notifyPlayer($playerId, 'cardInHandFromDeck', clienttranslate('You take ${cardColor} ${cardName} card from deck'), [
+                'playerId' => $playerId,
+                'player_name' => $this->getPlayerName($playerId),
+                'card' => $card,
+                'cardName' => $this->getCardName($card),
+                'cardColor' => $this->COLORS[$card->color],
+                'i18n' => ['cardName', 'cardColor'],
+                'preserve' => ['actionPlayerId'],
+                'actionPlayerId' => $playerId,
+            ]);
+            self::notifyAllPlayers('cardInHandFromDeck', clienttranslate('${player_name} took a card from deck'), [
+                'playerId' => $playerId,
+                'player_name' => $this->getPlayerName($playerId),
+                'card' => Card::onlyId($card),
+                'preserve' => ['actionPlayerId'],
+                'actionPlayerId' => $playerId,
+            ]);
+
+            $this->updateCardsPoints($playerId);
+        }
+            
+        $this->gamestate->nextState('zombiePass');
+
+    }
+
     public function takeCardFromDiscard(int $discardNumber) {
         $this->checkAction('takeCardFromDiscard'); 
+
+        $args = $this->argTakeCards();        
         
-        $playerId = intval($this->getActivePlayerId());
-        
-        if (!in_array($discardNumber, [1, 2])) {
-            throw new BgaUserException("Invalid discard number");
+        if (!in_array($discardNumber, $args['canTakeFromDiscard'])) {
+            throw new BgaUserException("You can't take a card from the discard pile");
         }
 
         $card = $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber));
         if ($card == null) {
             throw new BgaUserException("No card in that discard");
         }
+
+        $playerId = intval($this->getActivePlayerId());
 
         $this->cards->moveCard($card->id, 'hand'.$playerId);
         $this->cardCollected($playerId, $card);
@@ -115,17 +153,38 @@ trait ActionTrait {
             return;
         }
 
-        $remainingCardsInDiscard1 = intval($this->cards->countCardInLocation('discard1'));
-        $remainingCardsInDiscard2 = intval($this->cards->countCardInLocation('discard2'));
+        if (boolval($this->getGameStateValue(LOBSTER_POWER))) {
+            $this->setGameStateValue(LOBSTER_POWER, 0);
 
-        if ($remainingCardsInDiscard1 == 0) {
-            $this->applyPutDiscardPile(1);
-            $this->gamestate->nextState('playCards');
-        } else if ($remainingCardsInDiscard2 == 0) {
-            $this->applyPutDiscardPile(2);
+            $cards = $this->getCardsFromDb($this->cards->getCardsInLocation('pick'));
+            if (count($cards) > 0) {
+                $this->cards->moveAllCardsInLocation('pick', 'deck');
+                $this->cards->shuffle('deck');
+
+                self::notifyAllPlayers('cardsInDeckFromPick', '', [
+                    'playerId' => $playerId,
+                    'player_name' => $this->getPlayerName($playerId),
+                    'cards' => $cards,
+                    'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
+                    'preserve' => ['actionPlayerId'],
+                    'actionPlayerId' => $playerId,
+                ]);
+            }
+
             $this->gamestate->nextState('playCards');
         } else {
-            $this->gamestate->nextState('putDiscardPile');
+            $remainingCardsInDiscard1 = intval($this->cards->countCardInLocation('discard1'));
+            $remainingCardsInDiscard2 = intval($this->cards->countCardInLocation('discard2'));
+
+            if ($remainingCardsInDiscard1 == 0) {
+                $this->applyPutDiscardPile(1);
+                $this->gamestate->nextState('playCards');
+            } else if ($remainingCardsInDiscard2 == 0) {
+                $this->applyPutDiscardPile(2);
+                $this->gamestate->nextState('playCards');
+            } else {
+                $this->gamestate->nextState('putDiscardPile');
+            }
         }
     }
 
@@ -182,11 +241,7 @@ trait ActionTrait {
             throw new BgaUserException("You must select Pair cards from your hand");
         }
 
-        if (
-            ($cards[0]->family == SWIMMER && $cards[1]->family != SHARK) ||            
-            ($cards[0]->family == SHARK && $cards[1]->family != SWIMMER) ||
-            (!in_array($cards[0]->family, [SWIMMER, SHARK]) && $cards[0]->family != $cards[1]->family)
-        ) {
+        if (!in_array($cards[1]->family, $cards[0]->matchFamilies)) {
             throw new BgaUserException("Invalid pair");
         }
 
@@ -195,15 +250,19 @@ trait ActionTrait {
             $this->cards->moveCard($card->id, 'table'.$playerId, ++$count);
         }
 
-
-        
-
+        $families = array_map(fn($card) => $card->family, $cards);
+        sort($families);
         $action = '';
         $power = 0;
-        switch ($cards[0]->family) {
+        switch ($families[0]) {
             case CRAB:
-                $action = clienttranslate('takes a card from a discard pile');
-                $power = 1;
+                if ($families[1] == LOBSTER) {
+                    $action = clienttranslate('steals a random card from another player'); // TODO change power text
+                    $power = 6;
+                } else {
+                    $action = clienttranslate('takes a card from a discard pile');
+                    $power = 1;
+                }
                 break;
             case BOAT:
                 $action = clienttranslate('plays a new turn');
@@ -215,8 +274,13 @@ trait ActionTrait {
                 break;
             case SWIMMER:
             case SHARK:
-                $action = clienttranslate('steals a random card from another player');
-                $power = 4;
+                if ($families[0] == SWIMMER && $families[1] == JELLYFISH) {
+                    $action = clienttranslate('steals a random card from another player'); // TODO change power text
+                    $power = 5;
+                } else {
+                    $action = clienttranslate('steals a random card from another player');
+                    $power = 4;
+                }
                 break;
         }
 
@@ -236,11 +300,13 @@ trait ActionTrait {
 
         $this->incStat(1, 'playedDuoCards');
         $this->incStat(1, 'playedDuoCards', $playerId);
-        $this->incStat(1, 'playedDuoCards'.$power);
-        $this->incStat(1, 'playedDuoCards'.$power, $playerId);
+        if ($power <= 4) { // TODO
+            $this->incStat(1, 'playedDuoCards'.$power);
+            $this->incStat(1, 'playedDuoCards'.$power, $playerId);
+        }
 
-        switch ($cards[0]->family) {
-            case CRAB:
+        switch ($power) {
+            case 1:
                 if ((intval($this->cards->countCardInLocation('discard1')) + intval($this->cards->countCardInLocation('discard2'))) > 0) {
                     $this->gamestate->nextState('chooseDiscardPile');
                 } else {
@@ -248,7 +314,7 @@ trait ActionTrait {
                     $this->gamestate->nextState('playCards');
                 }
                 break;
-            case BOAT:
+            case 2:
                 if ((intval($this->cards->countCardInLocation('deck')) + intval($this->cards->countCardInLocation('discard1')) + intval($this->cards->countCardInLocation('discard2'))) > 0) {
                     $this->gamestate->nextState('newTurn');
                 } else {
@@ -256,7 +322,7 @@ trait ActionTrait {
                     $this->gamestate->nextState('playCards');
                 }
                 break;
-            case FISH:
+            case 3:
                 if (intval($this->cards->countCardInLocation('deck')) > 0) {
                     $card = $this->getCardFromDb($this->cards->pickCardForLocation('deck', 'hand'.$playerId));
                     $this->cardCollected($playerId, $card);
@@ -287,8 +353,7 @@ trait ActionTrait {
                 }
                 
                 break;
-            case SWIMMER:
-            case SHARK:
+            case 4:
                 $possibleOpponentsToSteal = $this->getPossibleOpponentsToSteal($playerId);
 
                 if (count($possibleOpponentsToSteal) > 0) {
@@ -309,7 +374,82 @@ trait ActionTrait {
                     $this->gamestate->nextState('playCards');
                 }*/
                 break;
+            case 5:
+                $this->setGameStateValue(FORCE_TAKE_ONE, $playerId);
+                $this->gamestate->nextState('playCards');
+                break;
+            case 6:
+                if (intval($this->cards->countCardInLocation('deck')) > 0) {
+                    $this->setGameStateValue(LOBSTER_POWER, 1);
+
+                    $cards = $this->getCardsFromDb($this->cards->pickCardsForLocation(5, 'deck', 'pick'));
+            
+                    self::notifyAllPlayers('log', clienttranslate('${player_name} picks ${number} cards from the deck'), [
+                        'playerId' => $playerId,
+                        'player_name' => $this->getPlayerName($playerId),
+                        'number' => count($cards),
+                        'preserve' => ['actionPlayerId'],
+                        'actionPlayerId' => $playerId,
+                    ]);
+
+                    $this->gamestate->nextState('chooseCard');
+                } else {
+                    self::notifyAllPlayers('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
+                    $this->gamestate->nextState('playCards');
+                }
+                break;
         }
+    }
+
+    public function playCardsTrio(int $id1, int $id2, int $idStarfish) {
+        $this->checkAction('playCardsTrio'); 
+
+        if ($id1 == $id2) {
+            throw new BgaUserException("Same id");
+        }
+
+        $playerId = intval($this->getActivePlayerId());
+        $cards = $this->getCardsFromDb($this->cards->getCards([$id1, $id2]));
+
+        if ($this->array_some($cards, fn($card) => $card->location != 'hand'.$playerId || $card->category != PAIR)) {
+            throw new BgaUserException("You must select Pair cards from your hand");
+        }
+
+        if (!in_array($cards[1]->family, $cards[0]->matchFamilies)) {
+            throw new BgaUserException("Invalid pair");
+        }
+
+        $starfishCard = $this->getCardFromDb($this->cards->getCard($idStarfish));
+        if ($starfishCard->location != 'hand'.$playerId || $starfishCard->category != SPECIAL || $starfishCard->family != STARFISH) {
+            throw new BgaUserException("You must select a Starfish card from your hand");
+        }
+
+        $allCards = array_merge($cards, [$starfishCard]);
+
+        $count = intval($this->cards->countCardInLocation('table'.$playerId));
+        foreach($allCards as $card) {
+            $this->cards->moveCard($card->id, 'table'.$playerId, ++$count);
+        }
+
+        self::notifyAllPlayers('playCards', /*TODO clienttranslate*/('${player_name} plays cards ${cardColor1} ${cardName1} and ${cardColor2} ${cardName2} with a ${cardColor3} ${cardName3}'), [
+            'playerId' => $playerId,
+            'player_name' => $this->getPlayerName($playerId),
+            'cards' => $allCards,
+            'cardName1' => $this->getCardName($cards[0]),
+            'cardName2' => $this->getCardName($cards[1]),
+            'cardName3' => $this->getCardName($starfishCard),
+            'cardColor1' => $this->COLORS[$cards[0]->color],
+            'cardColor2' => $this->COLORS[$cards[1]->color],
+            'cardColor3' => $this->COLORS[$starfishCard->color],
+            'i18n' => ['cardName1', 'cardName2', 'cardName3', 'cardColor1', 'cardColor2', 'cardColor3'],
+            'preserve' => ['actionPlayerId'],
+            'actionPlayerId' => $playerId,
+        ]);
+
+        /*$this->incStat(1, 'playedDuoCards');
+        $this->incStat(1, 'playedDuoCards', $playerId);*/ 
+        
+        $this->gamestate->nextState('playCards');
     }
 
     public function endTurn() {

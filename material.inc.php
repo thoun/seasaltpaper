@@ -105,5 +105,23 @@ $this->CARDS = [
   new MultiplierCard(CAPTAIN, COLLECTION, SAILOR, LIGHT_ORANGE, 3),
 ];
 
+$this->EXPANSION_CARDS = [
+  new JellyfishPairCard(PURPLE),
+  new JellyfishPairCard(PINK),
+
+  new LobsterPairCard(BLACK),
+
+  new MultiplierCard(CRAB_CAB, PAIR, CRAB, GREEN, 1),
+
+  new SpecialCard(STARFISH, DARK_BLUE),
+  new SpecialCard(STARFISH, LIGHT_BLUE),
+  new SpecialCard(STARFISH, YELLOW),
+
+  new SpecialCard(SEAHORSE, WHITE),
+];
+
+$this->ALL_CARDS = array_merge($this->CARDS, $this->EXPANSION_CARDS);
+
+
 
 

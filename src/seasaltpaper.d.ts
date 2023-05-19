@@ -8,6 +8,7 @@ interface Card {
     family: number;
     color: number;
     index: number;
+    matchFamilies?: number[];
 }
 
 interface ScoreDetails {
@@ -20,6 +21,7 @@ interface SeaSaltPaperPlayer extends Player {
     handCards: Card[];
     tableCards: Card[];
     cardsPoints?: number;
+    detailledPoints?: number[];
     endCall?: {
         announcement: string;
         cardsPoints: number;
@@ -47,12 +49,16 @@ interface SeaSaltPaperGamedatas {
     discardTopCard2: Card;
     remainingCardsInDiscard1: number;
     remainingCardsInDiscard2: number;
+
+    expansion: boolean;
+    doublePoints: boolean;
 }
 
 interface SeaSaltPaperGame extends Game {
     animationManager: AnimationManager;
     cardsManager: CardsManager;
 
+    isExpansion(): boolean;
     getPlayerId(): number;
     getPlayerColor(playerId: number): string;
 
@@ -64,6 +70,7 @@ interface SeaSaltPaperGame extends Game {
 }
 
 interface EnteringTakeCardsArgs {
+    forceTakeOne: boolean;
     canTakeFromDeck: boolean;
     canTakeFromDiscard: number[];
 }
@@ -114,6 +121,12 @@ interface NotifCardInDiscardFromPickArgs {
     remainingCardsInDiscard: number;
 }
 
+interface NotifCardsInDeckFromPickArgs {
+    playerId: number;
+    cards: Card[];
+    remainingCardsInDeck: number;
+}
+
 interface NotifScoreArgs {
     playerId: number;
     newScore: number;
@@ -142,6 +155,7 @@ interface NotifBetResultArgs {
 
 interface NotifUpdateCardsPointsArgs {
     cardsPoints: number;
+    detailledPoints: number[];
 }
 
 interface NotifStealCardArgs {

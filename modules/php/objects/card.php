@@ -16,41 +16,51 @@ class CardType {
 
 class MermaidCard extends CardType {  
     public function __construct() {
-        parent::__construct(MERMAID, 0, 0, 4);
+        parent::__construct(MERMAID, 0, WHITE, 4);
     } 
 }
 
 class PairCard extends CardType {
-    public int $matchFamily;
+    public array $matchFamilies;
 
-    public function __construct(int $family, int $matchFamily,  int $color, int $number) {
+    public function __construct(int $family, array $matchFamilies,  int $color, int $number) {
         parent::__construct(PAIR, $family, $color, $number);
-        $this->matchFamily = $matchFamily;
+        $this->matchFamilies = $matchFamilies;
     } 
 }
 class CrabPairCard extends PairCard {
     public function __construct(int $color, int $number = 1) {
-        parent::__construct(CRAB, CRAB, $color, $number);
+        parent::__construct(CRAB, [CRAB, LOBSTER], $color, $number);
     } 
 }
 class BoatPairCard extends PairCard {
     public function __construct(int $color, int $number = 1) {
-        parent::__construct(BOAT, BOAT, $color, $number);
+        parent::__construct(BOAT, [BOAT], $color, $number);
     } 
 }
 class FishPairCard extends PairCard {
     public function __construct(int $color, int $number = 1) {
-        parent::__construct(FISH, FISH, $color, $number);
+        parent::__construct(FISH, [FISH], $color, $number);
     } 
 }
 class SwimmerPairCard extends PairCard {
     public function __construct(int $color, int $number = 1) {
-        parent::__construct(SWIMMER, SHARK, $color, $number);
+        parent::__construct(SWIMMER, [SHARK, JELLYFISH], $color, $number);
     } 
 }
 class SharkPairCard extends PairCard {
     public function __construct(int $color, int $number = 1) {
-        parent::__construct(SHARK, SWIMMER, $color, $number);
+        parent::__construct(SHARK, [SWIMMER], $color, $number);
+    } 
+}
+class JellyfishPairCard extends PairCard {
+    public function __construct(int $color, int $number = 1) {
+        parent::__construct(JELLYFISH, [SWIMMER], $color, $number);
+    } 
+}
+class LobsterPairCard extends PairCard {
+    public function __construct(int $color, int $number = 1) {
+        parent::__construct(LOBSTER, [CRAB], $color, $number);
     } 
 }
 
@@ -72,12 +82,21 @@ class MultiplierCard extends CardType {
     } 
 }
 
+class SpecialCard extends CardType {  
+    public function __construct(int $family, int $color) {
+        parent::__construct(SPECIAL, $family, $color, 1);
+    } 
+}
+
 class Card extends CardType {
     public int $id;
     public string $location;
     public int $locationArg;
     public int $index;
+    public /*int|null*/ $matchCategory;
     public /*int|null*/ $matchFamily;
+    public /*array|null*/ $matchFamilies;
+    public /*int|null*/ $points;
 
     public function __construct($dbCard, $CARDS_TYPE) {
         $this->id = intval($dbCard['id']);
@@ -99,6 +118,9 @@ class Card extends CardType {
                     }
                     if (property_exists($cardType, 'matchFamily')) {
                         $this->matchFamily = $cardType->matchFamily;
+                    }
+                    if (property_exists($cardType, 'matchFamilies')) {
+                        $this->matchFamilies = $cardType->matchFamilies;
                     }
                     if (property_exists($cardType, 'points')) {
                         $this->points = $cardType->points;

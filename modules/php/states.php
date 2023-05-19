@@ -63,6 +63,11 @@ trait StateTrait {
         $endRound = intval($this->getGameStateValue(END_ROUND_TYPE));
 
         $newPlayerId = $this->activeNextPlayer();
+
+        if ($this->getGameStateValue(FORCE_TAKE_ONE) == $newPlayerId) {
+            $this->setGameStateValue(FORCE_TAKE_ONE, 0);
+        }
+
         if ($endRound == LAST_CHANCE) {
             $lastChanceCaller = intval($this->getGameStateValue(LAST_CHANCE_CALLER));
 
@@ -206,7 +211,7 @@ trait StateTrait {
     }
 
     function isLastRound() {
-        $maxScore = $this->END_GAME_POINTS[count($this->getPlayersIds())];
+        $maxScore = $this->getMaxScore();
         $topScore = $this->getPlayerTopScore();
 
         return $topScore >= $maxScore;

@@ -68,20 +68,42 @@ trait UtilTrait {
         return intval(self::getUniqueValueFromDB("SELECT max(player_score) FROM player"));
     }
 
+    function isExpansion() {
+        return intval($this->getGameStateValue(EXPANSION)) == 1;
+    }
+
+    function isDoublePoints() {
+        return intval($this->getGameStateValue(DOUBLE_POINTS)) == 1;
+    }
+
+    function getMaxScore() {
+        $maxScore = $this->END_GAME_POINTS[count($this->getPlayersIds())];
+
+        if ($this->isDoublePoints()) {
+            $maxScore *= 2;
+        }
+
+        return $maxScore;
+    }
+
     function getCardFromDb(/*array|null*/ $dbCard) {
         if ($dbCard == null) {
             return null;
         }
-        return new CARD($dbCard, $this->CARDS);
+        return new Card($dbCard, $this->ALL_CARDS);
     }
 
     function getCardsFromDb(array $dbCards) {
         return array_map(fn($dbCard) => $this->getCardFromDb($dbCard), array_values($dbCards));
     }
 
-    function setupCards() {
+    function setupCards(bool $isExpansion) {
         $cards = [];
-        foreach ($this->CARDS as $cardType) {
+        $cardsTypes = $this->CARDS;
+        if ($isExpansion) {
+            $cardsTypes = array_merge($cardsTypes, $this->EXPANSION_CARDS);
+        }
+        foreach ($cardsTypes as $cardType) {
             for ($index = 0; $index < $cardType->number; $index++) {
                 $type = $cardType->category * 10 + $cardType->family;
                 $typeArg = $cardType->color * 10 + $index;
@@ -105,8 +127,10 @@ trait UtilTrait {
     }
 
     function updateCardsPoints(int $playerId) {
+        $cardsPointsObj = $this->getCardsPoints($playerId);
         $this->notifyPlayer($playerId, 'updateCardsPoints', '', [
-            'cardsPoints' => $this->getCardsPoints($playerId)->totalPoints,
+            'cardsPoints' => $cardsPointsObj->totalPoints,
+            'detailledPoints' => $cardsPointsObj->detailledPoints,
         ]);
     }
 
@@ -213,17 +237,17 @@ trait UtilTrait {
         $familyPairs = [];
         $handCards = $this->getCardsFromDb($this->cards->getCardsInLocation('hand'.$playerId));
         $pairCards = array_values(array_filter($handCards, fn($card) => $card->category == PAIR));
-        for ($family = CRAB; $family <= FISH; $family++) {
-            if (count(array_values(array_filter($pairCards, fn($card) => $card->family == $family))) >= 2) {
-                $familyPairs[] = $family;
+        for ($family = CRAB; $family <= LOBSTER; $family++) {
+            $familyCards = array_values(array_filter($pairCards, fn($card) => $card->family == $family));
+            if (count($familyCards) > 0) {
+                $matchFamilies = $familyCards[0]->matchFamilies;
+
+                if ($this->array_some($matchFamilies, fn($matchFamily) => 
+                    count(array_filter($pairCards, fn($card) => $card->family == $matchFamily)) >= ($matchFamily == $family ? 2 : 1)
+                )) {
+                    $familyPairs[] = $family;
+                }
             }
-        }
-        if (
-            count(array_values(array_filter($pairCards, fn($card) => $card->family == SWIMMER))) >= 1 &&
-            count(array_values(array_filter($pairCards, fn($card) => $card->family == SHARK))) >= 1
-        ) {
-            $familyPairs[] = SWIMMER;
-            $familyPairs[] = SHARK;
         }
 
         return $familyPairs;
@@ -239,6 +263,8 @@ trait UtilTrait {
                     case FISH: return clienttranslate('Fish');
                     case SWIMMER: return clienttranslate('Swimmer');
                     case SHARK: return clienttranslate('Shark');
+                    case JELLYFISH: return /*TODO clienttranslate*/('Jellyfish');
+                    case LOBSTER: return /*TODO clienttranslate*/('Lobster');
                 }
                 break;
             case COLLECTION:
@@ -255,6 +281,13 @@ trait UtilTrait {
                     case SHOAL_FISH: return clienttranslate('The shoal of fish');
                     case PENGUIN_COLONY: return clienttranslate('The penguin colony');
                     case CAPTAIN: return clienttranslate('The captain');
+                    case CRAB_CAB: return /*TODO clienttranslate*/('Crab Cab'); // TODO CHECK NAME
+                }
+                break;
+            case SPECIAL:
+                switch ($card->family) {
+                    case STARFISH: return /*TODO clienttranslate*/('Starfish');
+                    case SEAHORSE: return /*TODO clienttranslate*/('Seahorse');
                 }
                 break;
         }
@@ -272,8 +305,10 @@ trait UtilTrait {
 
     function cardCollected(int $playerId, Card $card) {
         $number = $card->category;
-        $this->incStat(1, 'cardsCollected'.$number);
-        $this->incStat(1, 'cardsCollected'.$number, $playerId);
+        if ($number <= 4) { // TODO
+            $this->incStat(1, 'cardsCollected'.$number);
+            $this->incStat(1, 'cardsCollected'.$number, $playerId);
+        }
     }
 
 }

@@ -48,6 +48,11 @@ class SeaSaltPaper extends Table {
             LAST_CHANCE_CALLER => LAST_CHANCE_CALLER,
             STOP_CALLER => STOP_CALLER,
             BET_RESULT => BET_RESULT,
+            FORCE_TAKE_ONE => FORCE_TAKE_ONE,
+            LOBSTER_POWER => LOBSTER_POWER,
+
+            EXPANSION => EXPANSION,
+            DOUBLE_POINTS => DOUBLE_POINTS,
         ]);  
 
         $this->cards = self::getNew("module.common.deck");
@@ -93,6 +98,16 @@ class SeaSaltPaper extends Table {
         $this->setGameStateInitialValue(LAST_CHANCE_CALLER, 0);
         $this->setGameStateInitialValue(STOP_CALLER, 0);
         $this->setGameStateInitialValue(BET_RESULT, 0);
+        $this->setGameStateInitialValue(FORCE_TAKE_ONE, 0);
+        $this->setGameStateInitialValue(LOBSTER_POWER, 0);
+
+        // TODO TEMP
+        /*if ($this->getBgaEnvironment() == 'studio') {
+            $this->setGameStateInitialValue(EXPANSION, 1);
+            $this->setGameStateInitialValue(DOUBLE_POINTS, 1);
+        }*/
+
+        $isExpansion = $this->isExpansion();
         
         // Init game statistics
         // (note: statistics used in this file must be defined in your stats.inc.php file)
@@ -117,10 +132,13 @@ class SeaSaltPaper extends Table {
         }
 
         // setup the initial game situation here
-        $this->setupCards();
+        $this->setupCards($isExpansion);
 
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
+
+        // TODO TEMP card to test
+        $this->debugSetup();
 
         /************ End of the game initialization *****/
     }
@@ -160,7 +178,9 @@ class SeaSaltPaper extends Table {
             $player['handCards'] = $playerId == $currentPlayerId ? $handCards : Card::onlyIds($handCards);
             $player['tableCards'] = $this->getCardsFromDb($this->cards->getCardsInLocation('table'.$playerId, null, 'location_arg'));
             if ($playerId == $currentPlayerId) {
-                $player['cardsPoints'] = $this->getCardsPoints($playerId)->totalPoints;
+                $cardsPointsObj = $this->getCardsPoints($playerId);
+                $player['cardsPoints'] = $cardsPointsObj->totalPoints;
+                $player['detailledPoints'] = $cardsPointsObj->detailledPoints;
             }
 
             $betResult = intval($this->getGameStateValue(BET_RESULT));
@@ -224,6 +244,9 @@ class SeaSaltPaper extends Table {
             $result['discardTopCard'.$number] = $this->getCardFromDb($this->cards->getCardOnTop('discard'.$number));
             $result['remainingCardsInDiscard'.$number] = $this->getRemainingCardsInDiscard($number);
         }
+
+        $result['expansion'] = $this->isExpansion();
+        $result['doublePoints'] = $this->isDoublePoints();
   
         return $result;
     }
@@ -239,7 +262,7 @@ class SeaSaltPaper extends Table {
         (see states.inc.php)
     */
     function getGameProgression() {
-        $maxScore = $this->END_GAME_POINTS[count($this->getPlayersIds())];
+        $maxScore = $this->getMaxScore();
         $topScore = $this->getPlayerTopScore();
 
         return min(100, 100 * $topScore / $maxScore);

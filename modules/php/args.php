@@ -13,6 +13,8 @@ trait ArgsTrait {
     */
    
     function argTakeCards() {
+        $forceTakeOne = intval($this->getGameStateValue(FORCE_TAKE_ONE)) > 0;
+
         $canTakeFromDeck = intval($this->cards->countCardInLocation('deck')) > 0;
         $canTakeFromDiscard = [];
         foreach([1, 2] as $discardNumber) {
@@ -23,8 +25,9 @@ trait ArgsTrait {
         $endRound = intval($this->getGameStateValue(END_ROUND_TYPE));
     
         return [
-            'canTakeFromDeck' => $canTakeFromDeck,
-            'canTakeFromDiscard' => $canTakeFromDiscard,
+            'forceTakeOne' => $forceTakeOne,
+            'canTakeFromDeck' => !$forceTakeOne && $canTakeFromDeck,
+            'canTakeFromDiscard' => $forceTakeOne ? [] : $canTakeFromDiscard,
             'call' => in_array($endRound, [LAST_CHANCE, STOP]) ? $this->ANNOUNCEMENTS[$endRound] : '',
         ];
     }

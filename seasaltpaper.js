@@ -1254,16 +1254,42 @@ var CardsManager = /** @class */ (function (_super) {
             case 1:
                 return "\n                <div><strong>".concat(_("Mermaid"), "</strong> ").concat(withCount ? '(x4)' : '', "</div>\n                ").concat(_("1 point for each card of the color the player has the most of. If they have more mermaid cards, they must look at which of the other colors they have more of. The same color cannot be counted for more than one mermaid card."), "\n                <br><br>\n                <strong>").concat(_("Effect: If they place 4 mermaid cards, the player immediately wins the game."), "</strong>");
             case 2:
-                if (family >= 4) {
-                    return "<div><strong>".concat(_("Swimmer"), "/").concat(_("Shark"), "</strong> ").concat(withCount ? '(' + _('${number} of each').replace('${number}', 'x5') + ')' : '', "</div>\n                    <div>").concat(_("1 point for each combination of swimmer and shark cards."), "</div><br>\n                    <div>").concat(_("Effect:"), " ").concat(_("The player steals a random card from another player and adds it to their hand."), "</div>");
-                }
+                var swimmerSharkEffect = _("The player steals a random card from another player and adds it to their hand.");
+                var swimmerJellyfishEffect = 'TODO';
+                var crabLobsterEffect = 'TODO';
                 var duoCards = [
-                    [_('Crab'), _("The player chooses a discard pile, consults it without shuffling it, and chooses a card from it to add to their hand. They do not have to show it to the other players."), 9],
-                    [_('Boat'), _("The player immediately takes another turn."), 8],
-                    [_('Fish'), _("The player adds the top card from the deck to their hand."), 7]
+                    [_('Crab'), [
+                            [_('Crab'), _("The player chooses a discard pile, consults it without shuffling it, and chooses a card from it to add to their hand. They do not have to show it to the other players.")],
+                        ], 9],
+                    [_('Boat'), [
+                            [_('Boat'), _("The player immediately takes another turn.")]
+                        ], 8],
+                    [_('Fish'), [
+                            [_('Fish'), _("The player adds the top card from the deck to their hand.")]
+                        ], 7],
+                    [_('Swimmer'), [
+                            [_('Shark'), swimmerSharkEffect]
+                        ], 5],
+                    [_('Shark'), [
+                            [_('Swimmer'), swimmerSharkEffect]
+                        ], 5],
                 ];
-                var duo = duoCards[family - 1];
-                return "<div><strong>".concat(duo[0], "</strong> ").concat(withCount ? "(x".concat(duo[2], ")") : '', "</div>\n                <div>").concat(_("1 point for each pair of ${card} cards.").replace('${card}', duo[0]), "</div><br>\n                <div>").concat(_("Effect:"), " ").concat(_(duo[1]), "</div>");
+                if (this.game.isExpansion()) {
+                    duoCards[0][1].push([/*TODO_*/ ('Lobster'), crabLobsterEffect]);
+                    duoCards[3][1].push([/*TODO_*/ ('Jellyfish'), swimmerJellyfishEffect]);
+                    duoCards.push([/*TODO_*/ ('Jellyfish'), [
+                            [_('Swimmer'), swimmerJellyfishEffect]
+                        ], 2], [/*TODO_*/ ('Lobster'), [
+                            [_('Crab'), crabLobsterEffect]
+                        ], 1]);
+                }
+                var duo_1 = duoCards[family - 1];
+                var html_1 = "<div><strong>".concat(duo_1[0], "</strong> ").concat(withCount ? "(x".concat(duo_1[2], ")") : '', "</div>\n                <div>").concat(_("1 point for each valid pair of cards."), "</div><br>\n                <div>").concat(_("Effect:"), "</div>");
+                duo_1[1].forEach(function (possiblePair) {
+                    html_1 += "<div><i>".concat((possiblePair[0] == duo_1[0] ? _("With another ${card_type}:") : _("With a ${card_type}:")).replace('${card_type}', possiblePair[0]), "</i> ").concat(possiblePair[1], "</div>");
+                });
+                html_1 += "</div>";
+                return html_1;
             case 3:
                 var collectorCards = [
                     ['0, 2, 4, 6, 8, 10', '1, 2, 3, 4, 5, 6', _('Shell')],
@@ -1279,9 +1305,17 @@ var CardsManager = /** @class */ (function (_super) {
                     [_('The shoal of fish'), _('Fish'), 1],
                     [_('The penguin colony'), _('Penguin'), 2],
                     [_('The captain'), _('Sailor'), 3],
+                    [/*TODO_*/ ('The carb cab'), _('Crab'), 1], // TODO CHECK NAME
                 ];
                 var multiplier = multiplierCards[family - 1];
                 return "<div><strong>".concat(multiplier[0], "</strong> (x1)</div>\n                <div>").concat(_("${points} point(s) per ${card} card.").replace('${points}', multiplier[2]).replace('${card}', multiplier[1]), "</div>\n                <div>").concat(_("This card does not count as a ${card} card.").replace('${card}', multiplier[1]), "</div>");
+            case 5:
+                var specialCards = [
+                    [/*TODO_*/ ('Starfish'), 3],
+                    [/*TODO_*/ ('Seahorse'), 1],
+                ];
+                var special = specialCards[family - 1];
+                return "<div><strong>".concat(special[0], "</strong> (x").concat(special[1], ")</div>\n            <div>").concat('TODO', "</div>");
         }
     };
     CardsManager.prototype.setForHelp = function (card, divId) {
@@ -1421,6 +1455,9 @@ var isDebug = window.location.host == 'studio.boardgamearena.com' || window.loca
 ;
 var log = isDebug ? console.log.bind(window.console) : function () { };
 var CATEGORY_ORDER = [null, 4, 1, 2, 3];
+var PAIR = 2;
+var SPECIAL = 5;
+var STARFISH = 1;
 function sortCards(a, b) {
     return (CATEGORY_ORDER[a.category] * 100 + a.family * 10 + a.color) - (CATEGORY_ORDER[b.category] * 100 + b.family * 10 + b.color);
 }
@@ -1432,7 +1469,7 @@ var PlayerTable = /** @class */ (function () {
         this.currentPlayer = this.playerId == this.game.getPlayerId();
         var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div id=\"player-table-").concat(this.playerId, "-hand-cards\" class=\"hand cards\" data-player-id=\"").concat(this.playerId, "\" data-current-player=\"").concat(this.currentPlayer.toString(), "\" data-my-hand=\"").concat(this.currentPlayer.toString(), "\"></div>\n            <div class=\"name-wrapper\">\n                <span class=\"name\" style=\"color: #").concat(player.color, ";\">").concat(player.name, "</span>\n                <div class=\"bubble-wrapper\">\n                    <div id=\"player-table-").concat(this.playerId, "-discussion-bubble\" class=\"discussion_bubble\" data-visible=\"false\"></div>\n                </div>\n        ");
         if (this.currentPlayer) {
-            html += "<span class=\"counter\">\n                    (".concat(_('Cards points:'), "&nbsp;<span id=\"cards-points-counter\"></span>)\n                </span>");
+            html += "<span class=\"counter\" id=\"cards-points-tooltip\">\n                    (".concat(_('Cards points:'), "&nbsp;<span id=\"cards-points-counter\"></span>)\n                </span>");
         }
         html += "</div>\n            <div id=\"player-table-".concat(this.playerId, "-table-cards\" class=\"table cards\">\n            </div>\n        </div>\n        ");
         dojo.place(html, document.getElementById('tables'));
@@ -1440,14 +1477,17 @@ var PlayerTable = /** @class */ (function () {
             this.cardsPointsCounter = new ebg.counter();
             this.cardsPointsCounter.create("cards-points-counter");
             this.cardsPointsCounter.setValue(player.cardsPoints);
+            this.setHandPoints(player.cardsPoints, player.detailledPoints);
         }
-        var stockSettings = {
+        this.handCards = new LineStock(this.game.cardsManager, document.getElementById("player-table-".concat(this.playerId, "-hand-cards")), {
             gap: '0px',
             sort: sortCards,
-        };
-        this.handCards = new LineStock(this.game.cardsManager, document.getElementById("player-table-".concat(this.playerId, "-hand-cards")), __assign(__assign({}, stockSettings), { wrap: this.currentPlayer ? 'wrap' : 'nowrap' }));
+            wrap: this.currentPlayer ? 'wrap' : 'nowrap',
+        });
         this.handCards.onCardClick = function (card) { return _this.game.onCardClick(card); };
-        this.tableCards = new LineStock(this.game.cardsManager, document.getElementById("player-table-".concat(this.playerId, "-table-cards")), stockSettings);
+        this.tableCards = new LineStock(this.game.cardsManager, document.getElementById("player-table-".concat(this.playerId, "-table-cards")), {
+            gap: '0px',
+        });
         this.addCardsToHand(player.handCards);
         this.addCardsToTable(player.tableCards);
         if (player.endCall) {
@@ -1506,8 +1546,9 @@ var PlayerTable = /** @class */ (function () {
         this.game.updateTableHeight();
         this.clearAnnouncement();
     };
-    PlayerTable.prototype.setHandPoints = function (cardsPoints) {
+    PlayerTable.prototype.setHandPoints = function (cardsPoints, detailledPoints) {
         this.cardsPointsCounter.toValue(cardsPoints);
+        this.game.setTooltip("cards-points-tooltip", "\n            <div>".concat(_('Mermaid points:'), " <strong>").concat(detailledPoints[0], "</strong></div>\n            <div>").concat(_('Pair points:'), " <strong>").concat(detailledPoints[1], "</strong></div>\n            <div>").concat(_('Collection points:'), " <strong>").concat(detailledPoints[2], "</strong></div>\n            <div>").concat(_('Multiplier points:'), " <strong>").concat(detailledPoints[3], "</strong></div>\n        "));
     };
     PlayerTable.prototype.showAnnouncementPoints = function (playerPoints) {
         var bubble = document.getElementById("player-table-".concat(this.playerId, "-discussion-bubble"));
@@ -1562,7 +1603,7 @@ var PlayerTable = /** @class */ (function () {
             cards.forEach(function (card) { return card.classList.remove('selectable', 'selected', 'disabled'); });
         }
     };
-    PlayerTable.prototype.updateDisabledPlayCards = function (selectedCards, playableDuoCardFamilies) {
+    PlayerTable.prototype.updateDisabledPlayCards = function (selectedCards, selectedStarfishCards, playableDuoCardFamilies) {
         var _this = this;
         if (!this.game.isCurrentPlayerActive()) {
             return;
@@ -1570,18 +1611,22 @@ var PlayerTable = /** @class */ (function () {
         var cards = this.handCards.getCards();
         cards.forEach(function (card) {
             var disabled = false;
-            if (card.category != 2) {
-                disabled = true;
+            if (card.category != PAIR) {
+                if (card.category == SPECIAL && card.family == STARFISH) {
+                    disabled = selectedStarfishCards.length > 0 && !selectedStarfishCards.some(function (c) { return c.id == card.id; });
+                }
+                else {
+                    disabled = true;
+                }
             }
             else {
                 if (playableDuoCardFamilies.includes(card.family)) {
                     if (selectedCards.length >= 2) {
-                        disabled = !selectedCards.includes(card.id);
+                        disabled = !selectedCards.some(function (c) { return c.id == card.id; });
                     }
                     else if (selectedCards.length == 1) {
-                        var family = cards.find(function (card) { return card.id == selectedCards[0]; }).family;
-                        var authorizedFamily = family >= 4 ? 9 - family : family;
-                        disabled = card.id != selectedCards[0] && card.family != authorizedFamily;
+                        var matchFamilies = selectedCards[0].matchFamilies;
+                        disabled = card.id != selectedCards[0].id && !matchFamilies.includes(card.family);
                     }
                 }
                 else {
@@ -1684,12 +1729,15 @@ var SeaSaltPaper = /** @class */ (function () {
     SeaSaltPaper.prototype.onEnteringTakeCards = function (argsRoot) {
         var args = argsRoot.args;
         this.clearLogs(argsRoot.active_player);
-        if (!args.canTakeFromDiscard.length) {
+        if (args.forceTakeOne) {
+            this.setGamestateDescription('ForceTakeOne');
+        }
+        else if (!args.canTakeFromDiscard.length) {
             this.setGamestateDescription('NoDiscard');
         }
         if (this.isCurrentPlayerActive()) {
             this.stacks.makeDeckSelectable(args.canTakeFromDeck);
-            this.stacks.makeDiscardSelectable(true);
+            this.stacks.makeDiscardSelectable(!args.forceTakeOne);
         }
     };
     SeaSaltPaper.prototype.onEnteringChooseCard = function (args) {
@@ -1714,6 +1762,7 @@ var SeaSaltPaper = /** @class */ (function () {
     SeaSaltPaper.prototype.onEnteringPlayCards = function () {
         this.stacks.showPickCards(false);
         this.selectedCards = [];
+        this.selectedStarfishCards = [];
         this.updateDisabledPlayCards();
     };
     SeaSaltPaper.prototype.onEnteringChooseDiscardPile = function () {
@@ -1782,6 +1831,7 @@ var SeaSaltPaper = /** @class */ (function () {
     SeaSaltPaper.prototype.onLeavingPlayCards = function () {
         var _a;
         this.selectedCards = null;
+        this.selectedStarfishCards = null;
         (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setSelectable(false);
     };
     SeaSaltPaper.prototype.onLeavingChooseDiscardCard = function () {
@@ -1801,6 +1851,11 @@ var SeaSaltPaper = /** @class */ (function () {
         var _this = this;
         if (this.isCurrentPlayerActive()) {
             switch (stateName) {
+                case 'takeCards':
+                    if (args.forceTakeOne) {
+                        this.addActionButton("takeFirstCard_button", /*TODO_*/ ("Take the first card"), function () { return _this.takeCardsFromDeck(); });
+                    }
+                    break;
                 case 'playCards':
                     var playCardsArgs = args;
                     this.addActionButton("playCards_button", _("Play selected cards"), function () { return _this.playSelectedCards(); });
@@ -1846,6 +1901,9 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.setTooltipToClass = function (className, html) {
         this.addTooltipHtmlToClass(className, html, this.TOOLTIP_DELAY);
+    };
+    SeaSaltPaper.prototype.isExpansion = function () {
+        return this.gamedatas.expansion;
     };
     SeaSaltPaper.prototype.getPlayerId = function () {
         return Number(this.player_id);
@@ -1907,10 +1965,14 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.createPlayerPanels = function (gamedatas) {
         var _this = this;
+        var endPoints = POINTS_FOR_PLAYERS[Object.keys(gamedatas.players).length];
+        if (gamedatas.doublePoints) {
+            endPoints *= 2;
+        }
         Object.values(gamedatas.players).forEach(function (player) {
             var playerId = Number(player.id);
             // show end game points
-            dojo.place("<span class=\"end-game-points\">&nbsp;/&nbsp;".concat(POINTS_FOR_PLAYERS[Object.keys(gamedatas.players).length], "</span>"), "player_score_".concat(playerId), 'after');
+            dojo.place("<span class=\"end-game-points\">&nbsp;/&nbsp;".concat(endPoints, "</span>"), "player_score_".concat(playerId), 'after');
             // hand cards counter
             dojo.place("<div class=\"counters\">\n                <div id=\"playerhand-counter-wrapper-".concat(player.id, "\" class=\"playerhand-counter\">\n                    <div class=\"player-hand-card\"></div> \n                    <span id=\"playerhand-counter-").concat(player.id, "\"></span>\n                </div>\n            </div>"), "player_board_".concat(player.id));
             var handCounter = new ebg.counter();
@@ -1933,8 +1995,8 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.updateDisabledPlayCards = function () {
         var _a, _b;
-        (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.updateDisabledPlayCards(this.selectedCards, this.gamedatas.gamestate.args.playableDuoCards);
-        (_b = document.getElementById("playCards_button")) === null || _b === void 0 ? void 0 : _b.classList.toggle("disabled", this.selectedCards.length != 2);
+        (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.updateDisabledPlayCards(this.selectedCards, this.selectedStarfishCards, this.gamedatas.gamestate.args.playableDuoCards);
+        (_b = document.getElementById("playCards_button")) === null || _b === void 0 ? void 0 : _b.classList.toggle("disabled", this.selectedCards.length != 2 || this.selectedStarfishCards.length > 1);
     };
     SeaSaltPaper.prototype.onCardClick = function (card) {
         var _a;
@@ -1956,12 +2018,13 @@ var SeaSaltPaper = /** @class */ (function () {
                 break;
             case 'playCards':
                 if (parentDiv.dataset.myHand == "true") {
-                    if (this.selectedCards.includes(card.id)) {
-                        this.selectedCards.splice(this.selectedCards.indexOf(card.id), 1);
+                    var array = card.category == SPECIAL && card.family == STARFISH ? this.selectedStarfishCards : this.selectedCards;
+                    if (array.some(function (c) { return c.id == card.id; })) {
+                        array.splice(array.findIndex(function (c) { return c.id == card.id; }), 1);
                         cardDiv.classList.remove('selected');
                     }
                     else {
-                        this.selectedCards.push(card.id);
+                        array.push(card);
                         cardDiv.classList.add('selected');
                     }
                     this.updateDisabledPlayCards();
@@ -1998,7 +2061,14 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.playSelectedCards = function () {
         if (this.selectedCards.length == 2) {
-            this.playCards(this.selectedCards);
+            if (this.selectedStarfishCards.length > 0) {
+                if (this.selectedStarfishCards.length == 1) {
+                    this.playCardsTrio(this.selectedCards.map(function (card) { return card.id; }), this.selectedStarfishCards[0].id);
+                }
+            }
+            else {
+                this.playCards(this.selectedCards.map(function (card) { return card.id; }));
+            }
         }
     };
     SeaSaltPaper.prototype.addHelp = function () {
@@ -2087,6 +2157,16 @@ var SeaSaltPaper = /** @class */ (function () {
         this.takeAction('playCards', {
             'id1': ids[0],
             'id2': ids[1],
+        });
+    };
+    SeaSaltPaper.prototype.playCardsTrio = function (ids, starfishId) {
+        if (!this.checkAction('playCardsTrio')) {
+            return;
+        }
+        this.takeAction('playCardsTrio', {
+            'id1': ids[0],
+            'id2': ids[1],
+            'starfishId': starfishId
         });
     };
     SeaSaltPaper.prototype.chooseDiscardPile = function (discardNumber) {
@@ -2195,6 +2275,7 @@ var SeaSaltPaper = /** @class */ (function () {
             ['cardInHandFromPick', ANIMATION_MS],
             ['cardInHandFromDeck', ANIMATION_MS],
             ['cardInDiscardFromPick', ANIMATION_MS],
+            ['cardsInDeckFromPick', ANIMATION_MS],
             ['playCards', ANIMATION_MS],
             ['stealCard', ANIMATION_MS],
             ['revealHand', ANIMATION_MS * 2],
@@ -2293,6 +2374,13 @@ var SeaSaltPaper = /** @class */ (function () {
         this.stacks.setDiscardCard(discardNumber, card, notif.args.remainingCardsInDiscard);
         this.updateTableHeight();
     };
+    SeaSaltPaper.prototype.notif_cardsInDeckFromPick = function (notif) {
+        this.deckVoidStock.addCards(notif.args.cards, undefined, {
+            visible: false,
+        });
+        this.stacks.setDeckCount(notif.args.remainingCardsInDeck);
+        this.updateTableHeight();
+    };
     SeaSaltPaper.prototype.notif_score = function (notif) {
         var _a;
         var playerId = notif.args.playerId;
@@ -2338,13 +2426,13 @@ var SeaSaltPaper = /** @class */ (function () {
             playerTable.cleanTable(_this.deckVoidStock);
             _this.handCounters[playerTable.playerId].setValue(0);
         });
-        (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setHandPoints(0);
+        (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setHandPoints(0, [0, 0, 0, 0]);
         this.stacks.cleanDiscards(this.deckVoidStock);
         this.stacks.setDeckCount(58);
     };
     SeaSaltPaper.prototype.notif_updateCardsPoints = function (notif) {
         var _a;
-        (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setHandPoints(notif.args.cardsPoints);
+        (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setHandPoints(notif.args.cardsPoints, notif.args.detailledPoints);
     };
     SeaSaltPaper.prototype.notif_betResult = function (notif) {
         this.getPlayerTable(notif.args.playerId).showAnnouncementBetResult(notif.args.result);
@@ -2387,7 +2475,7 @@ var SeaSaltPaper = /** @class */ (function () {
                 if (args.call && args.call.length && args.call[0] != '<') {
                     args.call = "<strong class=\"title-bar-call\">".concat(_(args.call), "</strong>");
                 }
-                ['discardNumber', 'roundPoints', 'cardsPoints', 'colorBonus', 'cardName', 'cardName1', 'cardName2', 'cardColor', 'cardColor1', 'cardColor2', 'points', 'result'].forEach(function (field) {
+                ['discardNumber', 'roundPoints', 'cardsPoints', 'colorBonus', 'cardName', 'cardName1', 'cardName2', 'cardName3', 'cardColor', 'cardColor1', 'cardColor2', 'cardColor3', 'points', 'result'].forEach(function (field) {
                     if (args[field] !== null && args[field] !== undefined && args[field][0] != '<') {
                         args[field] = "<strong>".concat(_(args[field]), "</strong>");
                     }

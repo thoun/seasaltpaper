@@ -30,8 +30,3 @@ Also add one auto-FTP upload extension (for example https://marketplace.visualst
 
 ## Hint
 Make sure ftp-sync.json and node_modules are in .gitignore
-
-# TODO
-https://boardgamearena.com/archive/replay/220907-1000/?table=298391279&player=85879828&comments=85879828
-coup 153
-on voit le crabe jaune
