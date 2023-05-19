@@ -57,8 +57,7 @@ class CardsPoints {
         $multiplierPoints = 0;
 
         $mermaidCards = array_values(array_filter($cards, fn($card) => $card->category == MERMAID));
-        $pairCardsInHand = array_values(array_filter($handCards, fn($card) => $card->category == PAIR));
-        $pairCardsInTable = array_values(array_filter($tableCards, fn($card) => $card->category == PAIR));
+        $pairCards = array_values(array_filter($cards, fn($card) => $card->category == PAIR));
         $collectionCards = array_values(array_filter($cards, fn($card) => $card->category == COLLECTION));
         $multiplierCards = array_values(array_filter($cards, fn($card) => $card->category == MULTIPLIER));
         $specialCardsInTable = array_values(array_filter($tableCards, fn($card) => $card->category == SPECIAL));
@@ -80,13 +79,12 @@ class CardsPoints {
         }
 
         // Pairs
-        $pairPoints += floor(count($pairCardsInTable) / 2);
         for ($family = CRAB; $family <= FISH; $family++) {
-            $pairPoints += floor(count(array_values(array_filter($pairCardsInHand, fn($card) => $card->family == $family))) / 2);
+            $pairPoints += floor(count(array_values(array_filter($pairCards, fn($card) => $card->family == $family))) / 2);
         }
         $pairPoints += min( // TODO rework for new pairs
-            count(array_values(array_filter($pairCardsInHand, fn($card) => $card->family == SWIMMER))),
-            count(array_values(array_filter($pairCardsInHand, fn($card) => $card->family == SHARK))),
+            count(array_values(array_filter($pairCards, fn($card) => $card->family == SWIMMER))),
+            count(array_values(array_filter($pairCards, fn($card) => $card->family == SHARK))),
         );
 
         // Collections
@@ -106,9 +104,6 @@ class CardsPoints {
             if (count($multiplierCardsOfFamily) > 0) {
                 $multiplierCard = $multiplierCardsOfFamily[0];
                 $collectionCardCount = count(array_values(array_filter($cards, fn($card) => $card->category == $multiplierCard->matchCategory && $card->family == $multiplierCard->matchFamily)));
-                if ($family == CRAB_CAB) {
-                    //die('ok here '.$collectionCardCount. ' '.json_encode($multiplierCard));
-                }
                 if ($multiplierCard->matchCategory === COLLECTION && $multiplierCard->matchFamily === $collectionBonus && $collectionCardCount > 0 && $collectionCardCount < count(COLLECTION_POINTS[$family])) {
                     $collectionCardCount++;
                 }

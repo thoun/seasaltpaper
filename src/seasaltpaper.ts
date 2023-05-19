@@ -350,6 +350,8 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     private onTableCenterSizeChange() {
+        console.log('onTableCenterSizeChange');
+
         const maxWidth = document.getElementById('full-table').clientWidth;
         const tableCenterWidth = document.getElementById('table-center').clientWidth + 20;
         const playerTableWidth = 650 + 20;
@@ -516,7 +518,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         }
     }
 
-    private addHelp() {
+    private addHelp() { // TODO see if we always show expansion cards on the help, or just when activated
         let labels = [
             _('Dark blue'),
             _('Light blue'),
@@ -919,6 +921,8 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     notif_score(notif: Notif<NotifScoreArgs>) {
+        log('score', notif.args);
+        
         const playerId = notif.args.playerId;
         (this as any).scoreCtrl[playerId]?.toValue(notif.args.newScore);
 
@@ -980,6 +984,8 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     notif_betResult(notif: Notif<NotifBetResultArgs>) {
+        log('betResult', notif.args);
+
         this.getPlayerTable(notif.args.playerId).showAnnouncementBetResult(notif.args.result);
     }
 

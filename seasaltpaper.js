@@ -1926,6 +1926,7 @@ var SeaSaltPaper = /** @class */ (function () {
         (_a = this.zoomManager) === null || _a === void 0 ? void 0 : _a.manualHeightUpdate();
     };
     SeaSaltPaper.prototype.onTableCenterSizeChange = function () {
+        console.log('onTableCenterSizeChange');
         var maxWidth = document.getElementById('full-table').clientWidth;
         var tableCenterWidth = document.getElementById('table-center').clientWidth + 20;
         var playerTableWidth = 650 + 20;
@@ -2383,6 +2384,7 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.notif_score = function (notif) {
         var _a;
+        log('score', notif.args);
         var playerId = notif.args.playerId;
         (_a = this.scoreCtrl[playerId]) === null || _a === void 0 ? void 0 : _a.toValue(notif.args.newScore);
         var incScore = notif.args.incScore;
@@ -2435,6 +2437,7 @@ var SeaSaltPaper = /** @class */ (function () {
         (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setHandPoints(notif.args.cardsPoints, notif.args.detailledPoints);
     };
     SeaSaltPaper.prototype.notif_betResult = function (notif) {
+        log('betResult', notif.args);
         this.getPlayerTable(notif.args.playerId).showAnnouncementBetResult(notif.args.result);
     };
     SeaSaltPaper.prototype.notif_emptyDeck = function () {
