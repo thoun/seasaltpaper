@@ -874,10 +874,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.getPlayerTable(playerId).addCardsToHand([maskedCard]);
         this.handCounters[playerId].incValue(1);
 
-        if (notif.args.newDiscardTopCard) {
-            this.stacks.setDiscardCard(notif.args.discardId, notif.args.newDiscardTopCard);
-        }
-        this.stacks.discardCounters[discardNumber].setValue(notif.args.remainingCardsInDiscard);
+        this.stacks.setDiscardCard(discardNumber, notif.args.newDiscardTopCard, notif.args.remainingCardsInDiscard);
         this.updateTableHeight();
     } 
 

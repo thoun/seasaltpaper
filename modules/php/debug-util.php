@@ -11,6 +11,7 @@ trait DebugUtilTrait {
             return;
         } 
 
+        $this->debugFillHands();
         //$this->debugSetMermaids();
         //$this->debugSetMermaidOnDeckTop();
         //$this->debugSetCardInHand(2343492, COLLECTION, SAILOR, ORANGE);

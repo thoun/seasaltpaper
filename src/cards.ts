@@ -8,7 +8,10 @@ class CardsManager extends CardManager<Card> {
                 div.dataset.cardId = ''+card.id;
             },
             setupFrontDiv: (card: Card, div: HTMLElement) => this.setupFrontDiv(card, div),
+            isCardVisible: card => Boolean(card.category),
             animationManager: game.animationManager,
+            cardWidth: 149,
+            cardHeight: 208,
         });
 
         this.COLORS = [
@@ -26,8 +29,7 @@ class CardsManager extends CardManager<Card> {
         ];
     }
 
-    public setupFrontDiv(card: Card, div: HTMLElement, ignoreTooltip: boolean = false) { 
-        div.id = `${this.getId(card)}-front`;
+    public setupFrontDiv(card: Card, div: HTMLElement, ignoreTooltip: boolean = false) {
         div.dataset.category = ''+card.category;
         div.dataset.family = ''+card.family;
         div.dataset.color = ''+card.color;

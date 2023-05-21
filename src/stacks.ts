@@ -1,8 +1,7 @@
 class Stacks {
     private deckCounter: Counter;
-    public discardCounters: Counter[] = [];
 
-    private discardStocks: VisibleDeck<Card>[] = [];
+    private discardStocks: Deck<Card>[] = [];
     private pickStock: LineStock<Card>;
 
     private get deckDiv() {
@@ -18,22 +17,16 @@ class Stacks {
         [1, 2].forEach(number => {
             const discardDiv = document.getElementById(`discard${number}`);
             const cardNumber = gamedatas[`remainingCardsInDiscard${number}`];
-            this.discardStocks[number] = new VisibleDeck<Card>(this.game.cardsManager, discardDiv, {
-                width: 149,
-                height: 208,
+            this.discardStocks[number] = new Deck<Card>(this.game.cardsManager, discardDiv, {
                 autoUpdateCardNumber: false,
-                cardNumber
+                cardNumber,
+                topCard: gamedatas[`discardTopCard${number}`],
+                counter: {
+                    extraClasses: 'pile-counter',
+                }
             });
             discardDiv.addEventListener('click', () => this.game.onDiscardPileClick(number));
             // this.discardStocks[number].onCardClick = () => this.game.onDiscardPileClick(number);
-
-            if (gamedatas[`discardTopCard${number}`]) {
-                this.discardStocks[number].addCard(gamedatas[`discardTopCard${number}`]);
-            }
-            
-            this.discardCounters[number] = new ebg.counter();
-            this.discardCounters[number].create(`discard${number}-counter`);
-            this.discardCounters[number].setValue(cardNumber);
         });
         
         this.pickStock = new LineStock<Card>(this.game.cardsManager, document.getElementById('pick'), {
@@ -87,7 +80,6 @@ class Stacks {
         }
         if (newCount !== null) {
             this.discardStocks[discardNumber].setCardNumber(newCount);
-            this.discardCounters[discardNumber].setValue(newCount);
         }
     }
     
@@ -95,8 +87,6 @@ class Stacks {
         [1, 2].forEach(discardNumber => {
             deckStock.addCards(this.discardStocks[discardNumber].getCards(), undefined, { visible: false });
             this.discardStocks[discardNumber].setCardNumber(0);
-            this.discardCounters[discardNumber].setValue(0);
-
         });
     }
 }

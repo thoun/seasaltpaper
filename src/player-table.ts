@@ -93,8 +93,6 @@ class PlayerTable {
         cards.forEach(card => {
             this.handCards.addCard(card, {
                 fromElement: fromDeck ? document.getElementById('deck') : undefined,
-            }, {
-                visible: fromDeck ? false : this.currentPlayer
             });
             if (this.currentPlayer) {
                 this.game.cardsManager.setCardVisible(card, true);
