@@ -1572,15 +1572,13 @@ var PlayerTable = /** @class */ (function () {
             this.cardsPointsCounter.setValue(player.cardsPoints);
             this.setHandPoints(player.cardsPoints, player.detailledPoints);
         }
-        this.handCards = new LineStock(this.game.cardsManager, document.getElementById("player-table-".concat(this.playerId, "-hand-cards")), {
+        var stockSettings = {
             gap: '0px',
             sort: sortCards,
-            wrap: this.currentPlayer ? 'wrap' : 'nowrap',
-        });
+        };
+        this.handCards = new LineStock(this.game.cardsManager, document.getElementById("player-table-".concat(this.playerId, "-hand-cards")), __assign(__assign({}, stockSettings), { wrap: this.currentPlayer ? 'wrap' : 'nowrap' }));
         this.handCards.onCardClick = function (card) { return _this.game.onCardClick(card); };
-        this.tableCards = new LineStock(this.game.cardsManager, document.getElementById("player-table-".concat(this.playerId, "-table-cards")), {
-            gap: '0px',
-        });
+        this.tableCards = new LineStock(this.game.cardsManager, document.getElementById("player-table-".concat(this.playerId, "-table-cards")), stockSettings);
         this.addCardsToHand(player.handCards);
         this.addCardsToTable(player.tableCards);
         if (player.endCall) {

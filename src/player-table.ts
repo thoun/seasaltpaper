@@ -57,15 +57,17 @@ class PlayerTable {
             this.setHandPoints(player.cardsPoints, player.detailledPoints);
         }
 
-        this.handCards = new LineStock<Card>(this.game.cardsManager, document.getElementById(`player-table-${this.playerId}-hand-cards`), {
+        const stockSettings: LineStockSettings = {
             gap: '0px',
             sort: sortCards,
+        }
+
+        this.handCards = new LineStock<Card>(this.game.cardsManager, document.getElementById(`player-table-${this.playerId}-hand-cards`), {
+            ...stockSettings,
             wrap: this.currentPlayer ? 'wrap' : 'nowrap',
         });
         this.handCards.onCardClick = card => this.game.onCardClick(card);
-        this.tableCards = new LineStock<Card>(this.game.cardsManager, document.getElementById(`player-table-${this.playerId}-table-cards`), {
-            gap: '0px',
-        });
+        this.tableCards = new LineStock<Card>(this.game.cardsManager, document.getElementById(`player-table-${this.playerId}-table-cards`), stockSettings);
 
         this.addCardsToHand(player.handCards);
         this.addCardsToTable(player.tableCards);
