@@ -89,4 +89,8 @@ class Stacks {
             this.discardStocks[discardNumber].setCardNumber(0);
         });
     }
+    
+    public getDiscardDeck(discardNumber: number): CardStock<Card> {
+        return this.discardStocks[discardNumber];
+    }
 }

@@ -12,7 +12,7 @@ trait DebugUtilTrait {
         } 
 
         $this->debugFillHands();
-        $this->debugFillTable();
+        //$this->debugFillTable();
         //$this->debugSetMermaids();
         //$this->debugSetMermaidOnDeckTop();
         //$this->debugSetCardInHand(2343492, COLLECTION, SAILOR, ORANGE);

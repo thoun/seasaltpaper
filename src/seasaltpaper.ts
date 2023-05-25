@@ -182,11 +182,11 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         }
 
         cards?.forEach(card => {
-            this.discardStock.addCard(card, undefined, { visible: currentPlayer });
-            if (currentPlayer) {
-                this.discardStock.getCardElement(card).classList.add('selectable');
-            }
+            this.discardStock.addCard(card, { fromStock: this.stacks.getDiscardDeck(args.discardNumber) });
         });
+        if (currentPlayer) {
+            this.discardStock.setSelectionMode('single');
+        }
 
         this.updateTableHeight();
     }
