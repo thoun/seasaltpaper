@@ -162,7 +162,10 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.selectedCards = [];
         this.selectedStarfishCards = [];
 
-        this.updateDisabledPlayCards();
+        if ((this as any).isCurrentPlayerActive()) {
+            this.getCurrentPlayerTable()?.setSelectable(true);
+            this.updateDisabledPlayCards();
+        }
     }
     
     private onEnteringChooseDiscardPile() {
@@ -447,7 +450,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         const cardDiv = document.getElementById(`card-${card.id}`) ?? document.getElementById(`ssp-card-${card.id}`);
         const parentDiv = cardDiv.parentElement;
 
-        if (cardDiv.classList.contains('disabled')) {
+        if (cardDiv.classList.contains('bga-cards_disabled-card')) {
             return;
         }
 
@@ -467,10 +470,10 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                     const array = card.category == SPECIAL && card.family == STARFISH ? this.selectedStarfishCards : this.selectedCards;
                     if (array.some(c => c.id == card.id)) {
                         array.splice(array.findIndex(c => c.id == card.id), 1);
-                        cardDiv.classList.remove('selected');
+                        cardDiv.classList.remove('bga-cards_selected-card');
                     } else {
                         array.push(card);
-                        cardDiv.classList.add('selected');
+                        cardDiv.classList.add('bga-cards_selected-card');
                     }
                     this.updateDisabledPlayCards();
                 }
@@ -800,7 +803,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             ['cardInDiscardFromPick', ANIMATION_MS],
             ['cardsInDeckFromPick', ANIMATION_MS],
             ['playCards', ANIMATION_MS],
-            ['stealCard', ANIMATION_MS],
+            ['stealCard', ANIMATION_MS * 3],
             ['revealHand', ANIMATION_MS * 2],
             ['announceEndRound', ANIMATION_MS * 2],
             ['betResult', ANIMATION_MS * 2],
@@ -955,9 +958,10 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
     notif_stealCard(notif: Notif<NotifStealCardArgs>) {
         const stealerId = notif.args.playerId;
+        const opponentId = notif.args.opponentId;
         const card = notif.args.card;
-        this.getPlayerTable(stealerId).addCardsToHand([card]);
-        this.handCounters[notif.args.opponentId].incValue(-1);
+        this.getPlayerTable(stealerId).addStolenCard(card, stealerId, opponentId);
+        this.handCounters[opponentId].incValue(-1);
         this.handCounters[stealerId].incValue(1);
     }
 

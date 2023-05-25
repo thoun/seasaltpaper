@@ -21,17 +21,13 @@ class PlayerTable {
     private handCards: LineStock<Card>;
     private tableCards: LineStock<Card>;
 
-    private get handCardsDiv() {
-        return document.getElementById(`player-table-${this.playerId}-hand-cards`);
-    }
-
     constructor(private game: SeaSaltPaperGame, player: SeaSaltPaperPlayer) {
         this.playerId = Number(player.id);
         this.currentPlayer = this.playerId == this.game.getPlayerId();
 
         let html = `
         <div id="player-table-${this.playerId}" class="player-table">
-            <div id="player-table-${this.playerId}-hand-cards" class="hand cards" data-player-id="${this.playerId}" data-current-player="${this.currentPlayer.toString()}" data-my-hand="${this.currentPlayer.toString()}"></div>
+            <div id="player-table-${this.playerId}-hand-cards" class="hand cards" data-player-id="${this.playerId}" data-current-player="${this.currentPlayer.toString()}" data-my-hand="${this.currentPlayer.toString()}" data-animated="false"></div>
             <div class="name-wrapper">
                 <span class="name" style="color: #${player.color};">${player.name}</span>
                 <div class="bubble-wrapper">
@@ -92,10 +88,14 @@ class PlayerTable {
     }
     
     public addCardsToHand(cards: Card[], fromDeck: boolean = false) {
+        const handDiv = document.getElementById(`player-table-${this.playerId}-hand-cards`);
+        handDiv.dataset.animated = 'true';
         cards.forEach(card => {
             this.handCards.addCard(card, {
                 fromElement: fromDeck ? document.getElementById('deck') : undefined,
-            });
+            }).then(() =>
+                handDiv.dataset.animated = 'false'
+            );
             if (this.currentPlayer) {
                 this.game.cardsManager.setCardVisible(card, true);
             }
@@ -103,6 +103,27 @@ class PlayerTable {
 
         //this.tableCards.addCards(cards);
         this.game.updateTableHeight();
+    }
+    
+    public addStolenCard(card: Card, stealerId: number, opponentId: number) {
+        const opponentHandDiv = document.getElementById(`player-table-${opponentId}-hand-cards`);
+        const cardDiv = this.game.cardsManager.getCardElement(card);
+        cardDiv.style.zIndex = '20';
+        opponentHandDiv.dataset.animated = 'true';
+        if (this.playerId == stealerId) {
+            this.game.cardsManager.updateCardInformations(card);
+        }
+        cumulatedAnimations(
+            cardDiv,
+            [
+                showScreenCenterAnimation,
+                pauseAnimation,
+            ]
+        ).then(() => {
+            delete cardDiv.style.zIndex;
+            opponentHandDiv.dataset.animated = 'false';
+            this.addCardsToHand([this.playerId == opponentId ? { id: card.id } as Card : card]);
+        });
     }
 
     public addCardsToTable(cards: Card[]) {
@@ -185,12 +206,7 @@ class PlayerTable {
     }
     
     public setSelectable(selectable: boolean) {
-        const cards = Array.from(this.handCardsDiv.getElementsByClassName('card')) as HTMLDivElement[];
-        if (selectable) {
-            cards.forEach(card => card.classList.add('selectable'));
-        } else {
-            cards.forEach(card => card.classList.remove('selectable', 'selected', 'disabled'));
-        }
+        this.handCards.setSelectionMode(selectable ? 'multiple' : 'none');
     }
 
     public updateDisabledPlayCards(selectedCards: Card[], selectedStarfishCards: Card[], playableDuoCardFamilies: number[]) {
@@ -198,8 +214,7 @@ class PlayerTable {
             return;
         }
 
-        const cards = this.handCards.getCards();
-        cards.forEach(card => {
+        const selectableCards = this.handCards.getCards().filter(card => {
             let disabled = false;
             if (card.category != PAIR) {
                 if (card.category == SPECIAL && card.family == STARFISH) {
@@ -219,7 +234,9 @@ class PlayerTable {
                     disabled = true;
                 }
             }
-            this.handCards.getCardElement(card).classList.toggle('disabled', disabled);
+            return !disabled;
         });
+        
+        this.handCards.setSelectableCards(selectableCards);
     }
 }

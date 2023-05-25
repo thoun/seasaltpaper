@@ -1670,7 +1670,7 @@ var PlayerTable = /** @class */ (function () {
         this.game = game;
         this.playerId = Number(player.id);
         this.currentPlayer = this.playerId == this.game.getPlayerId();
-        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div id=\"player-table-").concat(this.playerId, "-hand-cards\" class=\"hand cards\" data-player-id=\"").concat(this.playerId, "\" data-current-player=\"").concat(this.currentPlayer.toString(), "\" data-my-hand=\"").concat(this.currentPlayer.toString(), "\"></div>\n            <div class=\"name-wrapper\">\n                <span class=\"name\" style=\"color: #").concat(player.color, ";\">").concat(player.name, "</span>\n                <div class=\"bubble-wrapper\">\n                    <div id=\"player-table-").concat(this.playerId, "-discussion-bubble\" class=\"discussion_bubble\" data-visible=\"false\"></div>\n                </div>\n        ");
+        var html = "\n        <div id=\"player-table-".concat(this.playerId, "\" class=\"player-table\">\n            <div id=\"player-table-").concat(this.playerId, "-hand-cards\" class=\"hand cards\" data-player-id=\"").concat(this.playerId, "\" data-current-player=\"").concat(this.currentPlayer.toString(), "\" data-my-hand=\"").concat(this.currentPlayer.toString(), "\" data-animated=\"false\"></div>\n            <div class=\"name-wrapper\">\n                <span class=\"name\" style=\"color: #").concat(player.color, ";\">").concat(player.name, "</span>\n                <div class=\"bubble-wrapper\">\n                    <div id=\"player-table-").concat(this.playerId, "-discussion-bubble\" class=\"discussion_bubble\" data-visible=\"false\"></div>\n                </div>\n        ");
         if (this.currentPlayer) {
             html += "<span class=\"counter\" id=\"cards-points-tooltip\">\n                    (".concat(_('Cards points:'), "&nbsp;<span id=\"cards-points-counter\"></span>)\n                </span>");
         }
@@ -1710,19 +1710,16 @@ var PlayerTable = /** @class */ (function () {
             this.showScoreDetails(player.scoringDetail);
         }
     }
-    Object.defineProperty(PlayerTable.prototype, "handCardsDiv", {
-        get: function () {
-            return document.getElementById("player-table-".concat(this.playerId, "-hand-cards"));
-        },
-        enumerable: false,
-        configurable: true
-    });
     PlayerTable.prototype.addCardsToHand = function (cards, fromDeck) {
         var _this = this;
         if (fromDeck === void 0) { fromDeck = false; }
+        var handDiv = document.getElementById("player-table-".concat(this.playerId, "-hand-cards"));
+        handDiv.dataset.animated = 'true';
         cards.forEach(function (card) {
             _this.handCards.addCard(card, {
                 fromElement: fromDeck ? document.getElementById('deck') : undefined,
+            }).then(function () {
+                return handDiv.dataset.animated = 'false';
             });
             if (_this.currentPlayer) {
                 _this.game.cardsManager.setCardVisible(card, true);
@@ -1730,6 +1727,24 @@ var PlayerTable = /** @class */ (function () {
         });
         //this.tableCards.addCards(cards);
         this.game.updateTableHeight();
+    };
+    PlayerTable.prototype.addStolenCard = function (card, stealerId, opponentId) {
+        var _this = this;
+        var opponentHandDiv = document.getElementById("player-table-".concat(opponentId, "-hand-cards"));
+        var cardDiv = this.game.cardsManager.getCardElement(card);
+        cardDiv.style.zIndex = '20';
+        opponentHandDiv.dataset.animated = 'true';
+        if (this.playerId == stealerId) {
+            this.game.cardsManager.updateCardInformations(card);
+        }
+        cumulatedAnimations(cardDiv, [
+            showScreenCenterAnimation,
+            pauseAnimation,
+        ]).then(function () {
+            delete cardDiv.style.zIndex;
+            opponentHandDiv.dataset.animated = 'false';
+            _this.addCardsToHand([_this.playerId == opponentId ? { id: card.id } : card]);
+        });
     };
     PlayerTable.prototype.addCardsToTable = function (cards) {
         var _this = this;
@@ -1794,21 +1809,13 @@ var PlayerTable = /** @class */ (function () {
         bubble.dataset.visible = 'true';
     };
     PlayerTable.prototype.setSelectable = function (selectable) {
-        var cards = Array.from(this.handCardsDiv.getElementsByClassName('card'));
-        if (selectable) {
-            cards.forEach(function (card) { return card.classList.add('selectable'); });
-        }
-        else {
-            cards.forEach(function (card) { return card.classList.remove('selectable', 'selected', 'disabled'); });
-        }
+        this.handCards.setSelectionMode(selectable ? 'multiple' : 'none');
     };
     PlayerTable.prototype.updateDisabledPlayCards = function (selectedCards, selectedStarfishCards, playableDuoCardFamilies) {
-        var _this = this;
         if (!this.game.isCurrentPlayerActive()) {
             return;
         }
-        var cards = this.handCards.getCards();
-        cards.forEach(function (card) {
+        var selectableCards = this.handCards.getCards().filter(function (card) {
             var disabled = false;
             if (card.category != PAIR) {
                 if (card.category == SPECIAL && card.family == STARFISH) {
@@ -1832,8 +1839,9 @@ var PlayerTable = /** @class */ (function () {
                     disabled = true;
                 }
             }
-            _this.handCards.getCardElement(card).classList.toggle('disabled', disabled);
+            return !disabled;
         });
+        this.handCards.setSelectableCards(selectableCards);
     };
     return PlayerTable;
 }());
@@ -1959,10 +1967,14 @@ var SeaSaltPaper = /** @class */ (function () {
         this.stacks.makeDiscardSelectable(currentPlayer);
     };
     SeaSaltPaper.prototype.onEnteringPlayCards = function () {
+        var _a;
         this.stacks.showPickCards(false);
         this.selectedCards = [];
         this.selectedStarfishCards = [];
-        this.updateDisabledPlayCards();
+        if (this.isCurrentPlayerActive()) {
+            (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setSelectable(true);
+            this.updateDisabledPlayCards();
+        }
     };
     SeaSaltPaper.prototype.onEnteringChooseDiscardPile = function () {
         this.stacks.makeDiscardSelectable(this.isCurrentPlayerActive());
@@ -2202,7 +2214,7 @@ var SeaSaltPaper = /** @class */ (function () {
         var _a;
         var cardDiv = (_a = document.getElementById("card-".concat(card.id))) !== null && _a !== void 0 ? _a : document.getElementById("ssp-card-".concat(card.id));
         var parentDiv = cardDiv.parentElement;
-        if (cardDiv.classList.contains('disabled')) {
+        if (cardDiv.classList.contains('bga-cards_disabled-card')) {
             return;
         }
         switch (this.gamedatas.gamestate.name) {
@@ -2221,11 +2233,11 @@ var SeaSaltPaper = /** @class */ (function () {
                     var array = card.category == SPECIAL && card.family == STARFISH ? this.selectedStarfishCards : this.selectedCards;
                     if (array.some(function (c) { return c.id == card.id; })) {
                         array.splice(array.findIndex(function (c) { return c.id == card.id; }), 1);
-                        cardDiv.classList.remove('selected');
+                        cardDiv.classList.remove('bga-cards_selected-card');
                     }
                     else {
                         array.push(card);
-                        cardDiv.classList.add('selected');
+                        cardDiv.classList.add('bga-cards_selected-card');
                     }
                     this.updateDisabledPlayCards();
                 }
@@ -2477,7 +2489,7 @@ var SeaSaltPaper = /** @class */ (function () {
             ['cardInDiscardFromPick', ANIMATION_MS],
             ['cardsInDeckFromPick', ANIMATION_MS],
             ['playCards', ANIMATION_MS],
-            ['stealCard', ANIMATION_MS],
+            ['stealCard', ANIMATION_MS * 3],
             ['revealHand', ANIMATION_MS * 2],
             ['announceEndRound', ANIMATION_MS * 2],
             ['betResult', ANIMATION_MS * 2],
@@ -2609,9 +2621,10 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.notif_stealCard = function (notif) {
         var stealerId = notif.args.playerId;
+        var opponentId = notif.args.opponentId;
         var card = notif.args.card;
-        this.getPlayerTable(stealerId).addCardsToHand([card]);
-        this.handCounters[notif.args.opponentId].incValue(-1);
+        this.getPlayerTable(stealerId).addStolenCard(card, stealerId, opponentId);
+        this.handCounters[opponentId].incValue(-1);
         this.handCounters[stealerId].incValue(1);
     };
     SeaSaltPaper.prototype.notif_announceEndRound = function (notif) {

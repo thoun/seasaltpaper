@@ -690,6 +690,9 @@ body > .card {
   font-size: 80%;
   text-align: center;
   color: lightcyan;
+  width: unset;
+  height: unset;
+  top: unset;
 }
 
 .player-board {
@@ -775,7 +778,7 @@ body > .card {
   flex-wrap: wrap;
   min-height: 218px;
 }
-.player-table .cards.hand[data-current-player=false] {
+.player-table .cards.hand[data-current-player=false]:not([data-animated=true]) {
   min-height: 45px;
   max-height: 45px;
   overflow: hidden;
