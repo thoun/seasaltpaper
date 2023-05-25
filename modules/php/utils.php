@@ -118,9 +118,20 @@ trait UtilTrait {
         return 6 - count($this->getPlayersIds());
     }
 
+    // includeTableHandCards are cards from the hand that have been revealed on table, but never played
+    function getPlayerCards(int $playerId, string $from /*'hand' | 'table'*/, bool $includeTableHandCards) {
+        $cards = $this->getCardsFromDb($this->cards->getCardsInLocation($from.$playerId));
+
+        if ($includeTableHandCards) {
+            $cards = array_merge($cards, $this->getCardsFromDb($this->cards->getCardsInLocation('tablehand'.$playerId)));
+        }
+
+        return $cards;
+    }
+
     function getCardsPoints(int $playerId) {
-        $tableCards = $this->getCardsFromDb($this->cards->getCardsInLocation('table'.$playerId));
-        $handCards = $this->getCardsFromDb($this->cards->getCardsInLocation('hand'.$playerId));
+        $tableCards = $this->getPlayerCards($playerId, 'table', false);
+        $handCards = $this->getPlayerCards($playerId, 'hand', true);
 
         $cardsScore = new CardsPoints($tableCards, $handCards);
         return $cardsScore;
@@ -135,8 +146,8 @@ trait UtilTrait {
     }
 
     function getPlayerMermaids(int $playerId) {
-        $tableCards = $this->getCardsFromDb($this->cards->getCardsInLocation('table'.$playerId));
-        $handCards = $this->getCardsFromDb($this->cards->getCardsInLocation('hand'.$playerId));
+        $tableCards = $this->getPlayerCards($playerId, 'table', false);
+        $handCards = $this->getPlayerCards($playerId, 'hand', true);
         $playerCards = array_merge($tableCards, $handCards);        
         $mermaidCards = array_values(array_filter($playerCards, fn($card) => $card->category == MERMAID));
 
@@ -144,16 +155,16 @@ trait UtilTrait {
     }
 
     function revealHand(int $playerId) {
-        $handCards = $this->getCardsFromDb($this->cards->getCardsInLocation('hand'.$playerId));
+        $handCards = $this->getPlayerCards($playerId, 'hand', false);
 
         if (count($handCards) > 0) {
-            $this->cards->moveAllCardsInLocation('hand'.$playerId, 'table'.$playerId);
+            $this->cards->moveAllCardsInLocation('hand'.$playerId, 'tablehand'.$playerId);
 
             $playerPoints = $this->getCardsPoints($playerId)->totalPoints;
             $this->notifyAllPlayers('revealHand', clienttranslate('${player_name} reveals a hand worth ${points} points'), [
                 'playerId' => $playerId,
                 'player_name' => $this->getPlayerName($playerId),
-                'cards' => $this->getCardsFromDb($this->cards->getCardsInLocation('table'.$playerId)),
+                'cards' => $this->getPlayerCards($playerId, 'table', true),
                 'points' => $playerPoints,
                 'playerPoints' => $playerPoints,
             ]);
@@ -196,7 +207,7 @@ trait UtilTrait {
 
     function applySteal(int $stealerId, int $robbedPlayerId) {
 
-        $cardsInHand = $this->getCardsFromDb($this->cards->getCardsInLocation('hand'.$robbedPlayerId));
+        $cardsInHand = $this->getPlayerCards($robbedPlayerId, 'hand', false);
         $card = null;
         $cardsNumber = count($cardsInHand);
         if ($cardsNumber > 0) {
@@ -235,7 +246,7 @@ trait UtilTrait {
 
     function playableDuoCards(int $playerId) {
         $familyPairs = [];
-        $handCards = $this->getCardsFromDb($this->cards->getCardsInLocation('hand'.$playerId));
+        $handCards = $this->getPlayerCards($playerId, 'hand', false);
         $pairCards = array_values(array_filter($handCards, fn($card) => $card->category == PAIR));
         for ($family = CRAB; $family <= LOBSTER; $family++) {
             $familyCards = array_values(array_filter($pairCards, fn($card) => $card->family == $family));
