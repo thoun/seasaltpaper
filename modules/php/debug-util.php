@@ -70,7 +70,7 @@ trait DebugUtilTrait {
     }
 
     function debugFillHands() {
-        $number = 10;
+        $number = 15;
         $playersIds = $this->getPlayersIds();
         foreach($playersIds as $playerId) {
             $this->cards->pickCardsForLocation($number, 'deck', 'hand'.$playerId);

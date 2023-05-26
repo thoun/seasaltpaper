@@ -110,7 +110,8 @@ class PlayerTable {
         const cardDiv = this.game.cardsManager.getCardElement(card);
         cardDiv.style.zIndex = '20';
         opponentHandDiv.dataset.animated = 'true';
-        if (this.playerId == stealerId) {
+        console.log(card, this.game.getPlayerId(), stealerId, opponentId);
+        if (this.game.getPlayerId() == stealerId) {
             this.game.cardsManager.updateCardInformations(card);
         }
         cumulatedAnimations(
