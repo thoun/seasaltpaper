@@ -1,5 +1,14 @@
 <?php
 
+function array_find(array $array, callable $fn) {
+    foreach ($array as $value) {
+        if($fn($value)) {
+            return $value;
+        }
+    }
+    return null;
+}
+
 function array_find_key(array $array, callable $fn) {
     foreach ($array as $key => $value) {
         if($fn($value)) {
@@ -57,7 +66,8 @@ class CardsPoints {
         $multiplierPoints = 0;
 
         $mermaidCards = array_values(array_filter($cards, fn($card) => $card->category == MERMAID));
-        $pairCards = array_values(array_filter($cards, fn($card) => $card->category == PAIR));
+        $pairHandCards = array_values(array_filter($handCards, fn($card) => $card->category == PAIR));
+        $pairTableCards = array_values(array_filter($tableCards, fn($card) => $card->category == PAIR));
         $collectionCards = array_values(array_filter($cards, fn($card) => $card->category == COLLECTION));
         $multiplierCards = array_values(array_filter($cards, fn($card) => $card->category == MULTIPLIER));
         $specialCardsInTable = array_values(array_filter($tableCards, fn($card) => $card->category == SPECIAL));
@@ -78,14 +88,24 @@ class CardsPoints {
             $mermaidCount--;
         }
 
-        // Pairs
-        for ($family = CRAB; $family <= FISH; $family++) {
-            $pairPoints += floor(count(array_values(array_filter($pairCards, fn($card) => $card->family == $family))) / 2);
+        $pairPoints += floor(count($pairTableCards) / 2);
+
+        $remainingPairCards = $pairHandCards; // copy
+        usort($remainingPairCards, fn($a, $b) => $b->family - $a->family); // so a pair of crabs & a pair of lobster would be match lobster+crab * 2 instead of 2 crabs & 2 lone lobsters
+        while (count($remainingPairCards) > 0) {
+            $card = $remainingPairCards[0];
+            $matchingCard = null;
+            foreach ($card->matchFamilies as $matchFamily) {
+                $matchingCard = array_find($remainingPairCards, fn($c) => $c->family == $matchFamily && $c->id != $card->id);
+                if ($matchingCard != null) {
+                    break;
+                }
+            }
+            if ($matchingCard !== null) {
+                $pairPoints += 1;
+            }
+            $remainingPairCards = array_values(array_filter($remainingPairCards, fn($c) => $c->id != $card->id && ($matchingCard == null || $matchingCard->id != $c->id)));
         }
-        $pairPoints += min( // TODO rework for new pairs
-            count(array_values(array_filter($pairCards, fn($card) => $card->family == SWIMMER))),
-            count(array_values(array_filter($pairCards, fn($card) => $card->family == SHARK))),
-        );
 
         // Collections
         for ($family = SHELL; $family <= SAILOR; $family++) {
