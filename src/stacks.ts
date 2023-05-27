@@ -40,13 +40,11 @@ class Stacks {
     }
 
     public makeDiscardSelectable(selectable: boolean) {
-        [1, 2].forEach(number => 
-            this.discardStocks[number].getCards().forEach(card => this.discardStocks[number].getCardElement(card).classList.toggle('selectable', selectable))
-        );
+        [1, 2].forEach(number => this.discardStocks[number].setSelectionMode(selectable ? 'single' : 'none'));
     }
 
     public makePickSelectable(selectable: boolean) {
-        this.pickStock.getCards().forEach(card => this.pickStock.getCardElement(card).classList.toggle('selectable', selectable));
+        this.pickStock.setSelectionMode(selectable ? 'single' : 'none');
     }
     
     public showPickCards(show: boolean, cards?: Card[], currentPlayer: boolean = false) {

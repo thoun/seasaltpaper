@@ -958,7 +958,7 @@ var CardStock = /** @class */ (function () {
      */
     CardStock.prototype.getSelectedCardClass = function () {
         var _a, _b;
-        return ((_a = this.settings) === null || _a === void 0 ? void 0 : _a.selectableCardClass) === undefined ? this.manager.getSelectedCardClass() : (_b = this.settings) === null || _b === void 0 ? void 0 : _b.selectableCardClass;
+        return ((_a = this.settings) === null || _a === void 0 ? void 0 : _a.selectedCardClass) === undefined ? this.manager.getSelectedCardClass() : (_b = this.settings) === null || _b === void 0 ? void 0 : _b.selectedCardClass;
     };
     CardStock.prototype.removeSelectionClasses = function (card) {
         this.removeSelectionClassesFromElement(this.getCardElement(card));
@@ -1195,6 +1195,14 @@ var CardManager = /** @class */ (function () {
         this.stocks = [];
         this.animationManager = (_a = settings.animationManager) !== null && _a !== void 0 ? _a : new AnimationManager(game);
     }
+    /**
+     * Returns if the animations are active. Animation aren't active when the window is not visible (`document.visibilityState === 'hidden'`), or `game.instantaneousMode` is true.
+     *
+     * @returns if the animations are active.
+     */
+    CardManager.prototype.animationsActive = function () {
+        return this.animationManager.animationsActive();
+    };
     CardManager.prototype.addStock = function (stock) {
         this.stocks.push(stock);
     };
@@ -1369,7 +1377,7 @@ var CardManager = /** @class */ (function () {
      */
     CardManager.prototype.getSelectedCardClass = function () {
         var _a, _b;
-        return ((_a = this.settings) === null || _a === void 0 ? void 0 : _a.selectableCardClass) === undefined ? 'bga-cards_selected-card' : (_b = this.settings) === null || _b === void 0 ? void 0 : _b.selectableCardClass;
+        return ((_a = this.settings) === null || _a === void 0 ? void 0 : _a.selectedCardClass) === undefined ? 'bga-cards_selected-card' : (_b = this.settings) === null || _b === void 0 ? void 0 : _b.selectedCardClass;
     };
     return CardManager;
 }());
@@ -1590,13 +1598,10 @@ var Stacks = /** @class */ (function () {
     };
     Stacks.prototype.makeDiscardSelectable = function (selectable) {
         var _this = this;
-        [1, 2].forEach(function (number) {
-            return _this.discardStocks[number].getCards().forEach(function (card) { return _this.discardStocks[number].getCardElement(card).classList.toggle('selectable', selectable); });
-        });
+        [1, 2].forEach(function (number) { return _this.discardStocks[number].setSelectionMode(selectable ? 'single' : 'none'); });
     };
     Stacks.prototype.makePickSelectable = function (selectable) {
-        var _this = this;
-        this.pickStock.getCards().forEach(function (card) { return _this.pickStock.getCardElement(card).classList.toggle('selectable', selectable); });
+        this.pickStock.setSelectionMode(selectable ? 'single' : 'none');
     };
     Stacks.prototype.showPickCards = function (show, cards, currentPlayer) {
         var _this = this;
@@ -1730,22 +1735,26 @@ var PlayerTable = /** @class */ (function () {
     };
     PlayerTable.prototype.addStolenCard = function (card, stealerId, opponentId) {
         var _this = this;
-        var opponentHandDiv = document.getElementById("player-table-".concat(opponentId, "-hand-cards"));
-        var cardDiv = this.game.cardsManager.getCardElement(card);
-        cardDiv.style.zIndex = '20';
-        opponentHandDiv.dataset.animated = 'true';
-        console.log(card, this.game.getPlayerId(), stealerId, opponentId);
-        if (this.game.getPlayerId() == stealerId) {
-            this.game.cardsManager.updateCardInformations(card);
+        if (this.game.cardsManager.animationsActive()) {
+            var opponentHandDiv_1 = document.getElementById("player-table-".concat(opponentId, "-hand-cards"));
+            var cardDiv_1 = this.game.cardsManager.getCardElement(card);
+            cardDiv_1.style.zIndex = '20';
+            opponentHandDiv_1.dataset.animated = 'true';
+            if (this.game.getPlayerId() == stealerId) {
+                this.game.cardsManager.updateCardInformations(card);
+            }
+            cumulatedAnimations(cardDiv_1, [
+                showScreenCenterAnimation,
+                pauseAnimation,
+            ]).then(function () {
+                delete cardDiv_1.style.zIndex;
+                opponentHandDiv_1.dataset.animated = 'false';
+                _this.addCardsToHand([_this.game.getPlayerId() == opponentId ? { id: card.id } : card]);
+            });
         }
-        cumulatedAnimations(cardDiv, [
-            showScreenCenterAnimation,
-            pauseAnimation,
-        ]).then(function () {
-            delete cardDiv.style.zIndex;
-            opponentHandDiv.dataset.animated = 'false';
-            _this.addCardsToHand([_this.playerId == opponentId ? { id: card.id } : card]);
-        });
+        else {
+            this.addCardsToHand([this.game.getPlayerId() == opponentId ? { id: card.id } : card]);
+        }
     };
     PlayerTable.prototype.addCardsToTable = function (cards) {
         var _this = this;

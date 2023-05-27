@@ -106,25 +106,28 @@ class PlayerTable {
     }
     
     public addStolenCard(card: Card, stealerId: number, opponentId: number) {
-        const opponentHandDiv = document.getElementById(`player-table-${opponentId}-hand-cards`);
-        const cardDiv = this.game.cardsManager.getCardElement(card);
-        cardDiv.style.zIndex = '20';
-        opponentHandDiv.dataset.animated = 'true';
-        console.log(card, this.game.getPlayerId(), stealerId, opponentId);
-        if (this.game.getPlayerId() == stealerId) {
-            this.game.cardsManager.updateCardInformations(card);
+        if (this.game.cardsManager.animationsActive()) {
+            const opponentHandDiv = document.getElementById(`player-table-${opponentId}-hand-cards`);
+            const cardDiv = this.game.cardsManager.getCardElement(card);
+            cardDiv.style.zIndex = '20';
+            opponentHandDiv.dataset.animated = 'true';
+            if (this.game.getPlayerId() == stealerId) {
+                this.game.cardsManager.updateCardInformations(card);
+            }
+            cumulatedAnimations(
+                cardDiv,
+                [
+                    showScreenCenterAnimation,
+                    pauseAnimation,
+                ]
+            ).then(() => {
+                delete cardDiv.style.zIndex;
+                opponentHandDiv.dataset.animated = 'false';
+                this.addCardsToHand([this.game.getPlayerId() == opponentId ? { id: card.id } as Card : card]);
+            });
+        } else {
+            this.addCardsToHand([this.game.getPlayerId() == opponentId ? { id: card.id } as Card : card]);
         }
-        cumulatedAnimations(
-            cardDiv,
-            [
-                showScreenCenterAnimation,
-                pauseAnimation,
-            ]
-        ).then(() => {
-            delete cardDiv.style.zIndex;
-            opponentHandDiv.dataset.animated = 'false';
-            this.addCardsToHand([this.playerId == opponentId ? { id: card.id } as Card : card]);
-        });
     }
 
     public addCardsToTable(cards: Card[]) {

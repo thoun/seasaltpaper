@@ -564,10 +564,10 @@ body > .card {
 .card .card-sides .card-side[data-category="5"][data-family="2"][data-color="0"] {
   background-position-x: 100%;
 }
-.card.bga-cards_selectable:not(.bga-cards_disabled-card):not(.bga-cards_selected-card) {
+.card.bga-cards_selectable-card:not(.bga-cards_disabled-card):not(.bga-cards_selected-card) {
   animation: selectable-card-animation 1s alternate infinite ease-in-out;
 }
-.card.bga-cards_selectable:not(.bga-cards_disabled-card) .card-side {
+.card.bga-cards_selectable-card:not(.bga-cards_disabled-card) .card-side {
   box-shadow: unset;
 }
 .card.bga-cards_selected-card:not(.bga-cards_disabled-card) {
