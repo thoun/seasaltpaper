@@ -30,3 +30,39 @@ Also add one auto-FTP upload extension (for example https://marketplace.visualst
 
 ## Hint
 Make sure ftp-sync.json and node_modules are in .gitignore
+
+# Notifs
+To get all notifs of a game replay, set in replay console :
+```js
+const studioTable = 483521;
+const studioFirstPlayer = 2343492;
+JSON.stringify(g_gamelogs).replace(/(\d{6,})/g, n => {
+    const index = Object.values(gameui.gamedatas.playerorder).map(val => ''+val).indexOf(n);
+    if (index !== -1) {
+        return `${studioFirstPlayer + index}`;
+    } else if (n == gameui.table_id) {
+        return `${studioTable}`;
+    } else {
+        return n;
+    }
+});
+
+```
+And copy the result
+
+Then in studio
+```js
+json = <paste copied result from previous command>;
+
+let gls = JSON.parse(json);
+g_archive_mode = true;
+gameui.updateReflexionTime = () => {};
+gameui.initCommentsForMove = () => {};
+gls.forEach(gl => {
+    try {
+        gameui.notifqueue.onNotification(gl)
+    } catch (e) {
+        console.warn(e);
+    }
+});
+```

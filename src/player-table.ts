@@ -121,7 +121,7 @@ class PlayerTable {
                     pauseAnimation,
                 ]
             ).then(() => {
-                delete cardDiv.style.zIndex;
+                cardDiv.style.removeProperty('z-index');
                 opponentHandDiv.dataset.animated = 'false';
                 this.addCardsToHand([this.game.getPlayerId() == opponentId ? { id: card.id } as Card : card]);
             });
