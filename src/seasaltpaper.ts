@@ -26,7 +26,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     private handCounters: Counter[] = [];
 
     private discardStock: LineStock<Card>;
-    private deckVoidStock: VoidStock<Card>;
     
     private TOOLTIP_DELAY = document.body.classList.contains('touch-device') ? 1500 : undefined;
 
@@ -58,8 +57,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.stacks = new Stacks(this, this.gamedatas);
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
-
-        this.deckVoidStock = new VoidStock<Card>(this.cardsManager, document.getElementById('deck'));
         
         this.zoomManager = new ZoomManager({
             element: document.getElementById('full-table'),
@@ -148,7 +145,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         } else {
             this.stacks.makePickSelectable(false);
         }        
-        this.stacks.setDeckCount(args.remainingCardsInDeck);
+        this.stacks.deck.setCardNumber(args.remainingCardsInDeck, args.deckTopCard);
     }
     
     private onEnteringPutDiscardPile(args: EnteringChooseCardArgs) {
@@ -802,12 +799,12 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             ['cardInHandFromDeck', ANIMATION_MS],
             ['cardInDiscardFromPick', ANIMATION_MS],
             ['cardsInDeckFromPick', ANIMATION_MS],
-            ['playCards', ANIMATION_MS],
-            ['stealCard', ANIMATION_MS * 3],
+            ['playCards', undefined],
+            ['stealCard', undefined],
             ['revealHand', ANIMATION_MS * 2],
             ['announceEndRound', ANIMATION_MS * 2],
             ['betResult', ANIMATION_MS * 2],
-            ['endRound', ANIMATION_MS * 2],
+            ['endRound', undefined],
             ['score', ANIMATION_MS * 3],
             ['newRound', 1],
             ['updateCardsPoints', 1],
@@ -815,7 +812,14 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         ];
     
         notifs.forEach((notif) => {
-            dojo.subscribe(notif[0], this, `notif_${notif[0]}`);
+            dojo.subscribe(notif[0], this, (notifDetails: Notif<any>) => {
+                log(`notif_${notif[0]}`, notifDetails.args);
+
+                const promise = this[`notif_${notif[0]}`](notifDetails.args);
+
+                // tell the UI notification ends, if the function returned a promise
+                promise?.then(() => (this as any).notifqueue.onSynchronousNotificationEnd());
+            });
             (this as any).notifqueue.setSynchronous(notif[0], notif[1]);
         });
 
@@ -863,131 +867,136 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         }
     }
 
-    notif_cardInDiscardFromDeck(notif: Notif<NotifCardInDiscardFromDeckArgs>) {
-        this.stacks.setDiscardCard(notif.args.discardId, notif.args.card, 1, document.getElementById('deck'));
-        this.stacks.setDeckCount(notif.args.remainingCardsInDeck);
+    notif_cardInDiscardFromDeck(args: NotifCardInDiscardFromDeckArgs) {
+        this.stacks.setDiscardCard(args.discardId, args.card, 1, document.getElementById('deck'));
+        this.stacks.deck.setCardNumber(args.remainingCardsInDeck, args.deckTopCard);
         this.updateTableHeight();
     } 
 
-    notif_cardInHandFromDiscard(notif: Notif<NotifCardInHandFromDiscardArgs>) {
-        const card = notif.args.card;
-        const playerId = notif.args.playerId;
-        const discardNumber = notif.args.discardId;
+    notif_cardInHandFromDiscard(args: NotifCardInHandFromDiscardArgs) {
+        const card = args.card;
+        const playerId = args.playerId;
+        const discardNumber = args.discardId;
         const maskedCard = playerId == this.getPlayerId() ? card : { id: card.id } as Card;
         this.getPlayerTable(playerId).addCardsToHand([maskedCard]);
         this.handCounters[playerId].incValue(1);
 
-        this.stacks.setDiscardCard(discardNumber, notif.args.newDiscardTopCard, notif.args.remainingCardsInDiscard);
+        this.stacks.setDiscardCard(discardNumber, args.newDiscardTopCard, args.remainingCardsInDiscard);
         this.updateTableHeight();
     } 
 
-    notif_cardInHandFromDiscardCrab(notif: Notif<NotifCardInHandFromDiscardArgs>) {
-        const card = notif.args.card;
-        const playerId = notif.args.playerId;
+    notif_cardInHandFromDiscardCrab(args: NotifCardInHandFromDiscardArgs) {
+        const card = args.card;
+        const playerId = args.playerId;
         const maskedCard = playerId == this.getPlayerId() ? card : { id: card.id } as Card;
         this.getPlayerTable(playerId).addCardsToHand([maskedCard]);
         this.handCounters[playerId].incValue(1);
 
-        this.stacks.setDiscardCard(notif.args.discardId, notif.args.newDiscardTopCard, notif.args.remainingCardsInDiscard);
+        this.stacks.setDiscardCard(args.discardId, args.newDiscardTopCard, args.remainingCardsInDiscard);
         this.updateTableHeight();
     } 
 
-    notif_cardInHandFromPick(notif: Notif<NotifCardInHandFromPickArgs>) {
-        const playerId = notif.args.playerId;
-        this.getPlayerTable(playerId).addCardsToHand([notif.args.card]);
+    notif_cardInHandFromPick(args: NotifCardInHandFromPickArgs) {
+        const playerId = args.playerId;
+        this.getPlayerTable(playerId).addCardsToHand([args.card]);
         this.handCounters[playerId].incValue(1);
     }
 
-    notif_cardInHandFromDeck(notif: Notif<NotifCardInHandFromPickArgs>) {
-        const playerId = notif.args.playerId;
-        this.getPlayerTable(playerId).addCardsToHand([notif.args.card], true);
+    notif_cardInHandFromDeck(args: NotifCardInHandFromPickArgs) {
+        const playerId = args.playerId;
+        this.getPlayerTable(playerId).addCardsToHand([args.card], true);
+        this.stacks.deck.setCardNumber(args.remainingCardsInDeck, args.deckTopCard)
         this.handCounters[playerId].incValue(1);
     }   
 
-    notif_cardInDiscardFromPick(notif: Notif<NotifCardInDiscardFromPickArgs>) {
-        const card = notif.args.card;
-        const discardNumber = notif.args.discardId;
+    notif_cardInDiscardFromPick(args: NotifCardInDiscardFromPickArgs) {
+        const card = args.card;
+        const discardNumber = args.discardId;
         this.cardsManager.setCardVisible(card, true);
-        this.stacks.setDiscardCard(discardNumber, card, notif.args.remainingCardsInDiscard);
+        this.stacks.setDiscardCard(discardNumber, card, args.remainingCardsInDiscard);
         this.updateTableHeight();
     } 
 
-    notif_cardsInDeckFromPick(notif: Notif<NotifCardsInDeckFromPickArgs>) {
-        this.deckVoidStock.addCards(notif.args.cards, undefined, {
+    notif_cardsInDeckFromPick(args: NotifCardsInDeckFromPickArgs) {
+        this.stacks.deck.addCards(args.cards, undefined, {
             visible: false,
         });
-        this.stacks.setDeckCount(notif.args.remainingCardsInDeck);
+        this.stacks.deck.setCardNumber(args.remainingCardsInDeck, args.deckTopCard);
         this.updateTableHeight();
     }
 
-    notif_score(notif: Notif<NotifScoreArgs>) {
-        log('score', notif.args);
-        
-        const playerId = notif.args.playerId;
-        (this as any).scoreCtrl[playerId]?.toValue(notif.args.newScore);
+    notif_score(args: NotifScoreArgs) {
+        const playerId = args.playerId;
+        (this as any).scoreCtrl[playerId]?.toValue(args.newScore);
 
-        const incScore = notif.args.incScore;
+        const incScore = args.incScore;
         if (incScore != null && incScore !== undefined) {
             (this as any).displayScoring(`player-table-${playerId}-table-cards`, this.getPlayerColor(playerId), incScore, ANIMATION_MS * 3);
         }
 
-        if (notif.args.details) {
-            this.getPlayerTable(notif.args.playerId).showScoreDetails(notif.args.details);
+        if (args.details) {
+            this.getPlayerTable(args.playerId).showScoreDetails(args.details);
         }
     }
     notif_newRound() {}
 
-    notif_playCards(notif: Notif<NotifPlayCardsArgs>) {
-        const playerId = notif.args.playerId;
-        const cards = notif.args.cards;
+    notif_playCards(args: NotifPlayCardsArgs) {
+        const playerId = args.playerId;
+        const cards = args.cards;
         const playerTable = this.getPlayerTable(playerId);
-        playerTable.addCardsToTable(cards);
-
         this.handCounters[playerId].incValue(-cards.length);
+        return playerTable.addCardsToTable(cards);
     }
 
-    notif_revealHand(notif: Notif<NotifRevealHandArgs>) {
-        const playerId = notif.args.playerId;
-        const playerPoints = notif.args.playerPoints;
+    notif_revealHand(args: NotifRevealHandArgs) {
+        const playerId = args.playerId;
+        const playerPoints = args.playerPoints;
         const playerTable = this.getPlayerTable(playerId);
         playerTable.showAnnouncementPoints(playerPoints);
 
-        this.notif_playCards(notif);
+        this.notif_playCards(args);
         this.handCounters[playerId].toValue(0);
     }
 
-    notif_stealCard(notif: Notif<NotifStealCardArgs>) {
-        const stealerId = notif.args.playerId;
-        const opponentId = notif.args.opponentId;
-        const card = notif.args.card;
-        this.getPlayerTable(stealerId).addStolenCard(card, stealerId, opponentId);
+    notif_stealCard(args: NotifStealCardArgs) {
+        const stealerId = args.playerId;
+        const opponentId = args.opponentId;
+        const card = args.card;
+        this.getPlayerTable(opponentId).setSelectable(false);
         this.handCounters[opponentId].incValue(-1);
         this.handCounters[stealerId].incValue(1);
+        return this.getPlayerTable(stealerId).addStolenCard(card, stealerId, opponentId);
     }
 
-    notif_announceEndRound(notif: Notif<NotifAnnounceEndRoundArgs>) {
-        this.getPlayerTable(notif.args.playerId).showAnnouncement(notif.args.announcement);
+    notif_announceEndRound(args: NotifAnnounceEndRoundArgs) {
+        this.getPlayerTable(args.playerId).showAnnouncement(args.announcement);
     }
 
-    notif_endRound() {
+    async notif_endRound(args: NotifEndRoundArgs) {
+        this.stacks.cleanDiscards(this.stacks.deck);
+        const cards = [];
+
         this.playersTables.forEach(playerTable => {
-            playerTable.cleanTable(this.deckVoidStock);
+            cards.push(...playerTable.getAllCards());
             this.handCounters[playerTable.playerId].setValue(0);
+            playerTable.clearAnnouncement();
         });
+
+        await this.stacks.deck.addCards(cards);
         
         this.getCurrentPlayerTable()?.setHandPoints(0, [0, 0, 0, 0]);
-        this.stacks.cleanDiscards(this.deckVoidStock);
-        this.stacks.setDeckCount(58);
+        this.updateTableHeight();
+        this.stacks.deck.setCardNumber(args.remainingCardsInDeck, args.deckTopCard);
+
+        return await this.stacks.deck.shuffle();
     }
 
-    notif_updateCardsPoints(notif: Notif<NotifUpdateCardsPointsArgs>) {
-        this.getCurrentPlayerTable()?.setHandPoints(notif.args.cardsPoints, notif.args.detailledPoints);
+    notif_updateCardsPoints(args: NotifUpdateCardsPointsArgs) {
+        this.getCurrentPlayerTable()?.setHandPoints(args.cardsPoints, args.detailledPoints);
     }
 
-    notif_betResult(notif: Notif<NotifBetResultArgs>) {
-        log('betResult', notif.args);
-
-        this.getPlayerTable(notif.args.playerId).showAnnouncementBetResult(notif.args.result);
+    notif_betResult(args: NotifBetResultArgs) {
+        this.getPlayerTable(args.playerId).showAnnouncementBetResult(args.result);
     }
 
     notif_emptyDeck() {

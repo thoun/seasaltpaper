@@ -87,15 +87,16 @@ class PlayerTable {
         }
     }
     
-    public addCardsToHand(cards: Card[], fromDeck: boolean = false) {
+    public addCardsToHand(cards: Card[], fromDeck: boolean = false): Promise<any> {
+        const promises = [];
         const handDiv = document.getElementById(`player-table-${this.playerId}-hand-cards`);
         handDiv.dataset.animated = 'true';
         cards.forEach(card => {
-            this.handCards.addCard(card, {
+            promises.push(this.handCards.addCard(card, {
                 fromElement: fromDeck ? document.getElementById('deck') : undefined,
             }).then(() =>
                 handDiv.dataset.animated = 'false'
-            );
+            ));
             if (this.currentPlayer) {
                 this.game.cardsManager.setCardVisible(card, true);
             }
@@ -103,9 +104,11 @@ class PlayerTable {
 
         //this.tableCards.addCards(cards);
         this.game.updateTableHeight();
+
+        return Promise.all(promises);
     }
     
-    public addStolenCard(card: Card, stealerId: number, opponentId: number) {
+    public addStolenCard(card: Card, stealerId: number, opponentId: number): Promise<any> {
         if (this.game.cardsManager.animationsActive()) {
             const opponentHandDiv = document.getElementById(`player-table-${opponentId}-hand-cards`);
             const cardDiv = this.game.cardsManager.getCardElement(card);
@@ -114,40 +117,33 @@ class PlayerTable {
             if (this.game.getPlayerId() == stealerId) {
                 this.game.cardsManager.updateCardInformations(card);
             }
-            cumulatedAnimations(
-                cardDiv,
-                [
-                    showScreenCenterAnimation,
-                    pauseAnimation,
+            return this.game.animationManager.play(new BgaCumulatedAnimation({
+                animations: [
+                    new BgaShowScreenCenterAnimation({ element: cardDiv, transitionTimingFunction: 'ease-in-out' }),
+                    new BgaPauseAnimation({}),
                 ]
-            ).then(() => {
+            })).then(() => {
                 cardDiv.style.removeProperty('z-index');
                 opponentHandDiv.dataset.animated = 'false';
-                this.addCardsToHand([this.game.getPlayerId() == opponentId ? { id: card.id } as Card : card]);
+                return this.addCardsToHand([this.game.getPlayerId() == opponentId ? { id: card.id } as Card : card]);
             });
         } else {
-            this.addCardsToHand([this.game.getPlayerId() == opponentId ? { id: card.id } as Card : card]);
+            return this.addCardsToHand([this.game.getPlayerId() == opponentId ? { id: card.id } as Card : card]);
         }
     }
 
-    public addCardsToTable(cards: Card[]) {
+    public addCardsToTable(cards: Card[]): Promise<any> {
         cards.forEach(card => this.game.cardsManager.setCardVisible(card, true, { updateData: true, updateFront: true, updateBack: false }));
-        this.tableCards.addCards(cards);
+        const promise = this.tableCards.addCards(cards);
         this.game.updateTableHeight();
+        return promise;
     }
 
-    public cleanTable(deckStock: CardStock<Card>): void {
-        const cards = [
+    public getAllCards(): Card[] {
+        return [
             ...this.tableCards.getCards(),
             ...this.handCards.getCards(),
         ];
-
-        deckStock.addCards(cards, undefined, {
-            visible: false,
-        });
-
-        this.game.updateTableHeight();
-        this.clearAnnouncement();
     }
     
     public setHandPoints(cardsPoints: number, detailledPoints: number[]) {

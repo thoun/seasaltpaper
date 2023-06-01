@@ -57,6 +57,8 @@ trait ActionTrait {
                 'i18n' => ['cardName', 'cardColor'],
                 'preserve' => ['actionPlayerId'],
                 'actionPlayerId' => $playerId,
+                'deckTopCard' => $this->getDeckTopCard(),
+                'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
             ]);
             self::notifyAllPlayers('cardInHandFromDeck', clienttranslate('${player_name} took a card from deck'), [
                 'playerId' => $playerId,
@@ -64,6 +66,8 @@ trait ActionTrait {
                 'card' => Card::onlyId($card),
                 'preserve' => ['actionPlayerId'],
                 'actionPlayerId' => $playerId,
+                'deckTopCard' => $this->getDeckTopCard(),
+                'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
             ]);
 
             $this->updateCardsPoints($playerId);
@@ -165,6 +169,7 @@ trait ActionTrait {
                     'playerId' => $playerId,
                     'player_name' => $this->getPlayerName($playerId),
                     'cards' => $cards,
+                    'deckTopCard' => $this->getDeckTopCard(),
                     'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
                     'preserve' => ['actionPlayerId'],
                     'actionPlayerId' => $playerId,
@@ -336,6 +341,8 @@ trait ActionTrait {
                         'i18n' => ['cardName', 'cardColor'],
                         'preserve' => ['actionPlayerId'],
                         'actionPlayerId' => $playerId,
+                        'deckTopCard' => $this->getDeckTopCard(),
+                        'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
                     ]);
                     self::notifyAllPlayers('cardInHandFromDeck', clienttranslate('${player_name} took a card from deck'), [
                         'playerId' => $playerId,
@@ -343,6 +350,8 @@ trait ActionTrait {
                         'card' => Card::onlyId($card),
                         'preserve' => ['actionPlayerId'],
                         'actionPlayerId' => $playerId,
+                        'deckTopCard' => $this->getDeckTopCard(),
+                        'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
                     ]);
                     
                     $this->updateCardsPoints($playerId);

@@ -15,22 +15,7 @@
         align-items: center;        
 
         #deck {
-            display: inline-block;
-            position: relative;
-            width: 149px;
-            min-height: 208px;
-            margin: 5px;
-            border-radius: 10px;
-            background-image: url('img/card-back.jpg');
-            background-size: auto 100%;
-            box-shadow: 3px 3px 0px 0px #333, 5px 5px 3px black;
-
-            &.selectable {
-                cursor: pointer;
-                animation: selectable-card-animation 1s alternate infinite ease-in-out;
-            }  
-
-            &.hidden {
+            &[data-empty="true"] {
                 background: #60c2cb66;
                 box-shadow: 5px 5px 3px #60c2cb66;
             }

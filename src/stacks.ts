@@ -1,19 +1,10 @@
 class Stacks {
-    private deckCounter: Counter;
+    public deck: Deck<Card>;
 
     private discardStocks: Deck<Card>[] = [];
     private pickStock: LineStock<Card>;
 
-    private get deckDiv() {
-        return document.getElementById('deck');
-    }
-
     constructor(private game: SeaSaltPaperGame, gamedatas: SeaSaltPaperGamedatas) {
-        this.deckDiv.addEventListener('click', () => this.game.takeCardsFromDeck());
-        this.deckCounter = new ebg.counter();
-        this.deckCounter.create(`deck-counter`);
-        this.setDeckCount(gamedatas.remainingCardsInDeck);
-
         [1, 2].forEach(number => {
             const discardDiv = document.getElementById(`discard${number}`);
             const cardNumber = gamedatas[`remainingCardsInDiscard${number}`];
@@ -33,10 +24,19 @@ class Stacks {
             gap: '0px',
         });
         this.pickStock.onCardClick = card => this.game.onCardClick(card);
+
+        this.deck = new Deck<Card>(this.game.cardsManager, document.getElementById('deck'), {
+            topCard: gamedatas.deckTopCard,
+            cardNumber: gamedatas.remainingCardsInDeck,
+            counter: {
+                extraClasses: 'pile-counter',
+            }
+        });
+        this.deck.onCardClick = () => this.game.takeCardsFromDeck();
     }
     
     public makeDeckSelectable(selectable: boolean) {
-        this.deckDiv.classList.toggle('selectable', selectable);
+        this.deck.setSelectionMode(selectable ? 'single' : 'none');
     }
 
     public makeDiscardSelectable(selectable: boolean) {
@@ -65,11 +65,6 @@ class Stacks {
         });
         this.game.updateTableHeight();
     }
-
-    public setDeckCount(number: number) {
-        this.deckCounter.setValue(number);
-        document.getElementById(`deck`).classList.toggle('hidden', number == 0);
-    }
     
     public setDiscardCard(discardNumber: number, card: Card | null, newCount: number | null = null, from: HTMLElement = undefined) {
         if (card) {
@@ -81,11 +76,12 @@ class Stacks {
         }
     }
     
-    public cleanDiscards(deckStock: CardStock<Card>) {
-        [1, 2].forEach(discardNumber => {
-            deckStock.addCards(this.discardStocks[discardNumber].getCards(), undefined, { visible: false });
+    public cleanDiscards(deckStock: CardStock<Card>): Promise<any> {
+        return Promise.all([1, 2].map(discardNumber => {
+            const promise = deckStock.addCards(this.discardStocks[discardNumber].getCards(), undefined, { visible: false });
             this.discardStocks[discardNumber].setCardNumber(0);
-        });
+            return promise;
+        }));
     }
     
     public getDiscardDeck(discardNumber: number): CardStock<Card> {

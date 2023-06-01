@@ -601,22 +601,7 @@ body > .card {
   justify-content: center;
   align-items: center;
 }
-#table-center #deck-and-discards #deck {
-  display: inline-block;
-  position: relative;
-  width: 149px;
-  min-height: 208px;
-  margin: 5px;
-  border-radius: 10px;
-  background-image: url("img/card-back.jpg");
-  background-size: auto 100%;
-  box-shadow: 3px 3px 0px 0px #333, 5px 5px 3px black;
-}
-#table-center #deck-and-discards #deck.selectable {
-  cursor: pointer;
-  animation: selectable-card-animation 1s alternate infinite ease-in-out;
-}
-#table-center #deck-and-discards #deck.hidden {
+#table-center #deck-and-discards #deck[data-empty=true] {
   background: rgba(96, 194, 203, 0.4);
   box-shadow: 5px 5px 3px rgba(96, 194, 203, 0.4);
 }

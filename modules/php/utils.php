@@ -322,4 +322,7 @@ trait UtilTrait {
         }
     }
 
+    function getDeckTopCard() {
+        return Card::onlyId($this->getCardFromDb($this->cards->getCardOnTop('deck')));
+    }
 }

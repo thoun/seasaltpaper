@@ -26,6 +26,7 @@ trait StateTrait {
             self::notifyAllPlayers('cardInDiscardFromDeck', '', [
                 'card' => $card,
                 'discardId' => $discardNumber,
+                'deckTopCard' => $this->getDeckTopCard(),
                 'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
             ]);
         }
@@ -235,7 +236,10 @@ trait StateTrait {
             $this->cards->shuffle('deck');
         }
 
-        self::notifyAllPlayers('endRound', '', []);
+        self::notifyAllPlayers('endRound', '', [
+            'deckTopCard' => $this->getDeckTopCard(),
+            'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
+        ]);
 
         $this->gamestate->nextState($lastRound ? 'endScore' : 'newRound');
     }

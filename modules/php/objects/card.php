@@ -131,7 +131,11 @@ class Card extends CardType {
         }
     } 
 
-    public static function onlyId(Card $card) {
+    public static function onlyId(?Card $card) {
+        if ($card == null) {
+            return null;
+        }
+        
         return new Card([
             'id' => $card->id,
             'location' => $card->location,

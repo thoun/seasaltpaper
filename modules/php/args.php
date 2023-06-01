@@ -45,6 +45,7 @@ trait ArgsTrait {
                 ]
             ],
             'cards' => $maskedCards,
+            'deckTopCard' => $this->getDeckTopCard(),
             'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
         ];
     }

@@ -239,6 +239,7 @@ class SeaSaltPaper extends Table {
             }
         }
 
+        $result['deckTopCard'] = $this->getDeckTopCard();
         $result['remainingCardsInDeck'] = $this->getRemainingCardsInDeck();
         foreach ([1, 2] as $number) {
             $result['discardTopCard'.$number] = $this->getCardFromDb($this->cards->getCardOnTop('discard'.$number));
@@ -328,7 +329,7 @@ class SeaSaltPaper extends Table {
         // For example, if the game was running with a release of your game named "140430-1345",
         // $from_version is equal to 1404301345
         
-        if ($from_version <= 2305251213) {
+        if ($from_version <= 2305281437) {
             // ! important ! Use DBPREFIX_<table_name> for all tables
             self::applyDbUpgradeToAllDB("ALTER TABLE DBPREFIX_card MODIFY COLUMN `card_location` varchar(25) NOT NULL");
         }

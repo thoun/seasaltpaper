@@ -44,6 +44,7 @@ interface SeaSaltPaperGamedatas {
     tablespeed: string;
 
     // Add here variables you set up in getAllDatas
+    deckTopCard?: Card;
     remainingCardsInDeck: number;
     discardTopCard1: Card;
     discardTopCard2: Card;
@@ -81,6 +82,7 @@ interface EnteringChooseCardArgs {
     }
     cards: Card[];
     discardNumber?: number;
+    deckTopCard?: Card;
     remainingCardsInDeck: number;
 }
 
@@ -98,6 +100,7 @@ interface EnteringChooseOpponentArgs {
 interface NotifCardInDiscardFromDeckArgs {
     card: Card;
     discardId: number;
+    deckTopCard?: Card;
     remainingCardsInDeck: number;
 }
 
@@ -112,6 +115,8 @@ interface NotifCardInHandFromDiscardArgs {
 interface NotifCardInHandFromPickArgs {
     playerId: number;
     card?: Card;
+    deckTopCard?: Card;
+    remainingCardsInDeck: number;
 }
 
 interface NotifCardInDiscardFromPickArgs {
@@ -124,6 +129,7 @@ interface NotifCardInDiscardFromPickArgs {
 interface NotifCardsInDeckFromPickArgs {
     playerId: number;
     cards: Card[];
+    deckTopCard?: Card;
     remainingCardsInDeck: number;
 }
 
@@ -146,6 +152,11 @@ interface NotifRevealHandArgs extends NotifPlayCardsArgs {
 interface NotifAnnounceEndRoundArgs {
     playerId: number;
     announcement: string;
+}
+
+interface NotifEndRoundArgs {
+    deckTopCard?: Card;
+    remainingCardsInDeck: number;
 }
 
 interface NotifBetResultArgs {
