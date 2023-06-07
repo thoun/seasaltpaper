@@ -552,6 +552,11 @@ trait ActionTrait {
 
         $mermaids = $this->getPlayerMermaids($playerId);
         if (count($mermaids) == 4) {
+            $count = intval($this->cards->countCardInLocation('table'.$playerId));
+            foreach($mermaids as $card) {
+                $this->cards->moveCard($card->id, 'table'.$playerId, ++$count);
+            }
+
             $this->notifyAllPlayers('playCards', '', [
                 'playerId' => $playerId,
                 'cards' => $mermaids,

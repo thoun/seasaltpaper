@@ -973,8 +973,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     async notif_endRound(args: NotifEndRoundArgs) {
-        this.stacks.cleanDiscards(this.stacks.deck);
-        const cards = [];
+        const cards = this.stacks.getDiscardCards();
 
         this.playersTables.forEach(playerTable => {
             cards.push(...playerTable.getAllCards());
@@ -982,7 +981,8 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             playerTable.clearAnnouncement();
         });
 
-        await this.stacks.deck.addCards(cards);
+        this.stacks.cleanDiscards();
+        await this.stacks.deck.addCards(cards, undefined, { visible: false });
         
         this.getCurrentPlayerTable()?.setHandPoints(0, [0, 0, 0, 0]);
         this.updateTableHeight();

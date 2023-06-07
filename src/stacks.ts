@@ -76,12 +76,12 @@ class Stacks {
         }
     }
     
-    public cleanDiscards(deckStock: CardStock<Card>): Promise<any> {
-        return Promise.all([1, 2].map(discardNumber => {
-            const promise = deckStock.addCards(this.discardStocks[discardNumber].getCards(), undefined, { visible: false });
-            this.discardStocks[discardNumber].setCardNumber(0);
-            return promise;
-        }));
+    public getDiscardCards(): Card[] {
+        return [1, 2].map(discardNumber => this.discardStocks[discardNumber].getCards()).flat();
+    }
+    
+    public cleanDiscards() {
+        [1, 2].forEach(discardNumber => this.discardStocks[discardNumber].setCardNumber(0));
     }
     
     public getDiscardDeck(discardNumber: number): CardStock<Card> {

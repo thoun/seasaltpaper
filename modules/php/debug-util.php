@@ -11,7 +11,7 @@ trait DebugUtilTrait {
             return;
         } 
 
-        //$this->debugFillHands();
+        $this->debugFillHands();
         //$this->debugFillTable();
         //$this->debugSetMermaids();
         //$this->debugSetMermaidOnDeckTop();
@@ -82,6 +82,13 @@ trait DebugUtilTrait {
         $playersIds = $this->getPlayersIds();
         foreach($playersIds as $playerId) {
             $this->cards->pickCardsForLocation($number, 'deck', 'table'.$playerId);
+        }
+    }
+
+    function debugFillDiscards() {
+        $number = 10;
+        foreach([1, 2] as $pile) {
+            $this->cards->pickCardsForLocation($number, 'deck', 'discard'.$pile);
         }
     }
 

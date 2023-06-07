@@ -148,7 +148,7 @@ trait UtilTrait {
     function getPlayerMermaids(int $playerId) {
         $tableCards = $this->getPlayerCards($playerId, 'table', false);
         $handCards = $this->getPlayerCards($playerId, 'hand', true);
-        $playerCards = array_merge($tableCards, $handCards);        
+        $playerCards = array_merge($tableCards, $handCards);
         $mermaidCards = array_values(array_filter($playerCards, fn($card) => $card->category == MERMAID));
 
         return $mermaidCards;

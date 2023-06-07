@@ -1975,13 +1975,13 @@ var Stacks = /** @class */ (function () {
             this.discardStocks[discardNumber].setCardNumber(newCount);
         }
     };
-    Stacks.prototype.cleanDiscards = function (deckStock) {
+    Stacks.prototype.getDiscardCards = function () {
         var _this = this;
-        return Promise.all([1, 2].map(function (discardNumber) {
-            var promise = deckStock.addCards(_this.discardStocks[discardNumber].getCards(), undefined, { visible: false });
-            _this.discardStocks[discardNumber].setCardNumber(0);
-            return promise;
-        }));
+        return [1, 2].map(function (discardNumber) { return _this.discardStocks[discardNumber].getCards(); }).flat();
+    };
+    Stacks.prototype.cleanDiscards = function () {
+        var _this = this;
+        [1, 2].forEach(function (discardNumber) { return _this.discardStocks[discardNumber].setCardNumber(0); });
     };
     Stacks.prototype.getDiscardDeck = function (discardNumber) {
         return this.discardStocks[discardNumber];
@@ -2982,14 +2982,14 @@ var SeaSaltPaper = /** @class */ (function () {
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        this.stacks.cleanDiscards(this.stacks.deck);
-                        cards = [];
+                        cards = this.stacks.getDiscardCards();
                         this.playersTables.forEach(function (playerTable) {
                             cards.push.apply(cards, playerTable.getAllCards());
                             _this.handCounters[playerTable.playerId].setValue(0);
                             playerTable.clearAnnouncement();
                         });
-                        return [4 /*yield*/, this.stacks.deck.addCards(cards)];
+                        this.stacks.cleanDiscards();
+                        return [4 /*yield*/, this.stacks.deck.addCards(cards, undefined, { visible: false })];
                     case 1:
                         _b.sent();
                         (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setHandPoints(0, [0, 0, 0, 0]);
