@@ -5,7 +5,7 @@
       "module": "none",
       "lib": ["dom", "esnext"],  
       "sourceMap": false,
-      "outFile": "seasaltpaper.js",
+      "outFile": "sspe.js",
     },
     "files": [
         "src/framework.d.ts",

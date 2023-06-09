@@ -533,17 +533,17 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             _('Orange'),
         ].map((label, index) => `<span class="label" data-row="${Math.floor(index / 2)}"  data-column="${Math.floor(index % 2)}">${label}</span>`).join('');
         dojo.place(`
-            <button id="seasaltpaper-help-button">?</button>
+            <button id="sspe-help-button">?</button>
             <button id="color-help-button" data-folded="true">${labels}</button>
         `, 'left-side');
-        document.getElementById('seasaltpaper-help-button').addEventListener('click', () => this.showHelp());
+        document.getElementById('sspe-help-button').addEventListener('click', () => this.showHelp());
         const helpButton = document.getElementById('color-help-button');
         helpButton.addEventListener('click', () => helpButton.dataset.folded = helpButton.dataset.folded == 'true' ? 'false' : 'true');
     }
 
     private showHelp() {
         const helpDialog = new ebg.popindialog();
-        helpDialog.create('seasaltpaperHelpDialog');
+        helpDialog.create('sspeHelpDialog');
         helpDialog.setTitle(_("Card details").toUpperCase());
 
         const duoCards = [1, 2, 3].map(family => `
@@ -746,7 +746,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     public takeAction(action: string, data?: any) {
         data = data || {};
         data.lock = true;
-        (this as any).ajaxcall(`/seasaltpaper/seasaltpaper/${action}.html`, data, this, () => {});
+        (this as any).ajaxcall(`/sspe/sspe/${action}.html`, data, this, () => {});
     }
 
     private startActionTimer(buttonId: string, time: number) {

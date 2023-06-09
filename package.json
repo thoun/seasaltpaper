@@ -1,11 +1,11 @@
 {
-  "name": "seasaltpaper",
+  "name": "sspe",
   "version": "1.0.0",
   "description": "",
-  "main": "seasaltpaper.js",
+  "main": "sspe.js",
   "scripts": {
     "build:ts": "tsc",
-    "build:scss": "sass --no-source-map src/seasaltpaper.scss seasaltpaper.css"
+    "build:scss": "sass --no-source-map src/seasaltpaper.scss sspe.css"
   },
   "author": "",
   "license": "ISC",

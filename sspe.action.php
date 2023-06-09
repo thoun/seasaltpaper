@@ -8,7 +8,7 @@
  * See http://en.doc.boardgamearena.com/Studio for more information.
  * -----
  * 
- * seasaltpaper.action.php
+ * sspe.action.php
  *
  * SeaSaltPaper main action entry point
  *
@@ -17,19 +17,19 @@
  * user interface logic (javascript).
  *       
  * If you define a method "myAction" here, then you can call it from your javascript code with:
- * this.ajaxcall( "/seasaltpaper/seasaltpaper/myAction.html", ...)
+ * this.ajaxcall( "/sspe/sspe/myAction.html", ...)
  *
  */
   
   
-  class action_seasaltpaper extends APP_GameAction { 
+  class action_sspe extends APP_GameAction { 
     // Constructor: please do not modify
    	public function __default() {
   	    if( self::isArg( 'notifwindow') ) {
             $this->view = "common_notifwindow";
   	        $this->viewArgs['table'] = self::getArg( "table", AT_posint, true );
   	    } else {
-            $this->view = "seasaltpaper_seasaltpaper";
+            $this->view = "sspe_sspe";
             self::trace( "Complete reinitialization of board game" );
       }
   	} 

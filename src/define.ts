@@ -5,5 +5,5 @@ define([
     "ebg/stock"
 ],
 function (dojo, declare) {
-    return declare("bgagame.seasaltpaper", ebg.core.gamegui, new SeaSaltPaper());
+    return declare("bgagame.sspe", ebg.core.gamegui, new SeaSaltPaper());
 });

@@ -8,7 +8,7 @@
   * See http://en.boardgamearena.com/#!doc/Studio for more information.
   * -----
   * 
-  * seasaltpaper.game.php
+  * sspe.game.php
   *
   * This is the main file for your game logic.
   *
@@ -26,7 +26,7 @@ require_once('modules/php/states.php');
 require_once('modules/php/args.php');
 require_once('modules/php/debug-util.php');
 
-class SeaSaltPaper extends Table {
+class Sspe extends Table {
     use UtilTrait;
     use ActionTrait;
     use StateTrait;
@@ -61,7 +61,7 @@ class SeaSaltPaper extends Table {
 	
     protected function getGameName() {
 		// Used for translations and stuff. Please do not modify.
-        return "seasaltpaper";
+        return "sspe";
     }	
 
     /*

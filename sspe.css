@@ -209,7 +209,7 @@ body > .card {
   left: calc(var(--thickness) * var(--yShadowShift) * -1);
 }
 
-.card-stock.deck > .card:first-of-type {
+.card-stock.deck > .card:first-child {
   box-shadow: calc(var(--thickness) * var(--xShadowShift)) calc(var(--thickness) * var(--yShadowShift)) 0px 0px #111, calc(var(--thickness) * var(--xShadowShift)) calc(var(--thickness) * var(--yShadowShift)) 2px 1px rgba(0, 0, 0, 0.5);
 }
 
@@ -776,7 +776,7 @@ body > .card {
   animation: selectable-card-animation 1s alternate infinite ease-in-out;
 }
 
-#seasaltpaper-help-button {
+#sspe-help-button {
   position: fixed;
   bottom: 12px;
   left: 5px;
@@ -858,16 +858,16 @@ body > .card {
 
 /* we show help button if user has no mouse ( = no tooltips) */
 @media (hover: hover) {
-  #seasaltpaper-help-button, #color-help-button {
+  #sspe-help-button, #color-help-button {
     bottom: 5px;
   }
 }
-#popin_seasaltpaperHelpDialog_contents {
+#popin_sspeHelpDialog_contents {
   max-width: 100vw;
   overflow-x: auto;
 }
 
-#popin_seasaltpaperHelpDialog {
+#popin_sspeHelpDialog {
   background: white;
   background-repeat: repeat;
   max-width: 100vw;

@@ -903,18 +903,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"seasaltpaper@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "seasaltpaper@workspace:."
-  dependencies:
-    bga-animations: "thoun/bga-animations#1.1.0"
-    bga-cards: "thoun/bga-cards#2.0.2"
-    bga-zoom: "thoun/bga-zoom#0.1.0"
-    sass: ^1.32.6
-    typescript: ^5.0.4
-  languageName: unknown
-  linkType: soft
-
 "semver@npm:^7.3.5":
   version: 7.5.1
   resolution: "semver@npm:7.5.1"
@@ -974,6 +962,18 @@ __metadata:
   checksum: c049a7fc4deb9a7e9b481ae3d424cc793cb4845daa690bc5a05d428bf41bf231ced49b4cf0c9e77f9d42fdb3d20d6187619fc586605f5eabe995a316da8d377c
   languageName: node
   linkType: hard
+
+"sspe@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "sspe@workspace:."
+  dependencies:
+    bga-animations: "thoun/bga-animations#1.1.0"
+    bga-cards: "thoun/bga-cards#2.0.2"
+    bga-zoom: "thoun/bga-zoom#0.1.0"
+    sass: ^1.32.6
+    typescript: ^5.0.4
+  languageName: unknown
+  linkType: soft
 
 "ssri@npm:^9.0.0":
   version: 9.0.1

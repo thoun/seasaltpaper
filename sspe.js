@@ -2636,15 +2636,15 @@ var SeaSaltPaper = /** @class */ (function () {
             _('Pink'),
             _('Orange'),
         ].map(function (label, index) { return "<span class=\"label\" data-row=\"".concat(Math.floor(index / 2), "\"  data-column=\"").concat(Math.floor(index % 2), "\">").concat(label, "</span>"); }).join('');
-        dojo.place("\n            <button id=\"seasaltpaper-help-button\">?</button>\n            <button id=\"color-help-button\" data-folded=\"true\">".concat(labels, "</button>\n        "), 'left-side');
-        document.getElementById('seasaltpaper-help-button').addEventListener('click', function () { return _this.showHelp(); });
+        dojo.place("\n            <button id=\"sspe-help-button\">?</button>\n            <button id=\"color-help-button\" data-folded=\"true\">".concat(labels, "</button>\n        "), 'left-side');
+        document.getElementById('sspe-help-button').addEventListener('click', function () { return _this.showHelp(); });
         var helpButton = document.getElementById('color-help-button');
         helpButton.addEventListener('click', function () { return helpButton.dataset.folded = helpButton.dataset.folded == 'true' ? 'false' : 'true'; });
     };
     SeaSaltPaper.prototype.showHelp = function () {
         var _this = this;
         var helpDialog = new ebg.popindialog();
-        helpDialog.create('seasaltpaperHelpDialog');
+        helpDialog.create('sspeHelpDialog');
         helpDialog.setTitle(_("Card details").toUpperCase());
         var duoCards = [1, 2, 3].map(function (family) { return "\n        <div class=\"help-section\">\n            <div id=\"help-pair-".concat(family, "\"></div>\n            <div>").concat(_this.cardsManager.getTooltip(2, family), "</div>\n        </div>\n        "); }).join('');
         var duoSection = "\n        ".concat(duoCards, "\n        <div class=\"help-section\">\n            <div id=\"help-pair-4\"></div>\n            <div id=\"help-pair-5\"></div>\n            <div>").concat(this.cardsManager.getTooltip(2, 4), "</div>\n        </div>\n        ").concat(_("Note: The points for duo cards count whether the cards have been played or not. However, the effect is only applied when the player places the two cards in front of them."));
@@ -2776,7 +2776,7 @@ var SeaSaltPaper = /** @class */ (function () {
     SeaSaltPaper.prototype.takeAction = function (action, data) {
         data = data || {};
         data.lock = true;
-        this.ajaxcall("/seasaltpaper/seasaltpaper/".concat(action, ".html"), data, this, function () { });
+        this.ajaxcall("/sspe/sspe/".concat(action, ".html"), data, this, function () { });
     };
     SeaSaltPaper.prototype.startActionTimer = function (buttonId, time) {
         var _a;
@@ -3066,5 +3066,5 @@ define([
     "ebg/counter",
     "ebg/stock"
 ], function (dojo, declare) {
-    return declare("bgagame.seasaltpaper", ebg.core.gamegui, new SeaSaltPaper());
+    return declare("bgagame.sspe", ebg.core.gamegui, new SeaSaltPaper());
 });
