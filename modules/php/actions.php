@@ -262,7 +262,7 @@ trait ActionTrait {
         switch ($families[0]) {
             case CRAB:
                 if ($families[1] == LOBSTER) {
-                    $action = clienttranslate('steals a random card from another player'); // TODO change power text
+                    $action = clienttranslate('takes the first five cards from the deck and keeps one of them');
                     $power = 6;
                 } else {
                     $action = clienttranslate('takes a card from a discard pile');
@@ -280,7 +280,7 @@ trait ActionTrait {
             case SWIMMER:
             case SHARK:
                 if ($families[0] == SWIMMER && $families[1] == JELLYFISH) {
-                    $action = clienttranslate('steals a random card from another player'); // TODO change power text
+                    $action = clienttranslate('forces the opposing players to only draw the first card from the deck on their next turn');
                     $power = 5;
                 } else {
                     $action = clienttranslate('steals a random card from another player');
@@ -305,10 +305,8 @@ trait ActionTrait {
 
         $this->incStat(1, 'playedDuoCards');
         $this->incStat(1, 'playedDuoCards', $playerId);
-        if ($power <= 4) { // TODO
-            $this->incStat(1, 'playedDuoCards'.$power);
-            $this->incStat(1, 'playedDuoCards'.$power, $playerId);
-        }
+        $this->incStat(1, 'playedDuoCards'.$power);
+        $this->incStat(1, 'playedDuoCards'.$power, $playerId);
 
         switch ($power) {
             case 1:
@@ -440,7 +438,7 @@ trait ActionTrait {
             $this->cards->moveCard($card->id, 'table'.$playerId, ++$count);
         }
 
-        self::notifyAllPlayers('playCards', /*TODO clienttranslate*/('${player_name} plays cards ${cardColor1} ${cardName1} and ${cardColor2} ${cardName2} with a ${cardColor3} ${cardName3}'), [
+        self::notifyAllPlayers('playCards', clienttranslate('${player_name} plays cards ${cardColor1} ${cardName1} and ${cardColor2} ${cardName2} with a ${cardColor3} ${cardName3}'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'cards' => $allCards,
@@ -454,6 +452,8 @@ trait ActionTrait {
             'preserve' => ['actionPlayerId'],
             'actionPlayerId' => $playerId,
         ]);
+
+        $this->updateCardsPoints($playerId);
 
         /*$this->incStat(1, 'playedDuoCards');
         $this->incStat(1, 'playedDuoCards', $playerId);*/ 

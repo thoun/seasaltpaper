@@ -70,7 +70,7 @@ define('LIGHTHOUSE', 1);
 define('SHOAL_FISH', 2);
 define('PENGUIN_COLONY', 3);
 define('CAPTAIN', 4);
-define('CRAB_CAB', 5); // TODO CHECK NAME
+define('CAST_CRAB', 5);
 // Special
 define('STARFISH', 1);
 define('SEAHORSE', 2);

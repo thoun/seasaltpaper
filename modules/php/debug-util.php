@@ -11,7 +11,7 @@ trait DebugUtilTrait {
             return;
         } 
 
-        $this->debugFillHands();
+        //$this->debugFillHands();
         //$this->debugFillTable();
         //$this->debugSetMermaids();
         //$this->debugSetMermaidOnDeckTop();
@@ -34,7 +34,7 @@ trait DebugUtilTrait {
         $this->debugSetCardInHand(2343492, PAIR, CRAB, DARK_BLUE);
         $this->debugSetCardInHand(2343492, PAIR, CRAB, LIGHT_BLUE);
         $this->debugSetCardInHand(2343492, PAIR, LOBSTER, BLACK);*/
-        //$this->debugSetCardInHand(2343492, SPECIAL, STARFISH, YELLOW);
+        $this->debugSetCardInHand(2343492, SPECIAL, STARFISH, YELLOW);
 
         $this->gamestate->changeActivePlayer(2343492);
     }
@@ -98,11 +98,7 @@ trait DebugUtilTrait {
         } 
 
 		// These are the id's from the BGAtable I need to debug.
-		$ids = [
-            92432695,
-            87587865,
-            88804802
-		];
+		$ids = array_map(fn($dbPlayer) => intval($dbPlayer['player_id']), array_values($this->getCollectionFromDb('select player_id from player order by player_no')));
 
 		// Id of the first player in BGA Studio
 		$sid = 2343492;
@@ -115,7 +111,9 @@ trait DebugUtilTrait {
 
 			// 'other' game specific tables. example:
 			// tables specific to your schema that use player_ids
-			$this->DbQuery("UPDATE placed_routes SET player_id=$sid WHERE player_id = $id" );
+			$this->DbQuery("UPDATE card SET card_location='table$sid' WHERE card_location = 'table$id'" );
+			$this->DbQuery("UPDATE card SET card_location='hand$sid' WHERE card_location = 'hand$id'" );
+			$this->DbQuery("UPDATE card SET card_location='tablehand$sid' WHERE card_location = 'tablehand$id'" );
 			
 			++$sid;
 		}

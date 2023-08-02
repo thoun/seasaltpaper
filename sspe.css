@@ -544,8 +544,6 @@ body > .card {
 .card .card-sides .card-side.front[data-category="4"][data-family="5"] {
   background-image: url("img/cards-expansion.jpg");
   background-size: auto 100%;
-}
-.card .card-sides .card-side.front[data-category="4"][data-family="5"][data-color="5"] {
   background-position-x: 42.8571428571%;
 }
 .card .card-sides .card-side[data-category="5"] {
@@ -561,7 +559,7 @@ body > .card {
 .card .card-sides .card-side[data-category="5"][data-family="1"][data-color="4"] {
   background-position-x: 85.7142857143%;
 }
-.card .card-sides .card-side[data-category="5"][data-family="2"][data-color="0"] {
+.card .card-sides .card-side[data-category="5"][data-family="2"] {
   background-position-x: 100%;
 }
 .card.bga-cards_selectable-card:not(.bga-cards_disabled-card):not(.bga-cards_selected-card) {
@@ -644,6 +642,21 @@ body > .card {
   left: 7px;
   position: absolute;
   width: 0;
+}
+
+html.expansion #table-center {
+  border-color: #1a5b93;
+  background: rgba(26, 91, 147, 0.4);
+}
+html.expansion #table-center #deck-and-discards #deck[data-empty=true] {
+  background: rgba(26, 91, 147, 0.4);
+  box-shadow: 5px 5px 3px rgba(26, 91, 147, 0.4);
+}
+html.expansion #table-center #pick[data-visible=true] {
+  background-color: #1a5b93;
+}
+html.expansion #table-center #pick[data-visible=true]::before {
+  border-color: #1a5b93 transparent;
 }
 
 #discard-pick {
@@ -911,6 +924,10 @@ body > .card {
 }
 html, .mode_3d #game_play_area_background {
   background: url("img/background.jpg");
+}
+
+html.expansion, html.expansion .mode_3d #game_play_area_background {
+  background: url("img/background-expansion.jpg");
 }
 
 #full-table {

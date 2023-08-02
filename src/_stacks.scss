@@ -68,6 +68,30 @@
     }
 }
 
+html.expansion {
+    #table-center {
+        border-color: #1a5b93;
+        background: #1a5b9366;
+
+        #deck-and-discards {
+            #deck {
+                &[data-empty="true"] {
+                    background: #1a5b9366;
+                    box-shadow: 5px 5px 3px #1a5b9366;
+                }
+            }
+        }
+
+        #pick[data-visible="true"] {
+            background-color: #1a5b93;
+
+            &::before {
+                border-color: #1a5b93 transparent;
+            }
+        }
+    }
+}
+
 #discard-pick {
     background: #FFFFFF66;
     display: flex;

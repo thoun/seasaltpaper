@@ -139,6 +139,16 @@ $commonStats = [
         "name" => totranslate("Point Multiplier cards collected"),
         "type" => "int"
     ],
+    "playedDuoCards5" => [
+        "id" => 29,
+        "name" => totranslate("Played duo swimmer/jellyfish cards"),
+        "type" => "int"
+    ],
+    "playedDuoCards6" => [
+        "id" => 30,
+        "name" => totranslate("Played duo crab/lobster cards"),
+        "type" => "int"
+    ],
 ];
 
 $stats_type = [

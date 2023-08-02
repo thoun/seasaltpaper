@@ -50,8 +50,8 @@ class CardsManager extends CardManager<Card> {
                 <strong>${_("Effect: If they place 4 mermaid cards, the player immediately wins the game.")}</strong>`;
             case 2:
                 const swimmerSharkEffect = _("The player steals a random card from another player and adds it to their hand.");
-                const swimmerJellyfishEffect = 'TODO';
-                const crabLobsterEffect = 'TODO';
+                const swimmerJellyfishEffect = _("On their next turn, opposing players can only draw the first card from the deck. They cannot play any cards nor end the round.");
+                const crabLobsterEffect = _("The player takes the first five cards from the deck, adds one of them to their hand, then returns the other four to the deck and shuffles it.");
                 
                 const duoCards = [
                     [_('Crab'), [
@@ -74,15 +74,15 @@ class CardsManager extends CardManager<Card> {
 
                 if (this.game.isExpansion()) {
                     duoCards[0][1].push(
-                        [/*TODO_*/('Lobster'), crabLobsterEffect],
+                        [_('Lobster'), crabLobsterEffect],
                     );
                     duoCards[3][1].push(
-                        [/*TODO_*/('Jellyfish'), swimmerJellyfishEffect],
+                        [_('Jellyfish'), swimmerJellyfishEffect],
                     );
-                    duoCards.push([/*TODO_*/('Jellyfish'), [
+                    duoCards.push([_('Jellyfish'), [
                         [_('Swimmer'), swimmerJellyfishEffect]
                     ], 2], 
-                    [/*TODO_*/('Lobster'), [
+                    [_('Lobster'), [
                         [_('Crab'), crabLobsterEffect]
                     ], 1], )
                 }
@@ -90,7 +90,7 @@ class CardsManager extends CardManager<Card> {
                 const duo = duoCards[family - 1];
                 let html = `<div><strong>${duo[0]}</strong> ${withCount ? `(x${duo[2]})` : ''}</div>
                 <div>${_("1 point for each valid pair of cards.")}</div><br>
-                <div>${_("Effect:")}</div>`;
+                <div>${_("Effect:")}</div><div>`;
                 duo[1].forEach(possiblePair => {
                     html += `<div><i>${(possiblePair[0] == duo[0] ? _("With another ${card_type}:") : _("With a ${card_type}:")).replace('${card_type}', possiblePair[0])}</i> ${possiblePair[1]}</div>`;
                 });
@@ -112,7 +112,7 @@ class CardsManager extends CardManager<Card> {
                     [_('The shoal of fish'), _('Fish'), 1],
                     [_('The penguin colony'), _('Penguin'), 2],
                     [_('The captain'), _('Sailor'), 3],
-                    [/*TODO_*/('The carb cab'), _('Crab'), 1], // TODO CHECK NAME
+                    [('The cast of crabs'), _('Crab'), 1],
                 ];
                 const multiplier = multiplierCards[family - 1];
                 return `<div><strong>${multiplier[0]}</strong> (x1)</div>
@@ -120,12 +120,12 @@ class CardsManager extends CardManager<Card> {
                 <div>${_("This card does not count as a ${card} card.").replace('${card}', multiplier[1])}</div>`;
             case 5:
             const specialCards = [
-                [/*TODO_*/('Starfish'), 3],
-                [/*TODO_*/('Seahorse'), 1],
+                [_('Starfish'), 3, _("If a player has a duo and a starfish card in their hand, they can form a trio and place these three cards in front of them. The starfish adds 2 points to the duo (so the trio is worth 3 points). Cancels the effect of the duo cards placed with the starfish.")],
+                [_('Seahorse'), 1, _("The player can use the seahorse to replace a missing Collector card (octopus, shell, penguin or sailor). They must have at least one card for that collection in their hand. They cannot gain more points than the maximum indicated on the matching Collector card.")],
             ];
             const special = specialCards[family - 1];
             return `<div><strong>${special[0]}</strong> (x${special[1]})</div>
-            <div>${'TODO'}</div>`;
+            <div>${special[2]}</div>`;
         }
             
     }

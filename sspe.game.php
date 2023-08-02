@@ -101,12 +101,6 @@ class Sspe extends Table {
         $this->setGameStateInitialValue(FORCE_TAKE_ONE, 0);
         $this->setGameStateInitialValue(LOBSTER_POWER, 0);
 
-        // TODO TEMP
-        /*if ($this->getBgaEnvironment() == 'studio') {
-            $this->setGameStateInitialValue(EXPANSION, 1);
-            $this->setGameStateInitialValue(DOUBLE_POINTS, 1);
-        }*/
-
         $isExpansion = $this->isExpansion();
         
         // Init game statistics
@@ -117,7 +111,8 @@ class Sspe extends Table {
             $this->initStat($statType, 'takeCardFromDeck', 0);
             $this->initStat($statType, 'takeFromDiscard', 0);
             $this->initStat($statType, 'playedDuoCards', 0);
-            foreach([1,2,3,4] as $number) {
+            $possiblePowers = $isExpansion ? [1,2,3,4,5,6] : [1,2,3,4];
+            foreach($possiblePowers as $number) {
                 $this->initStat($statType, 'playedDuoCards'.$number, 0);
             }
             $this->initStat($statType, 'announce', 0);

@@ -111,7 +111,7 @@ $this->EXPANSION_CARDS = [
 
   new LobsterPairCard(BLACK),
 
-  new MultiplierCard(CRAB_CAB, PAIR, CRAB, GREEN, 1),
+  new MultiplierCard(CAST_CRAB, PAIR, CRAB, GREEN, 1),
 
   new SpecialCard(STARFISH, DARK_BLUE),
   new SpecialCard(STARFISH, LIGHT_BLUE),
