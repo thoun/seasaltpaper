@@ -1805,8 +1805,8 @@ var CardsManager = /** @class */ (function (_super) {
                 return "\n                <div><strong>".concat(_("Mermaid"), "</strong> ").concat(withCount ? '(x4)' : '', "</div>\n                ").concat(_("1 point for each card of the color the player has the most of. If they have more mermaid cards, they must look at which of the other colors they have more of. The same color cannot be counted for more than one mermaid card."), "\n                <br><br>\n                <strong>").concat(_("Effect: If they place 4 mermaid cards, the player immediately wins the game."), "</strong>");
             case 2:
                 var swimmerSharkEffect = _("The player steals a random card from another player and adds it to their hand.");
-                var swimmerJellyfishEffect = 'TODO';
-                var crabLobsterEffect = 'TODO';
+                var swimmerJellyfishEffect = _("On their next turn, opposing players can only draw the first card from the deck. They cannot play any cards nor end the round.");
+                var crabLobsterEffect = _("The player takes the first five cards from the deck, adds one of them to their hand, then returns the other four to the deck and shuffles it.");
                 var duoCards = [
                     [_('Crab'), [
                             [_('Crab'), _("The player chooses a discard pile, consults it without shuffling it, and chooses a card from it to add to their hand. They do not have to show it to the other players.")],
@@ -1825,16 +1825,16 @@ var CardsManager = /** @class */ (function (_super) {
                         ], 5],
                 ];
                 if (this.game.isExpansion()) {
-                    duoCards[0][1].push([/*TODO_*/ ('Lobster'), crabLobsterEffect]);
-                    duoCards[3][1].push([/*TODO_*/ ('Jellyfish'), swimmerJellyfishEffect]);
-                    duoCards.push([/*TODO_*/ ('Jellyfish'), [
+                    duoCards[0][1].push([_('Lobster'), crabLobsterEffect]);
+                    duoCards[3][1].push([_('Jellyfish'), swimmerJellyfishEffect]);
+                    duoCards.push([_('Jellyfish'), [
                             [_('Swimmer'), swimmerJellyfishEffect]
-                        ], 2], [/*TODO_*/ ('Lobster'), [
+                        ], 2], [_('Lobster'), [
                             [_('Crab'), crabLobsterEffect]
                         ], 1]);
                 }
                 var duo_1 = duoCards[family - 1];
-                var html_1 = "<div><strong>".concat(duo_1[0], "</strong> ").concat(withCount ? "(x".concat(duo_1[2], ")") : '', "</div>\n                <div>").concat(_("1 point for each valid pair of cards."), "</div><br>\n                <div>").concat(_("Effect:"), "</div>");
+                var html_1 = "<div><strong>".concat(duo_1[0], "</strong> ").concat(withCount ? "(x".concat(duo_1[2], ")") : '', "</div>\n                <div>").concat(_("1 point for each valid pair of cards."), "</div><br>\n                <div>").concat(_("Effect:"), "</div><div>");
                 duo_1[1].forEach(function (possiblePair) {
                     html_1 += "<div><i>".concat((possiblePair[0] == duo_1[0] ? _("With another ${card_type}:") : _("With a ${card_type}:")).replace('${card_type}', possiblePair[0]), "</i> ").concat(possiblePair[1], "</div>");
                 });
@@ -1855,17 +1855,17 @@ var CardsManager = /** @class */ (function (_super) {
                     [_('The shoal of fish'), _('Fish'), 1],
                     [_('The penguin colony'), _('Penguin'), 2],
                     [_('The captain'), _('Sailor'), 3],
-                    [/*TODO_*/ ('The carb cab'), _('Crab'), 1], // TODO CHECK NAME
+                    [('The cast of crabs'), _('Crab'), 1],
                 ];
                 var multiplier = multiplierCards[family - 1];
                 return "<div><strong>".concat(multiplier[0], "</strong> (x1)</div>\n                <div>").concat(_("${points} point(s) per ${card} card.").replace('${points}', multiplier[2]).replace('${card}', multiplier[1]), "</div>\n                <div>").concat(_("This card does not count as a ${card} card.").replace('${card}', multiplier[1]), "</div>");
             case 5:
                 var specialCards = [
-                    [/*TODO_*/ ('Starfish'), 3],
-                    [/*TODO_*/ ('Seahorse'), 1],
+                    [_('Starfish'), 3, _("If a player has a duo and a starfish card in their hand, they can form a trio and place these three cards in front of them. The starfish adds 2 points to the duo (so the trio is worth 3 points). Cancels the effect of the duo cards placed with the starfish.")],
+                    [_('Seahorse'), 1, _("The player can use the seahorse to replace a missing Collector card (octopus, shell, penguin or sailor). They must have at least one card for that collection in their hand. They cannot gain more points than the maximum indicated on the matching Collector card.")],
                 ];
                 var special = specialCards[family - 1];
-                return "<div><strong>".concat(special[0], "</strong> (x").concat(special[1], ")</div>\n            <div>").concat('TODO', "</div>");
+                return "<div><strong>".concat(special[0], "</strong> (x").concat(special[1], ")</div>\n            <div>").concat(special[2], "</div>");
         }
     };
     CardsManager.prototype.setForHelp = function (card, divId) {
@@ -2158,7 +2158,7 @@ var PlayerTable = /** @class */ (function () {
             var disabled = false;
             if (card.category != PAIR) {
                 if (card.category == SPECIAL && card.family == STARFISH) {
-                    disabled = selectedStarfishCards.length > 0 && !selectedStarfishCards.some(function (c) { return c.id == card.id; });
+                    disabled = !playableDuoCardFamilies.length || (selectedStarfishCards.length > 0 && !selectedStarfishCards.some(function (c) { return c.id == card.id; }));
                 }
                 else {
                     disabled = true;
@@ -2209,6 +2209,13 @@ var SeaSaltPaper = /** @class */ (function () {
     SeaSaltPaper.prototype.setup = function (gamedatas) {
         var _this = this;
         log("Starting game setup");
+        if (gamedatas.expansion) {
+            this.dontPreloadImage('background.jpg');
+            document.getElementsByTagName('html')[0].classList.add('expansion');
+        }
+        else {
+            this.dontPreloadImage('background-expansion.jpg');
+        }
         this.gamedatas = gamedatas;
         log('gamedatas', gamedatas);
         this.animationManager = new AnimationManager(this);
@@ -2402,7 +2409,7 @@ var SeaSaltPaper = /** @class */ (function () {
             switch (stateName) {
                 case 'takeCards':
                     if (args.forceTakeOne) {
-                        this.addActionButton("takeFirstCard_button", /*TODO_*/ ("Take the first card"), function () { return _this.takeCardsFromDeck(); });
+                        this.addActionButton("takeFirstCard_button", _("Take the first card"), function () { return _this.takeCardsFromDeck(); });
                     }
                     break;
                 case 'playCards':
@@ -2646,17 +2653,26 @@ var SeaSaltPaper = /** @class */ (function () {
         var helpDialog = new ebg.popindialog();
         helpDialog.create('seasaltpaperHelpDialog');
         helpDialog.setTitle(_("Card details").toUpperCase());
-        var duoCards = [1, 2, 3].map(function (family) { return "\n        <div class=\"help-section\">\n            <div id=\"help-pair-".concat(family, "\"></div>\n            <div>").concat(_this.cardsManager.getTooltip(2, family), "</div>\n        </div>\n        "); }).join('');
-        var duoSection = "\n        ".concat(duoCards, "\n        <div class=\"help-section\">\n            <div id=\"help-pair-4\"></div>\n            <div id=\"help-pair-5\"></div>\n            <div>").concat(this.cardsManager.getTooltip(2, 4), "</div>\n        </div>\n        ").concat(_("Note: The points for duo cards count whether the cards have been played or not. However, the effect is only applied when the player places the two cards in front of them."));
+        var expansion = this.isExpansion();
+        var duoCardsNumbers = expansion ? [1, 2, 3, 4, 5, 6, 7] : [1, 2, 3, 4, 5];
+        var multiplierNumbers = expansion ? [1, 2, 3, 4, 5] : [1, 2, 3, 4];
+        var duoCards = duoCardsNumbers.map(function (family) { return "\n        <div class=\"help-section\">\n            <div id=\"help-pair-".concat(family, "\"></div>\n            <div>").concat(_this.cardsManager.getTooltip(2, family), "</div>\n        </div>\n        "); }).join('');
+        var duoSection = "\n        ".concat(duoCards, "\n        ").concat(_("Note: The points for duo cards count whether the cards have been played or not. However, the effect is only applied when the player places the two cards in front of them."));
         var mermaidSection = "\n        <div class=\"help-section\">\n            <div id=\"help-mermaid\"></div>\n            <div>".concat(this.cardsManager.getTooltip(1), "</div>\n        </div>");
         var collectorSection = [1, 2, 3, 4].map(function (family) { return "\n        <div class=\"help-section\">\n            <div id=\"help-collector-".concat(family, "\"></div>\n            <div>").concat(_this.cardsManager.getTooltip(3, family), "</div>\n        </div>\n        "); }).join('');
-        var multiplierSection = [1, 2, 3, 4].map(function (family) { return "\n        <div class=\"help-section\">\n            <div id=\"help-multiplier-".concat(family, "\"></div>\n            <div>").concat(_this.cardsManager.getTooltip(4, family), "</div>\n        </div>\n        "); }).join('');
-        var html = "\n        <div id=\"help-popin\">\n            ".concat(_("<strong>Important:</strong> When it is said that the player counts or scores the points on their cards, it means both those in their hand and those in front of them."), "\n\n            <h1>").concat(_("Duo cards"), "</h1>\n            ").concat(duoSection, "\n            <h1>").concat(_("Mermaid cards"), "</h1>\n            ").concat(mermaidSection, "\n            <h1>").concat(_("Collector cards"), "</h1>\n            ").concat(collectorSection, "\n            <h1>").concat(_("Point Multiplier cards"), "</h1>\n            ").concat(multiplierSection, "\n        </div>\n        ");
+        var multiplierSection = multiplierNumbers.map(function (family) { return "\n        <div class=\"help-section\">\n            <div id=\"help-multiplier-".concat(family, "\"></div>\n            <div>").concat(_this.cardsManager.getTooltip(4, family), "</div>\n        </div>\n        "); }).join('');
+        var html = "\n        <div id=\"help-popin\">\n            ".concat(_("<strong>Important:</strong> When it is said that the player counts or scores the points on their cards, it means both those in their hand and those in front of them."), "\n\n            <h1>").concat(_("Duo cards"), "</h1>\n            ").concat(duoSection, "\n            <h1>").concat(_("Mermaid cards"), "</h1>\n            ").concat(mermaidSection, "\n            <h1>").concat(_("Collector cards"), "</h1>\n            ").concat(collectorSection, "\n            <h1>").concat(_("Point Multiplier cards"), "</h1>\n            ").concat(multiplierSection, "\n        ");
+        if (expansion) {
+            var specialSection = [1, 2].map(function (family) { return "\n            <div class=\"help-section\">\n                <div id=\"help-special-".concat(family, "\"></div>\n                <div>").concat(_this.cardsManager.getTooltip(5, family), "</div>\n            </div>\n            "); }).join('');
+            html += "\n                <h1>".concat(_("Special cards"), "</h1>\n                ").concat(specialSection, "\n            ");
+        }
+        html += "\n        </div>\n        ";
         // Show the dialog
         helpDialog.setContent(html);
         helpDialog.show();
         // pair
-        [[1, 1], [2, 2], [3, 3], [4, 4], [5, 5]].forEach(function (_a) {
+        var duoCardsPairs = expansion ? [[1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 3]] : [[1, 1], [2, 2], [3, 3], [4, 4], [5, 5]];
+        duoCardsPairs.forEach(function (_a) {
             var family = _a[0], color = _a[1];
             return _this.cardsManager.setForHelp({ id: 1020 + family, category: 2, family: family, color: color, index: 0 }, "help-pair-".concat(family));
         });
@@ -2668,7 +2684,14 @@ var SeaSaltPaper = /** @class */ (function () {
             return _this.cardsManager.setForHelp({ id: 1030 + family, category: 3, family: family, color: color, index: 0 }, "help-collector-".concat(family));
         });
         // multiplier
-        [1, 2, 3, 4].forEach(function (family) { return _this.cardsManager.setForHelp({ id: 1040 + family, category: 4, family: family }, "help-multiplier-".concat(family)); });
+        multiplierNumbers.forEach(function (family) { return _this.cardsManager.setForHelp({ id: 1040 + family, category: 4, family: family }, "help-multiplier-".concat(family)); });
+        if (expansion) {
+            // special
+            [[1, 1], [2, 0]].forEach(function (_a) {
+                var family = _a[0], color = _a[1];
+                return _this.cardsManager.setForHelp({ id: 1050 + family, category: 5, family: family, color: color }, "help-special-".concat(family));
+            });
+        }
     };
     SeaSaltPaper.prototype.takeCardsFromDeck = function () {
         if (!this.checkAction('takeCardsFromDeck')) {

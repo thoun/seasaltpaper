@@ -119,7 +119,7 @@ class CardsPoints {
         }
         
         // Multipliers
-        for ($family = LIGHTHOUSE; $family <= CRAB_CAB; $family++) {
+        for ($family = LIGHTHOUSE; $family <= CAST_CRAB; $family++) {
             $multiplierCardsOfFamily = array_values(array_filter($multiplierCards, fn($card) => $card->family == $family));
             if (count($multiplierCardsOfFamily) > 0) {
                 $multiplierCard = $multiplierCardsOfFamily[0];

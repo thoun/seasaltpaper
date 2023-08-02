@@ -69,11 +69,11 @@ trait UtilTrait {
     }
 
     function isExpansion() {
-        return intval($this->getGameStateValue(EXPANSION)) == 1;
+        return intval($this->getGameStateValue(EXPANSION)) == 2;
     }
 
     function isDoublePoints() {
-        return intval($this->getGameStateValue(DOUBLE_POINTS)) == 1;
+        return intval($this->getGameStateValue(DOUBLE_POINTS)) == 2;
     }
 
     function getMaxScore() {
@@ -274,8 +274,8 @@ trait UtilTrait {
                     case FISH: return clienttranslate('Fish');
                     case SWIMMER: return clienttranslate('Swimmer');
                     case SHARK: return clienttranslate('Shark');
-                    case JELLYFISH: return /*TODO clienttranslate*/('Jellyfish');
-                    case LOBSTER: return /*TODO clienttranslate*/('Lobster');
+                    case JELLYFISH: return clienttranslate('Jellyfish');
+                    case LOBSTER: return clienttranslate('Lobster');
                 }
                 break;
             case COLLECTION:
@@ -292,13 +292,13 @@ trait UtilTrait {
                     case SHOAL_FISH: return clienttranslate('The shoal of fish');
                     case PENGUIN_COLONY: return clienttranslate('The penguin colony');
                     case CAPTAIN: return clienttranslate('The captain');
-                    case CRAB_CAB: return /*TODO clienttranslate*/('Crab Cab'); // TODO CHECK NAME
+                    case CAST_CRAB: return clienttranslate('The cast of crabs');
                 }
                 break;
             case SPECIAL:
                 switch ($card->family) {
-                    case STARFISH: return /*TODO clienttranslate*/('Starfish');
-                    case SEAHORSE: return /*TODO clienttranslate*/('Seahorse');
+                    case STARFISH: return clienttranslate('Starfish');
+                    case SEAHORSE: return clienttranslate('Seahorse');
                 }
                 break;
         }
@@ -316,7 +316,7 @@ trait UtilTrait {
 
     function cardCollected(int $playerId, Card $card) {
         $number = $card->category;
-        if ($number <= 4) { // TODO
+        if ($number <= 4) {
             $this->incStat(1, 'cardsCollected'.$number);
             $this->incStat(1, 'cardsCollected'.$number, $playerId);
         }

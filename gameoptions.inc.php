@@ -24,7 +24,42 @@
  *
  */
 
-$game_options = [];
+require_once("modules/php/constants.inc.php");
+
+$game_options = [
+
+    EXPANSION => [
+        'name' => totranslate('Extra Salt expansion'),
+        'values' => [
+            1 => [
+                'name' => totranslate('Disabled'),
+            ],
+            2 => [
+                'name' => totranslate('Enabled'),
+                'tmdisplay' => totranslate('Extra Salt expansion'),
+                'description' => totranslate('An additional set of 8 cards, including 5 new effects'),
+                'nobeginner' => true,
+            ],
+        ],
+        'default' => 2, // TODO just for alpha test
+    ],
+
+    DOUBLE_POINTS => [
+        'name' => totranslate('Double points'),
+        'values' => [
+            1 => [
+                'name' => totranslate('Disabled'),
+            ],
+            2 => [
+                'name' => totranslate('Enabled'),
+                'tmdisplay' => totranslate('Double points'),
+                'description' => totranslate('Points to win is 80/70/60 instead of 40/35/30'),
+                'nobeginner' => true,
+            ],
+        ],
+        'default' => 1,
+    ],
+];
 
 
 $game_preferences = [    

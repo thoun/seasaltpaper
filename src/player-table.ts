@@ -218,7 +218,7 @@ class PlayerTable {
             let disabled = false;
             if (card.category != PAIR) {
                 if (card.category == SPECIAL && card.family == STARFISH) {
-                    disabled = selectedStarfishCards.length > 0 && !selectedStarfishCards.some(c => c.id == card.id);
+                    disabled = !playableDuoCardFamilies.length || (selectedStarfishCards.length > 0 && !selectedStarfishCards.some(c => c.id == card.id));
                 } else {
                     disabled = true;
                 }

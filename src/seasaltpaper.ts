@@ -47,6 +47,13 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
     public setup(gamedatas: SeaSaltPaperGamedatas) {
         log( "Starting game setup" );
+
+        if (gamedatas.expansion) {
+            (this as any).dontPreloadImage('background.jpg');
+            document.getElementsByTagName('html')[0].classList.add('expansion');
+        } else {
+            (this as any).dontPreloadImage('background-expansion.jpg');
+        }
         
         this.gamedatas = gamedatas;
 
@@ -263,7 +270,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                 
                 case 'takeCards':
                     if (args.forceTakeOne) {
-                        (this as any).addActionButton(`takeFirstCard_button`, /*TODO_*/("Take the first card"), () => this.takeCardsFromDeck());
+                        (this as any).addActionButton(`takeFirstCard_button`, _("Take the first card"), () => this.takeCardsFromDeck());
                     }
                     break;
                 case 'playCards':
@@ -518,7 +525,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         }
     }
 
-    private addHelp() { // TODO see if we always show expansion cards on the help, or just when activated
+    private addHelp() {
         let labels = [
             _('Dark blue'),
             _('Light blue'),
@@ -546,7 +553,12 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         helpDialog.create('seasaltpaperHelpDialog');
         helpDialog.setTitle(_("Card details").toUpperCase());
 
-        const duoCards = [1, 2, 3].map(family => `
+        const expansion = this.isExpansion();
+
+        const duoCardsNumbers = expansion ? [1, 2, 3, 4, 5, 6, 7] : [1, 2, 3, 4, 5];
+        const multiplierNumbers = expansion ? [1, 2, 3, 4, 5] : [1, 2, 3, 4];
+
+        const duoCards = duoCardsNumbers.map(family => `
         <div class="help-section">
             <div id="help-pair-${family}"></div>
             <div>${this.cardsManager.getTooltip(2, family)}</div>
@@ -555,11 +567,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
         const duoSection = `
         ${duoCards}
-        <div class="help-section">
-            <div id="help-pair-4"></div>
-            <div id="help-pair-5"></div>
-            <div>${this.cardsManager.getTooltip(2, 4)}</div>
-        </div>
         ${_("Note: The points for duo cards count whether the cards have been played or not. However, the effect is only applied when the player places the two cards in front of them.")}`;
 
         const mermaidSection = `
@@ -575,7 +582,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         </div>
         `).join('');
 
-        const multiplierSection = [1, 2, 3, 4].map(family => `
+        const multiplierSection = multiplierNumbers.map(family => `
         <div class="help-section">
             <div id="help-multiplier-${family}"></div>
             <div>${this.cardsManager.getTooltip(4, family)}</div>
@@ -594,6 +601,23 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             ${collectorSection}
             <h1>${_("Point Multiplier cards")}</h1>
             ${multiplierSection}
+        `;
+
+        if (expansion) {
+            const specialSection = [1, 2].map(family => `
+            <div class="help-section">
+                <div id="help-special-${family}"></div>
+                <div>${this.cardsManager.getTooltip(5, family)}</div>
+            </div>
+            `).join('');
+
+            html += `
+                <h1>${_("Special cards")}</h1>
+                ${specialSection}
+            `;
+
+        }
+        html += `
         </div>
         `;
         
@@ -603,13 +627,18 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         helpDialog.show();
 
         // pair
-        [[1, 1], [2, 2], [3, 3], [4, 4], [5, 5]].forEach(([family, color]) => this.cardsManager.setForHelp({id: 1020 + family, category: 2, family, color, index: 0 } as any, `help-pair-${family}`));
+        const duoCardsPairs = expansion ? [[1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 3]] : [[1, 1], [2, 2], [3, 3], [4, 4], [5, 5]];
+        duoCardsPairs.forEach(([family, color]) => this.cardsManager.setForHelp({id: 1020 + family, category: 2, family, color, index: 0 } as any, `help-pair-${family}`));
         // mermaid
         this.cardsManager.setForHelp({id: 1010, category: 1 } as any, `help-mermaid`);
         // collector
         [[1, 1], [2, 2], [3, 6], [4, 9]].forEach(([family, color]) => this.cardsManager.setForHelp({id: 1030 + family, category: 3, family, color, index: 0 } as any, `help-collector-${family}`));
         // multiplier
-        [1, 2, 3, 4].forEach(family => this.cardsManager.setForHelp({id: 1040 + family, category: 4, family } as any, `help-multiplier-${family}`));
+        multiplierNumbers.forEach(family => this.cardsManager.setForHelp({id: 1040 + family, category: 4, family } as any, `help-multiplier-${family}`));
+        if (expansion) {
+            // special
+            [[1, 1], [2, 0]].forEach(([family, color]) => this.cardsManager.setForHelp({id: 1050 + family, category: 5, family, color } as any, `help-special-${family}`));
+        }
     }
 
     public takeCardsFromDeck() {

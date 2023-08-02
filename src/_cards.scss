@@ -22,7 +22,7 @@ $LIGHTHOUSE: 1;
 $SHOAL_FISH: 2;
 $PENGUIN_COLONY: 3;
 $CAPTAIN: 4;
-$CRAB_CAB: 5;
+$CAST_CRAB: 5;
 // Special family
 $STARFISH: 1;
 $SEAHORSE: 2;
@@ -316,13 +316,13 @@ $ORANGE: 10;
                         background-position-x: #{4 * 100% / 9};
                         background-position-y: 100%;
                     }
-                    &[data-family="#{$CRAB_CAB}"] {
+                    &[data-family="#{$CAST_CRAB}"] {
                         background-image: url('img/cards-expansion.jpg');
                         background-size: auto 100%;
                         
-                        &[data-color="#{$GREEN}"] {
+                        //&[data-color="#{$GREEN}"] {
                             background-position-x: #{3 * 100% / 7};
-                        }
+                        //}
                     }
                 }
             }
@@ -343,9 +343,9 @@ $ORANGE: 10;
                     }
                 }
                 &[data-family="#{$SEAHORSE}"] {
-                    &[data-color="#{$WHITE}"] {
+                    //&[data-color="#{$WHITE}"] {
                         background-position-x: #{7 * 100% / 7};
-                    }
+                    //}
                 }
             }
         }
