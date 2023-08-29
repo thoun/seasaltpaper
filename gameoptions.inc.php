@@ -28,7 +28,7 @@ require_once("modules/php/constants.inc.php");
 
 $game_options = [
 
-    /*EXPANSION => [
+    EXPANSION => [
         'name' => totranslate('Extra Salt expansion'),
         'values' => [
             1 => [
@@ -76,7 +76,7 @@ $game_options = [
                 ] 
             ],
         ],
-    ],*/
+    ],
 ];
 
 $game_preferences = [    
