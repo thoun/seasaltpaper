@@ -28,7 +28,7 @@ require_once("modules/php/constants.inc.php");
 
 $game_options = [
 
-    EXPANSION => [
+    /*EXPANSION => [
         'name' => totranslate('Extra Salt expansion'),
         'values' => [
             1 => [
@@ -41,7 +41,16 @@ $game_options = [
                 'nobeginner' => true,
             ],
         ],
-        'default' => 2, // TODO just for alpha test
+        'default' => 1,
+        'startcondition' => [
+            2 => [
+                [ 
+                    'type' => 'minplayers',
+                    'value' => 9,
+                    'message' => 'Available soon',
+                ] 
+            ],
+        ],
     ],
 
     DOUBLE_POINTS => [
@@ -58,9 +67,17 @@ $game_options = [
             ],
         ],
         'default' => 1,
-    ],
+        'startcondition' => [
+            2 => [
+                [ 
+                    'type' => 'minplayers',
+                    'value' => 9,
+                    'message' => 'Available soon',
+                ] 
+            ],
+        ],
+    ],*/
 ];
-
 
 $game_preferences = [    
     202 => [
