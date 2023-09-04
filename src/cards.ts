@@ -112,7 +112,7 @@ class CardsManager extends CardManager<Card> {
                     [_('The shoal of fish'), _('Fish'), 1],
                     [_('The penguin colony'), _('Penguin'), 2],
                     [_('The captain'), _('Sailor'), 3],
-                    [('The cast of crabs'), _('Crab'), 1],
+                    [_('The cast of crabs'), _('Crab'), 1],
                 ];
                 const multiplier = multiplierCards[family - 1];
                 return `<div><strong>${multiplier[0]}</strong> (x1)</div>

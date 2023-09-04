@@ -1362,6 +1362,7 @@ var Deck = /** @class */ (function (_super) {
                 thickness = index;
             }
         });
+        console.log(cardNumber, thickness, this.thicknesses);
         this.element.style.setProperty('--thickness', "".concat(thickness, "px"));
         var counterDiv = this.element.querySelector('.bga-cards_deck-counter');
         if (counterDiv) {
@@ -1855,7 +1856,7 @@ var CardsManager = /** @class */ (function (_super) {
                     [_('The shoal of fish'), _('Fish'), 1],
                     [_('The penguin colony'), _('Penguin'), 2],
                     [_('The captain'), _('Sailor'), 3],
-                    [('The cast of crabs'), _('Crab'), 1],
+                    [_('The cast of crabs'), _('Crab'), 1],
                 ];
                 var multiplier = multiplierCards[family - 1];
                 return "<div><strong>".concat(multiplier[0], "</strong> (x1)</div>\n                <div>").concat(_("${points} point(s) per ${card} card.").replace('${points}', multiplier[2]).replace('${card}', multiplier[1]), "</div>\n                <div>").concat(_("This card does not count as a ${card} card.").replace('${card}', multiplier[1]), "</div>");
