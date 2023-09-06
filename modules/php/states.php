@@ -225,6 +225,7 @@ trait StateTrait {
         if ($this->isLastRound()) {
             $this->gamestate->nextState('endScore');
         } else {
+            $this->setGameStateValue(FORCE_TAKE_ONE, 0);
             $this->gamestate->setAllPlayersMultiactive();
         }
     }

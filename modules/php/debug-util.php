@@ -35,6 +35,8 @@ trait DebugUtilTrait {
         $this->debugSetCardInHand(2343492, PAIR, CRAB, LIGHT_BLUE);
         $this->debugSetCardInHand(2343492, PAIR, LOBSTER, BLACK);*/
         //$this->debugSetCardInHand(2343492, SPECIAL, STARFISH, YELLOW);
+        $this->debugSetCardInHand(2343492, PAIR, JELLYFISH, PURPLE);
+        $this->debugSetCardInHand(2343492, PAIR, SWIMMER, LIGHT_BLUE);
 
         $this->gamestate->changeActivePlayer(2343492);
     }
