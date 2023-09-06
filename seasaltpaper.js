@@ -2631,6 +2631,17 @@ var SeaSaltPaper = /** @class */ (function () {
     };
     SeaSaltPaper.prototype.addHelp = function () {
         var _this = this;
+        var quantities = [
+            9, 9,
+            8, 8,
+            6, 4,
+            4, 4,
+            3, 2,
+            1,
+        ];
+        if (this.isExpansion()) {
+            [6, 9, 2, 4, 0, 1, 3, 5].forEach(function (index) { return quantities[index] += 1; });
+        }
         var labels = [
             _('Dark blue'),
             _('Light blue'),
@@ -2643,7 +2654,7 @@ var SeaSaltPaper = /** @class */ (function () {
             _('Light orange'),
             _('Pink'),
             _('Orange'),
-        ].map(function (label, index) { return "<span class=\"label\" data-row=\"".concat(Math.floor(index / 2), "\"  data-column=\"").concat(Math.floor(index % 2), "\">").concat(label, "</span>"); }).join('');
+        ].map(function (label, index) { return "\n            <span class=\"label\" data-row=\"".concat(Math.floor(index / 2), "\" data-column=\"").concat(Math.floor(index % 2), "\">").concat(label, "</span>\n            <span class=\"quantity\" data-row=\"").concat(Math.floor(index / 2), "\" data-column=\"").concat(Math.floor(index % 2), "\">&times; ").concat(quantities[index], "</span>\n            "); }).join('');
         dojo.place("\n            <button id=\"seasaltpaper-help-button\">?</button>\n            <button id=\"color-help-button\" data-folded=\"true\">".concat(labels, "</button>\n        "), 'left-side');
         document.getElementById('seasaltpaper-help-button').addEventListener('click', function () { return _this.showHelp(); });
         var helpButton = document.getElementById('color-help-button');

@@ -209,7 +209,7 @@ body > .card {
   left: calc(var(--thickness) * var(--yShadowShift) * -1);
 }
 
-.card-stock.deck > .card:first-of-type {
+.card-stock.deck > .card:first-child {
   box-shadow: calc(var(--thickness) * var(--xShadowShift)) calc(var(--thickness) * var(--yShadowShift)) 0px 0px #111, calc(var(--thickness) * var(--xShadowShift)) calc(var(--thickness) * var(--yShadowShift)) 2px 1px rgba(0, 0, 0, 0.5);
 }
 
@@ -856,6 +856,43 @@ html.expansion #table-center #pick[data-visible=true]::before {
 #color-help-button .label[data-column="1"] {
   left: 143px;
 }
+#color-help-button .quantity {
+  position: absolute;
+  color: white;
+  font-size: 9pt;
+  opacity: 0;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 29px;
+  height: 17px;
+  word-break: break-word;
+}
+#color-help-button .quantity[data-row="0"] {
+  top: 36px;
+}
+#color-help-button .quantity[data-row="1"] {
+  top: 85.8px;
+}
+#color-help-button .quantity[data-row="2"] {
+  top: 135.6px;
+}
+#color-help-button .quantity[data-row="3"] {
+  top: 185.4px;
+}
+#color-help-button .quantity[data-row="4"] {
+  top: 235.2px;
+}
+#color-help-button .quantity[data-row="5"] {
+  top: 285px;
+}
+#color-help-button .quantity[data-column="0"] {
+  left: 11px;
+}
+#color-help-button .quantity[data-column="1"] {
+  left: 116px;
+}
 #color-help-button[data-folded=true] {
   background-image: url("img/logo-coloradd.svg");
 }
@@ -865,7 +902,7 @@ html.expansion #table-center #pick[data-visible=true]::before {
   height: 312px;
   border-radius: 10px;
 }
-#color-help-button[data-folded=false] .label {
+#color-help-button[data-folded=false] .label, #color-help-button[data-folded=false] .quantity {
   opacity: 1;
 }
 

@@ -53,6 +53,31 @@
         }
     }
 
+    .quantity {
+        position: absolute;
+        color: white;
+        font-size: 9pt;
+        opacity: 0;
+        text-transform: uppercase;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 29px;
+        height: 17px;
+        word-break: break-word;
+
+        @for $i from 0 through 5 {
+            &[data-row="#{$i}"] {
+              top: #{36 + $i * 49.8}px;
+            }
+        }
+        @for $i from 0 through 1 {
+            &[data-column="#{$i}"] {
+              left: #{11 + $i * 105}px;
+            }
+        }
+    }
+
     &[data-folded="true"] {
         background-image: url('img/logo-coloradd.svg');
     }
@@ -62,7 +87,7 @@
         height: 312px;
         border-radius: 10px;
         
-        .label {
+        .label, .quantity {
             opacity: 1;
         }
     }

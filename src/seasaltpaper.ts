@@ -526,6 +526,19 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     private addHelp() {
+        const quantities = [
+            9, 9,
+            8, 8,
+            6, 4,
+            4, 4,
+            3, 2,
+            1,
+        ];
+
+        if (this.isExpansion()) {
+            [6, 9, 2, 4, 0, 1, 3, 5].forEach(index => quantities[index] += 1);
+        }
+
         let labels = [
             _('Dark blue'),
             _('Light blue'),
@@ -538,7 +551,10 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             _('Light orange'),
             _('Pink'),
             _('Orange'),
-        ].map((label, index) => `<span class="label" data-row="${Math.floor(index / 2)}"  data-column="${Math.floor(index % 2)}">${label}</span>`).join('');
+        ].map((label, index) => `
+            <span class="label" data-row="${Math.floor(index / 2)}" data-column="${Math.floor(index % 2)}">${label}</span>
+            <span class="quantity" data-row="${Math.floor(index / 2)}" data-column="${Math.floor(index % 2)}">&times; ${quantities[index]}</span>
+            `).join('');
         dojo.place(`
             <button id="seasaltpaper-help-button">?</button>
             <button id="color-help-button" data-folded="true">${labels}</button>
