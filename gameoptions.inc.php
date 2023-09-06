@@ -53,7 +53,7 @@ $game_options = [
             2 => [
                 'name' => totranslate('Enabled'),
                 'tmdisplay' => totranslate('Double points'),
-                'description' => totranslate('Points to win is 80/70/60 instead of 40/35/30'),
+                'description' => totranslate('Points to end the game is 80/70/60 instead of 40/35/30'),
                 'nobeginner' => true,
             ],
         ],
