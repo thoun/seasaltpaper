@@ -124,9 +124,6 @@ class CardsPoints {
             if (count($multiplierCardsOfFamily) > 0) {
                 $multiplierCard = $multiplierCardsOfFamily[0];
                 $collectionCardCount = count(array_values(array_filter($cards, fn($card) => $card->category == $multiplierCard->matchCategory && $card->family == $multiplierCard->matchFamily)));
-                if ($multiplierCard->matchCategory === COLLECTION && $multiplierCard->matchFamily === $collectionBonus && $collectionCardCount > 0 && $collectionCardCount < count(COLLECTION_POINTS[$family])) {
-                    $collectionCardCount++;
-                }
                 $multiplierPoints += $multiplierCard->points * $collectionCardCount;
             }
         }
