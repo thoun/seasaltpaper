@@ -72,7 +72,7 @@ class Stacks {
             this.discardStocks[discardNumber].setCardVisible(card, true);
         }
         if (newCount !== null) {
-            this.discardStocks[discardNumber].setCardNumber(newCount);
+            this.discardStocks[discardNumber].setCardNumber(newCount, card);
         }
     }
     

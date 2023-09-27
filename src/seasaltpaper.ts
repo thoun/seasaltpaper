@@ -854,6 +854,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             ['newRound', 1],
             ['updateCardsPoints', 1],
             ['emptyDeck', 1],
+            ['reshuffleDeck', undefined],
         ];
     
         notifs.forEach((notif) => {
@@ -1033,7 +1034,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.updateTableHeight();
         this.stacks.deck.setCardNumber(args.remainingCardsInDeck, args.deckTopCard);
 
-        return await this.stacks.deck.shuffle();
+        return await this.stacks.deck.shuffle({ newTopCard: args.deckTopCard });
     }
 
     notif_updateCardsPoints(args: NotifUpdateCardsPointsArgs) {
@@ -1047,6 +1048,11 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     notif_emptyDeck() {
         this.playersTables.forEach(playerTable => playerTable.showEmptyDeck());
     }
+
+    async notif_reshuffleDeck(args: NotifReshuffleDeckArgs) {
+        return await this.stacks.deck.shuffle({ newTopCard: args.deckTopCard });
+    }
+    
 
     private clearLogs(activePlayer: string) {
         const logDivs = Array.from(document.getElementById('logs').getElementsByClassName('log')) as HTMLElement[];

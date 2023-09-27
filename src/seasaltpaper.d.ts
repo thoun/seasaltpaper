@@ -174,3 +174,7 @@ interface NotifStealCardArgs {
     opponentId: number;
     card: Card;
 }
+
+interface NotifReshuffleDeckArgs {
+    deckTopCard: Card;
+}

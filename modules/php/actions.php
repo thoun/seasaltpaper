@@ -174,6 +174,10 @@ trait ActionTrait {
                     'preserve' => ['actionPlayerId'],
                     'actionPlayerId' => $playerId,
                 ]);
+
+                self::notifyAllPlayers('reshuffleDeck', '', [
+                    'deckTopCard' => $this->getDeckTopCard(),
+                ]);
             }
 
             $this->gamestate->nextState('playCards');
