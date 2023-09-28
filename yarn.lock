@@ -124,19 +124,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bga-cards@thoun/bga-cards#2.3.0":
-  version: 2.3.0
-  resolution: "bga-cards@https://github.com/thoun/bga-cards.git#commit=033a381b3f9269c2b8e3ffe0cb98b3d14f0f7ca2"
+"bga-cards@thoun/bga-cards#3.0.0":
+  version: 3.0.0
+  resolution: "bga-cards@https://github.com/thoun/bga-cards.git#commit=ec4bfc34ee804623b8e7cf825bb4ba3f684315fe"
   peerDependencies:
     bga-animations: "*"
-  checksum: 8d36ad2983dbd7c7b178ee369cc91c187cd6e3cbd8db2030550f619a58f3c50c98119142b87f23a43a4943b4b2a0331e25a63ba5839cfdd5582f767dd792849b
+  checksum: 9bc64d3195fa7dcabe4581e06e1bdd3cc762dc6eeddd0965b4c515871019cde375b67f1dadde2502a5ab5b56e90122eb35b57f0a9fb0e87581f7bc3d94ca4e58
   languageName: node
   linkType: hard
 
-"bga-zoom@thoun/bga-zoom#0.1.0":
-  version: 1.0.0
-  resolution: "bga-zoom@https://github.com/thoun/bga-zoom.git#commit=5965fff329655cafa2faba40e0647cbc4a958f60"
-  checksum: 19291442fab422e5497e8dd4d2fa9f5cd9814389d2fb716dbed28bc5d89bd374dd4f4804f958584fecd0aa3fe4a4e07fa4331a5a1e0173134143bd1da2e5abb4
+"bga-zoom@thoun/bga-zoom#1.0.1":
+  version: 1.0.1
+  resolution: "bga-zoom@https://github.com/thoun/bga-zoom.git#commit=52d04138db7aa77e4df7a9c36725247a32b28a23"
+  checksum: 2de1688af7b80b8ee8bed9460f3995fdf966ab6a622057afae4e75cc52d898220e4efc280ca7017604c1f53d62cac7e891103949274a26948b1400a9d789be47
   languageName: node
   linkType: hard
 
@@ -908,8 +908,8 @@ __metadata:
   resolution: "seasaltpaper@workspace:."
   dependencies:
     bga-animations: "thoun/bga-animations#1.1.0"
-    bga-cards: "thoun/bga-cards#2.3.0"
-    bga-zoom: "thoun/bga-zoom#0.1.0"
+    bga-cards: "thoun/bga-cards#3.0.0"
+    bga-zoom: "thoun/bga-zoom#1.0.1"
     sass: ^1.32.6
     typescript: ^5.0.4
   languageName: unknown
