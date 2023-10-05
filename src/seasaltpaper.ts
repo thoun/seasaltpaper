@@ -357,8 +357,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     private onTableCenterSizeChange() {
-        console.log('onTableCenterSizeChange');
-
         const maxWidth = document.getElementById('full-table').clientWidth;
         const tableCenterWidth = document.getElementById('table-center').clientWidth + 20;
         const playerTableWidth = 650 + 20;

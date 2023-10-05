@@ -133,10 +133,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bga-zoom@thoun/bga-zoom#1.0.1":
-  version: 1.0.1
-  resolution: "bga-zoom@https://github.com/thoun/bga-zoom.git#commit=52d04138db7aa77e4df7a9c36725247a32b28a23"
-  checksum: 2de1688af7b80b8ee8bed9460f3995fdf966ab6a622057afae4e75cc52d898220e4efc280ca7017604c1f53d62cac7e891103949274a26948b1400a9d789be47
+"bga-zoom@thoun/bga-zoom#1.0.2":
+  version: 1.0.2
+  resolution: "bga-zoom@https://github.com/thoun/bga-zoom.git#commit=3668486f5445085bddbb1a8dd054bcf987bc9f41"
+  checksum: c209c6003722ebc4560b369dc15917e996078ee4b59dc91e8b4f759e271dbcec89a1a794ab6a03c20fa27998fa31f6c1289e833629ffc4e41698c935bd0b6ff3
   languageName: node
   linkType: hard
 
@@ -909,7 +909,7 @@ __metadata:
   dependencies:
     bga-animations: "thoun/bga-animations#1.1.0"
     bga-cards: "thoun/bga-cards#3.0.0"
-    bga-zoom: "thoun/bga-zoom#1.0.1"
+    bga-zoom: "thoun/bga-zoom#1.0.2"
     sass: ^1.32.6
     typescript: ^5.0.4
   languageName: unknown
