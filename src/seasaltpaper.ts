@@ -152,7 +152,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         } else {
             this.stacks.makePickSelectable(false);
         }        
-        this.stacks.deck.setCardNumber(args.remainingCardsInDeck, args.deckTopCard);
+        this.stacks.deck.setCardNumber(args.remainingCardsInDeck);
     }
     
     private onEnteringPutDiscardPile(args: EnteringChooseCardArgs) {
@@ -913,7 +913,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
 
     notif_cardInDiscardFromDeck(args: NotifCardInDiscardFromDeckArgs) {
         this.stacks.setDiscardCard(args.discardId, args.card, 1, document.getElementById('deck'));
-        this.stacks.deck.setCardNumber(args.remainingCardsInDeck, args.deckTopCard);
+        this.stacks.deck.setCardNumber(args.remainingCardsInDeck);
         this.updateTableHeight();
     } 
 
@@ -949,7 +949,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     notif_cardInHandFromDeck(args: NotifCardInHandFromPickArgs) {
         const playerId = args.playerId;
         this.getPlayerTable(playerId).addCardsToHand([args.card], true);
-        this.stacks.deck.setCardNumber(args.remainingCardsInDeck, args.deckTopCard)
+        this.stacks.deck.setCardNumber(args.remainingCardsInDeck)
         this.handCounters[playerId].incValue(1);
     }   
 
@@ -965,7 +965,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.stacks.deck.addCards(args.cards, undefined, {
             visible: false,
         });
-        this.stacks.deck.setCardNumber(args.remainingCardsInDeck, args.deckTopCard);
+        this.stacks.deck.setCardNumber(args.remainingCardsInDeck);
         this.updateTableHeight();
     }
 
@@ -1030,9 +1030,9 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         
         this.getCurrentPlayerTable()?.setHandPoints(0, [0, 0, 0, 0]);
         this.updateTableHeight();
-        this.stacks.deck.setCardNumber(args.remainingCardsInDeck, args.deckTopCard);
+        this.stacks.deck.setCardNumber(args.remainingCardsInDeck);
 
-        return await this.stacks.deck.shuffle({ newTopCard: args.deckTopCard });
+        return await this.stacks.deck.shuffle();
     }
 
     notif_updateCardsPoints(args: NotifUpdateCardsPointsArgs) {
@@ -1048,7 +1048,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     async notif_reshuffleDeck(args: NotifReshuffleDeckArgs) {
-        return await this.stacks.deck.shuffle({ newTopCard: args.deckTopCard });
+        return await this.stacks.deck.shuffle();
     }
     
 

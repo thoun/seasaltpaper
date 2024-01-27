@@ -26,7 +26,6 @@ class Stacks {
         this.pickStock.onCardClick = card => this.game.onCardClick(card);
 
         this.deck = new Deck<Card>(this.game.cardsManager, document.getElementById('deck'), {
-            topCard: gamedatas.deckTopCard,
             cardNumber: gamedatas.remainingCardsInDeck,
             counter: {
                 extraClasses: 'pile-counter',
