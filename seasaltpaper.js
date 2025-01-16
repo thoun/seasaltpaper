@@ -2600,19 +2600,19 @@ var SeaSaltPaper = /** @class */ (function () {
             switch (stateName) {
                 case 'takeCards':
                     if (args.forceTakeOne) {
-                        this.addActionButton("takeFirstCard_button", _("Take the first card"), function () { return _this.takeCardsFromDeck(); });
+                        this.statusBar.addActionButton(_("Take the first card"), function () { return _this.takeCardsFromDeck(); });
                     }
                     break;
                 case 'playCards':
                     var playCardsArgs = args;
-                    this.addActionButton("playCards_button", _("Play selected cards"), function () { return _this.playSelectedCards(); });
+                    this.statusBar.addActionButton(_("Play selected cards"), function () { return _this.playSelectedCards(); }, { id: "playCards_button" });
                     if (playCardsArgs.hasFourMermaids) {
-                        this.addActionButton("endGameWithMermaids_button", _("Play the four Mermaids"), function () { return _this.endGameWithMermaids(); }, null, true, 'red');
+                        this.statusBar.addActionButton(_("Play the four Mermaids"), function () { return _this.bgaPerformAction('endGameWithMermaids'); }, { color: 'alert' });
                     }
-                    this.addActionButton("endTurn_button", _("End turn"), function () { return _this.endTurn(); });
+                    this.statusBar.addActionButton(_("End turn"), function () { return _this.bgaPerformAction('endTurn'); }, { id: "endTurn_button" });
                     if (playCardsArgs.canCallEndRound) {
-                        this.addActionButton("endRound_button", _('End round') + ' ("' + _('LAST CHANCE') + '")', function () { return _this.endRound(); }, null, null, 'red');
-                        this.addActionButton("immediateEndRound_button", _('End round') + ' ("' + _('STOP') + '")', function () { return _this.immediateEndRound(); }, null, null, 'red');
+                        this.statusBar.addActionButton(_('End round') + ' ("' + _('LAST CHANCE') + '")', function () { return _this.bgaPerformAction('endRound'); }, { id: "endRound_button", color: 'alert' });
+                        this.statusBar.addActionButton(_('End round') + ' ("' + _('STOP') + '")', function () { return _this.bgaPerformAction('immediateEndRound'); }, { id: "immediateEndRound_button", color: 'alert' });
                         this.setTooltip("endRound_button", "".concat(_("Say <strong>LAST CHANCE</strong> if you are willing to take the bet of having the most points at the end of the round. The other players each take a final turn (take a card + play cards) which they complete by revealing their hand, which is now protected from attacks. Then, all players count the points on their cards (in their hand and in front of them)."), "<br><br>\n                        ").concat(_("If your hand is higher or equal to that of your opponents, bet won! You score the points for your cards + the color bonus (1 point per card of the color they have the most of). Your opponents only score their color bonus."), "<br><br>\n                        ").concat(_("If your score is less than that of at least one opponent, bet lost! You score only the color bonus. Your opponents score points for their cards.")));
                         this.setTooltip("immediateEndRound_button", _("Say <strong>STOP</strong> if you do not want to take a risk. All players reveal their hands and immediately score the points on their cards (in their hand and in front of them)."));
                     }
@@ -2630,12 +2630,12 @@ var SeaSaltPaper = /** @class */ (function () {
         
                     chooseOpponentArgs.playersIds.forEach(playerId => {
                         const player = this.getPlayer(playerId);
-                        (this as any).addActionButton(`choosePlayer${playerId}-button`, player.name, () => this.chooseOpponent(playerId));
+                        (this as any).statusBar.addActionButton(player.name, () => this.chooseOpponent(playerId), { id: `choosePlayer${playerId}-button` });
                         document.getElementById(`choosePlayer${playerId}-button`).style.border = `3px solid #${player.color}`;
                     });
                     break;*/
                 case 'beforeEndRound':
-                    this.addActionButton("seen_button", _("Seen"), function () { return _this.seen(); });
+                    this.statusBar.addActionButton(_("Seen"), function () { return _this.bgaPerformAction('seen'); });
                     break;
             }
         }
@@ -2895,112 +2895,50 @@ var SeaSaltPaper = /** @class */ (function () {
         }
     };
     SeaSaltPaper.prototype.takeCardsFromDeck = function () {
-        if (!this.checkAction('takeCardsFromDeck')) {
-            return;
-        }
-        this.takeAction('takeCardsFromDeck');
+        this.bgaPerformAction('takeCardsFromDeck');
     };
     SeaSaltPaper.prototype.takeCardFromDiscard = function (discardNumber) {
-        if (!this.checkAction('takeCardFromDiscard')) {
-            return;
-        }
-        this.takeAction('takeCardFromDiscard', {
+        this.bgaPerformAction('takeCardFromDiscard', {
             discardNumber: discardNumber
         });
     };
     SeaSaltPaper.prototype.chooseCard = function (id) {
-        if (!this.checkAction('chooseCard')) {
-            return;
-        }
-        this.takeAction('chooseCard', {
+        this.bgaPerformAction('chooseCard', {
             id: id
         });
     };
     SeaSaltPaper.prototype.putDiscardPile = function (discardNumber) {
-        if (!this.checkAction('putDiscardPile')) {
-            return;
-        }
-        this.takeAction('putDiscardPile', {
+        this.bgaPerformAction('putDiscardPile', {
             discardNumber: discardNumber
         });
     };
     SeaSaltPaper.prototype.playCards = function (ids) {
-        if (!this.checkAction('playCards')) {
-            return;
-        }
-        this.takeAction('playCards', {
+        this.bgaPerformAction('playCards', {
             'id1': ids[0],
             'id2': ids[1],
         });
     };
     SeaSaltPaper.prototype.playCardsTrio = function (ids, starfishId) {
-        if (!this.checkAction('playCardsTrio')) {
-            return;
-        }
-        this.takeAction('playCardsTrio', {
+        this.bgaPerformAction('playCardsTrio', {
             'id1': ids[0],
             'id2': ids[1],
             'starfishId': starfishId
         });
     };
     SeaSaltPaper.prototype.chooseDiscardPile = function (discardNumber) {
-        if (!this.checkAction('chooseDiscardPile')) {
-            return;
-        }
-        this.takeAction('chooseDiscardPile', {
+        this.bgaPerformAction('chooseDiscardPile', {
             discardNumber: discardNumber
         });
     };
     SeaSaltPaper.prototype.chooseDiscardCard = function (id) {
-        if (!this.checkAction('chooseDiscardCard')) {
-            return;
-        }
-        this.takeAction('chooseDiscardCard', {
+        this.bgaPerformAction('chooseDiscardCard', {
             id: id
         });
     };
     SeaSaltPaper.prototype.chooseOpponent = function (id) {
-        if (!this.checkAction('chooseOpponent')) {
-            return;
-        }
-        this.takeAction('chooseOpponent', {
+        this.bgaPerformAction('chooseOpponent', {
             id: id
         });
-    };
-    SeaSaltPaper.prototype.endTurn = function () {
-        if (!this.checkAction('endTurn')) {
-            return;
-        }
-        this.takeAction('endTurn');
-    };
-    SeaSaltPaper.prototype.endGameWithMermaids = function () {
-        if (!this.checkAction('endGameWithMermaids')) {
-            return;
-        }
-        this.takeAction('endGameWithMermaids');
-    };
-    SeaSaltPaper.prototype.endRound = function () {
-        if (!this.checkAction('endRound')) {
-            return;
-        }
-        this.takeAction('endRound');
-    };
-    SeaSaltPaper.prototype.immediateEndRound = function () {
-        if (!this.checkAction('immediateEndRound')) {
-            return;
-        }
-        this.takeAction('immediateEndRound');
-    };
-    SeaSaltPaper.prototype.seen = function () {
-        if (!this.checkAction('seen')) {
-            return;
-        }
-        this.takeAction('seen');
-    };
-    SeaSaltPaper.prototype.takeAction = function (action, data) {
-        data = data || {};
-        data.lock = true;
-        this.ajaxcall("/seasaltpaper/seasaltpaper/".concat(action, ".html"), data, this, function () { });
     };
     SeaSaltPaper.prototype.startActionTimer = function (buttonId, time) {
         var _a;
