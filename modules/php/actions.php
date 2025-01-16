@@ -1,5 +1,7 @@
 <?php
 
+use Bga\GameFramework\Actions\CheckAction;
+
 trait ActionTrait {
 
     //////////////////////////////////////////////////////////////////////////////
@@ -13,7 +15,11 @@ trait ActionTrait {
 
     public function takeCardsFromDeck() {
         $this->checkAction('takeCardsFromDeck'); 
-        
+
+        $this->actTakeCardsFromDeck();
+    }
+
+    public function actTakeCardsFromDeck() {        
         $playerId = intval($this->getActivePlayerId());
         $args = $this->argTakeCards();
 
@@ -78,7 +84,12 @@ trait ActionTrait {
     }
 
     public function takeCardFromDiscard(int $discardNumber) {
-        $this->checkAction('takeCardFromDiscard'); 
+        $this->checkAction('takeCardFromDiscard');
+
+        $this->actTakeCardsFromDiscard($discardNumber);
+    }
+
+    public function actTakeCardsFromDiscard(int $discardNumber) {       
 
         $args = $this->argTakeCards();        
         
@@ -120,10 +131,14 @@ trait ActionTrait {
 
     public function chooseCard(int $cardId) {
         $this->checkAction('chooseCard'); 
-        
+
+        $this->actChooseCard($cardId);
+    }
+
+    public function actChooseCard(int $id) {        
         $playerId = intval($this->getActivePlayerId());
 
-        $card = $this->getCardFromDb($this->cards->getCard($cardId));
+        $card = $this->getCardFromDb($this->cards->getCard($id));
         if ($card->location != 'pick') {
             throw new BgaUserException("Cannot pick this card");
         }
@@ -226,7 +241,11 @@ trait ActionTrait {
 
     public function putDiscardPile(int $discardNumber) {
         $this->checkAction('putDiscardPile'); 
+
+        $this->actPutDiscardPile($discardNumber);
+    }
         
+    public function actPutDiscardPile(int $discardNumber) {
         if (!in_array($discardNumber, [1, 2])) {
             throw new BgaUserException("Invalid discard number");
         }
@@ -238,6 +257,11 @@ trait ActionTrait {
 
     public function playCards(int $id1, int $id2) {
         $this->checkAction('playCards'); 
+
+        $this->actPlayCards($id1, $id2);
+    }
+
+    public function actPlayCards(int $id1, int $id2) {
 
         if ($id1 == $id2) {
             throw new BgaUserException("Same id");
@@ -415,6 +439,11 @@ trait ActionTrait {
     public function playCardsTrio(int $id1, int $id2, int $idStarfish) {
         $this->checkAction('playCardsTrio'); 
 
+        $this->actPlayCardsTrio($id1, $id2, $idStarfish);
+    }
+
+    public function actPlayCardsTrio(int $id1, int $id2, int $starfishId) {
+
         if ($id1 == $id2) {
             throw new BgaUserException("Same id");
         }
@@ -430,7 +459,7 @@ trait ActionTrait {
             throw new BgaUserException("Invalid pair");
         }
 
-        $starfishCard = $this->getCardFromDb($this->cards->getCard($idStarfish));
+        $starfishCard = $this->getCardFromDb($this->cards->getCard($starfishId));
         if ($starfishCard->location != 'hand'.$playerId || $starfishCard->category != SPECIAL || $starfishCard->family != STARFISH) {
             throw new BgaUserException("You must select a Starfish card from your hand");
         }
@@ -468,6 +497,11 @@ trait ActionTrait {
     public function endTurn() {
         $this->checkAction('endTurn'); 
 
+        $this->actEndTurn();
+    }
+
+    public function actEndTurn() {
+
         $playerId = intval($this->getActivePlayerId());
 
         $mermaids = $this->getPlayerMermaids($playerId);
@@ -503,6 +537,10 @@ trait ActionTrait {
     public function endRound() {
         $this->checkAction('endRound');
 
+        $this->actEndRound();
+    }
+
+    public function actEndRound() {
         $playerId = intval($this->getActivePlayerId());
 
         $this->incStat(1, 'announce');
@@ -515,6 +553,11 @@ trait ActionTrait {
 
     public function immediateEndRound() {
         $this->checkAction('immediateEndRound');
+
+        $this->actImmediateEndRound();
+    }
+
+    public function actImmediateEndRound() {
 
         $playerId = intval($this->getActivePlayerId());
 
@@ -530,7 +573,11 @@ trait ActionTrait {
 
     public function chooseDiscardPile(int $discardNumber) {
         $this->checkAction('chooseDiscardPile'); 
-        
+
+        $this->actChooseDiscardPile($discardNumber);
+    }
+
+    public function actChooseDiscardPile(int $discardNumber) {
         if (!in_array($discardNumber, [1, 2])) {
             throw new BgaUserException("Invalid discard number");
         }
@@ -572,10 +619,20 @@ trait ActionTrait {
         }
     }
 
+    #[CheckAction(false)]
+    public function actEndGameWithMermaids() {
+        $this->endGameWithMermaids();
+    }
+
     public function chooseDiscardCard(int $cardId) {
         $this->checkAction('chooseDiscardCard');
 
-        $card = $this->getCardFromDb($this->cards->getCard($cardId));
+        $this->actChooseDiscardCard($cardId);
+    }
+
+    public function actChooseDiscardCard(int $id) {
+
+        $card = $this->getCardFromDb($this->cards->getCard($id));
         $discardNumber = $this->getGameStateValue(CHOSEN_DISCARD);
         if ($card == null || $card->location != 'discard'.$discardNumber) {
             throw new BgaUserException("Invalid discard card");
@@ -618,9 +675,14 @@ trait ActionTrait {
     public function chooseOpponent(int $opponentId) {
         $this->checkAction('chooseOpponent');
 
+        $this->actChooseOpponent($opponentId);
+    }
+
+    public function actChooseOpponent(int $id) {
+
         $playerId = intval($this->getActivePlayerId());
 
-        $this->applySteal($playerId, $opponentId);
+        $this->applySteal($playerId, $id);
 
         $this->gamestate->nextState('playCards');
     }
@@ -628,6 +690,10 @@ trait ActionTrait {
     public function seen() {
         $this->checkAction('seen');
 
+        $this->actSeen();
+    }
+
+    public function actSeen() {
         $playerId = intval($this->getCurrentPlayerId());
 
         $this->gamestate->setPlayerNonMultiactive($playerId, 'endRound');
