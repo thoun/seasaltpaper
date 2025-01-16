@@ -16,22 +16,34 @@
   *
   */
 
+namespace Bga\Games\SeaSaltPaper;
+
+use \Card;
 
 require_once( APP_GAMEMODULE_PATH.'module/table/table.game.php' );
 
-require_once('modules/php/constants.inc.php');
-require_once('modules/php/utils.php');
-require_once('modules/php/actions.php');
-require_once('modules/php/states.php');
-require_once('modules/php/args.php');
-require_once('modules/php/debug-util.php');
+require_once('constants.inc.php');
+require_once('utils.php');
+require_once('actions.php');
+require_once('states.php');
+require_once('args.php');
+require_once('debug-util.php');
 
-class SeaSaltPaper extends Table {
-    use UtilTrait;
-    use ActionTrait;
-    use StateTrait;
-    use ArgsTrait;
-    use DebugUtilTrait;
+class Game extends \Table {
+    use \UtilTrait;
+    use \ActionTrait;
+    use \StateTrait;
+    use \ArgsTrait;
+    use \DebugUtilTrait;
+
+    private \Deck $cards;
+
+    public array $END_GAME_POINTS;
+    public array $ANNOUNCEMENTS;
+    public array $COLORS;
+    public array $CARDS;
+    public array $EXPANSION_CARDS;
+    public array $ALL_CARDS;
 
 	function __construct() {
         // Your global variables labels:
@@ -147,7 +159,7 @@ class SeaSaltPaper extends Table {
         _ when the game starts
         _ when a player refreshes the game page (F5)
     */
-    protected function getAllDatas() {
+    protected function getAllDatas(): array {
         $result = [];
     
         $currentPlayerId = intval($this->getCurrentPlayerId());    // !! We must only return informations visible by this player !!
@@ -281,7 +293,7 @@ class SeaSaltPaper extends Table {
         you must _never_ use getCurrentPlayerId() or getCurrentPlayerName(), otherwise it will fail with a "Not logged" error message. 
     */
 
-    function zombieTurn($state, $active_player) {
+    function zombieTurn($state, $active_player): void {
     	$statename = $state['name'];
     	
         if ($state['type'] === "activeplayer") {
@@ -301,7 +313,7 @@ class SeaSaltPaper extends Table {
             return;
         }
 
-        throw new feException( "Zombie mode not supported at this game state: ".$statename );
+        throw new \feException( "Zombie mode not supported at this game state: ".$statename );
     }
     
 ///////////////////////////////////////////////////////////////////////////////////:
