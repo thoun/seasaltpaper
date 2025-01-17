@@ -277,12 +277,12 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                     const playCardsArgs = args as EnteringPlayCardsArgs;
                     (this as any).statusBar.addActionButton(_("Play selected cards"), () => this.playSelectedCards(), { id: `playCards_button` });
                     if (playCardsArgs.hasFourMermaids) {
-                        (this as any).statusBar.addActionButton(_("Play the four Mermaids"), () => (this as any).bgaPerformAction('endGameWithMermaids'), { color: 'alert' });
+                        (this as any).statusBar.addActionButton(_("Play the four Mermaids"), () => (this as any).bgaPerformAction('actEndGameWithMermaids'), { color: 'alert' });
                     }
-                    (this as any).statusBar.addActionButton(_("End turn"), () => (this as any).bgaPerformAction('endTurn'), { id: `endTurn_button` });
+                    (this as any).statusBar.addActionButton(_("End turn"), () => (this as any).bgaPerformAction('actEndTurn'), { id: `endTurn_button` });
                     if (playCardsArgs.canCallEndRound) {
-                        (this as any).statusBar.addActionButton(_('End round') + ' ("' + _('LAST CHANCE') + '")', () => (this as any).bgaPerformAction('endRound'), { id: `endRound_button`, color: 'alert' });
-                        (this as any).statusBar.addActionButton(_('End round') + ' ("' + _('STOP') + '")', () => (this as any).bgaPerformAction('immediateEndRound'), { id: `immediateEndRound_button`, color: 'alert' });
+                        (this as any).statusBar.addActionButton(_('End round') + ' ("' + _('LAST CHANCE') + '")', () => (this as any).bgaPerformAction('actEndRound'), { id: `endRound_button`, color: 'alert' });
+                        (this as any).statusBar.addActionButton(_('End round') + ' ("' + _('STOP') + '")', () => (this as any).bgaPerformAction('actImmediateEndRound'), { id: `immediateEndRound_button`, color: 'alert' });
 
                         this.setTooltip(`endRound_button`, `${_("Say <strong>LAST CHANCE</strong> if you are willing to take the bet of having the most points at the end of the round. The other players each take a final turn (take a card + play cards) which they complete by revealing their hand, which is now protected from attacks. Then, all players count the points on their cards (in their hand and in front of them).")}<br><br>
                         ${_("If your hand is higher or equal to that of your opponents, bet won! You score the points for your cards + the color bonus (1 point per card of the color they have the most of). Your opponents only score their color bonus.")}<br><br>
@@ -309,7 +309,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                     });
                     break;*/
                 case 'beforeEndRound':
-                    (this as any).statusBar.addActionButton(_("Seen"), () => (this as any).bgaPerformAction('seen'));
+                    (this as any).statusBar.addActionButton(_("Seen"), () => (this as any).bgaPerformAction('actSeen'));
                     break;
             }
         }
@@ -656,36 +656,36 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     public takeCardsFromDeck() {
-        (this as any).bgaPerformAction('takeCardsFromDeck');
+        (this as any).bgaPerformAction('actTakeCardsFromDeck');
     }
 
     public takeCardFromDiscard(discardNumber: number) {
-        (this as any).bgaPerformAction('takeCardFromDiscard', {
+        (this as any).bgaPerformAction('actTakeCardFromDiscard', {
             discardNumber
         });
     }
 
     public chooseCard(id: number) {
-        (this as any).bgaPerformAction('chooseCard', {
+        (this as any).bgaPerformAction('actChooseCard', {
             id
         });
     }
 
     public putDiscardPile(discardNumber: number) {
-        (this as any).bgaPerformAction('putDiscardPile', {
+        (this as any).bgaPerformAction('actPutDiscardPile', {
             discardNumber
         });
     }
 
     public playCards(ids: number[]) {
-        (this as any).bgaPerformAction('playCards', {
+        (this as any).bgaPerformAction('actPlayCards', {
             'id1': ids[0],
             'id2': ids[1],
         });
     }
 
     public playCardsTrio(ids: number[], starfishId: number) {
-        (this as any).bgaPerformAction('playCardsTrio', {
+        (this as any).bgaPerformAction('actPlayCardsTrio', {
             'id1': ids[0],
             'id2': ids[1],
             'starfishId': starfishId
@@ -693,19 +693,19 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     public chooseDiscardPile(discardNumber: number) {
-        (this as any).bgaPerformAction('chooseDiscardPile', {
+        (this as any).bgaPerformAction('actChooseDiscardPile', {
             discardNumber
         });
     }
 
     public chooseDiscardCard(id: number) {
-        (this as any).bgaPerformAction('chooseDiscardCard', {
+        (this as any).bgaPerformAction('actChooseDiscardCard', {
             id
         });
     }
 
     public chooseOpponent(id: number) {
-        (this as any).bgaPerformAction('chooseOpponent', {
+        (this as any).bgaPerformAction('actChooseOpponent', {
             id
         });
     }

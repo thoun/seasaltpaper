@@ -12,13 +12,7 @@ trait ActionTrait {
         Each time a player is doing some game action, one of the methods below is called.
         (note: each method below must match an input method in nicodemus.action.php)
     */
-
-    public function takeCardsFromDeck() {
-        $this->checkAction('takeCardsFromDeck'); 
-
-        $this->actTakeCardsFromDeck();
-    }
-
+    
     public function actTakeCardsFromDeck() {        
         $playerId = intval($this->getActivePlayerId());
         $args = $this->argTakeCards();
@@ -83,13 +77,7 @@ trait ActionTrait {
 
     }
 
-    public function takeCardFromDiscard(int $discardNumber) {
-        $this->checkAction('takeCardFromDiscard');
-
-        $this->actTakeCardsFromDiscard($discardNumber);
-    }
-
-    public function actTakeCardsFromDiscard(int $discardNumber) {       
+    public function actTakeCardFromDiscard(int $discardNumber) {       
 
         $args = $this->argTakeCards();        
         
@@ -127,12 +115,6 @@ trait ActionTrait {
 
         $this->updateCardsPoints($playerId);
         $this->gamestate->nextState('playCards');
-    }
-
-    public function chooseCard(int $cardId) {
-        $this->checkAction('chooseCard'); 
-
-        $this->actChooseCard($cardId);
     }
 
     public function actChooseCard(int $id) {        
@@ -238,12 +220,6 @@ trait ActionTrait {
             'actionPlayerId' => $playerId,
         ]);
     }
-
-    public function putDiscardPile(int $discardNumber) {
-        $this->checkAction('putDiscardPile'); 
-
-        $this->actPutDiscardPile($discardNumber);
-    }
         
     public function actPutDiscardPile(int $discardNumber) {
         if (!in_array($discardNumber, [1, 2])) {
@@ -253,12 +229,6 @@ trait ActionTrait {
         $this->applyPutDiscardPile($discardNumber);
 
         $this->gamestate->nextState('playCards');
-    }
-
-    public function playCards(int $id1, int $id2) {
-        $this->checkAction('playCards'); 
-
-        $this->actPlayCards($id1, $id2);
     }
 
     public function actPlayCards(int $id1, int $id2) {
@@ -436,12 +406,6 @@ trait ActionTrait {
         }
     }
 
-    public function playCardsTrio(int $id1, int $id2, int $idStarfish) {
-        $this->checkAction('playCardsTrio'); 
-
-        $this->actPlayCardsTrio($id1, $id2, $idStarfish);
-    }
-
     public function actPlayCardsTrio(int $id1, int $id2, int $starfishId) {
 
         if ($id1 == $id2) {
@@ -494,12 +458,6 @@ trait ActionTrait {
         $this->gamestate->nextState('playCards');
     }
 
-    public function endTurn() {
-        $this->checkAction('endTurn'); 
-
-        $this->actEndTurn();
-    }
-
     public function actEndTurn() {
 
         $playerId = intval($this->getActivePlayerId());
@@ -534,12 +492,6 @@ trait ActionTrait {
         $this->gamestate->nextState('endTurn');
     }
 
-    public function endRound() {
-        $this->checkAction('endRound');
-
-        $this->actEndRound();
-    }
-
     public function actEndRound() {
         $playerId = intval($this->getActivePlayerId());
 
@@ -549,12 +501,6 @@ trait ActionTrait {
         $this->incStat(1, 'announceLastChance', $playerId);
 
         $this->applyEndRound(LAST_CHANCE, $this->ANNOUNCEMENTS[LAST_CHANCE]);
-    }
-
-    public function immediateEndRound() {
-        $this->checkAction('immediateEndRound');
-
-        $this->actImmediateEndRound();
     }
 
     public function actImmediateEndRound() {
@@ -569,12 +515,6 @@ trait ActionTrait {
         $this->setGameStateValue(STOP_CALLER, $playerId);
 
         $this->applyEndRound(STOP, $this->ANNOUNCEMENTS[STOP]);
-    }
-
-    public function chooseDiscardPile(int $discardNumber) {
-        $this->checkAction('chooseDiscardPile'); 
-
-        $this->actChooseDiscardPile($discardNumber);
     }
 
     public function actChooseDiscardPile(int $discardNumber) {
@@ -624,12 +564,6 @@ trait ActionTrait {
         $this->endGameWithMermaids();
     }
 
-    public function chooseDiscardCard(int $cardId) {
-        $this->checkAction('chooseDiscardCard');
-
-        $this->actChooseDiscardCard($cardId);
-    }
-
     public function actChooseDiscardCard(int $id) {
 
         $card = $this->getCardFromDb($this->cards->getCard($id));
@@ -672,12 +606,6 @@ trait ActionTrait {
         $this->gamestate->nextState('playCards');
     }
 
-    public function chooseOpponent(int $opponentId) {
-        $this->checkAction('chooseOpponent');
-
-        $this->actChooseOpponent($opponentId);
-    }
-
     public function actChooseOpponent(int $id) {
 
         $playerId = intval($this->getActivePlayerId());
@@ -685,12 +613,6 @@ trait ActionTrait {
         $this->applySteal($playerId, $id);
 
         $this->gamestate->nextState('playCards');
-    }
-
-    public function seen() {
-        $this->checkAction('seen');
-
-        $this->actSeen();
     }
 
     public function actSeen() {

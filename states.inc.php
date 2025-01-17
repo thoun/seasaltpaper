@@ -88,9 +88,6 @@ $playerActionsGameStates = [
         "args" => "argTakeCards",
         "updateGameProgression" => true,
         "possibleactions" => [ 
-            "takeCardsFromDeck",
-            "takeCardFromDiscard",
-
             "actTakeCardsFromDeck",
             "actTakeCardFromDiscard",
         ],
@@ -108,8 +105,6 @@ $playerActionsGameStates = [
         "type" => "activeplayer",
         "args" => "argChooseCard",  
         "possibleactions" => [ 
-            "chooseCard",
-
             "actChooseCard",
         ],
         "transitions" => [
@@ -126,8 +121,6 @@ $playerActionsGameStates = [
         "type" => "activeplayer",
         "args" => "argChooseCard",  
         "possibleactions" => [ 
-            "putDiscardPile",
-
             "actPutDiscardPile",
         ],
         "transitions" => [
@@ -145,13 +138,6 @@ $playerActionsGameStates = [
         "action" => "stPlayCards",
         "updateGameProgression" => true,
         "possibleactions" => [ 
-            "playCards",
-            "playCardsTrio",
-            "endGameWithMermaids",
-            "endTurn",
-            "endRound",
-            "immediateEndRound",
-
             "actPlayCards",
             "actPlayCardsTrio",
             "actEndGameWithMermaids",
@@ -177,8 +163,6 @@ $playerActionsGameStates = [
         "descriptionmyturn" => clienttranslate('${you} must choose a discard pile'),
         "type" => "activeplayer",
         "possibleactions" => [ 
-            "chooseDiscardPile",
-
             "actChooseDiscardPile",
         ],
         "transitions" => [
@@ -194,8 +178,6 @@ $playerActionsGameStates = [
         "type" => "activeplayer", 
         "args" => "argChooseDiscardCard", 
         "possibleactions" => [ 
-            "chooseDiscardCard",
-
             "actChooseDiscardCard",
         ],
         "transitions" => [
@@ -211,8 +193,6 @@ $playerActionsGameStates = [
         "type" => "activeplayer",
         "args" => "argChooseOpponent", 
         "possibleactions" => [ 
-            "chooseOpponent",
-
             "actChooseOpponent",
         ],
         "transitions" => [
@@ -251,7 +231,7 @@ $gameGameStates = [
         "descriptionmyturn" => clienttranslate('End round result'),
         "type" => "multipleactiveplayer",
         "action" => "stBeforeEndRound",
-        "possibleactions" => [ "seen", "actSeen" ],
+        "possibleactions" => [ "actSeen" ],
         "transitions" => [
             "endRound" => ST_END_ROUND,
             "endScore" => ST_END_SCORE,
