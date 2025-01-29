@@ -1,0 +1,32 @@
+{
+    "101": {
+        "name": "Extra Salt expansion",
+        "values": {
+            "1": {
+                "name": "Disabled"
+            },
+            "2": {
+                "name": "Enabled",
+                "tmdisplay": "Extra Salt expansion",
+                "description": "An additional set of 8 cards, including 5 new effects",
+                "nobeginner": true
+            }
+        },
+        "default": 1
+    },
+    "110": {
+        "name": "Double points",
+        "values": {
+            "1": {
+                "name": "Disabled"
+            },
+            "2": {
+                "name": "Enabled",
+                "tmdisplay": "Double points",
+                "description": "Points to end the game is 80\/70\/60 instead of 40\/35\/30",
+                "nobeginner": true
+            }
+        },
+        "default": 1
+    }
+}
