@@ -258,6 +258,6 @@ trait StateTrait {
             }
         }
 
-        $this->gamestate->nextState('endGame');
+        $this->gamestate->nextState('');
     }
 }

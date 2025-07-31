@@ -44,7 +44,7 @@ class PlayerTable {
             </div>
         </div>
         `;
-        dojo.place(html, document.getElementById('tables'));
+        document.getElementById('tables').insertAdjacentHTML('beforeend', html);
 
         if (this.currentPlayer) {
             this.cardsPointsCounter = new ebg.counter();
@@ -103,7 +103,6 @@ class PlayerTable {
         });
 
         //this.tableCards.addCards(cards);
-        this.game.updateTableHeight();
 
         return Promise.all(promises);
     }
@@ -135,7 +134,6 @@ class PlayerTable {
     public addCardsToTable(cards: Card[]): Promise<any> {
         cards.forEach(card => this.game.cardsManager.setCardVisible(card, true, { updateData: true, updateFront: true, updateBack: false }));
         const promise = this.tableCards.addCards(cards);
-        this.game.updateTableHeight();
         return promise;
     }
 
@@ -158,7 +156,7 @@ class PlayerTable {
 
     public showAnnouncementPoints(playerPoints: number) {
         const bubble = document.getElementById(`player-table-${this.playerId}-discussion-bubble`);
-        bubble.innerHTML += _('I got ${points} points.').replace('${points}', playerPoints) + ' ';
+        bubble.innerHTML += _('I got ${points} points.').replace('${points}', ''+playerPoints) + ' ';
         bubble.dataset.visible = 'true';
     }
 
@@ -194,11 +192,11 @@ class PlayerTable {
 
         let scoreDetailStr = '<div class="bubble-score">';
         if (scoreDetails.cardsPoints !== null && scoreDetails.colorBonus !== null) {
-            scoreDetailStr += _('I score my ${cardPoints} card points plus my color bonus of ${colorBonus}.').replace('${cardPoints}', scoreDetails.cardsPoints).replace('${colorBonus}', scoreDetails.colorBonus);
+            scoreDetailStr += _('I score my ${cardPoints} card points plus my color bonus of ${colorBonus}.').replace('${cardPoints}', ''+scoreDetails.cardsPoints).replace('${colorBonus}', ''+scoreDetails.colorBonus);
         } else if (scoreDetails.cardsPoints === null && scoreDetails.colorBonus !== null) {
-            scoreDetailStr += _('I only score my color bonus of ${colorBonus}.').replace('${colorBonus}', scoreDetails.colorBonus);
+            scoreDetailStr += _('I only score my color bonus of ${colorBonus}.').replace('${colorBonus}', ''+scoreDetails.colorBonus);
         } else if (scoreDetails.cardsPoints !== null && scoreDetails.colorBonus === null) {
-            scoreDetailStr += _('I score my ${cardPoints} card points.').replace('${cardPoints}', scoreDetails.cardsPoints);
+            scoreDetailStr += _('I score my ${cardPoints} card points.').replace('${cardPoints}', ''+scoreDetails.cardsPoints);
         }
         const bubble = document.getElementById(`player-table-${this.playerId}-discussion-bubble`);
         bubble.innerHTML += scoreDetailStr + "</div>";

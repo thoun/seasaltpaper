@@ -63,7 +63,6 @@ interface SeaSaltPaperGame extends Game {
     getPlayerId(): number;
     getPlayerColor(playerId: number): string;
 
-    updateTableHeight(): void;
     setTooltip(id: string, html: string): void;
     takeCardsFromDeck(): void;
     onCardClick(card: Card): void;

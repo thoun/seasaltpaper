@@ -1,10 +1,3 @@
-declare const define;
-declare const ebg;
-declare const $;
-declare const dojo: Dojo;
-declare const _;
-declare const g_gamethemeurl;
-
 const ANIMATION_MS = 500;
 const ACTION_TIMER_DURATION = 5;
 
@@ -12,12 +5,18 @@ const LOCAL_STORAGE_ZOOM_KEY = 'SeaSaltPaper-zoom';
 
 const POINTS_FOR_PLAYERS = [null, null, 40, 35, 30];
 
-class SeaSaltPaper implements SeaSaltPaperGame {
+// @ts-ignore
+GameGui = (function () { // this hack required so we fake extend GameGui
+  function GameGui() {}
+  return GameGui;
+})();
+
+class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPaperGame {
     public animationManager: AnimationManager;
     public cardsManager: CardsManager;
 
     private zoomManager: ZoomManager;
-    private gamedatas: SeaSaltPaperGamedatas;
+    public gamedatas: SeaSaltPaperGamedatas;
     private stacks: Stacks;
     private playersTables: PlayerTable[] = [];
     private selectedCards: Card[];
@@ -30,6 +29,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     private TOOLTIP_DELAY = document.body.classList.contains('touch-device') ? 1500 : undefined;
 
     constructor() {
+        super();
     }
     
     /*
@@ -49,15 +49,37 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         log( "Starting game setup" );
 
         if (gamedatas.expansion) {
-            (this as any).dontPreloadImage('background.jpg');
+            this.dontPreloadImage('background.jpg');
             document.getElementsByTagName('html')[0].classList.add('expansion');
         } else {
-            (this as any).dontPreloadImage('background-expansion.jpg');
+            this.dontPreloadImage('background-expansion.jpg');
         }
+
+        this.dontPreloadImage('event-cards.jpg');
         
         this.gamedatas = gamedatas;
 
         log('gamedatas', gamedatas);
+
+        this.getGameAreaElement().insertAdjacentHTML('beforeend', `
+            <div id="full-table">
+                <div id="discard-pick" data-visible="false"></div>
+                <div id="centered-table">
+                    <div id="tables-and-center">
+                        <div id="table-center">
+                            <div id="deck-and-discards">
+                                <div id="deck" class="cards-stack"></div>
+                                <div id="discards">
+                                        ${[1,2].map(number => `<div id="discard${number}" class="discard-stack cards-stack" data-discard="${number}"></div>`).join('')}
+                                </div>
+                            </div>
+                            <div id="pick" data-visible="false"></div>
+                        </div>
+                        <div id="tables"></div>
+                    </div>
+                </div>
+            </div>
+        `);
 
         this.animationManager = new AnimationManager(this);
         this.cardsManager = new CardsManager(this);
@@ -65,9 +87,8 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
         
-        this.zoomManager = new ZoomManager({
+        this.zoomManager = new BgaZoom.Manager({
             element: document.getElementById('full-table'),
-            smooth: false,
             zoomControls: {
                 color: 'white',
             },
@@ -76,12 +97,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         });
 
         this.setupNotifications();
-        this.setupPreferences();
         this.addHelp();
-
-        (this as any).onScreenWidthChange = () => {
-            this.updateTableHeight();
-        };
 
         log( "Ending game setup" );
     }
@@ -124,7 +140,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         const originalState = this.gamedatas.gamestates[this.gamedatas.gamestate.id];
         this.gamedatas.gamestate.description = `${originalState['description' + property]}`; 
         this.gamedatas.gamestate.descriptionmyturn = `${originalState['descriptionmyturn' + property]}`;
-        (this as any).updatePageTitle();
+        this.updatePageTitle();
     }
     
     private onEnteringTakeCards(argsRoot: { args: EnteringTakeCardsArgs, active_player: string }) {
@@ -138,14 +154,14 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             this.setGamestateDescription('NoDiscard');
         }
 
-        if ((this as any).isCurrentPlayerActive()) {
+        if (this.isCurrentPlayerActive()) {
             this.stacks.makeDeckSelectable(args.canTakeFromDeck);
             this.stacks.makeDiscardSelectable(!args.forceTakeOne);
         }
     }
     
     private onEnteringChooseCard(args: EnteringChooseCardArgs) {
-        const currentPlayer = (this as any).isCurrentPlayerActive();
+        const currentPlayer = this.isCurrentPlayerActive();
         this.stacks.showPickCards(true, args._private?.cards ?? args.cards, currentPlayer);
         if (currentPlayer) {
             setTimeout(() => this.stacks.makePickSelectable(true), 500);
@@ -156,7 +172,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
     
     private onEnteringPutDiscardPile(args: EnteringChooseCardArgs) {
-        const currentPlayer = (this as any).isCurrentPlayerActive();
+        const currentPlayer = this.isCurrentPlayerActive();
         this.stacks.showPickCards(true, args._private?.cards ?? args.cards, currentPlayer);
         this.stacks.makeDiscardSelectable(currentPlayer);
     }
@@ -166,18 +182,18 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.selectedCards = [];
         this.selectedStarfishCards = [];
 
-        if ((this as any).isCurrentPlayerActive()) {
+        if (this.isCurrentPlayerActive()) {
             this.getCurrentPlayerTable()?.setSelectable(true);
             this.updateDisabledPlayCards();
         }
     }
     
     private onEnteringChooseDiscardPile() {
-        this.stacks.makeDiscardSelectable((this as any).isCurrentPlayerActive());
+        this.stacks.makeDiscardSelectable(this.isCurrentPlayerActive());
     }
     
     private onEnteringChooseDiscardCard(args: EnteringChooseCardArgs) {
-        const currentPlayer = (this as any).isCurrentPlayerActive();
+        const currentPlayer = this.isCurrentPlayerActive();
         const cards = args._private?.cards || args.cards;
         const pickDiv = document.getElementById('discard-pick');
         pickDiv.innerHTML = '';
@@ -194,12 +210,10 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         if (currentPlayer) {
             this.discardStock.setSelectionMode('single');
         }
-
-        this.updateTableHeight();
     }
     
     private onEnteringChooseOpponent(args: EnteringChooseOpponentArgs) {
-        if ((this as any).isCurrentPlayerActive()) {
+        if (this.isCurrentPlayerActive()) {
             args.playersIds.forEach(playerId => 
                 document.getElementById(`player-table-${playerId}-hand-cards`).dataset.canSteal = 'true'
             );
@@ -254,7 +268,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         const pickDiv = document.getElementById('discard-pick');
         pickDiv.dataset.visible = 'false';
         this.discardStock?.removeAll();
-        this.updateTableHeight();
     }
 
     private onLeavingChooseOpponent() {
@@ -265,24 +278,24 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     //                        action status bar (ie: the HTML links in the status bar).
     //
     public onUpdateActionButtons(stateName: string, args: any) {
-        if ((this as any).isCurrentPlayerActive()) {
+        if (this.isCurrentPlayerActive()) {
             switch (stateName) {
                 
                 case 'takeCards':
                     if (args.forceTakeOne) {
-                        (this as any).statusBar.addActionButton(_("Take the first card"), () => this.takeCardsFromDeck());
+                        this.statusBar.addActionButton(_("Take the first card"), () => this.takeCardsFromDeck());
                     }
                     break;
                 case 'playCards':
                     const playCardsArgs = args as EnteringPlayCardsArgs;
-                    (this as any).statusBar.addActionButton(_("Play selected cards"), () => this.playSelectedCards(), { id: `playCards_button` });
+                    this.statusBar.addActionButton(_("Play selected cards"), () => this.playSelectedCards(), { id: `playCards_button` });
                     if (playCardsArgs.hasFourMermaids) {
-                        (this as any).statusBar.addActionButton(_("Play the four Mermaids"), () => (this as any).bgaPerformAction('actEndGameWithMermaids'), { color: 'alert' });
+                        this.statusBar.addActionButton(_("Play the four Mermaids"), () => this.bgaPerformAction('actEndGameWithMermaids'), { color: 'alert' });
                     }
-                    (this as any).statusBar.addActionButton(_("End turn"), () => (this as any).bgaPerformAction('actEndTurn'), { id: `endTurn_button` });
+                    this.statusBar.addActionButton(_("End turn"), () => this.bgaPerformAction('actEndTurn'), { autoclick: !playCardsArgs.canDoAction });
                     if (playCardsArgs.canCallEndRound) {
-                        (this as any).statusBar.addActionButton(_('End round') + ' ("' + _('LAST CHANCE') + '")', () => (this as any).bgaPerformAction('actEndRound'), { id: `endRound_button`, color: 'alert' });
-                        (this as any).statusBar.addActionButton(_('End round') + ' ("' + _('STOP') + '")', () => (this as any).bgaPerformAction('actImmediateEndRound'), { id: `immediateEndRound_button`, color: 'alert' });
+                        this.statusBar.addActionButton(_('End round') + ' ("' + _('LAST CHANCE') + '")', () => this.bgaPerformAction('actEndRound'), { id: `endRound_button`, color: 'alert' });
+                        this.statusBar.addActionButton(_('End round') + ' ("' + _('STOP') + '")', () => this.bgaPerformAction('actImmediateEndRound'), { id: `immediateEndRound_button`, color: 'alert' });
 
                         this.setTooltip(`endRound_button`, `${_("Say <strong>LAST CHANCE</strong> if you are willing to take the bet of having the most points at the end of the round. The other players each take a final turn (take a card + play cards) which they complete by revealing their hand, which is now protected from attacks. Then, all players count the points on their cards (in their hand and in front of them).")}<br><br>
                         ${_("If your hand is higher or equal to that of your opponents, bet won! You score the points for your cards + the color bonus (1 point per card of the color they have the most of). Your opponents only score their color bonus.")}<br><br>
@@ -294,22 +307,18 @@ class SeaSaltPaper implements SeaSaltPaperGame {
                         dojo.addClass(`endRound_button`, `disabled`);
                         dojo.addClass(`immediateEndRound_button`, `disabled`);
                     }*/
-                    
-                    if (!playCardsArgs.canDoAction) {
-                        this.startActionTimer('endTurn_button', ACTION_TIMER_DURATION + Math.round(3 * Math.random()));
-                    }
                     break;
                 /*case 'chooseOpponent':
                     const chooseOpponentArgs = args as EnteringChooseOpponentArgs;
         
                     chooseOpponentArgs.playersIds.forEach(playerId => {
                         const player = this.getPlayer(playerId);
-                        (this as any).statusBar.addActionButton(player.name, () => this.chooseOpponent(playerId), { id: `choosePlayer${playerId}-button` });
+                        this.statusBar.addActionButton(player.name, () => this.chooseOpponent(playerId), { id: `choosePlayer${playerId}-button` });
                         document.getElementById(`choosePlayer${playerId}-button`).style.border = `3px solid #${player.color}`;
                     });
                     break;*/
                 case 'beforeEndRound':
-                    (this as any).statusBar.addActionButton(_("Seen"), () => (this as any).bgaPerformAction('actSeen'));
+                    this.statusBar.addActionButton(_("Seen"), () => this.bgaPerformAction('actSeen'));
                     break;
             }
         }
@@ -322,10 +331,10 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     ///////////////////////////////////////////////////
 
     public setTooltip(id: string, html: string) {
-        (this as any).addTooltipHtml(id, html, this.TOOLTIP_DELAY);
+        this.addTooltipHtml(id, html, this.TOOLTIP_DELAY);
     }
     public setTooltipToClass(className: string, html: string) {
-        (this as any).addTooltipHtmlToClass(className, html, this.TOOLTIP_DELAY);
+        this.addTooltipHtmlToClass(className, html, this.TOOLTIP_DELAY);
     }
 
     public isExpansion(): boolean {
@@ -333,7 +342,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     public getPlayerId(): number {
-        return Number((this as any).player_id);
+        return Number(this.player_id);
     }
 
     public getPlayerColor(playerId: number): string {
@@ -352,10 +361,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         return this.playersTables.find(playerTable => playerTable.playerId === this.getPlayerId());
     }
 
-    public updateTableHeight() {
-        this.zoomManager?.manualHeightUpdate();
-    }
-
     private onTableCenterSizeChange() {
         const maxWidth = document.getElementById('full-table').clientWidth;
         const tableCenterWidth = document.getElementById('table-center').clientWidth + 20;
@@ -372,31 +377,9 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         document.getElementById('tables').style.width = width;
     }
 
-    private setupPreferences() {
-        // Extract the ID and value from the UI control
-        const onchange = (e) => {
-          var match = e.target.id.match(/^preference_[cf]ontrol_(\d+)$/);
-          if (!match) {
-            return;
-          }
-          var prefId = +match[1];
-          var prefValue = +e.target.value;
-          (this as any).prefs[prefId].value = prefValue;
-        }
-        
-        // Call onPreferenceChange() when any value changes
-        dojo.query(".preference_control").connect("onchange", onchange);
-        
-        // Call onPreferenceChange() now
-        dojo.forEach(
-          dojo.query("#ingame_menu_content .preference_control"),
-          el => onchange({ target: el })
-        );
-    }
-
     private getOrderedPlayers(gamedatas: SeaSaltPaperGamedatas) {
         const players = Object.values(gamedatas.players).sort((a, b) => a.playerNo - b.playerNo);
-        const playerIndex = players.findIndex(player => Number(player.id) === Number((this as any).player_id));
+        const playerIndex = players.findIndex(player => Number(player.id) === Number(this.player_id));
         const orderedPlayers = playerIndex > 0 ? [...players.slice(playerIndex), ...players.slice(0, playerIndex)] : players;
         return orderedPlayers;
     }
@@ -414,12 +397,14 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             dojo.place(`<span class="end-game-points">&nbsp;/&nbsp;${endPoints}</span>`, `player_score_${playerId}`, 'after');
 
             // hand cards counter
-            dojo.place(`<div class="counters">
-                <div id="playerhand-counter-wrapper-${player.id}" class="playerhand-counter">
-                    <div class="player-hand-card"></div> 
-                    <span id="playerhand-counter-${player.id}"></span>
+            this.getPlayerPanelElement(playerId).insertAdjacentHTML('beforeend',`
+                <div class="counters">
+                    <div id="playerhand-counter-wrapper-${player.id}" class="playerhand-counter">
+                        <div class="player-hand-card"></div> 
+                        <span id="playerhand-counter-${player.id}"></span>
+                    </div>
                 </div>
-            </div>`, `player_board_${player.id}`);
+            `);
 
             const handCounter = new ebg.counter();
             handCounter.create(`playerhand-counter-${playerId}`);
@@ -656,36 +641,36 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     public takeCardsFromDeck() {
-        (this as any).bgaPerformAction('actTakeCardsFromDeck');
+        this.bgaPerformAction('actTakeCardsFromDeck');
     }
 
     public takeCardFromDiscard(discardNumber: number) {
-        (this as any).bgaPerformAction('actTakeCardFromDiscard', {
+        this.bgaPerformAction('actTakeCardFromDiscard', {
             discardNumber
         });
     }
 
     public chooseCard(id: number) {
-        (this as any).bgaPerformAction('actChooseCard', {
+        this.bgaPerformAction('actChooseCard', {
             id
         });
     }
 
     public putDiscardPile(discardNumber: number) {
-        (this as any).bgaPerformAction('actPutDiscardPile', {
+        this.bgaPerformAction('actPutDiscardPile', {
             discardNumber
         });
     }
 
     public playCards(ids: number[]) {
-        (this as any).bgaPerformAction('actPlayCards', {
+        this.bgaPerformAction('actPlayCards', {
             'id1': ids[0],
             'id2': ids[1],
         });
     }
 
     public playCardsTrio(ids: number[], starfishId: number) {
-        (this as any).bgaPerformAction('actPlayCardsTrio', {
+        this.bgaPerformAction('actPlayCardsTrio', {
             'id1': ids[0],
             'id2': ids[1],
             'starfishId': starfishId
@@ -693,46 +678,21 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     public chooseDiscardPile(discardNumber: number) {
-        (this as any).bgaPerformAction('actChooseDiscardPile', {
+        this.bgaPerformAction('actChooseDiscardPile', {
             discardNumber
         });
     }
 
     public chooseDiscardCard(id: number) {
-        (this as any).bgaPerformAction('actChooseDiscardCard', {
+        this.bgaPerformAction('actChooseDiscardCard', {
             id
         });
     }
 
     public chooseOpponent(id: number) {
-        (this as any).bgaPerformAction('actChooseOpponent', {
+        this.bgaPerformAction('actChooseOpponent', {
             id
         });
-    }
-
-    private startActionTimer(buttonId: string, time: number) {
-        if (Number((this as any).prefs[202]?.value) === 2) {
-            return;
-        }
-
-        const button = document.getElementById(buttonId);
- 
-        let actionTimerId = null;
-        const _actionTimerLabel = button.innerHTML;
-        let _actionTimerSeconds = time;
-        const actionTimerFunction = () => {
-          const button = document.getElementById(buttonId);
-          if (button == null || button.classList.contains('disabled')) {
-            window.clearInterval(actionTimerId);
-          } else if (_actionTimerSeconds-- > 1) {
-            button.innerHTML = _actionTimerLabel + ' (' + _actionTimerSeconds + ')';
-          } else {
-            window.clearInterval(actionTimerId);
-            button.click();
-          }
-        };
-        actionTimerFunction();
-        actionTimerId = window.setInterval(() => actionTimerFunction(), 1000);
     }
 
     ///////////////////////////////////////////////////
@@ -832,7 +792,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     notif_cardInDiscardFromDeck(args: NotifCardInDiscardFromDeckArgs) {
         this.stacks.setDiscardCard(args.discardId, args.card, 1, document.getElementById('deck'));
         this.stacks.deck.setCardNumber(args.remainingCardsInDeck);
-        this.updateTableHeight();
     } 
 
     notif_cardInHandFromDiscard(args: NotifCardInHandFromDiscardArgs) {
@@ -844,7 +803,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.handCounters[playerId].incValue(1);
 
         this.stacks.setDiscardCard(discardNumber, args.newDiscardTopCard, args.remainingCardsInDiscard);
-        this.updateTableHeight();
     } 
 
     notif_cardInHandFromDiscardCrab(args: NotifCardInHandFromDiscardArgs) {
@@ -855,7 +813,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         this.handCounters[playerId].incValue(1);
 
         this.stacks.setDiscardCard(args.discardId, args.newDiscardTopCard, args.remainingCardsInDiscard);
-        this.updateTableHeight();
     } 
 
     notif_cardInHandFromPick(args: NotifCardInHandFromPickArgs) {
@@ -876,7 +833,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         const discardNumber = args.discardId;
         this.cardsManager.setCardVisible(card, true);
         this.stacks.setDiscardCard(discardNumber, card, args.remainingCardsInDiscard);
-        this.updateTableHeight();
     } 
 
     notif_cardsInDeckFromPick(args: NotifCardsInDeckFromPickArgs) {
@@ -884,16 +840,15 @@ class SeaSaltPaper implements SeaSaltPaperGame {
             visible: false,
         });
         this.stacks.deck.setCardNumber(args.remainingCardsInDeck);
-        this.updateTableHeight();
     }
 
     notif_score(args: NotifScoreArgs) {
         const playerId = args.playerId;
-        (this as any).scoreCtrl[playerId]?.toValue(args.newScore);
+        this.scoreCtrl[playerId]?.toValue(args.newScore);
 
         const incScore = args.incScore;
         if (incScore != null && incScore !== undefined) {
-            (this as any).displayScoring(`player-table-${playerId}-table-cards`, this.getPlayerColor(playerId), incScore, ANIMATION_MS * 3);
+            this.displayScoring(`player-table-${playerId}-table-cards`, this.getPlayerColor(playerId), incScore, ANIMATION_MS * 3);
         }
 
         if (args.details) {
@@ -947,7 +902,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         await this.stacks.deck.addCards(cards, undefined, { visible: false });
         
         this.getCurrentPlayerTable()?.setHandPoints(0, [0, 0, 0, 0]);
-        this.updateTableHeight();
         this.stacks.deck.setCardNumber(args.remainingCardsInDeck);
 
         return await this.stacks.deck.shuffle();
@@ -993,8 +947,7 @@ class SeaSaltPaper implements SeaSaltPaperGame {
     }
 
     /* This enable to inject translatable styled things to logs or action bar */
-    /* @Override */
-    public format_string_recursive(log: string, args: any) {
+    public bgaFormatText(log: string, args: any) {
         try {
             if (log && args && !args.processed) {
                 if (args.announcement && args.announcement[0] != '<') {
@@ -1014,6 +967,6 @@ class SeaSaltPaper implements SeaSaltPaperGame {
         } catch (e) {
             console.error(log,args,"Exception thrown", e.stack);
         }
-        return (this as any).inherited(arguments);
+        return { log, args };
     }
 }

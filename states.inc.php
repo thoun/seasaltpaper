@@ -14,6 +14,9 @@
  *
  */
 
+use Bga\GameFramework\GameStateBuilder;
+use Bga\GameFramework\StateType;
+
 /*
    Game state machine is a tool used to facilitate game developpement by doing common stuff that can be set up
    in a very easy way from this configuration file.
@@ -54,25 +57,8 @@ require_once("modules/php/constants.inc.php");
 $basicGameStates = [
 
     // The initial state. Please do not modify.
-    ST_BGA_GAME_SETUP => [
-        "name" => "gameSetup",
-        "description" => clienttranslate("Game setup"),
-        "type" => "manager",
-        "action" => "stGameSetup",
-        "transitions" => [ "" => ST_NEW_ROUND ]
-    ],
-   
-    // Final state.
-    // Please do not modify.
-    ST_END_GAME => [
-        "name" => "gameEnd",
-        "description" => clienttranslate("End of game"),
-        "type" => "manager",
-        "action" => "stGameEnd",
-        "args" => "argGameEnd",
-    ],
+    ST_BGA_GAME_SETUP => GameStateBuilder::gameSetup(ST_NEW_ROUND)->build(),
 ];
-
 
 $playerActionsGameStates = [
 
@@ -203,61 +189,52 @@ $playerActionsGameStates = [
 ];
 
 $gameGameStates = [
-
-    ST_NEW_ROUND => [
-        "name" => "newRound",
-        "description" => "",
-        "type" => "game",
-        "action" => "stNewRound",
-        "transitions" => [
+    ST_NEW_ROUND => GameStateBuilder::create()
+        ->name('newRound')
+        ->description('')
+        ->type(StateType::GAME)
+        ->action('stNewRound')
+        ->transitions([
             "start" => ST_PLAYER_TAKE_CARDS,
-        ],
-    ],
+        ])
+        ->build(),
 
-    ST_NEXT_PLAYER => [
-        "name" => "nextPlayer",
-        "description" => "",
-        "type" => "game",
-        "action" => "stNextPlayer",
-        "transitions" => [
+    ST_NEXT_PLAYER => GameStateBuilder::create()
+        ->name('nextPlayer')
+        ->description('')
+        ->type(StateType::GAME)
+        ->action('stNextPlayer')
+        ->transitions([
             "newTurn" => ST_PLAYER_TAKE_CARDS, 
             "endRound" => ST_MULTIPLAYER_BEFORE_END_ROUND,
-        ],
-    ],
+        ])
+        ->build(),
     
-    ST_MULTIPLAYER_BEFORE_END_ROUND => [
-        "name" => "beforeEndRound",
-        "description" => clienttranslate('Some players are seeing end round result'),
-        "descriptionmyturn" => clienttranslate('End round result'),
-        "type" => "multipleactiveplayer",
-        "action" => "stBeforeEndRound",
-        "possibleactions" => [ "actSeen" ],
-        "transitions" => [
+    ST_MULTIPLAYER_BEFORE_END_ROUND => GameStateBuilder::create()
+        ->name('beforeEndRound')
+        ->description(clienttranslate('Some players are seeing end round result'))
+        ->descriptionMyTurn(clienttranslate('End round result'))
+        ->type(StateType::MULTIPLE_ACTIVE_PLAYER)
+        ->action('stBeforeEndRound')
+        ->possibleActions(['actSeen'])
+        ->transitions([
             "endRound" => ST_END_ROUND,
             "endScore" => ST_END_SCORE,
-        ],
-    ],
+        ])
+        ->build(),
 
-    ST_END_ROUND => [
-        "name" => "endRound",
-        "description" => "",
-        "type" => "game",
-        "action" => "stEndRound",
-        "transitions" => [
+    ST_END_ROUND => GameStateBuilder::create()
+        ->name('endRound')
+        ->description('')
+        ->type(StateType::GAME)
+        ->action('stEndRound')
+        ->transitions([
             "newRound" => ST_NEW_ROUND,
             "endScore" => ST_END_SCORE,
-        ],
-    ],
+        ])
+        ->build(),
 
-    ST_END_SCORE => [
-        "name" => "endScore",
-        "description" => "",
-        "type" => "game",
-        "action" => "stEndScore",
-        "transitions" => [
-            "endGame" => ST_END_GAME,
-        ],
-    ],
+    ST_END_SCORE => GameStateBuilder::endScore()->build(),
 ];
  
 $machinestates = $basicGameStates + $playerActionsGameStates + $gameGameStates;
