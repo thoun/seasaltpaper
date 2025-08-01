@@ -1,6 +1,8 @@
 <?php
 
-require_once(__DIR__.'/objects/cards-points.php');
+namespace Bga\Games\SeaSaltPaper;
+
+use Bga\Games\SeaSaltPaper\Objects\Card;
 
 trait UtilTrait {
 
@@ -133,7 +135,7 @@ trait UtilTrait {
         $tableCards = $this->getPlayerCards($playerId, 'table', false);
         $handCards = $this->getPlayerCards($playerId, 'hand', true);
 
-        $cardsScore = new CardsPoints($tableCards, $handCards);
+        $cardsScore = new Objects\CardsPoints($tableCards, $handCards);
         return $cardsScore;
     }
 

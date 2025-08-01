@@ -1,5 +1,7 @@
 <?php
 
+namespace Bga\Games\SeaSaltPaper\Objects;
+
 function array_find(array $array, callable $fn) {
     foreach ($array as $value) {
         if($fn($value)) {

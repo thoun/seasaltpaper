@@ -1,5 +1,9 @@
 <?php
 
+namespace Bga\Games\SeaSaltPaper;
+
+use Bga\Games\SeaSaltPaper\Objects\Card;
+
 trait ArgsTrait {
     
 //////////////////////////////////////////////////////////////////////////////

@@ -18,25 +18,18 @@
 
 namespace Bga\Games\SeaSaltPaper;
 
-use \Card;
-
-require_once( APP_GAMEMODULE_PATH.'module/table/table.game.php' );
+use Bga\Games\SeaSaltPaper\Objects\Card;
 
 require_once('constants.inc.php');
-require_once('utils.php');
-require_once('actions.php');
-require_once('states.php');
-require_once('args.php');
-require_once('debug-util.php');
 
-class Game extends \Table {
-    use \UtilTrait;
-    use \ActionTrait;
-    use \StateTrait;
-    use \ArgsTrait;
-    use \DebugUtilTrait;
+class Game extends \Bga\GameFramework\Table {
+    use UtilTrait;
+    use ActionTrait;
+    use StateTrait;
+    use ArgsTrait;
+    use DebugUtilTrait;
 
-    private \Deck $cards;
+    private \Bga\GameFramework\Components\Deck $cards;
 
     public array $END_GAME_POINTS;
     public array $ANNOUNCEMENTS;

@@ -1881,7 +1881,6 @@ var Stacks = /** @class */ (function () {
                 }
             }
         });
-        this.game.updateTableHeight();
     };
     Stacks.prototype.setDiscardCard = function (discardNumber, card, newCount, from) {
         if (newCount === void 0) { newCount = null; }

@@ -62,7 +62,6 @@ class Stacks {
                 }
             }
         });
-        this.game.updateTableHeight();
     }
     
     public setDiscardCard(discardNumber: number, card: Card | null, newCount: number | null = null, from: HTMLElement = undefined) {

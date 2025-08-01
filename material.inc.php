@@ -19,7 +19,19 @@
  *
  */
 
-require_once('modules/php/objects/card.php');
+use Bga\Games\SeaSaltPaper\Objects\BoatPairCard;
+use Bga\Games\SeaSaltPaper\Objects\CollectionCard;
+use Bga\Games\SeaSaltPaper\Objects\CrabPairCard;
+use Bga\Games\SeaSaltPaper\Objects\FishPairCard;
+use Bga\Games\SeaSaltPaper\Objects\JellyfishPairCard;
+use Bga\Games\SeaSaltPaper\Objects\LobsterPairCard;
+use Bga\Games\SeaSaltPaper\Objects\MermaidCard;
+use Bga\Games\SeaSaltPaper\Objects\MultiplierCard;
+use Bga\Games\SeaSaltPaper\Objects\SharkPairCard;
+use Bga\Games\SeaSaltPaper\Objects\SpecialCard;
+use Bga\Games\SeaSaltPaper\Objects\SwimmerPairCard;
+
+require_once('modules/php/Objects/Card.php');
 
 $this->END_GAME_POINTS = [
   2 => 40,

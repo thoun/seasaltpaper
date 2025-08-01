@@ -1,5 +1,7 @@
 <?php
 
+namespace Bga\Games\SeaSaltPaper\Objects;
+
 class CardType {
     public int $category;
     public int $family;
