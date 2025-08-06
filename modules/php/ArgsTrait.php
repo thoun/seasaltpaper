@@ -5,6 +5,8 @@ namespace Bga\Games\SeaSaltPaper;
 use Bga\Games\SeaSaltPaper\Objects\Card;
 
 trait ArgsTrait {
+
+    //private CardManager $cards;
     
 //////////////////////////////////////////////////////////////////////////////
 //////////// Game state arguments
@@ -19,10 +21,10 @@ trait ArgsTrait {
     function argTakeCards() {
         $forceTakeOne = intval($this->getGameStateValue(FORCE_TAKE_ONE)) > 0;
 
-        $canTakeFromDeck = intval($this->cards->countCardInLocation('deck')) > 0;
+        $canTakeFromDeck = $this->cards->countItemsInLocation('deck') > 0;
         $canTakeFromDiscard = [];
         foreach([1, 2] as $discardNumber) {
-            if (intval($this->cards->countCardInLocation('discard'.$discardNumber)) > 0) {
+            if ($this->cards->countItemsInLocation('discard'.$discardNumber) > 0) {
                 $canTakeFromDiscard[] = $discardNumber;
             }
         }
@@ -39,7 +41,7 @@ trait ArgsTrait {
     function argChooseCard() {        
         $playerId = intval($this->getActivePlayerId());
 
-        $cards = $this->getCardsFromDb($this->cards->getCardsInLocation('pick'));
+        $cards = $this->cards->getItemsInLocation('pick');
         $maskedCards = Card::onlyIds($cards);
     
         return [
@@ -49,7 +51,7 @@ trait ArgsTrait {
                 ]
             ],
             'cards' => $maskedCards,
-            'deckTopCard' => $this->getDeckTopCard(),
+            'deckTopCard' => $this->cards->getDeckTopCard(),
             'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
         ];
     }
@@ -74,7 +76,8 @@ trait ArgsTrait {
         $playerId = intval($this->getActivePlayerId());
 
         $discardNumber = $this->getGameStateValue(CHOSEN_DISCARD);
-        $cards = $this->getCardsFromDb($this->cards->getCardsInLocation('discard'.$discardNumber, null, 'location_arg'));
+        $cards = $this->cards->getItemsInLocation('discard'.$discardNumber);
+        usort($cards, fn($a, $b) => $a->locationArg <=> $b->locationArg);
         $maskedCards = Card::onlyIds($cards);
     
         return [

@@ -1687,7 +1687,7 @@ var CardsManager = /** @class */ (function (_super) {
                 div.dataset.cardId = '' + card.id;
             },
             setupFrontDiv: function (card, div) { return _this.setupFrontDiv(card, div); },
-            isCardVisible: function (card) { return Boolean(card.category); },
+            isCardVisible: function (card) { return Boolean(card.category) && !card.flipped; },
             animationManager: game.animationManager,
             cardWidth: 149,
             cardHeight: 208,

@@ -6,6 +6,8 @@ use Bga\Games\SeaSaltPaper\Objects\Card;
 
 trait UtilTrait {
 
+    private CardManager $cards;
+
     //////////////////////////////////////////////////////////////////////////////
     //////////// Utility functions
     ////////////
@@ -87,34 +89,6 @@ trait UtilTrait {
 
         return $maxScore;
     }
-
-    function getCardFromDb(/*array|null*/ $dbCard) {
-        if ($dbCard == null) {
-            return null;
-        }
-        return new Card($dbCard, $this->ALL_CARDS);
-    }
-
-    function getCardsFromDb(array $dbCards) {
-        return array_map(fn($dbCard) => $this->getCardFromDb($dbCard), array_values($dbCards));
-    }
-
-    function setupCards(bool $isExpansion) {
-        $cards = [];
-        $cardsTypes = $this->CARDS;
-        if ($isExpansion) {
-            $cardsTypes = array_merge($cardsTypes, $this->EXPANSION_CARDS);
-        }
-        foreach ($cardsTypes as $cardType) {
-            for ($index = 0; $index < $cardType->number; $index++) {
-                $type = $cardType->category * 10 + $cardType->family;
-                $typeArg = $cardType->color * 10 + $index;
-                $cards[] = [ 'type' => $type, 'type_arg' => $typeArg, 'nbr' => 1 ];
-            }
-        }
-        $this->cards->createCards($cards, 'deck');
-        $this->cards->shuffle('deck');
-    }
     
     function getTotalRoundNumber() {
         return 6 - count($this->getPlayersIds());
@@ -122,10 +96,10 @@ trait UtilTrait {
 
     // includeTableHandCards are cards from the hand that have been revealed on table, but never played
     function getPlayerCards(int $playerId, string $from /*'hand' | 'table'*/, bool $includeTableHandCards) {
-        $cards = $this->getCardsFromDb($this->cards->getCardsInLocation($from.$playerId));
+        $cards = $this->cards->getItemsInLocation($from.$playerId);
 
         if ($includeTableHandCards) {
-            $cards = array_merge($cards, $this->getCardsFromDb($this->cards->getCardsInLocation('tablehand'.$playerId)));
+            $cards = array_merge($cards, $this->cards->getItemsInLocation('tablehand'.$playerId));
         }
 
         return $cards;
@@ -160,7 +134,7 @@ trait UtilTrait {
         $handCards = $this->getPlayerCards($playerId, 'hand', false);
 
         if (count($handCards) > 0) {
-            $this->cards->moveAllCardsInLocation('hand'.$playerId, 'tablehand'.$playerId);
+            $this->cards->moveAllItemsInLocation('hand'.$playerId, 'tablehand'.$playerId);
 
             $playerPoints = $this->getCardsPoints($playerId)->totalPoints;
             $this->notifyAllPlayers('revealHand', clienttranslate('${player_name} reveals a hand worth ${points} points'), [
@@ -203,7 +177,7 @@ trait UtilTrait {
         $playersIds = $this->getPlayersIds();
 
         return array_values(array_filter($playersIds, fn($playerId) => 
-            $playerId != $stealerId && intval($this->cards->countCardInLocation('hand'.$playerId)) > 0
+            $playerId != $stealerId && $this->cards->countItemsInLocation('hand'.$playerId) > 0
         ));
     }
 
@@ -214,7 +188,7 @@ trait UtilTrait {
         $cardsNumber = count($cardsInHand);
         if ($cardsNumber > 0) {
             $card = $cardsInHand[bga_rand(1, $cardsNumber) - 1];
-            $this->cards->moveCard($card->id, 'hand'.$stealerId);
+            $this->cards->moveItem($card, 'hand'.$stealerId);
             $this->cardCollected($stealerId, $card);
 
             $args = [
@@ -309,11 +283,11 @@ trait UtilTrait {
     }
 
     function getRemainingCardsInDeck() {
-        return intval($this->cards->countCardInLocation('deck'));
+        return $this->cards->countItemsInLocation('deck');
     }
 
     function getRemainingCardsInDiscard(int $number) {
-        return intval($this->cards->countCardInLocation('discard'.$number));
+        return $this->cards->countItemsInLocation('discard'.$number);
     }
 
     function cardCollected(int $playerId, Card $card) {
@@ -322,9 +296,5 @@ trait UtilTrait {
             $this->incStat(1, 'cardsCollected'.$number);
             $this->incStat(1, 'cardsCollected'.$number, $playerId);
         }
-    }
-
-    function getDeckTopCard() {
-        return Card::onlyId($this->getCardFromDb($this->cards->getCardOnTop('deck')));
     }
 }

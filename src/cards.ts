@@ -8,7 +8,7 @@ class CardsManager extends CardManager<Card> {
                 div.dataset.cardId = ''+card.id;
             },
             setupFrontDiv: (card: Card, div: HTMLElement) => this.setupFrontDiv(card, div),
-            isCardVisible: card => Boolean(card.category),
+            isCardVisible: card => Boolean(card.category) && !card.flipped,
             animationManager: game.animationManager,
             cardWidth: 149,
             cardHeight: 208,

@@ -9,6 +9,7 @@ interface Card {
     color: number;
     index: number;
     matchFamilies?: number[];
+    flipped: boolean;
 }
 
 interface ScoreDetails {
@@ -55,7 +56,7 @@ interface SeaSaltPaperGamedatas {
     doublePoints: boolean;
 }
 
-interface SeaSaltPaperGame extends Game {
+interface SeaSaltPaperGame extends GameGui {
     animationManager: AnimationManager;
     cardsManager: CardsManager;
 

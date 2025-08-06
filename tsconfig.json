@@ -10,7 +10,6 @@
     "files": [
         "bga-framework.d.ts",
         "bga-zoom.d.ts",
-        "node_modules/bga-animations/src/framework.d.ts",
         "node_modules/bga-animations/src/animations.ts",
         "node_modules/bga-animations/src/animations/attach-with-animation.ts",
         "node_modules/bga-animations/src/animations/cumulated-animations.ts",

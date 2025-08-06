@@ -7,6 +7,8 @@ use Bga\Games\SeaSaltPaper\Objects\Card;
 
 trait ActionTrait {
 
+    //private CardManager $cards;
+
     //////////////////////////////////////////////////////////////////////////////
     //////////// Player actions
     //////////// 
@@ -29,9 +31,9 @@ trait ActionTrait {
             throw new \BgaUserException("You can't take a card from the deck");
         }
 
-        $cards = $this->getCardsFromDb($this->cards->pickCardsForLocation(2, 'deck', 'pick'));
+        $cards = $this->cards->pickItemsForLocation(2, 'deck', null, 'pick');
 
-        self::notifyAllPlayers('log', clienttranslate('${player_name} picks ${number} cards from the deck'), [
+        $this->notify->all('log', clienttranslate('${player_name} picks ${number} cards from the deck'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'number' => count($cards),
@@ -47,11 +49,11 @@ trait ActionTrait {
 
     public function takeFirstCardFromDeck(int $playerId) {
 
-        if (intval($this->cards->countCardInLocation('deck')) > 0) {
-            $card = $this->getCardFromDb($this->cards->pickCardForLocation('deck', 'hand'.$playerId));
+        if (intval($this->cards->countItemsInLocation('deck')) > 0) {
+            $card = $this->cards->pickItemForLocation('deck', null, 'hand'.$playerId);
             $this->cardCollected($playerId, $card);
 
-            self::notifyPlayer($playerId, 'cardInHandFromDeck', clienttranslate('You take ${cardColor} ${cardName} card from deck'), [
+            $this->notify->player($playerId, 'cardInHandFromDeck', clienttranslate('You take ${cardColor} ${cardName} card from deck'), [
                 'playerId' => $playerId,
                 'player_name' => $this->getPlayerName($playerId),
                 'card' => $card,
@@ -60,16 +62,16 @@ trait ActionTrait {
                 'i18n' => ['cardName', 'cardColor'],
                 'preserve' => ['actionPlayerId'],
                 'actionPlayerId' => $playerId,
-                'deckTopCard' => $this->getDeckTopCard(),
+                'deckTopCard' => $this->cards->getDeckTopCard(),
                 'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
             ]);
-            self::notifyAllPlayers('cardInHandFromDeck', clienttranslate('${player_name} took a card from deck'), [
+            $this->notify->all('cardInHandFromDeck', clienttranslate('${player_name} took a card from deck'), [
                 'playerId' => $playerId,
                 'player_name' => $this->getPlayerName($playerId),
                 'card' => Card::onlyId($card),
                 'preserve' => ['actionPlayerId'],
                 'actionPlayerId' => $playerId,
-                'deckTopCard' => $this->getDeckTopCard(),
+                'deckTopCard' => $this->cards->getDeckTopCard(),
                 'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
             ]);
 
@@ -88,17 +90,17 @@ trait ActionTrait {
             throw new \BgaUserException("You can't take a card from the discard pile");
         }
 
-        $card = $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber));
+        $card = $this->cards->getDiscardTopCard($discardNumber);
         if ($card == null) {
             throw new \BgaUserException("No card in that discard");
         }
 
         $playerId = intval($this->getActivePlayerId());
 
-        $this->cards->moveCard($card->id, 'hand'.$playerId);
+        $this->cards->moveItem($card, 'hand'.$playerId);
         $this->cardCollected($playerId, $card);
 
-        self::notifyAllPlayers('cardInHandFromDiscard', clienttranslate('${player_name} takes ${cardColor} ${cardName} from discard pile ${discardNumber}'), [
+        $this->notify->all('cardInHandFromDiscard', clienttranslate('${player_name} takes ${cardColor} ${cardName} from discard pile ${discardNumber}'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'card' => $card,
@@ -107,7 +109,7 @@ trait ActionTrait {
             'i18n' => ['cardName', 'cardColor'],
             'discardId' => $discardNumber,
             'discardNumber' => $discardNumber,
-            'newDiscardTopCard' => $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber)),
+            'newDiscardTopCard' => $this->cards->getDiscardTopCard($discardNumber),
             'remainingCardsInDiscard' => $this->getRemainingCardsInDiscard($discardNumber),
             'preserve' => ['actionPlayerId'],
             'actionPlayerId' => $playerId,
@@ -123,15 +125,15 @@ trait ActionTrait {
     public function actChooseCard(int $id) {        
         $playerId = intval($this->getActivePlayerId());
 
-        $card = $this->getCardFromDb($this->cards->getCard($id));
+        $card = $this->cards->getItemById($id);
         if ($card->location != 'pick') {
             throw new \BgaUserException("Cannot pick this card");
         }
 
-        $this->cards->moveCard($card->id, 'hand'.$playerId);
+        $this->cards->moveItem($card, 'hand'.$playerId);
         $this->cardCollected($playerId, $card);
 
-        self::notifyPlayer($playerId, 'cardInHandFromPick', clienttranslate('You choose ${cardColor} ${cardName} card'), [
+        $this->notify->player($playerId, 'cardInHandFromPick', clienttranslate('You choose ${cardColor} ${cardName} card'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'card' => $card,
@@ -141,7 +143,7 @@ trait ActionTrait {
             'preserve' => ['actionPlayerId'],
             'actionPlayerId' => $playerId,
         ]);
-        self::notifyAllPlayers('cardInHandFromPick', clienttranslate('${player_name} chooses a card'), [
+        $this->notify->all('cardInHandFromPick', clienttranslate('${player_name} chooses a card'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'card' => Card::onlyId($card),
@@ -151,7 +153,7 @@ trait ActionTrait {
 
         $this->updateCardsPoints($playerId);
         
-        $remainingCardsInPick = intval($this->cards->countCardInLocation('pick'));
+        $remainingCardsInPick = $this->cards->countItemsInLocation('pick');
         if ($remainingCardsInPick == 0) {
             $this->gamestate->nextState('playCards');
             return;
@@ -160,30 +162,30 @@ trait ActionTrait {
         if (boolval($this->getGameStateValue(LOBSTER_POWER))) {
             $this->setGameStateValue(LOBSTER_POWER, 0);
 
-            $cards = $this->getCardsFromDb($this->cards->getCardsInLocation('pick'));
+            $cards = $this->cards->getItemsInLocation('pick');
             if (count($cards) > 0) {
-                $this->cards->moveAllCardsInLocation('pick', 'deck');
+                $this->cards->moveAllItemsInLocation('pick', 'deck');
                 $this->cards->shuffle('deck');
 
-                self::notifyAllPlayers('cardsInDeckFromPick', '', [
+                $this->notify->all('cardsInDeckFromPick', '', [
                     'playerId' => $playerId,
                     'player_name' => $this->getPlayerName($playerId),
                     'cards' => $cards,
-                    'deckTopCard' => $this->getDeckTopCard(),
+                    'deckTopCard' => $this->cards->getDeckTopCard(),
                     'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
                     'preserve' => ['actionPlayerId'],
                     'actionPlayerId' => $playerId,
                 ]);
 
-                self::notifyAllPlayers('reshuffleDeck', '', [
-                    'deckTopCard' => $this->getDeckTopCard(),
+                $this->notify->all('reshuffleDeck', '', [
+                    'deckTopCard' => $this->cards->getDeckTopCard(),
                 ]);
             }
 
             $this->gamestate->nextState('playCards');
         } else {
-            $remainingCardsInDiscard1 = intval($this->cards->countCardInLocation('discard1'));
-            $remainingCardsInDiscard2 = intval($this->cards->countCardInLocation('discard2'));
+            $remainingCardsInDiscard1 = $this->cards->countItemsInLocation('discard1');
+            $remainingCardsInDiscard2 = $this->cards->countItemsInLocation('discard2');
 
             if ($remainingCardsInDiscard1 == 0) {
                 $this->applyPutDiscardPile(1);
@@ -200,16 +202,16 @@ trait ActionTrait {
     private function applyPutDiscardPile(int $discardNumber) {        
         $playerId = intval($this->getActivePlayerId());
 
-        $card = $this->getCardsFromDb($this->cards->getCardsInLocation('pick'))[0];
+        $card = $this->cards->getItemsInLocation('pick')[0];
         if ($card == null) {
             throw new \BgaUserException("No card in pick");
         }
 
         $location = 'discard'.$discardNumber;
         $maxLocationArg = intval($this->getUniqueValueFromDB("SELECT max(card_location_arg) FROM card where `card_location` = '$location'"));
-        $this->cards->moveCard($card->id, $location, $maxLocationArg + 1);
+        $this->cards->moveItem($card, $location, $maxLocationArg + 1);
 
-        self::notifyAllPlayers('cardInDiscardFromPick', clienttranslate('${player_name} puts ${cardColor} ${cardName} to discard pile ${discardNumber}'), [
+        $this->notify->all('cardInDiscardFromPick', clienttranslate('${player_name} puts ${cardColor} ${cardName} to discard pile ${discardNumber}'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'card' => $card,
@@ -241,7 +243,7 @@ trait ActionTrait {
         }
 
         $playerId = intval($this->getActivePlayerId());
-        $cards = $this->getCardsFromDb($this->cards->getCards([$id1, $id2]));
+        $cards = $this->cards->getItemsByIds([$id1, $id2]);
 
         if ($this->array_some($cards, fn($card) => $card->location != 'hand'.$playerId || $card->category != PAIR)) {
             throw new \BgaUserException("You must select Pair cards from your hand");
@@ -251,9 +253,9 @@ trait ActionTrait {
             throw new \BgaUserException("Invalid pair");
         }
 
-        $count = intval($this->cards->countCardInLocation('table'.$playerId));
+        $count = $this->cards->countItemsInLocation('table'.$playerId);
         foreach($cards as $card) {
-            $this->cards->moveCard($card->id, 'table'.$playerId, ++$count);
+            $this->cards->moveItem($card, 'table'.$playerId, ++$count);
         }
 
         $families = array_map(fn($card) => $card->family, $cards);
@@ -290,7 +292,7 @@ trait ActionTrait {
                 break;
         }
 
-        self::notifyAllPlayers('playCards', clienttranslate('${player_name} plays cards ${cardColor1} ${cardName1} and ${cardColor2} ${cardName2} and ${action}'), [
+        $this->notify->all('playCards', clienttranslate('${player_name} plays cards ${cardColor1} ${cardName1} and ${cardColor2} ${cardName2} and ${action}'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'cards' => $cards,
@@ -311,27 +313,27 @@ trait ActionTrait {
 
         switch ($power) {
             case 1:
-                if ((intval($this->cards->countCardInLocation('discard1')) + intval($this->cards->countCardInLocation('discard2'))) > 0) {
+                if (($this->cards->countItemsInLocation('discard1') + $this->cards->countItemsInLocation('discard2')) > 0) {
                     $this->gamestate->nextState('chooseDiscardPile');
                 } else {
-                    self::notifyAllPlayers('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
+                    $this->notify->all('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
                     $this->gamestate->nextState('playCards');
                 }
                 break;
             case 2:
-                if ((intval($this->cards->countCardInLocation('deck')) + intval($this->cards->countCardInLocation('discard1')) + intval($this->cards->countCardInLocation('discard2'))) > 0) {
+                if (($this->cards->countItemsInLocation('deck') + $this->cards->countItemsInLocation('discard1') + $this->cards->countItemsInLocation('discard2')) > 0) {
                     $this->gamestate->nextState('newTurn');
                 } else {
-                    self::notifyAllPlayers('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
+                    $this->notify->all('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
                     $this->gamestate->nextState('playCards');
                 }
                 break;
             case 3:
-                if (intval($this->cards->countCardInLocation('deck')) > 0) {
-                    $card = $this->getCardFromDb($this->cards->pickCardForLocation('deck', 'hand'.$playerId));
+                if ($this->cards->countItemsInLocation('deck') > 0) {
+                    $card = $this->cards->pickItemForLocation('deck', null, 'hand'.$playerId);
                     $this->cardCollected($playerId, $card);
 
-                    self::notifyPlayer($playerId, 'cardInHandFromDeck', clienttranslate('You take ${cardColor} ${cardName} card from deck'), [
+                    $this->notify->player($playerId, 'cardInHandFromDeck', clienttranslate('You take ${cardColor} ${cardName} card from deck'), [
                         'playerId' => $playerId,
                         'player_name' => $this->getPlayerName($playerId),
                         'card' => $card,
@@ -340,23 +342,23 @@ trait ActionTrait {
                         'i18n' => ['cardName', 'cardColor'],
                         'preserve' => ['actionPlayerId'],
                         'actionPlayerId' => $playerId,
-                        'deckTopCard' => $this->getDeckTopCard(),
+                        'deckTopCard' => $this->cards->getDeckTopCard(),
                         'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
                     ]);
-                    self::notifyAllPlayers('cardInHandFromDeck', clienttranslate('${player_name} took a card from deck'), [
+                    $this->notify->all('cardInHandFromDeck', clienttranslate('${player_name} took a card from deck'), [
                         'playerId' => $playerId,
                         'player_name' => $this->getPlayerName($playerId),
                         'card' => Card::onlyId($card),
                         'preserve' => ['actionPlayerId'],
                         'actionPlayerId' => $playerId,
-                        'deckTopCard' => $this->getDeckTopCard(),
+                        'deckTopCard' => $this->cards->getDeckTopCard(),
                         'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
                     ]);
                     
                     $this->updateCardsPoints($playerId);
                     $this->gamestate->nextState('playCards');
                 } else {
-                    self::notifyAllPlayers('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
+                    $this->notify->all('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
                     $this->gamestate->nextState('playCards');
                 }
                 
@@ -367,7 +369,7 @@ trait ActionTrait {
                 if (count($possibleOpponentsToSteal) > 0) {
                     $this->gamestate->nextState('chooseOpponent');
                 } else {
-                    self::notifyAllPlayers('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
+                    $this->notify->all('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
                     $this->gamestate->nextState('playCards');
                 }
 
@@ -377,7 +379,7 @@ trait ActionTrait {
                     if (count($possibleOpponentsToSteal) == 1) {
                         $this->applySteal($playerId, $possibleOpponentsToSteal[0]);
                     } else {
-                        self::notifyAllPlayers('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
+                        $this->notify->all('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
                     }
                     $this->gamestate->nextState('playCards');
                 }*/
@@ -387,12 +389,12 @@ trait ActionTrait {
                 $this->gamestate->nextState('playCards');
                 break;
             case 6:
-                if (intval($this->cards->countCardInLocation('deck')) > 0) {
+                if ($this->cards->countItemsInLocation('deck') > 0) {
                     $this->setGameStateValue(LOBSTER_POWER, 1);
 
-                    $cards = $this->getCardsFromDb($this->cards->pickCardsForLocation(5, 'deck', 'pick'));
+                    $cards = $this->cards->pickItemsForLocation(5, 'deck', null, 'pick');
             
-                    self::notifyAllPlayers('log', clienttranslate('${player_name} picks ${number} cards from the deck'), [
+                    $this->notify->all('log', clienttranslate('${player_name} picks ${number} cards from the deck'), [
                         'playerId' => $playerId,
                         'player_name' => $this->getPlayerName($playerId),
                         'number' => count($cards),
@@ -402,7 +404,7 @@ trait ActionTrait {
 
                     $this->gamestate->nextState('chooseCard');
                 } else {
-                    self::notifyAllPlayers('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
+                    $this->notify->all('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
                     $this->gamestate->nextState('playCards');
                 }
                 break;
@@ -416,7 +418,7 @@ trait ActionTrait {
         }
 
         $playerId = intval($this->getActivePlayerId());
-        $cards = $this->getCardsFromDb($this->cards->getCards([$id1, $id2]));
+        $cards = $this->cards->getItemsByIds([$id1, $id2]);
 
         if ($this->array_some($cards, fn($card) => $card->location != 'hand'.$playerId || $card->category != PAIR)) {
             throw new \BgaUserException("You must select Pair cards from your hand");
@@ -426,19 +428,19 @@ trait ActionTrait {
             throw new \BgaUserException("Invalid pair");
         }
 
-        $starfishCard = $this->getCardFromDb($this->cards->getCard($starfishId));
+        $starfishCard = $this->cards->getItemById($starfishId);
         if ($starfishCard->location != 'hand'.$playerId || $starfishCard->category != SPECIAL || $starfishCard->family != STARFISH) {
             throw new \BgaUserException("You must select a Starfish card from your hand");
         }
 
         $allCards = array_merge($cards, [$starfishCard]);
 
-        $count = intval($this->cards->countCardInLocation('table'.$playerId));
+        $count = $this->cards->countItemsInLocation('table'.$playerId);
         foreach($allCards as $card) {
-            $this->cards->moveCard($card->id, 'table'.$playerId, ++$count);
+            $this->cards->moveItem($card, 'table'.$playerId, ++$count);
         }
 
-        self::notifyAllPlayers('playCards', clienttranslate('${player_name} plays cards ${cardColor1} ${cardName1} and ${cardColor2} ${cardName2} with a ${cardColor3} ${cardName3}'), [
+        $this->notify->all('playCards', clienttranslate('${player_name} plays cards ${cardColor1} ${cardName1} and ${cardColor2} ${cardName2} with a ${cardColor3} ${cardName3}'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'cards' => $allCards,
@@ -485,7 +487,7 @@ trait ActionTrait {
 
         $this->setGameStateValue(END_ROUND_TYPE, $type);
 
-        self::notifyAllPlayers('announceEndRound', clienttranslate('${player_name} announces ${announcement}!'), [
+        $this->notify->all('announceEndRound', clienttranslate('${player_name} announces ${announcement}!'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'announcement' => $announcement,
@@ -525,11 +527,11 @@ trait ActionTrait {
             throw new \BgaUserException("Invalid discard number");
         }
 
-        if (intval($this->cards->countCardInLocation('discard'.$discardNumber)) == 0) {
+        if ($this->cards->countItemsInLocation('discard'.$discardNumber) == 0) {
             throw new \BgaUserException("No card in that discard");
         }
 
-        $card = $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber));
+        $card = $this->cards->getDiscardTopCard($discardNumber);
         if ($card == null) {
             throw new \BgaUserException("No card in that discard");
         }
@@ -546,9 +548,9 @@ trait ActionTrait {
 
         $mermaids = $this->getPlayerMermaids($playerId);
         if (count($mermaids) == 4) {
-            $count = intval($this->cards->countCardInLocation('table'.$playerId));
+            $count = $this->cards->countItemsInLocation('table'.$playerId);
             foreach($mermaids as $card) {
-                $this->cards->moveCard($card->id, 'table'.$playerId, ++$count);
+                $this->cards->moveItem($card, 'table'.$playerId, ++$count);
             }
 
             $this->notifyAllPlayers('playCards', '', [
@@ -569,7 +571,7 @@ trait ActionTrait {
 
     public function actChooseDiscardCard(int $id) {
 
-        $card = $this->getCardFromDb($this->cards->getCard($id));
+        $card = $this->cards->getItemById($id);
         $discardNumber = $this->getGameStateValue(CHOSEN_DISCARD);
         if ($card == null || $card->location != 'discard'.$discardNumber) {
             throw new \BgaUserException("Invalid discard card");
@@ -577,10 +579,10 @@ trait ActionTrait {
 
         $playerId = intval($this->getActivePlayerId());
 
-        $this->cards->moveCard($card->id, 'hand'.$playerId);
+        $this->cards->moveItem($card, 'hand'.$playerId);
         $this->cardCollected($playerId, $card);
 
-        self::notifyPlayer($playerId, 'cardInHandFromDiscardCrab', clienttranslate('You take ${cardColor} ${cardName} from discard pile ${discardNumber}'), [
+        $this->notify->player($playerId, 'cardInHandFromDiscardCrab', clienttranslate('You take ${cardColor} ${cardName} from discard pile ${discardNumber}'), [
             'playerId' => $playerId,
             'card' => $card,
             'cardName' => $this->getCardName($card),
@@ -588,18 +590,18 @@ trait ActionTrait {
             'i18n' => ['cardName', 'cardColor'],
             'discardId' => $discardNumber,
             'discardNumber' => $discardNumber,
-            'newDiscardTopCard' => $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber)),
+            'newDiscardTopCard' => $this->cards->getDiscardTopCard($discardNumber),
             'remainingCardsInDiscard' => $this->getRemainingCardsInDiscard($discardNumber),
             'preserve' => ['actionPlayerId'],
             'actionPlayerId' => $playerId,
         ]);
-        self::notifyAllPlayers('cardInHandFromDiscardCrab', clienttranslate('${player_name} takes a card from discard pile ${discardNumber}'), [
+        $this->notify->all('cardInHandFromDiscardCrab', clienttranslate('${player_name} takes a card from discard pile ${discardNumber}'), [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerName($playerId),
             'card' => Card::onlyId($card),
             'discardId' => $discardNumber,
             'discardNumber' => $discardNumber,
-            'newDiscardTopCard' => $this->getCardFromDb($this->cards->getCardOnTop('discard'.$discardNumber)),
+            'newDiscardTopCard' => $this->cards->getDiscardTopCard($discardNumber),
             'remainingCardsInDiscard' => $this->getRemainingCardsInDiscard($discardNumber),
             'preserve' => ['actionPlayerId'],
             'actionPlayerId' => $playerId,

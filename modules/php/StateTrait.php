@@ -4,6 +4,8 @@ namespace Bga\Games\SeaSaltPaper;
 
 trait StateTrait {
 
+    private CardManager $cards;
+
 //////////////////////////////////////////////////////////////////////////////
 //////////// Game state actions
 ////////////
@@ -22,21 +24,21 @@ trait StateTrait {
         // init round discard
         $cards = [];
         foreach([1, 2] as $discardNumber) {
-            $card = $this->getCardFromDb($this->cards->pickCardForLocation('deck', 'discard'.$discardNumber));
+            $card = $this->cards->pickItemForLocation('deck', null, 'discard'.$discardNumber);
             $cards[] = $card;
 
-            self::notifyAllPlayers('cardInDiscardFromDeck', '', [
+            $this->notify->all('cardInDiscardFromDeck', '', [
                 'card' => $card,
                 'discardId' => $discardNumber,
-                'deckTopCard' => $this->getDeckTopCard(),
+                'deckTopCard' => $this->cards->getDeckTopCard(),
                 'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
             ]);
         }
 
         $this->incStat(1, 'roundNumber');
 
-        self::notifyAllPlayers('log', clienttranslate('A new round begins!'), []);
-        self::notifyAllPlayers('log', clienttranslate('The cards ${cardColor1} ${cardName1} and ${cardColor2} ${cardName2} form the discard piles'), [
+        $this->notify->all('log', clienttranslate('A new round begins!'), []);
+        $this->notify->all('log', clienttranslate('The cards ${cardColor1} ${cardName1} and ${cardColor2} ${cardName2} form the discard piles'), [
             'cardName1' => $this->getCardName($cards[0]),
             'cardName2' => $this->getCardName($cards[1]),
             'cardColor1' => $this->COLORS[$cards[0]->color],
@@ -87,7 +89,7 @@ trait StateTrait {
 
         $emptyDeck = false;
             if ($endRound == 0) {
-            $emptyDeck = intval($this->cards->countCardInLocation('deck')) === 0;
+            $emptyDeck = $this->cards->countItemsInLocation('deck') === 0;
 
             if ($emptyDeck) {
                 $this->setGameStateValue(END_ROUND_TYPE, EMPTY_DECK);
@@ -121,7 +123,7 @@ trait StateTrait {
             $betWon = $playerPoints[$lastChanceCaller] >= max($playerPoints);
             $this->setGameStateValue(BET_RESULT, $betWon ? 2 : 1);
             
-            self::notifyAllPlayers('betResult', clienttranslate('${player_name} announced ${announcement}, and the bet is ${result}!'), [
+            $this->notify->all('betResult', clienttranslate('${player_name} announced ${announcement}, and the bet is ${result}!'), [
                 'playerId' => $lastChanceCaller,
                 'player_name' => $this->getPlayerName($lastChanceCaller),
                 'announcement' => $this->ANNOUNCEMENTS[LAST_CHANCE],
@@ -209,7 +211,7 @@ trait StateTrait {
                 ]);
             }
         } else if ($endRound == EMPTY_DECK) {
-            self::notifyAllPlayers('emptyDeck', clienttranslate('The round ends immediately without scoring because the deck is empty'), []);
+            $this->notify->all('emptyDeck', clienttranslate('The round ends immediately without scoring because the deck is empty'), []);
         }
     }
 
@@ -235,12 +237,12 @@ trait StateTrait {
     function stEndRound() {
         $lastRound = $this->isLastRound();
         if (!$lastRound) {
-            $this->cards->moveAllCardsInLocation(null, 'deck');
+            $this->cards->moveAllItemsInLocation(null, 'deck');
             $this->cards->shuffle('deck');
         }
 
-        self::notifyAllPlayers('endRound', '', [
-            'deckTopCard' => $this->getDeckTopCard(),
+        $this->notify->all('endRound', '', [
+            'deckTopCard' => $this->cards->getDeckTopCard(),
             'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
         ]);
 

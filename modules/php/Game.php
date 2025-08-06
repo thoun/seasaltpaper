@@ -20,6 +20,11 @@ namespace Bga\Games\SeaSaltPaper;
 
 use Bga\Games\SeaSaltPaper\Objects\Card;
 
+require_once(__DIR__.'/framework-prototype/item/item.php');
+require_once(__DIR__.'/framework-prototype/item/item-field.php');
+require_once(__DIR__.'/framework-prototype/item/item-location.php');
+require_once(__DIR__.'/framework-prototype/item/item-manager.php');
+
 require_once('constants.inc.php');
 
 class Game extends \Bga\GameFramework\Table {
@@ -29,14 +34,11 @@ class Game extends \Bga\GameFramework\Table {
     use ArgsTrait;
     use DebugUtilTrait;
 
-    private \Bga\GameFramework\Components\Deck $cards;
+    private CardManager $cards;
 
     public array $END_GAME_POINTS;
     public array $ANNOUNCEMENTS;
     public array $COLORS;
-    public array $CARDS;
-    public array $EXPANSION_CARDS;
-    public array $ALL_CARDS;
 
 	function __construct() {
         // Your global variables labels:
@@ -46,6 +48,32 @@ class Game extends \Bga\GameFramework\Table {
         //  the corresponding ID in gameoptions.inc.php.
         // Note: afterwards, you can get/set the global variables with getGameStateValue/setGameStateInitialValue/setGameStateValue
         parent::__construct();
+        
+        $this->END_GAME_POINTS = [
+            2 => 40,
+            3 => 35,
+            4 => 30,
+        ];
+
+        $this->ANNOUNCEMENTS = [
+            LAST_CHANCE => clienttranslate('LAST CHANCE'),
+            STOP => clienttranslate('STOP'),
+        ];
+
+        $this->COLORS = [
+            clienttranslate('White'),
+            clienttranslate('Dark blue'),
+            clienttranslate('Light blue'),
+            clienttranslate('Black'),
+            clienttranslate('Yellow'),
+            clienttranslate('Green'),
+            clienttranslate('Purple'),
+            clienttranslate('Gray'),
+            clienttranslate('Light orange'),
+            clienttranslate('Pink'),
+            clienttranslate('Orange'),
+        ];
+
         
         self::initGameStateLabels([
             CHOSEN_DISCARD => CHOSEN_DISCARD,
@@ -60,14 +88,8 @@ class Game extends \Bga\GameFramework\Table {
             DOUBLE_POINTS => DOUBLE_POINTS,
         ]);  
 
-        $this->cards = self::getNew("module.common.deck");
-        $this->cards->init("card");        
+        $this->cards = new CardManager($this);
 	}
-	
-    protected function getGameName() {
-		// Used for translations and stuff. Please do not modify.
-        return "seasaltpaper";
-    }	
 
     /*
         setupNewGame:
@@ -76,7 +98,9 @@ class Game extends \Bga\GameFramework\Table {
         In this method, you must setup the game according to the game rules, so that
         the game is ready to be played.
     */
-    protected function setupNewGame($players, $options = []) {    
+    protected function setupNewGame($players, $options = []) { 
+        $this->cards->initDb();
+
         // Set the colors of the players with HTML color code
         // The default below is red/green/blue/orange/brown
         // The number of colors defined here must correspond to the maximum number of players allowed for the gams
@@ -132,13 +156,10 @@ class Game extends \Bga\GameFramework\Table {
         }
 
         // setup the initial game situation here
-        $this->setupCards($isExpansion);
+        $this->cards->setup($isExpansion);
 
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
-
-        // TODO TEMP card to test
-        $this->debugSetup();
 
         /************ End of the game initialization *****/
     }
@@ -239,10 +260,10 @@ class Game extends \Bga\GameFramework\Table {
             }
         }
 
-        $result['deckTopCard'] = $this->getDeckTopCard();
+        $result['deckTopCard'] = $this->cards->getDeckTopCard();
         $result['remainingCardsInDeck'] = $this->getRemainingCardsInDeck();
         foreach ([1, 2] as $number) {
-            $result['discardTopCard'.$number] = $this->getCardFromDb($this->cards->getCardOnTop('discard'.$number));
+            $result['discardTopCard'.$number] = $this->cards->getDiscardTopCard($number);
             $result['remainingCardsInDiscard'.$number] = $this->getRemainingCardsInDiscard($number);
         }
 
@@ -332,6 +353,12 @@ class Game extends \Bga\GameFramework\Table {
         if ($from_version <= 2305281437) {
             // ! important ! Use DBPREFIX_<table_name> for all tables
             self::applyDbUpgradeToAllDB("ALTER TABLE DBPREFIX_card MODIFY COLUMN `card_location` varchar(25) NOT NULL");
+        }
+
+        if ($from_version <= 2508011150) {
+            self::applyDbUpgradeToAllDB("ALTER TABLE `DBPREFIX_card` ADD `order` INT DEFAULT 0");
+            self::applyDbUpgradeToAllDB("ALTER TABLE `DBPREFIX_card` ADD `flipped` TINYINT DEFAULT 0");
+            self::applyDbUpgradeToAllDB("ALTER TABLE `DBPREFIX_card` SET `order` = `card_location_arg` WHERE `card_location_arg` < 100");
         }
 
     }    

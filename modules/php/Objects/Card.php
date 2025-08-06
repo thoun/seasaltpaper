@@ -2,6 +2,10 @@
 
 namespace Bga\Games\SeaSaltPaper\Objects;
 
+use \Bga\GameFrameworkPrototype\Item\Item;
+use \Bga\GameFrameworkPrototype\Item\ItemField;
+use Bga\Games\SeaSaltPaper\CardManager;
+
 class CardType {
     public int $category;
     public int $family;
@@ -90,30 +94,45 @@ class SpecialCard extends CardType {
     } 
 }
 
-class Card extends CardType {
+#[Item('card')]
+class Card {
+    #[ItemField(kind: 'id', dbField: 'card_id')]
     public int $id;
+    #[ItemField(kind: 'location', dbField: 'card_location')]
     public string $location;
-    public int $locationArg;
+    #[ItemField(kind: 'location_arg', dbField: 'card_location_arg')]
+    public ?int $locationArg = 0;
+    #[ItemField(dbField: 'card_type')]
+    public int $type;
+    #[ItemField(dbField: 'card_type_arg')]
+    public int $typeArg;
+    #[ItemField(kind: 'order')]
+    public ?int $order;
+    #[ItemField]
+    public ?bool $flipped = false;
+
     public int $index;
     public /*int|null*/ $matchCategory;
     public /*int|null*/ $matchFamily;
     public /*array|null*/ $matchFamilies;
     public /*int|null*/ $points;
 
-    public function __construct($dbCard, $CARDS_TYPE) {
-        $this->id = intval($dbCard['id']);
-        $this->location = $dbCard['location'];
-        $this->locationArg = intval($dbCard['location_arg']);
-        $type = intval($dbCard['type']);
+    public int $category;
+    public int $family;
+    public int $color;
+    public int $number;
+
+    public function setup(array $dbCard) {
+        $type = intval($dbCard['card_type']);
         if ($type > 0) {
-            $typeArg = intval($dbCard['type_arg']);
+            $typeArg = intval($dbCard['card_type_arg']);
 
             $this->category = floor($type / 10);
             $this->family = $type % 10;
             $this->color = floor($typeArg / 10);
             $this->index = $typeArg % 10;
 
-            foreach ($CARDS_TYPE as $cardType) {
+            foreach (CardManager::$ALL_CARDS as $cardType) {
                 if ($cardType->category == $this->category && $cardType->family == $this->family) {
                     if (property_exists($cardType, 'matchCategory')) {
                         $this->matchCategory = $cardType->matchCategory;
@@ -138,12 +157,11 @@ class Card extends CardType {
             return null;
         }
         
-        return new Card([
-            'id' => $card->id,
-            'location' => $card->location,
-            'location_arg' => $card->locationArg,
-            'type' => null
-        ], null);
+        $public = new Card(0,0,0,0);
+        $public->id = $card->id;
+        $public->location = $card->location;
+        $public->locationArg = $card->locationArg;     
+        return $public;
     }
 
     public static function onlyIds(array $cards) {
