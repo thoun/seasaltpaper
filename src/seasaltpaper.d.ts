@@ -52,7 +52,7 @@ interface SeaSaltPaperGamedatas {
     remainingCardsInDiscard1: number;
     remainingCardsInDiscard2: number;
 
-    expansion: boolean;
+    extraSaltExpansion: boolean;
     doublePoints: boolean;
 }
 
@@ -60,7 +60,7 @@ interface SeaSaltPaperGame extends GameGui {
     animationManager: AnimationManager;
     cardsManager: CardsManager;
 
-    isExpansion(): boolean;
+    isExtraSaltExpansion(): boolean;
     getPlayerId(): number;
     getPlayerColor(playerId: number): string;
 

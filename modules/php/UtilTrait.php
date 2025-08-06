@@ -64,20 +64,19 @@ trait UtilTrait {
         return array_keys($this->loadPlayersBasicInfos());
     }
 
-    function getPlayerName(int $playerId) {
-        return self::getUniqueValueFromDB("SELECT player_name FROM player WHERE player_id = $playerId");
+    function getPlayerTopScore(): bool {
+        return intval($this->getUniqueValueFromDB("SELECT max(player_score) FROM player"));
     }
 
-    function getPlayerTopScore() {
-        return intval(self::getUniqueValueFromDB("SELECT max(player_score) FROM player"));
+    function isExtraSaltExpansion(): bool {
+        return $this->tableOptions->get(EXTRA_SALT_EXPANSION) == 2;
     }
-
-    function isExpansion() {
-        return intval($this->getGameStateValue(EXPANSION)) == 2;
+    function isExtraPepperExpansion(): bool {
+        return false;// TODO $this->tableOptions->get(EXTRA_PEPPER_EXPANSION) == 2;
     }
 
     function isDoublePoints() {
-        return intval($this->getGameStateValue(DOUBLE_POINTS)) == 2;
+        return $this->tableOptions->get(DOUBLE_POINTS) == 2;
     }
 
     function getMaxScore() {
@@ -139,7 +138,7 @@ trait UtilTrait {
             $playerPoints = $this->getCardsPoints($playerId)->totalPoints;
             $this->notifyAllPlayers('revealHand', clienttranslate('${player_name} reveals a hand worth ${points} points'), [
                 'playerId' => $playerId,
-                'player_name' => $this->getPlayerName($playerId),
+                'player_name' => $this->getPlayerNameById($playerId),
                 'cards' => $this->getPlayerCards($playerId, 'table', true),
                 'points' => $playerPoints,
                 'playerPoints' => $playerPoints,
@@ -156,7 +155,7 @@ trait UtilTrait {
             
         $this->notifyAllPlayers('score', $message, [
             'playerId' => $playerId,
-            'player_name' => $this->getPlayerName($playerId),
+            'player_name' => $this->getPlayerNameById($playerId),
             'newScore' => $this->getPlayerScore($playerId),
             'incScore' => $roundScore,
         ] + $args);
@@ -167,7 +166,7 @@ trait UtilTrait {
             
         $this->notifyAllPlayers('score', $message, [
             'playerId' => $playerId,
-            'player_name' => $this->getPlayerName($playerId),
+            'player_name' => $this->getPlayerNameById($playerId),
             'newScore' => $amount,
             'preserve' => ['playerId'],
         ] + $args);
@@ -194,8 +193,8 @@ trait UtilTrait {
             $args = [
                 'playerId' => $stealerId,
                 'opponentId' => $robbedPlayerId,
-                'player_name' => $this->getPlayerName($stealerId),
-                'player_name2' => $this->getPlayerName($robbedPlayerId),
+                'player_name' => $this->getPlayerNameById($stealerId),
+                'player_name2' => $this->getPlayerNameById($robbedPlayerId),
                 'preserve' => ['actionPlayerId'],
                 'actionPlayerId' => $stealerId,
             ];

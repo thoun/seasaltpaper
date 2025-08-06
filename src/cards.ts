@@ -72,7 +72,7 @@ class CardsManager extends CardManager<Card> {
                     ], 5],
                 ];
 
-                if (this.game.isExpansion()) {
+                if (this.game.isExtraSaltExpansion()) {
                     duoCards[0][1].push(
                         [_('Lobster'), crabLobsterEffect],
                     );

@@ -2,6 +2,13 @@
 
 namespace Bga\Games\SeaSaltPaper\Objects;
 
+const COLLECTION_POINTS = [
+    SHELL => [0, 2, 4, 6, 8, 10],
+    OCTOPUS => [0, 3, 6, 9, 12],
+    PENGUIN => [1, 3, 5],
+    SAILOR => [0, 5],
+];
+
 function array_find(array $array, callable $fn) {
     foreach ($array as $value) {
         if($fn($value)) {

@@ -75,7 +75,7 @@ class Game extends \Bga\GameFramework\Table {
         ];
 
         
-        self::initGameStateLabels([
+        $this->initGameStateLabels([
             CHOSEN_DISCARD => CHOSEN_DISCARD,
             END_ROUND_TYPE => END_ROUND_TYPE,
             LAST_CHANCE_CALLER => LAST_CHANCE_CALLER,
@@ -83,9 +83,6 @@ class Game extends \Bga\GameFramework\Table {
             BET_RESULT => BET_RESULT,
             FORCE_TAKE_ONE => FORCE_TAKE_ONE,
             LOBSTER_POWER => LOBSTER_POWER,
-
-            EXPANSION => EXPANSION,
-            DOUBLE_POINTS => DOUBLE_POINTS,
         ]);  
 
         $this->cards = new CardManager($this);
@@ -104,7 +101,7 @@ class Game extends \Bga\GameFramework\Table {
         // Set the colors of the players with HTML color code
         // The default below is red/green/blue/orange/brown
         // The number of colors defined here must correspond to the maximum number of players allowed for the gams
-        $gameinfos = self::getGameinfos();
+        $gameinfos = $this->getGameinfos();
         $default_colors = $gameinfos['player_colors'];
  
         // Create players
@@ -116,9 +113,9 @@ class Game extends \Bga\GameFramework\Table {
             $values[] = "('".$player_id."','$color','".$player['player_canal']."','".addslashes( $player['player_name'] )."','".addslashes( $player['player_avatar'] )."')";
         }
         $sql .= implode(',', $values);
-        self::DbQuery( $sql );
-        self::reattributeColorsBasedOnPreferences( $players, $gameinfos['player_colors'] );
-        self::reloadPlayersBasicInfos();
+        $this->DbQuery( $sql );
+        $this->reattributeColorsBasedOnPreferences( $players, $gameinfos['player_colors'] );
+        $this->reloadPlayersBasicInfos();
         
         /************ Start the game initialization *****/
 
@@ -130,7 +127,7 @@ class Game extends \Bga\GameFramework\Table {
         $this->setGameStateInitialValue(FORCE_TAKE_ONE, 0);
         $this->setGameStateInitialValue(LOBSTER_POWER, 0);
 
-        $isExpansion = $this->isExpansion();
+        $isExtraSaltExpansion = $this->isExtraSaltExpansion();
         
         // Init game statistics
         // (note: statistics used in this file must be defined in your stats.inc.php file)
@@ -140,7 +137,7 @@ class Game extends \Bga\GameFramework\Table {
             $this->initStat($statType, 'takeCardFromDeck', 0);
             $this->initStat($statType, 'takeFromDiscard', 0);
             $this->initStat($statType, 'playedDuoCards', 0);
-            $possiblePowers = $isExpansion ? [1,2,3,4,5,6] : [1,2,3,4];
+            $possiblePowers = $isExtraSaltExpansion ? [1,2,3,4,5,6] : [1,2,3,4];
             foreach($possiblePowers as $number) {
                 $this->initStat($statType, 'playedDuoCards'.$number, 0);
             }
@@ -156,7 +153,7 @@ class Game extends \Bga\GameFramework\Table {
         }
 
         // setup the initial game situation here
-        $this->cards->setup($isExpansion);
+        $this->cards->setup($isExtraSaltExpansion);
 
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
@@ -181,7 +178,7 @@ class Game extends \Bga\GameFramework\Table {
         // Get information about players
         // Note: you can retrieve some extra field you added for "player" table in "dbmodel.sql" if you need it.
         $sql = "SELECT player_id id, player_score score, player_no playerNo FROM player ";
-        $result['players'] = self::getCollectionFromDb( $sql );
+        $result['players'] = $this->getCollectionFromDb( $sql );
 
         
 
@@ -267,7 +264,7 @@ class Game extends \Bga\GameFramework\Table {
             $result['remainingCardsInDiscard'.$number] = $this->getRemainingCardsInDiscard($number);
         }
 
-        $result['expansion'] = $this->isExpansion();
+        $result['extraSaltExpansion'] = $this->isExtraSaltExpansion();
         $result['doublePoints'] = $this->isDoublePoints();
   
         return $result;
@@ -352,13 +349,16 @@ class Game extends \Bga\GameFramework\Table {
         
         if ($from_version <= 2305281437) {
             // ! important ! Use DBPREFIX_<table_name> for all tables
-            self::applyDbUpgradeToAllDB("ALTER TABLE DBPREFIX_card MODIFY COLUMN `card_location` varchar(25) NOT NULL");
+            $this->applyDbUpgradeToAllDB("ALTER TABLE DBPREFIX_card MODIFY COLUMN `card_location` varchar(25) NOT NULL");
         }
 
         if ($from_version <= 2508011150) {
-            self::applyDbUpgradeToAllDB("ALTER TABLE `DBPREFIX_card` ADD `order` INT DEFAULT 0");
-            self::applyDbUpgradeToAllDB("ALTER TABLE `DBPREFIX_card` ADD `flipped` TINYINT DEFAULT 0");
-            self::applyDbUpgradeToAllDB("ALTER TABLE `DBPREFIX_card` SET `order` = `card_location_arg` WHERE `card_location_arg` < 100");
+            $result = $this->getUniqueValueFromDB("SHOW COLUMNS FROM `card` LIKE 'order'");
+            if (is_null($result)) {
+                $this->applyDbUpgradeToAllDB("ALTER TABLE `DBPREFIX_card` ADD `order` INT DEFAULT 0");
+                $this->applyDbUpgradeToAllDB("ALTER TABLE `DBPREFIX_card` ADD `flipped` TINYINT DEFAULT 0");
+                $this->applyDbUpgradeToAllDB("ALTER TABLE `DBPREFIX_card` SET `order` = `card_location_arg` WHERE `card_location_arg` < 100");
+            }
         }
 
     }    

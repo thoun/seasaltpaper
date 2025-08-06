@@ -125,7 +125,7 @@ trait StateTrait {
             
             $this->notify->all('betResult', clienttranslate('${player_name} announced ${announcement}, and the bet is ${result}!'), [
                 'playerId' => $lastChanceCaller,
-                'player_name' => $this->getPlayerName($lastChanceCaller),
+                'player_name' => $this->getPlayerNameById($lastChanceCaller),
                 'announcement' => $this->ANNOUNCEMENTS[LAST_CHANCE],
                 'result' => $betWon ? clienttranslate('won') : clienttranslate('lost'),
                 'i18n' => ['announcement', 'result'],
@@ -194,7 +194,7 @@ trait StateTrait {
             
             $this->notifyAllPlayers('log', clienttranslate('${player_name} announced ${announcement}, every player score the points for their cards'), [
                 'playerId' => $endCaller,
-                'player_name' => $this->getPlayerName($endCaller),
+                'player_name' => $this->getPlayerNameById($endCaller),
                 'announcement' => $this->ANNOUNCEMENTS[STOP],
                 'i18n' => ['announcement'],
             ]);

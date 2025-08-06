@@ -1744,7 +1744,7 @@ var CardsManager = /** @class */ (function (_super) {
                             [_('Swimmer'), swimmerSharkEffect]
                         ], 5],
                 ];
-                if (this.game.isExpansion()) {
+                if (this.game.isExtraSaltExpansion()) {
                     duoCards[0][1].push([_('Lobster'), crabLobsterEffect]);
                     duoCards[3][1].push([_('Jellyfish'), swimmerJellyfishEffect]);
                     duoCards.push([_('Jellyfish'), [
@@ -2133,7 +2133,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
     SeaSaltPaper.prototype.setup = function (gamedatas) {
         var _this = this;
         log("Starting game setup");
-        if (gamedatas.expansion) {
+        if (gamedatas.extraSaltExpansion) {
             this.dontPreloadImage('background.jpg');
             document.getElementsByTagName('html')[0].classList.add('expansion');
         }
@@ -2374,8 +2374,8 @@ var SeaSaltPaper = /** @class */ (function (_super) {
     SeaSaltPaper.prototype.setTooltipToClass = function (className, html) {
         this.addTooltipHtmlToClass(className, html, this.TOOLTIP_DELAY);
     };
-    SeaSaltPaper.prototype.isExpansion = function () {
-        return this.gamedatas.expansion;
+    SeaSaltPaper.prototype.isExtraSaltExpansion = function () {
+        return this.gamedatas.extraSaltExpansion;
     };
     SeaSaltPaper.prototype.getPlayerId = function () {
         return Number(this.player_id);
@@ -2532,7 +2532,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             3, 2,
             1,
         ];
-        if (this.isExpansion()) {
+        if (this.isExtraSaltExpansion()) {
             [6, 9, 2, 4, 0, 1, 3, 5].forEach(function (index) { return quantities[index] += 1; });
         }
         var labels = [
@@ -2558,16 +2558,16 @@ var SeaSaltPaper = /** @class */ (function (_super) {
         var helpDialog = new ebg.popindialog();
         helpDialog.create('seasaltpaperHelpDialog');
         helpDialog.setTitle(_("Card details").toUpperCase());
-        var expansion = this.isExpansion();
-        var duoCardsNumbers = expansion ? [1, 2, 3, 4, 5, 6, 7] : [1, 2, 3, 4, 5];
-        var multiplierNumbers = expansion ? [1, 2, 3, 4, 5] : [1, 2, 3, 4];
+        var extraSaltExpansion = this.isExtraSaltExpansion();
+        var duoCardsNumbers = extraSaltExpansion ? [1, 2, 3, 4, 5, 6, 7] : [1, 2, 3, 4, 5];
+        var multiplierNumbers = extraSaltExpansion ? [1, 2, 3, 4, 5] : [1, 2, 3, 4];
         var duoCards = duoCardsNumbers.map(function (family) { return "\n        <div class=\"help-section\">\n            <div id=\"help-pair-".concat(family, "\"></div>\n            <div>").concat(_this.cardsManager.getTooltip(2, family), "</div>\n        </div>\n        "); }).join('');
         var duoSection = "\n        ".concat(duoCards, "\n        ").concat(_("Note: The points for duo cards count whether the cards have been played or not. However, the effect is only applied when the player places the two cards in front of them."));
         var mermaidSection = "\n        <div class=\"help-section\">\n            <div id=\"help-mermaid\"></div>\n            <div>".concat(this.cardsManager.getTooltip(1), "</div>\n        </div>");
         var collectorSection = [1, 2, 3, 4].map(function (family) { return "\n        <div class=\"help-section\">\n            <div id=\"help-collector-".concat(family, "\"></div>\n            <div>").concat(_this.cardsManager.getTooltip(3, family), "</div>\n        </div>\n        "); }).join('');
         var multiplierSection = multiplierNumbers.map(function (family) { return "\n        <div class=\"help-section\">\n            <div id=\"help-multiplier-".concat(family, "\"></div>\n            <div>").concat(_this.cardsManager.getTooltip(4, family), "</div>\n        </div>\n        "); }).join('');
         var html = "\n        <div id=\"help-popin\">\n            ".concat(_("<strong>Important:</strong> When it is said that the player counts or scores the points on their cards, it means both those in their hand and those in front of them."), "\n\n            <h1>").concat(_("Duo cards"), "</h1>\n            ").concat(duoSection, "\n            <h1>").concat(_("Mermaid cards"), "</h1>\n            ").concat(mermaidSection, "\n            <h1>").concat(_("Collector cards"), "</h1>\n            ").concat(collectorSection, "\n            <h1>").concat(_("Point Multiplier cards"), "</h1>\n            ").concat(multiplierSection, "\n        ");
-        if (expansion) {
+        if (extraSaltExpansion) {
             var specialSection = [1, 2].map(function (family) { return "\n            <div class=\"help-section\">\n                <div id=\"help-special-".concat(family, "\"></div>\n                <div>").concat(_this.cardsManager.getTooltip(5, family), "</div>\n            </div>\n            "); }).join('');
             html += "\n                <h1>".concat(_("Special cards"), "</h1>\n                ").concat(specialSection, "\n            ");
         }
@@ -2576,7 +2576,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
         helpDialog.setContent(html);
         helpDialog.show();
         // pair
-        var duoCardsPairs = expansion ? [[1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 3]] : [[1, 1], [2, 2], [3, 3], [4, 4], [5, 5]];
+        var duoCardsPairs = extraSaltExpansion ? [[1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 3]] : [[1, 1], [2, 2], [3, 3], [4, 4], [5, 5]];
         duoCardsPairs.forEach(function (_a) {
             var family = _a[0], color = _a[1];
             return _this.cardsManager.setForHelp({ id: 1020 + family, category: 2, family: family, color: color, index: 0 }, "help-pair-".concat(family));
@@ -2590,7 +2590,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
         });
         // multiplier
         multiplierNumbers.forEach(function (family) { return _this.cardsManager.setForHelp({ id: 1040 + family, category: 4, family: family }, "help-multiplier-".concat(family)); });
-        if (expansion) {
+        if (extraSaltExpansion) {
             // special
             [[1, 1], [2, 0]].forEach(function (_a) {
                 var family = _a[0], color = _a[1];

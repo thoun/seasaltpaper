@@ -48,7 +48,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
     public setup(gamedatas: SeaSaltPaperGamedatas) {
         log( "Starting game setup" );
 
-        if (gamedatas.expansion) {
+        if (gamedatas.extraSaltExpansion) {
             this.dontPreloadImage('background.jpg');
             document.getElementsByTagName('html')[0].classList.add('expansion');
         } else {
@@ -337,8 +337,8 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         this.addTooltipHtmlToClass(className, html, this.TOOLTIP_DELAY);
     }
 
-    public isExpansion(): boolean {
-        return this.gamedatas.expansion;
+    public isExtraSaltExpansion(): boolean {
+        return this.gamedatas.extraSaltExpansion;
     }
 
     public getPlayerId(): number {
@@ -518,7 +518,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             1,
         ];
 
-        if (this.isExpansion()) {
+        if (this.isExtraSaltExpansion()) {
             [6, 9, 2, 4, 0, 1, 3, 5].forEach(index => quantities[index] += 1);
         }
 
@@ -552,10 +552,10 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         helpDialog.create('seasaltpaperHelpDialog');
         helpDialog.setTitle(_("Card details").toUpperCase());
 
-        const expansion = this.isExpansion();
+        const extraSaltExpansion = this.isExtraSaltExpansion();
 
-        const duoCardsNumbers = expansion ? [1, 2, 3, 4, 5, 6, 7] : [1, 2, 3, 4, 5];
-        const multiplierNumbers = expansion ? [1, 2, 3, 4, 5] : [1, 2, 3, 4];
+        const duoCardsNumbers = extraSaltExpansion ? [1, 2, 3, 4, 5, 6, 7] : [1, 2, 3, 4, 5];
+        const multiplierNumbers = extraSaltExpansion ? [1, 2, 3, 4, 5] : [1, 2, 3, 4];
 
         const duoCards = duoCardsNumbers.map(family => `
         <div class="help-section">
@@ -602,7 +602,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             ${multiplierSection}
         `;
 
-        if (expansion) {
+        if (extraSaltExpansion) {
             const specialSection = [1, 2].map(family => `
             <div class="help-section">
                 <div id="help-special-${family}"></div>
@@ -626,7 +626,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         helpDialog.show();
 
         // pair
-        const duoCardsPairs = expansion ? [[1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 3]] : [[1, 1], [2, 2], [3, 3], [4, 4], [5, 5]];
+        const duoCardsPairs = extraSaltExpansion ? [[1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 3]] : [[1, 1], [2, 2], [3, 3], [4, 4], [5, 5]];
         duoCardsPairs.forEach(([family, color]) => this.cardsManager.setForHelp({id: 1020 + family, category: 2, family, color, index: 0 } as any, `help-pair-${family}`));
         // mermaid
         this.cardsManager.setForHelp({id: 1010, category: 1 } as any, `help-mermaid`);
@@ -634,7 +634,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         [[1, 1], [2, 2], [3, 6], [4, 9]].forEach(([family, color]) => this.cardsManager.setForHelp({id: 1030 + family, category: 3, family, color, index: 0 } as any, `help-collector-${family}`));
         // multiplier
         multiplierNumbers.forEach(family => this.cardsManager.setForHelp({id: 1040 + family, category: 4, family } as any, `help-multiplier-${family}`));
-        if (expansion) {
+        if (extraSaltExpansion) {
             // special
             [[1, 1], [2, 0]].forEach(([family, color]) => this.cardsManager.setForHelp({id: 1050 + family, category: 5, family, color } as any, `help-special-${family}`));
         }

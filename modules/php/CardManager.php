@@ -24,7 +24,7 @@ use Bga\Games\SeaSaltPaper\Objects\SwimmerPairCard;
 
 class CardManager extends ItemManager {
     public array $CARDS;
-    public array $EXPANSION_CARDS;
+    public array $EXTRA_SALT_EXPANSION_CARDS;
     public static array $ALL_CARDS;
 
     function __construct(
@@ -94,7 +94,7 @@ class CardManager extends ItemManager {
             new MultiplierCard(CAPTAIN, COLLECTION, SAILOR, LIGHT_ORANGE, 3),
         ];
 
-        $this->EXPANSION_CARDS = [
+        $this->EXTRA_SALT_EXPANSION_CARDS = [
             new JellyfishPairCard(PURPLE),
             new JellyfishPairCard(PINK),
 
@@ -109,14 +109,14 @@ class CardManager extends ItemManager {
             new SpecialCard(SEAHORSE, WHITE),
         ];
 
-        self::$ALL_CARDS = array_merge($this->CARDS, $this->EXPANSION_CARDS);
+        self::$ALL_CARDS = array_merge($this->CARDS, $this->EXTRA_SALT_EXPANSION_CARDS);
     }
 
     function setup(bool $extraSaltExpansion) {
         $cards = [];
         $cardsTypes = $this->CARDS;
         if ($extraSaltExpansion) {
-            $cardsTypes = array_merge($cardsTypes, $this->EXPANSION_CARDS);
+            $cardsTypes = array_merge($cardsTypes, $this->EXTRA_SALT_EXPANSION_CARDS);
         }
         foreach ($cardsTypes as $cardType) {
             for ($index = 0; $index < $cardType->number; $index++) {

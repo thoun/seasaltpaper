@@ -35,7 +35,7 @@ trait ActionTrait {
 
         $this->notify->all('log', clienttranslate('${player_name} picks ${number} cards from the deck'), [
             'playerId' => $playerId,
-            'player_name' => $this->getPlayerName($playerId),
+            'player_name' => $this->getPlayerNameById($playerId),
             'number' => count($cards),
             'preserve' => ['actionPlayerId'],
             'actionPlayerId' => $playerId,
@@ -55,7 +55,7 @@ trait ActionTrait {
 
             $this->notify->player($playerId, 'cardInHandFromDeck', clienttranslate('You take ${cardColor} ${cardName} card from deck'), [
                 'playerId' => $playerId,
-                'player_name' => $this->getPlayerName($playerId),
+                'player_name' => $this->getPlayerNameById($playerId),
                 'card' => $card,
                 'cardName' => $this->getCardName($card),
                 'cardColor' => $this->COLORS[$card->color],
@@ -67,7 +67,7 @@ trait ActionTrait {
             ]);
             $this->notify->all('cardInHandFromDeck', clienttranslate('${player_name} took a card from deck'), [
                 'playerId' => $playerId,
-                'player_name' => $this->getPlayerName($playerId),
+                'player_name' => $this->getPlayerNameById($playerId),
                 'card' => Card::onlyId($card),
                 'preserve' => ['actionPlayerId'],
                 'actionPlayerId' => $playerId,
@@ -102,7 +102,7 @@ trait ActionTrait {
 
         $this->notify->all('cardInHandFromDiscard', clienttranslate('${player_name} takes ${cardColor} ${cardName} from discard pile ${discardNumber}'), [
             'playerId' => $playerId,
-            'player_name' => $this->getPlayerName($playerId),
+            'player_name' => $this->getPlayerNameById($playerId),
             'card' => $card,
             'cardName' => $this->getCardName($card),
             'cardColor' => $this->COLORS[$card->color],
@@ -135,7 +135,7 @@ trait ActionTrait {
 
         $this->notify->player($playerId, 'cardInHandFromPick', clienttranslate('You choose ${cardColor} ${cardName} card'), [
             'playerId' => $playerId,
-            'player_name' => $this->getPlayerName($playerId),
+            'player_name' => $this->getPlayerNameById($playerId),
             'card' => $card,
             'cardName' => $this->getCardName($card),
             'cardColor' => $this->COLORS[$card->color],
@@ -145,7 +145,7 @@ trait ActionTrait {
         ]);
         $this->notify->all('cardInHandFromPick', clienttranslate('${player_name} chooses a card'), [
             'playerId' => $playerId,
-            'player_name' => $this->getPlayerName($playerId),
+            'player_name' => $this->getPlayerNameById($playerId),
             'card' => Card::onlyId($card),
             'preserve' => ['actionPlayerId'],
             'actionPlayerId' => $playerId,
@@ -169,7 +169,7 @@ trait ActionTrait {
 
                 $this->notify->all('cardsInDeckFromPick', '', [
                     'playerId' => $playerId,
-                    'player_name' => $this->getPlayerName($playerId),
+                    'player_name' => $this->getPlayerNameById($playerId),
                     'cards' => $cards,
                     'deckTopCard' => $this->cards->getDeckTopCard(),
                     'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
@@ -213,7 +213,7 @@ trait ActionTrait {
 
         $this->notify->all('cardInDiscardFromPick', clienttranslate('${player_name} puts ${cardColor} ${cardName} to discard pile ${discardNumber}'), [
             'playerId' => $playerId,
-            'player_name' => $this->getPlayerName($playerId),
+            'player_name' => $this->getPlayerNameById($playerId),
             'card' => $card,
             'cardName' => $this->getCardName($card),
             'cardColor' => $this->COLORS[$card->color],
@@ -294,7 +294,7 @@ trait ActionTrait {
 
         $this->notify->all('playCards', clienttranslate('${player_name} plays cards ${cardColor1} ${cardName1} and ${cardColor2} ${cardName2} and ${action}'), [
             'playerId' => $playerId,
-            'player_name' => $this->getPlayerName($playerId),
+            'player_name' => $this->getPlayerNameById($playerId),
             'cards' => $cards,
             'cardName1' => $this->getCardName($cards[0]),
             'cardName2' => $this->getCardName($cards[1]),
@@ -335,7 +335,7 @@ trait ActionTrait {
 
                     $this->notify->player($playerId, 'cardInHandFromDeck', clienttranslate('You take ${cardColor} ${cardName} card from deck'), [
                         'playerId' => $playerId,
-                        'player_name' => $this->getPlayerName($playerId),
+                        'player_name' => $this->getPlayerNameById($playerId),
                         'card' => $card,
                         'cardName' => $this->getCardName($card),
                         'cardColor' => $this->COLORS[$card->color],
@@ -347,7 +347,7 @@ trait ActionTrait {
                     ]);
                     $this->notify->all('cardInHandFromDeck', clienttranslate('${player_name} took a card from deck'), [
                         'playerId' => $playerId,
-                        'player_name' => $this->getPlayerName($playerId),
+                        'player_name' => $this->getPlayerNameById($playerId),
                         'card' => Card::onlyId($card),
                         'preserve' => ['actionPlayerId'],
                         'actionPlayerId' => $playerId,
@@ -396,7 +396,7 @@ trait ActionTrait {
             
                     $this->notify->all('log', clienttranslate('${player_name} picks ${number} cards from the deck'), [
                         'playerId' => $playerId,
-                        'player_name' => $this->getPlayerName($playerId),
+                        'player_name' => $this->getPlayerNameById($playerId),
                         'number' => count($cards),
                         'preserve' => ['actionPlayerId'],
                         'actionPlayerId' => $playerId,
@@ -442,7 +442,7 @@ trait ActionTrait {
 
         $this->notify->all('playCards', clienttranslate('${player_name} plays cards ${cardColor1} ${cardName1} and ${cardColor2} ${cardName2} with a ${cardColor3} ${cardName3}'), [
             'playerId' => $playerId,
-            'player_name' => $this->getPlayerName($playerId),
+            'player_name' => $this->getPlayerNameById($playerId),
             'cards' => $allCards,
             'cardName1' => $this->getCardName($cards[0]),
             'cardName2' => $this->getCardName($cards[1]),
@@ -489,7 +489,7 @@ trait ActionTrait {
 
         $this->notify->all('announceEndRound', clienttranslate('${player_name} announces ${announcement}!'), [
             'playerId' => $playerId,
-            'player_name' => $this->getPlayerName($playerId),
+            'player_name' => $this->getPlayerNameById($playerId),
             'announcement' => $announcement,
             'i18n' => ['announcement'],
         ]);
@@ -597,7 +597,7 @@ trait ActionTrait {
         ]);
         $this->notify->all('cardInHandFromDiscardCrab', clienttranslate('${player_name} takes a card from discard pile ${discardNumber}'), [
             'playerId' => $playerId,
-            'player_name' => $this->getPlayerName($playerId),
+            'player_name' => $this->getPlayerNameById($playerId),
             'card' => Card::onlyId($card),
             'discardId' => $discardNumber,
             'discardNumber' => $discardNumber,
