@@ -6,7 +6,7 @@ use Bga\Games\SeaSaltPaper\Objects\Card;
 
 trait UtilTrait {
 
-    private CardManager $cards;
+    //public CardManager $cards;
 
     //////////////////////////////////////////////////////////////////////////////
     //////////// Utility functions
@@ -64,10 +64,6 @@ trait UtilTrait {
         return array_keys($this->loadPlayersBasicInfos());
     }
 
-    function getPlayerTopScore(): bool {
-        return intval($this->getUniqueValueFromDB("SELECT max(player_score) FROM player"));
-    }
-
     function isExtraSaltExpansion(): bool {
         return $this->tableOptions->get(EXTRA_SALT_EXPANSION) == 2;
     }
@@ -80,7 +76,13 @@ trait UtilTrait {
     }
 
     function getMaxScore() {
-        $maxScore = $this->END_GAME_POINTS[count($this->getPlayersIds())];
+        $END_GAME_POINTS = [
+            2 => 40,
+            3 => 35,
+            4 => 30,
+        ];
+
+        $maxScore = $END_GAME_POINTS[count($this->getPlayersIds())];
 
         if ($this->isDoublePoints()) {
             $maxScore *= 2;
@@ -136,7 +138,7 @@ trait UtilTrait {
             $this->cards->moveAllItemsInLocation('hand'.$playerId, 'tablehand'.$playerId);
 
             $playerPoints = $this->getCardsPoints($playerId)->totalPoints;
-            $this->notifyAllPlayers('revealHand', clienttranslate('${player_name} reveals a hand worth ${points} points'), [
+            $this->notify->all('revealHand', clienttranslate('${player_name} reveals a hand worth ${points} points'), [
                 'playerId' => $playerId,
                 'player_name' => $this->getPlayerNameById($playerId),
                 'cards' => $this->getPlayerCards($playerId, 'table', true),
@@ -153,7 +155,7 @@ trait UtilTrait {
     function incPlayerScore(int $playerId, int $roundScore, $message = '', $args = []) {
         $this->DbQuery("UPDATE player SET `player_score` = `player_score` + $roundScore,  `player_score_aux` = $roundScore WHERE player_id = $playerId");
             
-        $this->notifyAllPlayers('score', $message, [
+        $this->notify->all('score', $message, [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerNameById($playerId),
             'newScore' => $this->getPlayerScore($playerId),
@@ -164,7 +166,7 @@ trait UtilTrait {
     function setPlayerScore(int $playerId, int $amount, $message = '', $args = []) {
         $this->DbQuery("UPDATE player SET `player_score` = $amount WHERE player_id = $playerId");
             
-        $this->notifyAllPlayers('score', $message, [
+        $this->notify->all('score', $message, [
             'playerId' => $playerId,
             'player_name' => $this->getPlayerNameById($playerId),
             'newScore' => $amount,
@@ -210,7 +212,7 @@ trait UtilTrait {
                 'card' => Card::onlyId($card),
             ];
 
-            $this->notifyAllPlayers('stealCard', clienttranslate('${player_name} steals a card from ${player_name2} hand'), $args + $argMaskedCard);
+            $this->notify->all('stealCard', clienttranslate('${player_name} steals a card from ${player_name2} hand'), $args + $argMaskedCard);
             $this->notifyPlayer($robbedPlayerId, 'stealCard', clienttranslate('Card ${cardColor} ${cardName} was stolen from your hand'), $args + $argCardName + $argMaskedCard);
             $this->notifyPlayer($stealerId, 'stealCard', clienttranslate('Card ${cardColor} ${cardName} was picked from ${player_name2} hand'), $args + $argCardName + $argCard);
 

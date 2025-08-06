@@ -7,7 +7,7 @@ use Bga\Games\SeaSaltPaper\Objects\Card;
 
 trait ActionTrait {
 
-    //private CardManager $cards;
+    //public CardManager $cards;
 
     //////////////////////////////////////////////////////////////////////////////
     //////////// Player actions
@@ -553,7 +553,7 @@ trait ActionTrait {
                 $this->cards->moveItem($card, 'table'.$playerId, ++$count);
             }
 
-            $this->notifyAllPlayers('playCards', '', [
+            $this->notify->all('playCards', '', [
                 'playerId' => $playerId,
                 'cards' => $mermaids,
             ]);

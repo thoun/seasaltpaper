@@ -12,6 +12,12 @@ interface Card {
     flipped: boolean;
 }
 
+interface EventCard {
+    id: number;
+    type: number;
+    for: 'top' | 'bottom';
+}
+
 interface ScoreDetails {
     cardsPoints: number | null;
     colorBonus: number | null;
@@ -21,6 +27,7 @@ interface SeaSaltPaperPlayer extends Player {
     playerNo: number;
     handCards: Card[];
     tableCards: Card[];
+    eventCards?: EventCard[];
     cardsPoints?: number;
     detailledPoints?: number[];
     endCall?: {
@@ -51,8 +58,10 @@ interface SeaSaltPaperGamedatas {
     discardTopCard2: Card;
     remainingCardsInDiscard1: number;
     remainingCardsInDiscard2: number;
+    tableEventCard?: EventCard;
 
     extraSaltExpansion: boolean;
+    extraPepperExpansion: boolean;
     doublePoints: boolean;
 }
 

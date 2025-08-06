@@ -230,7 +230,20 @@ $gameGameStates = [
         ->action('stEndRound')
         ->transitions([
             "newRound" => ST_NEW_ROUND,
+            "chooseKeptCard" => ST_MULTIPLAYER_CHOOSE_KEPT_EVENT_CARD,
             "endScore" => ST_END_SCORE,
+        ])
+        ->build(),
+    
+    ST_MULTIPLAYER_CHOOSE_KEPT_EVENT_CARD => GameStateBuilder::create()
+        ->name('chooseKeptEventCard')
+        ->description(clienttranslate('A player must choose the event card to keep'))
+        ->description(clienttranslate('${you} must choose the event card to keep'))
+        ->type(StateType::MULTIPLE_ACTIVE_PLAYER)
+        ->action('stChooseKeptEventCard')
+        ->possibleActions(['actChooseKeptEventCard'])
+        ->transitions([
+            "" => ST_NEW_ROUND,
         ])
         ->build(),
 

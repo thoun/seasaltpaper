@@ -2140,7 +2140,9 @@ var SeaSaltPaper = /** @class */ (function (_super) {
         else {
             this.dontPreloadImage('background-expansion.jpg');
         }
-        this.dontPreloadImage('event-cards.jpg');
+        if (!gamedatas.extraPepperExpansion) {
+            this.dontPreloadImage('event-cards.jpg');
+        }
         this.gamedatas = gamedatas;
         log('gamedatas', gamedatas);
         this.getGameAreaElement().insertAdjacentHTML('beforeend', "\n            <div id=\"full-table\">\n                <div id=\"discard-pick\" data-visible=\"false\"></div>\n                <div id=\"centered-table\">\n                    <div id=\"tables-and-center\">\n                        <div id=\"table-center\">\n                            <div id=\"deck-and-discards\">\n                                <div id=\"deck\" class=\"cards-stack\"></div>\n                                <div id=\"discards\">\n                                        ".concat([1, 2].map(function (number) { return "<div id=\"discard".concat(number, "\" class=\"discard-stack cards-stack\" data-discard=\"").concat(number, "\"></div>"); }).join(''), "\n                                </div>\n                            </div>\n                            <div id=\"pick\" data-visible=\"false\"></div>\n                        </div>\n                        <div id=\"tables\"></div>\n                    </div>\n                </div>\n            </div>\n        "));

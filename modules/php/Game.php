@@ -18,8 +18,11 @@
 
 namespace Bga\Games\SeaSaltPaper;
 
+use Bga\GameFrameworkPrototype\Counters\PlayerCounter;
 use Bga\Games\SeaSaltPaper\Objects\Card;
 
+require_once(__DIR__.'/framework-prototype/Helpers/Arrays.php');
+require_once(__DIR__.'/framework-prototype/counters/player-counter.php');
 require_once(__DIR__.'/framework-prototype/item/item.php');
 require_once(__DIR__.'/framework-prototype/item/item-field.php');
 require_once(__DIR__.'/framework-prototype/item/item-location.php');
@@ -34,9 +37,10 @@ class Game extends \Bga\GameFramework\Table {
     use ArgsTrait;
     use DebugUtilTrait;
 
-    private CardManager $cards;
+    public CardManager $cards;
+    public EventCardManager $eventCards;
+    public PlayerCounter $score;
 
-    public array $END_GAME_POINTS;
     public array $ANNOUNCEMENTS;
     public array $COLORS;
 
@@ -48,12 +52,6 @@ class Game extends \Bga\GameFramework\Table {
         //  the corresponding ID in gameoptions.inc.php.
         // Note: afterwards, you can get/set the global variables with getGameStateValue/setGameStateInitialValue/setGameStateValue
         parent::__construct();
-        
-        $this->END_GAME_POINTS = [
-            2 => 40,
-            3 => 35,
-            4 => 30,
-        ];
 
         $this->ANNOUNCEMENTS = [
             LAST_CHANCE => clienttranslate('LAST CHANCE'),
@@ -86,6 +84,8 @@ class Game extends \Bga\GameFramework\Table {
         ]);  
 
         $this->cards = new CardManager($this);
+        $this->eventCards = new EventCardManager($this);
+        $this->score = new PlayerCounter($this, 'player_score', 'score');
 	}
 
     /*
@@ -96,7 +96,13 @@ class Game extends \Bga\GameFramework\Table {
         the game is ready to be played.
     */
     protected function setupNewGame($players, $options = []) { 
+        $isExtraSaltExpansion = $this->isExtraSaltExpansion();
+        $isExtraPepperExpansion = $this->isExtraPepperExpansion();
+
         $this->cards->initDb();
+        if ($isExtraPepperExpansion) {
+            $this->eventCards->initDb();
+        }
 
         // Set the colors of the players with HTML color code
         // The default below is red/green/blue/orange/brown
@@ -126,8 +132,6 @@ class Game extends \Bga\GameFramework\Table {
         $this->setGameStateInitialValue(BET_RESULT, 0);
         $this->setGameStateInitialValue(FORCE_TAKE_ONE, 0);
         $this->setGameStateInitialValue(LOBSTER_POWER, 0);
-
-        $isExtraSaltExpansion = $this->isExtraSaltExpansion();
         
         // Init game statistics
         // (note: statistics used in this file must be defined in your stats.inc.php file)
@@ -154,6 +158,9 @@ class Game extends \Bga\GameFramework\Table {
 
         // setup the initial game situation here
         $this->cards->setup($isExtraSaltExpansion);
+        if ($isExtraPepperExpansion) {
+            $this->eventCards->setup();
+        }
 
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
@@ -171,6 +178,8 @@ class Game extends \Bga\GameFramework\Table {
         _ when a player refreshes the game page (F5)
     */
     protected function getAllDatas(): array {
+        $isExtraPepperExpansion = $this->isExtraPepperExpansion();
+
         $result = [];
     
         $currentPlayerId = intval($this->getCurrentPlayerId());    // !! We must only return informations visible by this player !!
@@ -255,6 +264,10 @@ class Game extends \Bga\GameFramework\Table {
                     'colorBonus' => null,
                 ];
             }
+
+            if ($isExtraPepperExpansion) {
+                $player['eventCards'] = $this->eventCards->getPlayer($playerId);
+            }
         }
 
         $result['deckTopCard'] = $this->cards->getDeckTopCard();
@@ -265,7 +278,11 @@ class Game extends \Bga\GameFramework\Table {
         }
 
         $result['extraSaltExpansion'] = $this->isExtraSaltExpansion();
+        $result['extraPepperExpansion'] = $isExtraPepperExpansion;
         $result['doublePoints'] = $this->isDoublePoints();
+        if ($isExtraPepperExpansion) {
+            $result['tableEventCard'] = $this->eventCards->getTable();
+        }
   
         return $result;
     }
@@ -282,7 +299,7 @@ class Game extends \Bga\GameFramework\Table {
     */
     function getGameProgression() {
         $maxScore = $this->getMaxScore();
-        $topScore = $this->getPlayerTopScore();
+        $topScore = $this->score->getMax();
 
         return min(100, 100 * $topScore / $maxScore);
     }

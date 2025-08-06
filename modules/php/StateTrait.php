@@ -4,7 +4,7 @@ namespace Bga\Games\SeaSaltPaper;
 
 trait StateTrait {
 
-    private CardManager $cards;
+    //public CardManager $cards;
 
 //////////////////////////////////////////////////////////////////////////////
 //////////// Game state actions
@@ -192,7 +192,7 @@ trait StateTrait {
         } else if ($endRound == STOP) {
             $endCaller = intval($this->getGameStateValue(STOP_CALLER));
             
-            $this->notifyAllPlayers('log', clienttranslate('${player_name} announced ${announcement}, every player score the points for their cards'), [
+            $this->notify->all('log', clienttranslate('${player_name} announced ${announcement}, every player score the points for their cards'), [
                 'playerId' => $endCaller,
                 'player_name' => $this->getPlayerNameById($endCaller),
                 'announcement' => $this->ANNOUNCEMENTS[STOP],
@@ -217,7 +217,7 @@ trait StateTrait {
 
     function isLastRound() {
         $maxScore = $this->getMaxScore();
-        $topScore = $this->getPlayerTopScore();
+        $topScore = $this->score->getMax();
 
         return $topScore >= $maxScore;
     }
@@ -246,7 +246,20 @@ trait StateTrait {
             'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
         ]);
 
-        $this->gamestate->nextState($lastRound ? 'endScore' : 'newRound');
+        if ($lastRound) {
+            $this->gamestate->nextState('endScore');
+        } else {
+            $eventCardPlayerId = null;
+            if ($this->isExtraPepperExpansion()) {
+                $eventCardPlayerId = $this->eventCards->endRoundGiveEventCard();
+            }
+
+            if ($eventCardPlayerId !== null && count($this->eventCards->getPlayer($eventCardPlayerId)) > 1) {
+                $this->gamestate->nextState('chooseKeptCard');
+            } else {
+                $this->gamestate->nextState('newRound');
+            }
+        }
     }
 
     function stEndScore() {

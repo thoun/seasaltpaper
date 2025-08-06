@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Bga\GameFrameworkPrototype\Counters;
 
+use Bga\GameFrameworkPrototype\Helpers\Arrays;
+
 class PlayerCounter {
     protected static ?bool $tableExists = null;
 
@@ -102,12 +104,16 @@ class PlayerCounter {
     public function getMax(): int {
         return (int)\APP_DbObject::getUniqueValueFromDB("SELECT MAX(`".$this->dbField."`) FROM `{$this->getTable()}`");
     }
+    public function getAll(): array {
+        $values = \APP_DbObject::getCollectionFromDB("SELECT `player_id`, `{$this->dbField}` FROM `{$this->getTable()}`", true);
+        return Arrays::map($values, fn($val) => (int)$val);
+    }
 
     public function fillResult(array &$result, ?string $fieldName = null) {
-        $values = \APP_DbObject::getCollectionFromDB("SELECT `player_id`, `{$this->dbField}` FROM `{$this->getTable()}`", true);
+        $values = $this->getAll();
 
         foreach ($result["players"] as $playerId => &$player) {
-            $player[$fieldName ?? $this->type] = (int)$values[$playerId];
+            $player[$fieldName ?? $this->type] = $values[$playerId];
         }
     }
 }

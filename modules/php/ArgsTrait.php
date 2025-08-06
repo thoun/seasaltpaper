@@ -6,7 +6,7 @@ use Bga\Games\SeaSaltPaper\Objects\Card;
 
 trait ArgsTrait {
 
-    //private CardManager $cards;
+    //public CardManager $cards;
     
 //////////////////////////////////////////////////////////////////////////////
 //////////// Game state arguments
