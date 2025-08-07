@@ -68,6 +68,7 @@ interface SeaSaltPaperGamedatas {
 interface SeaSaltPaperGame extends GameGui {
     animationManager: AnimationManager;
     cardsManager: CardsManager;
+    eventCardManager: EventCardManager;
 
     isExtraSaltExpansion(): boolean;
     getPlayerId(): number;
@@ -186,4 +187,9 @@ interface NotifStealCardArgs {
 
 interface NotifReshuffleDeckArgs {
     deckTopCard: Card;
+}
+
+interface NotifEventCardArgs {
+    playerId: number;
+    card: EventCard;
 }

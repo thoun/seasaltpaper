@@ -21,6 +21,8 @@ class PlayerTable {
     private handCards: LineStock<Card>;
     private tableCards: LineStock<Card>;
 
+    private eventCards: LineStock<EventCard>;
+
     constructor(private game: SeaSaltPaperGame, player: SeaSaltPaperPlayer) {
         this.playerId = Number(player.id);
         this.currentPlayer = this.playerId == this.game.getPlayerId();
@@ -84,6 +86,14 @@ class PlayerTable {
         }
         if (player.scoringDetail) {
             this.showScoreDetails(player.scoringDetail);
+        }
+
+        if (player.eventCards !== undefined) {
+            const div = document.createElement('div');
+            document.getElementById(`player-table-${this.playerId}`).insertAdjacentElement('afterbegin', div);
+
+            this.eventCards = new LineStock<EventCard>(this.game.eventCardManager, div);
+            this.eventCards.addCards(player.eventCards);
         }
     }
     
@@ -236,5 +246,9 @@ class PlayerTable {
         });
         
         this.handCards.setSelectableCards(selectableCards);
+    }
+    
+    public async takeEventCard(card: EventCard) {
+        this.eventCards.addCard(card);
     }
 }

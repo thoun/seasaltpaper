@@ -44,11 +44,11 @@ trait DebugUtilTrait {
         $this->cards->pickCardsForLocation($move, 'deck', 'discard');
     }
 
-    function debug_fillHand(int $playerId, int $number = 15) {
+    function debug_fillHand(int $playerId, int $number = 12) {
         $this->cards->pickItemsForLocation($number, 'deck', null, 'hand'.$playerId);
     }
 
-    function debug_fillHands(int $number = 15) {
+    function debug_fillHands(int $number = 12) {
         $playerIds = $this->getPlayersIds();
         foreach ($playerIds as $playerId) {
             $this->debug_fillHand($playerId, $number);

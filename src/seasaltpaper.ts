@@ -14,6 +14,7 @@ GameGui = (function () { // this hack required so we fake extend GameGui
 class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPaperGame {
     public animationManager: AnimationManager;
     public cardsManager: CardsManager;
+    public eventCardManager: EventCardManager;
 
     private zoomManager: ZoomManager;
     public gamedatas: SeaSaltPaperGamedatas;
@@ -85,6 +86,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
 
         this.animationManager = new AnimationManager(this);
         this.cardsManager = new CardsManager(this);
+        this.eventCardManager = new EventCardManager(this);
         this.stacks = new Stacks(this, this.gamedatas);
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
@@ -733,6 +735,9 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             ['updateCardsPoints', 1],
             ['emptyDeck', 1],
             ['reshuffleDeck', undefined],
+            ['takeEventCard', undefined],
+            ['discardEventCard', undefined],
+            ['newTableEventCard', undefined],
         ];
     
         notifs.forEach((notif) => {
@@ -922,9 +927,20 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
     }
 
     async notif_reshuffleDeck(args: NotifReshuffleDeckArgs) {
-        return await this.stacks.deck.shuffle();
+        await this.stacks.deck.shuffle();
     }
-    
+
+    async notif_takeEventCard(args: NotifEventCardArgs) {
+        await this.getPlayerTable(args.playerId).takeEventCard(args.card);
+    }    
+
+    async notif_discardEventCard(args: NotifEventCardArgs) {
+        await this.eventCardManager.removeCard(args.card);
+    }
+
+    async notif_newTableEventCard(args: NotifEventCardArgs) {
+        await this.stacks.newTableEventCard(args.card);
+    }
 
     private clearLogs(activePlayer: string) {
         const logDivs = Array.from(document.getElementById('logs').getElementsByClassName('log')) as HTMLElement[];

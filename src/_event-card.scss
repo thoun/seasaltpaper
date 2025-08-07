@@ -1,0 +1,22 @@
+.event-card {
+    position: relative;
+    width: 208px;
+    height: 149px;
+    margin: 5px;
+    border-radius: 10px;
+
+    .card-sides {
+        .card-side {
+            border-radius: 10px;
+            background-size: 100% auto;
+            background-image: url('img/event-cards.jpg');
+            background-position-y: calc(var(--index) * 100% / 11);
+            box-shadow: 1px 1px 2px 1px rgba(0,0,0,0.5);
+
+            &>* {
+                pointer-events: none;
+                user-select: none;
+            }
+        }
+    }
+}

@@ -4,6 +4,8 @@ class Stacks {
     private discardStocks: Deck<Card>[] = [];
     private pickStock: LineStock<Card>;
 
+    private eventCard: LineStock<EventCard>;
+
     constructor(private game: SeaSaltPaperGame, gamedatas: SeaSaltPaperGamedatas) {
         [1, 2].forEach(number => {
             const discardDiv = document.getElementById(`discard${number}`);
@@ -32,6 +34,16 @@ class Stacks {
             }
         });
         this.deck.onCardClick = () => this.game.takeCardsFromDeck();
+
+        if (gamedatas.extraPepperExpansion) {
+            const div = document.createElement('div');
+            document.getElementById('deck-and-discards').insertAdjacentElement('beforebegin', div);
+
+            this.eventCard = new LineStock<EventCard>(this.game.eventCardManager, div);
+            if (gamedatas.tableEventCard) {
+                this.eventCard.addCard(gamedatas.tableEventCard);
+            }
+        }
     }
     
     public makeDeckSelectable(selectable: boolean) {
@@ -84,5 +96,9 @@ class Stacks {
     
     public getDiscardDeck(discardNumber: number): CardStock<Card> {
         return this.discardStocks[discardNumber];
+    }
+    
+    public async newTableEventCard(card: EventCard) {
+        await this.eventCard.addCard(card);
     }
 }

@@ -10,6 +10,8 @@
     "files": [
         "bga-framework.d.ts",
         "bga-zoom.d.ts",
+        "bga-animations.d.ts",
+        "bga-cards.d.ts",
         "node_modules/bga-animations/src/animations.ts",
         "node_modules/bga-animations/src/animations/attach-with-animation.ts",
         "node_modules/bga-animations/src/animations/cumulated-animations.ts",
@@ -28,6 +30,7 @@
         "node_modules/bga-cards/src/sort.ts",
         "src/seasaltpaper.d.ts",
         "src/cards.ts",
+        "src/event-card-manager.ts",
         "src/stacks.ts",
         "src/player-table.ts",
         "src/seasaltpaper.ts",

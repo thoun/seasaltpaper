@@ -5,6 +5,7 @@ class CardsManager extends CardManager<Card> {
         super(game, {
             getId: (card) => `ssp-card-${card.id}`,
             setupDiv: (card: Card, div: HTMLElement) => {
+                div.classList.add('base-card');
                 div.dataset.cardId = ''+card.id;
             },
             setupFrontDiv: (card: Card, div: HTMLElement) => this.setupFrontDiv(card, div),

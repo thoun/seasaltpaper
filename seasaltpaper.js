@@ -1684,6 +1684,7 @@ var CardsManager = /** @class */ (function (_super) {
         var _this = _super.call(this, game, {
             getId: function (card) { return "ssp-card-".concat(card.id); },
             setupDiv: function (card, div) {
+                div.classList.add('base-card');
                 div.dataset.cardId = '' + card.id;
             },
             setupFrontDiv: function (card, div) { return _this.setupFrontDiv(card, div); },
@@ -1822,6 +1823,34 @@ var CardsManager = /** @class */ (function (_super) {
     };
     return CardsManager;
 }(CardManager));
+var EventCardManager = /** @class */ (function (_super) {
+    __extends(EventCardManager, _super);
+    function EventCardManager(game) {
+        var _this = _super.call(this, game, {
+            getId: function (card) { return "event-card-".concat(card.id); },
+            setupDiv: function (card, div) { return div.classList.add('event-card'); },
+            setupFrontDiv: function (card, div) { return _this.setupFrontDiv(card, div); },
+            cardWidth: 208,
+            cardHeight: 149,
+            animationManager: game.animationManager,
+        }) || this;
+        _this.game = game;
+        return _this;
+    }
+    EventCardManager.prototype.setupFrontDiv = function (card, div) {
+        div.style.setProperty('--index', "".concat(card.type - 1));
+        this.game.setTooltip(div.id, this.getTooltip(card));
+    };
+    EventCardManager.prototype.getTooltip = function (card) {
+        var html = /*`
+        <strong>${_('Points:')}</strong> ${card.points}<br>
+        <strong>${_('Number:')}</strong> ${card.number ?? _('Joker')}<br>
+        <strong>${_('Color:')}</strong> ${this.getColorName(card.color)}
+        `*/ "TODO";
+        return html;
+    };
+    return EventCardManager;
+}(CardManager));
 var Stacks = /** @class */ (function () {
     function Stacks(game, gamedatas) {
         var _this = this;
@@ -1852,6 +1881,14 @@ var Stacks = /** @class */ (function () {
             }
         });
         this.deck.onCardClick = function () { return _this.game.takeCardsFromDeck(); };
+        if (gamedatas.extraPepperExpansion) {
+            var div = document.createElement('div');
+            document.getElementById('deck-and-discards').insertAdjacentElement('beforebegin', div);
+            this.eventCard = new LineStock(this.game.eventCardManager, div);
+            if (gamedatas.tableEventCard) {
+                this.eventCard.addCard(gamedatas.tableEventCard);
+            }
+        }
     }
     Stacks.prototype.makeDeckSelectable = function (selectable) {
         this.deck.setSelectionMode(selectable ? 'single' : 'none');
@@ -1903,6 +1940,18 @@ var Stacks = /** @class */ (function () {
     };
     Stacks.prototype.getDiscardDeck = function (discardNumber) {
         return this.discardStocks[discardNumber];
+    };
+    Stacks.prototype.newTableEventCard = function (card) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.eventCard.addCard(card)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
     };
     return Stacks;
 }());
@@ -1960,6 +2009,12 @@ var PlayerTable = /** @class */ (function () {
         }
         if (player.scoringDetail) {
             this.showScoreDetails(player.scoringDetail);
+        }
+        if (player.eventCards !== undefined) {
+            var div = document.createElement('div');
+            document.getElementById("player-table-".concat(this.playerId)).insertAdjacentElement('afterbegin', div);
+            this.eventCards = new LineStock(this.game.eventCardManager, div);
+            this.eventCards.addCards(player.eventCards);
         }
     }
     PlayerTable.prototype.addCardsToHand = function (cards, fromDeck) {
@@ -2098,6 +2153,14 @@ var PlayerTable = /** @class */ (function () {
         });
         this.handCards.setSelectableCards(selectableCards);
     };
+    PlayerTable.prototype.takeEventCard = function (card) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                this.eventCards.addCard(card);
+                return [2 /*return*/];
+            });
+        });
+    };
     return PlayerTable;
 }());
 var ANIMATION_MS = 500;
@@ -2148,6 +2211,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
         this.getGameAreaElement().insertAdjacentHTML('beforeend', "\n            <div id=\"full-table\">\n                <div id=\"discard-pick\" data-visible=\"false\"></div>\n                <div id=\"centered-table\">\n                    <div id=\"tables-and-center\">\n                        <div id=\"table-center\">\n                            <div id=\"deck-and-discards\">\n                                <div id=\"deck\" class=\"cards-stack\"></div>\n                                <div id=\"discards\">\n                                        ".concat([1, 2].map(function (number) { return "<div id=\"discard".concat(number, "\" class=\"discard-stack cards-stack\" data-discard=\"").concat(number, "\"></div>"); }).join(''), "\n                                </div>\n                            </div>\n                            <div id=\"pick\" data-visible=\"false\"></div>\n                        </div>\n                        <div id=\"tables\"></div>\n                    </div>\n                </div>\n            </div>\n        "));
         this.animationManager = new AnimationManager(this);
         this.cardsManager = new CardsManager(this);
+        this.eventCardManager = new EventCardManager(this);
         this.stacks = new Stacks(this, this.gamedatas);
         this.createPlayerPanels(gamedatas);
         this.createPlayerTables(gamedatas);
@@ -2680,6 +2744,9 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             ['updateCardsPoints', 1],
             ['emptyDeck', 1],
             ['reshuffleDeck', undefined],
+            ['takeEventCard', undefined],
+            ['discardEventCard', undefined],
+            ['newTableEventCard', undefined],
         ];
         notifs.forEach(function (notif) {
             dojo.subscribe(notif[0], _this, function (notifDetails) {
@@ -2854,7 +2921,45 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.stacks.deck.shuffle()];
-                    case 1: return [2 /*return*/, _a.sent()];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    SeaSaltPaper.prototype.notif_takeEventCard = function (args) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getPlayerTable(args.playerId).takeEventCard(args.card)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    SeaSaltPaper.prototype.notif_discardEventCard = function (args) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.eventCardManager.removeCard(args.card)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    SeaSaltPaper.prototype.notif_newTableEventCard = function (args) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.stacks.newTableEventCard(args.card)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
                 }
             });
         });

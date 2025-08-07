@@ -8,6 +8,7 @@ require_once(__DIR__.'/framework-prototype/item/item-field.php');
 require_once(__DIR__.'/framework-prototype/item/item-location.php');
 require_once(__DIR__.'/framework-prototype/item/item-manager.php');
 
+use Bga\GameFrameworkPrototype\Item\ItemLocation;
 use \Bga\GameFrameworkPrototype\Item\ItemManager;
 use Bga\Games\SeaSaltPaper\Objects\EventCard;
 
@@ -17,7 +18,9 @@ class EventCardManager extends ItemManager {
     ) {
         parent::__construct(
             EventCard::class,
-            [],
+            [
+                new ItemLocation('deck', true, autoReshuffleFrom: 'discard'),
+            ],
         );
     }
 
@@ -41,39 +44,74 @@ class EventCardManager extends ItemManager {
     }
 
     function endRoundGiveEventCard(): ?int {
-        $card = $this->getTable();
         
-        $playerId = null;
+        $maxScorePlayerId = null;
+        $minScorePlayerId = null;
         $scores = $this->game->score->getAll();
 
         $valuesCount = array_count_values($scores);
 
-        if ($card->for === 'top') {
-            $max = max($scores);
-            if ($valuesCount[$max] === 1) {
-                $playerId = array_search($max, $scores);
-            }
-        } else if ($card->for === 'bottom') {
-            $min = min($scores);
-            if ($valuesCount[$min] === 1) {
-                $playerId = array_search($min, $scores);
+        $max = max($scores);
+        if ($valuesCount[$max] === 1) {
+            $maxScorePlayerId = array_search($max, $scores);
+        }
+        $min = min($scores);
+        if ($valuesCount[$min] === 1) {
+            $minScorePlayerId = array_search($min, $scores);
+        }
+
+        // first, check if the players keeps their current event card
+        foreach (array_keys($scores) as $playerId) {
+            $eventCards = $this->getPlayer($playerId);
+            foreach ($eventCards as $eventCard) {
+                $remove = ($eventCard->for === 'top' && $playerId !== $maxScorePlayerId) || ($eventCard->for === 'bottom' && $playerId !== $minScorePlayerId);
+                if ($remove) {
+                    $this->moveItem($eventCard, 'discard');
+                    
+                    $message = $eventCard->for === 'top' ?
+                        clienttranslate('${player_name} discard his event card (${player_name} is not anymore the player with the most points)') :
+                        clienttranslate('${player_name} discard his event card (${player_name} is not anymore the player with the fewest points)');
+                    $this->game->notify->all('discardEventCard', $message, [
+                        'playerId' => $playerId,
+                        'player_name' => $this->game->getPlayerNameById($playerId),
+                        'card' => $eventCard,
+                    ]);
+                }
             }
         }
 
-        if ($playerId !== null) {
-            $this->moveItem($card, 'player', $playerId);
+        // then give the new card
+        $newEventPlayerId = null;
+        $card = $this->getTable();
+        if ($card->for === 'top') {
+            $newEventPlayerId = $maxScorePlayerId;
+        } else if ($card->for === 'bottom') {
+            $newEventPlayerId = $minScorePlayerId;
+        }
+
+        if ($newEventPlayerId !== null) {
+            $this->moveItem($card, 'player', $newEventPlayerId);
             
             $message = $card->for === 'top' ?
                 clienttranslate('${player_name} takes the event card (player with the most points)') :
                 clienttranslate('${player_name} takes the event card (player with the fewest points)');
-            $this->game->notify->all('takeEventCard', $message, [ // TODO handle
-                'playerId' => $playerId,
-                'player_name' => $this->game->getPlayerNameById($playerId),
+            $this->game->notify->all('takeEventCard', $message, [
+                'playerId' => $newEventPlayerId,
+                'player_name' => $this->game->getPlayerNameById($newEventPlayerId),
+                'card' => $card,
+            ]);
+        } else {
+            $this->game->notify->all('discardEventCard', clienttranslate('No one take the event card'), [
                 'card' => $card,
             ]);
         }
+        
+        $newEventCard = $this->pickItemForLocation('deck', null, 'table');
+        $this->game->notify->all('newTableEventCard', '', [
+                'card' => $newEventCard,
+            ]);
 
-        return $playerId;
+        return $newEventPlayerId;
     }
 
 }
