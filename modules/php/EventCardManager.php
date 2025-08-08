@@ -145,6 +145,10 @@ class EventCardManager extends ItemManager {
     }
 
     public function getActiveEventsForPlayer(int $playerId): array {
+        if (!$this->game->isExtraPepperExpansion()) {
+            return [];
+        }
+        
         $activeEventsForPlayer = $this->getPlayer($playerId);
         $activeEventsForPlayer[] = $this->getTable();
         return $activeEventsForPlayer;
