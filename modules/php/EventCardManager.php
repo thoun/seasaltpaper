@@ -23,7 +23,7 @@ const THE_DANCE_OF_THE_MERMAIDS = 7;
 const THE_TREASURE_CHEST = 8;
 const THE_DIODON_FISH = 9;
 const THE_ANGELFISH = 10; // TODO
-const THE_DOLPHINS = 11; // TODO
+const THE_DOLPHINS = 11;
 const THE_CORAL_REEF = 12; // TODO
 
 class EventCardManager extends ItemManager {

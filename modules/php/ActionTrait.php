@@ -224,6 +224,17 @@ trait ActionTrait {
             'preserve' => ['actionPlayerId'],
             'actionPlayerId' => $playerId,
         ]);
+
+        if ($card->category === COLLECTION && $this->eventCards->playerHasEffect($playerId, THE_DOLPHINS)) {
+            $this->notify->all('log', clienttranslate('${player_name} discarded a collection card and apply The Delphins effect'), [
+                'playerId' => $playerId,
+                'player_name' => $this->getPlayerNameById($playerId),
+            ]);
+
+            if (!$this->pickTopCardFromDeck($playerId)) {
+                $this->notify->all('log', clienttranslate('Impossible to activate The Delphins effect, it is ignored'), []);
+            }
+        }
     }
         
     public function actPutDiscardPile(int $discardNumber) {
@@ -234,6 +245,40 @@ trait ActionTrait {
         $this->applyPutDiscardPile($discardNumber);
 
         $this->gamestate->nextState('playCards');
+    }
+
+    public function pickTopCardFromDeck(int $playerId): bool { // return if applied
+        if ($this->cards->countItemsInLocation('deck') === 0) {
+            return false;
+        }
+
+        $card = $this->cards->pickItemForLocation('deck', null, 'hand'.$playerId);
+        $this->cardCollected($playerId, $card);
+
+        $this->notify->player($playerId, 'cardInHandFromDeck', clienttranslate('You take ${cardColor} ${cardName} card from deck'), [
+            'playerId' => $playerId,
+            'player_name' => $this->getPlayerNameById($playerId),
+            'card' => $card,
+            'cardName' => $this->getCardName($card),
+            'cardColor' => $this->COLORS[$card->color],
+            'i18n' => ['cardName', 'cardColor'],
+            'preserve' => ['actionPlayerId'],
+            'actionPlayerId' => $playerId,
+            'deckTopCard' => $this->cards->getDeckTopCard(),
+            'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
+        ]);
+        $this->notify->all('cardInHandFromDeck', clienttranslate('${player_name} took a card from deck'), [
+            'playerId' => $playerId,
+            'player_name' => $this->getPlayerNameById($playerId),
+            'card' => Card::onlyId($card),
+            'preserve' => ['actionPlayerId'],
+            'actionPlayerId' => $playerId,
+            'deckTopCard' => $this->cards->getDeckTopCard(),
+            'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
+        ]);
+        
+        $this->updateCardsPoints($playerId);
+        return true;
     }
 
     public function actPlayCards(int $id1, int $id2) {
@@ -329,39 +374,10 @@ trait ActionTrait {
                 }
                 break;
             case 3:
-                if ($this->cards->countItemsInLocation('deck') > 0) {
-                    $card = $this->cards->pickItemForLocation('deck', null, 'hand'.$playerId);
-                    $this->cardCollected($playerId, $card);
-
-                    $this->notify->player($playerId, 'cardInHandFromDeck', clienttranslate('You take ${cardColor} ${cardName} card from deck'), [
-                        'playerId' => $playerId,
-                        'player_name' => $this->getPlayerNameById($playerId),
-                        'card' => $card,
-                        'cardName' => $this->getCardName($card),
-                        'cardColor' => $this->COLORS[$card->color],
-                        'i18n' => ['cardName', 'cardColor'],
-                        'preserve' => ['actionPlayerId'],
-                        'actionPlayerId' => $playerId,
-                        'deckTopCard' => $this->cards->getDeckTopCard(),
-                        'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
-                    ]);
-                    $this->notify->all('cardInHandFromDeck', clienttranslate('${player_name} took a card from deck'), [
-                        'playerId' => $playerId,
-                        'player_name' => $this->getPlayerNameById($playerId),
-                        'card' => Card::onlyId($card),
-                        'preserve' => ['actionPlayerId'],
-                        'actionPlayerId' => $playerId,
-                        'deckTopCard' => $this->cards->getDeckTopCard(),
-                        'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
-                    ]);
-                    
-                    $this->updateCardsPoints($playerId);
-                    $this->gamestate->nextState('playCards');
-                } else {
+                if (!$this->pickTopCardFromDeck($playerId)) {
                     $this->notify->all('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
-                    $this->gamestate->nextState('playCards');
                 }
-                
+                $this->gamestate->nextState('playCards');
                 break;
             case 4:
                 $possibleOpponentsToSteal = $this->getPossibleOpponentsToSteal($playerId);

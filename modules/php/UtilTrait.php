@@ -68,7 +68,7 @@ trait UtilTrait {
         return $this->tableOptions->get(EXTRA_SALT_EXPANSION) == 2;
     }
     function isExtraPepperExpansion(): bool {
-        return true;// TODO $this->tableOptions->get(EXTRA_PEPPER_EXPANSION) == 2;
+        return false;// TODO $this->tableOptions->get(EXTRA_PEPPER_EXPANSION) == 2;
     }
 
     function isDoublePoints() {
