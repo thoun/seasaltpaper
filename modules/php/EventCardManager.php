@@ -16,9 +16,9 @@ use Bga\Games\SeaSaltPaper\Objects\EventCard;
 const THE_HERMIT_CRAB = 1; // TODO
 const THE_SUNFISH = 2; // TODO
 const THE_WATER_RODEO = 3; // TODO
-const THE_DANCE_OF_THE_SHELLS = 4; // TODO
-const THE_KRAKEN = 5; // TODO
-const THE_TORNADO = 6; // TODO
+const THE_DANCE_OF_THE_SHELLS = 4;
+const THE_KRAKEN = 5; 
+const THE_TORNADO = 6;
 const THE_DANCE_OF_THE_MERMAIDS = 7;
 const THE_TREASURE_CHEST = 8;
 const THE_DIODON_FISH = 9;
@@ -144,10 +144,18 @@ class EventCardManager extends ItemManager {
         }
     }
 
-    public function playerHasEffect(int $playerId, int $effect) {
+    public function getActiveEventsForPlayer(int $playerId): array {
         $activeEventsForPlayer = $this->getPlayer($playerId);
         $activeEventsForPlayer[] = $this->getTable();
-        return Arrays::some($activeEventsForPlayer, fn($card) => $card->type === $effect);
+        return $activeEventsForPlayer;
+    }
+
+    public function playerHasEffect(int $playerId, int $effect): bool {
+        return Arrays::some($this->getActiveEventsForPlayer($playerId), fn($card) => $card->type === $effect);
+    }
+
+    public function getPlayerEffects(int $playerId): array {
+        return Arrays::map($this->getActiveEventsForPlayer($playerId), fn($card) => $card->type);
     }
 
 }

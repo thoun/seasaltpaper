@@ -118,7 +118,7 @@ trait UtilTrait {
         $tableCards = $this->getPlayerCards($playerId, 'table', false);
         $handCards = $this->getPlayerCards($playerId, 'hand', true);
 
-        $cardsScore = new Objects\CardsPoints($tableCards, $handCards);
+        $cardsScore = new Objects\CardsPoints($tableCards, $handCards, $this->eventCards->getPlayerEffects($playerId));
         return $cardsScore;
     }
 

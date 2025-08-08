@@ -2,6 +2,10 @@
 
 namespace Bga\Games\SeaSaltPaper\Objects;
 
+use const Bga\Games\SeaSaltPaper\THE_DANCE_OF_THE_SHELLS;
+use const Bga\Games\SeaSaltPaper\THE_KRAKEN;
+use const Bga\Games\SeaSaltPaper\THE_TORNADO;
+
 const COLLECTION_POINTS = [
     SHELL => [0, 2, 4, 6, 8, 10],
     OCTOPUS => [0, 3, 6, 9, 12],
@@ -32,7 +36,7 @@ class CardsPoints {
     public int $totalPoints;
     public int $colorBonus;
 
-    public function __construct(array $tableCards, array $handCards) {
+    public function __construct(array $tableCards, array $handCards, private array $eventEffets) {
         $cards = array_merge($tableCards, $handCards);
 
         $numberByColor = [];
@@ -82,19 +86,21 @@ class CardsPoints {
         $specialCardsInTable = array_values(array_filter($tableCards, fn($card) => $card->category == SPECIAL));
 
         // Mermaids
-        $mermaidCount = count($mermaidCards);
-        while ($mermaidCount > 0) {
-            if (count($numberByColor) == 0) {
-                break;
+        if (!in_array(THE_TORNADO, $this->eventEffets)) {
+            $mermaidCount = count($mermaidCards);
+            while ($mermaidCount > 0) {
+                if (count($numberByColor) == 0) {
+                    break;
+                }
+
+                $maxColor = count($numberByColor) > 0 ? max($numberByColor) : 0;
+                $mermaidPoints += $maxColor;
+
+                $maxColorIndex = array_find_key($numberByColor, fn($val) => $val == $maxColor);
+                unset($numberByColor[$maxColorIndex]);
+
+                $mermaidCount--;
             }
-
-            $maxColor = count($numberByColor) > 0 ? max($numberByColor) : 0;
-            $mermaidPoints += $maxColor;
-
-            $maxColorIndex = array_find_key($numberByColor, fn($val) => $val == $maxColor);
-            unset($numberByColor[$maxColorIndex]);
-
-            $mermaidCount--;
         }
 
         $pairPoints += floor(count($pairTableCards) / 2);
@@ -123,7 +129,13 @@ class CardsPoints {
                 if ($family === $collectionBonus && $count < count(COLLECTION_POINTS[$family])) {
                     $count++;
                 }
-                $collectorPoints += COLLECTION_POINTS[$family][$count - 1];
+                if ($family === SHELL && in_array(THE_DANCE_OF_THE_SHELLS, $this->eventEffets)) {
+                    $collectorPoints += 2 * $count;
+                } else if ($family === OCTOPUS && in_array(THE_KRAKEN, $this->eventEffets)) {
+                    $collectorPoints += 1 * $count;
+                } else {
+                    $collectorPoints += COLLECTION_POINTS[$family][$count - 1];
+                }
             }
         }
         
