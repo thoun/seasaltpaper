@@ -61,14 +61,18 @@ trait ArgsTrait {
 
         $totalPoints = $this->getCardsPoints($playerId)->totalPoints;
         $playableDuoCards = $this->playableDuoCards($playerId);
-        $canCallEndRound = $totalPoints >= 7 && intval($this->getGameStateValue(END_ROUND_TYPE)) == 0;
-        $hasFourMermaids = count($this->getPlayerMermaids($playerId)) == 4;
+        $canCallEndRound = $totalPoints >= $this->pointsToEndRound($playerId) && intval($this->getGameStateValue(END_ROUND_TYPE)) == 0;
+        $canStop = $canCallEndRound && !$this->eventCards->playerHasEffect($playerId, THE_DIODON_FISH);
+        $mermaidsToEndGame = $this->mermaidsToEndGame($playerId);
+        $hasFourMermaids = count($this->getPlayerMermaids($playerId)) == $mermaidsToEndGame;
     
         return [
             'canDoAction' => count($playableDuoCards) > 0 || $canCallEndRound || $hasFourMermaids,
             'playableDuoCards' => $playableDuoCards,
             'hasFourMermaids' => $hasFourMermaids,
+            'mermaidsToEndGame' => $mermaidsToEndGame,
             'canCallEndRound' => $canCallEndRound,
+            'canStop' => $canStop,
         ];
     }
 

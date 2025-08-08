@@ -238,7 +238,7 @@ $gameGameStates = [
     ST_MULTIPLAYER_CHOOSE_KEPT_EVENT_CARD => GameStateBuilder::create()
         ->name('chooseKeptEventCard')
         ->description(clienttranslate('A player must choose the event card to keep'))
-        ->description(clienttranslate('${you} must choose the event card to keep'))
+        ->descriptionMyTurn(clienttranslate('${you} must choose the event card to keep'))
         ->type(StateType::MULTIPLE_ACTIVE_PLAYER)
         ->action('stChooseKeptEventCard')
         ->possibleActions(['actChooseKeptEventCard'])

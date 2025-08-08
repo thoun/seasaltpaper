@@ -94,6 +94,7 @@ class PlayerTable {
 
             this.eventCards = new LineStock<EventCard>(this.game.eventCardManager, div);
             this.eventCards.addCards(player.eventCards);
+            this.eventCards.onCardClick = card => this.game.bgaPerformAction('actChooseKeptEventCard', { id: card.id });
         }
     }
     
@@ -250,5 +251,9 @@ class PlayerTable {
     
     public async takeEventCard(card: EventCard) {
         this.eventCards.addCard(card);
+    }
+    
+    public setEventCardsSelectable(selectable: boolean) {
+        this.eventCards.setSelectionMode(selectable ? 'single' : 'none');
     }
 }

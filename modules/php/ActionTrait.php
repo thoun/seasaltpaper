@@ -468,7 +468,7 @@ trait ActionTrait {
         $playerId = intval($this->getActivePlayerId());
 
         $mermaids = $this->getPlayerMermaids($playerId);
-        if (count($mermaids) == 4) {
+        if (count($mermaids) == $this->mermaidsToEndGame($playerId)) {
             $this->endGameWithMermaids($playerId);
             return;
         }
@@ -480,7 +480,7 @@ trait ActionTrait {
         $playerId = intval($this->getActivePlayerId());
 
         $mermaids = $this->getPlayerMermaids($playerId);
-        if (count($mermaids) == 4) {
+        if (count($mermaids) == $this->mermaidsToEndGame($playerId)) {
             $this->endGameWithMermaids($playerId);
             return;
         }
@@ -547,7 +547,7 @@ trait ActionTrait {
         }
 
         $mermaids = $this->getPlayerMermaids($playerId);
-        if (count($mermaids) == 4) {
+        if (count($mermaids) == $this->mermaidsToEndGame($playerId)) {
             $count = $this->cards->countItemsInLocation('table'.$playerId);
             foreach($mermaids as $card) {
                 $this->cards->moveItem($card, 'table'.$playerId, ++$count);
@@ -624,5 +624,13 @@ trait ActionTrait {
         $playerId = intval($this->getCurrentPlayerId());
 
         $this->gamestate->setPlayerNonMultiactive($playerId, 'endRound');
+    }
+
+    public function actChooseKeptEventCard(int $id) {
+        $playerId = intval($this->getCurrentPlayerId());
+
+        $this->eventCards->keepCard($playerId, $id);
+
+        $this->gamestate->nextState('');
     }
 }

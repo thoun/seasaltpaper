@@ -2015,6 +2015,7 @@ var PlayerTable = /** @class */ (function () {
             document.getElementById("player-table-".concat(this.playerId)).insertAdjacentElement('afterbegin', div);
             this.eventCards = new LineStock(this.game.eventCardManager, div);
             this.eventCards.addCards(player.eventCards);
+            this.eventCards.onCardClick = function (card) { return _this.game.bgaPerformAction('actChooseKeptEventCard', { id: card.id }); };
         }
     }
     PlayerTable.prototype.addCardsToHand = function (cards, fromDeck) {
@@ -2160,6 +2161,9 @@ var PlayerTable = /** @class */ (function () {
                 return [2 /*return*/];
             });
         });
+    };
+    PlayerTable.prototype.setEventCardsSelectable = function (selectable) {
+        this.eventCards.setSelectionMode(selectable ? 'single' : 'none');
     };
     return PlayerTable;
 }());
@@ -2337,6 +2341,11 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             });
         }
     };
+    SeaSaltPaper.prototype.onEnteringChooseKeptEventCard = function (args) {
+        if (this.isCurrentPlayerActive()) {
+            this.getCurrentPlayerTable().setEventCardsSelectable(true);
+        }
+    };
     SeaSaltPaper.prototype.onLeavingState = function (stateName) {
         log('Leaving state: ' + stateName);
         switch (stateName) {
@@ -2357,6 +2366,9 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                 break;
             case 'chooseOpponent':
                 this.onLeavingChooseOpponent();
+                break;
+            case 'chooseKeptEventCard':
+                this.onLeavingChooseKeptEventCard();
                 break;
         }
     };
@@ -2385,6 +2397,10 @@ var SeaSaltPaper = /** @class */ (function (_super) {
     SeaSaltPaper.prototype.onLeavingChooseOpponent = function () {
         Array.from(document.querySelectorAll('[data-can-steal]')).forEach(function (elem) { return elem.dataset.canSteal = 'false'; });
     };
+    SeaSaltPaper.prototype.onLeavingChooseKeptEventCard = function () {
+        var _a;
+        (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setEventCardsSelectable(false);
+    };
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
     //                        action status bar (ie: the HTML links in the status bar).
     //
@@ -2401,12 +2417,12 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                     var playCardsArgs = args;
                     this.statusBar.addActionButton(_("Play selected cards"), function () { return _this.playSelectedCards(); }, { id: "playCards_button" });
                     if (playCardsArgs.hasFourMermaids) {
-                        this.statusBar.addActionButton(_("Play the four Mermaids"), function () { return _this.bgaPerformAction('actEndGameWithMermaids'); }, { color: 'alert' });
+                        this.statusBar.addActionButton(_("Play the ${number} Mermaids").replace('${number}', '' + playCardsArgs.mermaidsToEndGame), function () { return _this.bgaPerformAction('actEndGameWithMermaids'); }, { color: 'alert' });
                     }
                     this.statusBar.addActionButton(_("End turn"), function () { return _this.bgaPerformAction('actEndTurn'); }, { autoclick: !playCardsArgs.canDoAction });
                     if (playCardsArgs.canCallEndRound) {
                         this.statusBar.addActionButton(_('End round') + ' ("' + _('LAST CHANCE') + '")', function () { return _this.bgaPerformAction('actEndRound'); }, { id: "endRound_button", color: 'alert' });
-                        this.statusBar.addActionButton(_('End round') + ' ("' + _('STOP') + '")', function () { return _this.bgaPerformAction('actImmediateEndRound'); }, { id: "immediateEndRound_button", color: 'alert' });
+                        this.statusBar.addActionButton(_('End round') + ' ("' + _('STOP') + '")', function () { return _this.bgaPerformAction('actImmediateEndRound'); }, { id: "immediateEndRound_button", color: 'alert', disabled: !playCardsArgs.canStop });
                         this.setTooltip("endRound_button", "".concat(_("Say <strong>LAST CHANCE</strong> if you are willing to take the bet of having the most points at the end of the round. The other players each take a final turn (take a card + play cards) which they complete by revealing their hand, which is now protected from attacks. Then, all players count the points on their cards (in their hand and in front of them)."), "<br><br>\n                        ").concat(_("If your hand is higher or equal to that of your opponents, bet won! You score the points for your cards + the color bonus (1 point per card of the color they have the most of). Your opponents only score their color bonus."), "<br><br>\n                        ").concat(_("If your score is less than that of at least one opponent, bet lost! You score only the color bonus. Your opponents score points for their cards.")));
                         this.setTooltip("immediateEndRound_button", _("Say <strong>STOP</strong> if you do not want to take a risk. All players reveal their hands and immediately score the points on their cards (in their hand and in front of them)."));
                     }
@@ -2427,6 +2443,9 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                     break;*/
                 case 'beforeEndRound':
                     this.statusBar.addActionButton(_("Seen"), function () { return _this.bgaPerformAction('actSeen'); });
+                    break;
+                case 'chooseKeptEventCard':
+                    this.onEnteringChooseKeptEventCard(args);
                     break;
             }
         }

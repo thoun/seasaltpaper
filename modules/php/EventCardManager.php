@@ -8,9 +8,23 @@ require_once(__DIR__.'/framework-prototype/item/item-field.php');
 require_once(__DIR__.'/framework-prototype/item/item-location.php');
 require_once(__DIR__.'/framework-prototype/item/item-manager.php');
 
+use Bga\GameFrameworkPrototype\Helpers\Arrays;
 use Bga\GameFrameworkPrototype\Item\ItemLocation;
 use \Bga\GameFrameworkPrototype\Item\ItemManager;
 use Bga\Games\SeaSaltPaper\Objects\EventCard;
+
+const THE_HERMIT_CRAB = 1; // TODO
+const THE_SUNFISH = 2; // TODO
+const THE_WATER_RODEO = 3; // TODO
+const THE_DANCE_OF_THE_SHELLS = 4; // TODO
+const THE_KRAKEN = 5; // TODO
+const THE_TORNADO = 6; // TODO
+const THE_DANCE_OF_THE_MERMAIDS = 7;
+const THE_TREASURE_CHEST = 8;
+const THE_DIODON_FISH = 9;
+const THE_ANGELFISH = 10; // TODO
+const THE_DOLPHINS = 11; // TODO
+const THE_CORAL_REEF = 12; // TODO
 
 class EventCardManager extends ItemManager {
     function __construct(
@@ -112,6 +126,28 @@ class EventCardManager extends ItemManager {
             ]);
 
         return $newEventPlayerId;
+    }
+
+    public function keepCard(int $playerId, int $id) {
+        $eventCards = $this->getPlayer($playerId);
+        foreach ($eventCards as $eventCard) {
+            $remove = ($eventCard->id !== $id);
+            if ($remove) {
+                $this->moveItem($eventCard, 'discard');
+                
+                $this->game->notify->all('discardEventCard', clienttranslate('${player_name} discard an event card'), [
+                    'playerId' => $playerId,
+                    'player_name' => $this->game->getPlayerNameById($playerId),
+                    'card' => $eventCard,
+                ]);
+            }
+        }
+    }
+
+    public function playerHasEffect(int $playerId, int $effect) {
+        $activeEventsForPlayer = $this->getPlayer($playerId);
+        $activeEventsForPlayer[] = $this->getTable();
+        return Arrays::some($activeEventsForPlayer, fn($card) => $card->type === $effect);
     }
 
 }

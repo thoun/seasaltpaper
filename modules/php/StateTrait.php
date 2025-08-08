@@ -52,7 +52,7 @@ trait StateTrait {
         /*$playerId = intval($this->getActivePlayerId());        
 
         $mermaids = $this->getPlayerMermaids($playerId);
-        if (count($mermaids) == 4) {
+        if (count($mermaids) == $this->mermaidsToEndGame($playerId)) {
             $this->endGameWithMermaids($playerId);
         }*/
     }
@@ -255,6 +255,7 @@ trait StateTrait {
             }
 
             if ($eventCardPlayerId !== null && count($this->eventCards->getPlayer($eventCardPlayerId)) > 1) {
+                $this->globals->set(DISCARD_EVENT_CARD_PLAYER_ID, $eventCardPlayerId);
                 $this->gamestate->nextState('chooseKeptCard');
             } else {
                 $this->gamestate->nextState('newRound');
@@ -262,13 +263,25 @@ trait StateTrait {
         }
     }
 
+    function stChooseKeptEventCard() {
+        // to not show the call bubble
+        $this->setGameStateValue(END_ROUND_TYPE, 0);
+        $this->setGameStateValue(LAST_CHANCE_CALLER, 0);
+        $this->setGameStateValue(STOP_CALLER, 0);
+        $this->setGameStateValue(BET_RESULT, 0);
+
+        $this->gamestate->setPlayersMultiactive([$this->globals->get(DISCARD_EVENT_CARD_PLAYER_ID)], '', true);
+    }
+
     function stEndScore() {
         $playersIds = $this->getPlayersIds();
 
         foreach ($playersIds as $playerId) {
             $mermaids = $this->getPlayerMermaids($playerId);
-            if (count($mermaids) == 4) {
-                $this->setPlayerScore($playerId, 100, clienttranslate('${player_name} placed 4 mermaid cards and immediately wins the game!'), []);
+            if (count($mermaids) == $this->mermaidsToEndGame($playerId)) {
+                $this->setPlayerScore($playerId, 100, clienttranslate('${player_name} placed ${number} mermaid cards and immediately wins the game!'), [
+                    'number' => count($mermaids),
+                ]);
 
                 $this->setStat(1, 'winWithMermaids');
                 $this->setStat(1, 'winWithMermaids', $playerId);

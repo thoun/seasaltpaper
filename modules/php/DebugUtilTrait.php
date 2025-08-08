@@ -16,7 +16,7 @@ trait DebugUtilTrait {
 
     function debug_SetMermaids() {
         $playerId = 2343492;
-        $number = 4;
+        $number = $this->mermaidsToEndGame($playerId);
         $cards = array_slice(array_values($this->cards->getCardsOfType(10)), 0, $number);
         $this->cards->moveCards(array_map(fn($card) => $card->id, $cards), 'hand'.$playerId, 99);
     }
@@ -72,5 +72,9 @@ trait DebugUtilTrait {
 
     function debug_SetPlayerScore(int $playerId, int $score = 30) {
         $this->DbQuery("UPDATE `player` SET player_score = $score WHERE player_id = $playerId" );
+    }
+
+    function debug_SetTableEventCard(int $type) {
+        $this->DbQuery("UPDATE event_card SET `type` = $type WHERE `location` = 'table'" );
     }
 }

@@ -223,6 +223,12 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             );
         }
     }
+    
+    private onEnteringChooseKeptEventCard(args: any) {
+        if (this.isCurrentPlayerActive()) {
+            this.getCurrentPlayerTable().setEventCardsSelectable(true);
+        }
+    }
 
     public onLeavingState(stateName: string) {
         log( 'Leaving state: '+stateName );
@@ -245,6 +251,9 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                 break;
             case 'chooseOpponent':
                 this.onLeavingChooseOpponent();
+                break;
+            case 'chooseKeptEventCard':
+                this.onLeavingChooseKeptEventCard();
                 break;
         }
     }
@@ -277,6 +286,10 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
     private onLeavingChooseOpponent() {
         (Array.from(document.querySelectorAll('[data-can-steal]')) as HTMLElement[]).forEach(elem => elem.dataset.canSteal = 'false');
     }
+    
+    private onLeavingChooseKeptEventCard() {
+        this.getCurrentPlayerTable()?.setEventCardsSelectable(false);
+    }
 
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
     //                        action status bar (ie: the HTML links in the status bar).
@@ -294,12 +307,12 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                     const playCardsArgs = args as EnteringPlayCardsArgs;
                     this.statusBar.addActionButton(_("Play selected cards"), () => this.playSelectedCards(), { id: `playCards_button` });
                     if (playCardsArgs.hasFourMermaids) {
-                        this.statusBar.addActionButton(_("Play the four Mermaids"), () => this.bgaPerformAction('actEndGameWithMermaids'), { color: 'alert' });
+                        this.statusBar.addActionButton(_("Play the ${number} Mermaids").replace('${number}', ''+playCardsArgs.mermaidsToEndGame), () => this.bgaPerformAction('actEndGameWithMermaids'), { color: 'alert' });
                     }
                     this.statusBar.addActionButton(_("End turn"), () => this.bgaPerformAction('actEndTurn'), { autoclick: !playCardsArgs.canDoAction });
                     if (playCardsArgs.canCallEndRound) {
                         this.statusBar.addActionButton(_('End round') + ' ("' + _('LAST CHANCE') + '")', () => this.bgaPerformAction('actEndRound'), { id: `endRound_button`, color: 'alert' });
-                        this.statusBar.addActionButton(_('End round') + ' ("' + _('STOP') + '")', () => this.bgaPerformAction('actImmediateEndRound'), { id: `immediateEndRound_button`, color: 'alert' });
+                        this.statusBar.addActionButton(_('End round') + ' ("' + _('STOP') + '")', () => this.bgaPerformAction('actImmediateEndRound'), { id: `immediateEndRound_button`, color: 'alert', disabled: !playCardsArgs.canStop });
 
                         this.setTooltip(`endRound_button`, `${_("Say <strong>LAST CHANCE</strong> if you are willing to take the bet of having the most points at the end of the round. The other players each take a final turn (take a card + play cards) which they complete by revealing their hand, which is now protected from attacks. Then, all players count the points on their cards (in their hand and in front of them).")}<br><br>
                         ${_("If your hand is higher or equal to that of your opponents, bet won! You score the points for your cards + the color bonus (1 point per card of the color they have the most of). Your opponents only score their color bonus.")}<br><br>
@@ -323,6 +336,9 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                     break;*/
                 case 'beforeEndRound':
                     this.statusBar.addActionButton(_("Seen"), () => this.bgaPerformAction('actSeen'));
+                    break;
+                case 'chooseKeptEventCard':
+                    this.onEnteringChooseKeptEventCard(args);
                     break;
             }
         }

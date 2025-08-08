@@ -75,6 +75,14 @@ trait UtilTrait {
         return $this->tableOptions->get(DOUBLE_POINTS) == 2;
     }
 
+    function pointsToEndRound(int $playerId): int {
+        return $this->eventCards->playerHasEffect($playerId, THE_TREASURE_CHEST) ? 10 : 7;
+    }
+
+    function mermaidsToEndGame(int $playerId): int {
+        return $this->eventCards->playerHasEffect($playerId, THE_DANCE_OF_THE_MERMAIDS) ? 3 : 4;
+    }
+
     function getMaxScore() {
         $END_GAME_POINTS = [
             2 => 40,

@@ -44,6 +44,11 @@ const EXTRA_SALT_EXPANSION = 101;
 const EXTRA_PEPPER_EXPANSION = 102;
 const DOUBLE_POINTS = 110;
 
+/**
+ * Globals
+ */
+const DISCARD_EVENT_CARD_PLAYER_ID = 'DISCARD_EVENT_CARD_PLAYER_ID';
+
 /*
  * Cards
  */
