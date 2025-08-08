@@ -1839,15 +1839,35 @@ var EventCardManager = /** @class */ (function (_super) {
     }
     EventCardManager.prototype.setupFrontDiv = function (card, div) {
         div.style.setProperty('--index', "".concat(card.type - 1));
-        this.game.setTooltip(div.id, this.getTooltip(card));
+        this.game.setTooltip(div.id, this.getTooltip(card.type));
     };
-    EventCardManager.prototype.getTooltip = function (card) {
-        var html = /*`
-        <strong>${_('Points:')}</strong> ${card.points}<br>
-        <strong>${_('Number:')}</strong> ${card.number ?? _('Joker')}<br>
-        <strong>${_('Color:')}</strong> ${this.getColorName(card.color)}
-        `*/ "TODO";
-        return html;
+    EventCardManager.prototype.getTooltip = function (type) {
+        switch (type) {
+            case 1:
+                return "\n                <div><strong>".concat(_("The Hermit crab"), "</strong></div>\n                ").concat(_("When a pair of <strong>crabs</strong> is played, the player takes one card from each discard pile."));
+            case 2:
+                return "\n                <div><strong>".concat(_("The Sunfish"), "</strong></div>\n                ").concat(_("When a pair of <strong>fish</strong> is played, the player adds the first two cards from the deck to their hand."));
+            case 3:
+                return "\n                <div><strong>".concat(_("The Water Rodeo"), "</strong></div>\n                ").concat(_("Adds new effects. Each duo scores 1 point."), "\n                <br><br>\n                ").concat(_("When a pair of <strong>swimmers</strong> is placed, the player can look at an opponent’s hand. They can then swap one of their cards with one of their opponent’s."), "\n                <br><br>\n                ").concat(_("When a pair of <strong>sharks</strong> is played, the player steals a pair placed in front of an opponent. They place it in front of themselves without triggering its effect."), "\n                <br><br>\n                ").concat(_("Note: The usual combinations of a <strong>swimmer card + shark card</strong> and a <strong>swimmer card + jellyfish card</strong> (with <i>Extra Salt</i> cards) are still valid."), "\n                ");
+            case 4:
+                return "\n                <div><strong>".concat(_("The Dance of the Shells"), "</strong></div>\n                ").concat(_("Each <strong>shell card</strong> scores 2 points."));
+            case 5:
+                return "\n                <div><strong>".concat(_("The Kraken"), "</strong></div>\n                ").concat(_("Each <strong>octopus card</strong> scores 1 point."));
+            case 6:
+                return "\n                <div><strong>".concat(_("The Tornado"), "</strong></div>\n                ").concat(_("<strong>Mermaid cards</strong> do not score points, but a player still wins immediately if they have all 4 mermaid cards."));
+            case 7:
+                return "\n                <div><strong>".concat(_("The Dance of the Mermaids"), "</strong></div>\n                ").concat(_("If 3 <strong>mermaids</strong> are played (instead of 4), the player immediately wins the game."));
+            case 8:
+                return "\n                <div><strong>".concat(_("The Treasure Chest"), "</strong></div>\n                ").concat(_("A player must reach 10 points (instead of 7) to end the round."));
+            case 9:
+                return "\n                <div><strong>".concat(_("The Diodon Fish"), "</strong></div>\n                ").concat(_("A player cannot end the round by saying <strong>STOP</strong>; they have to say <strong>LAST CHANCE</strong>."));
+            case 10:
+                return "\n                <div><strong>".concat(_("The Angelfish"), "</strong></div>\n                ").concat(_("At the end of a player’s turn, if the two visible cards on the discard piles are the same color, the player chooses one of them to add to their hand."));
+            case 11:
+                return "\n                <div><strong>".concat(_("The Dolphins"), "</strong></div>\n                ").concat(_("When a player discards a collection card (shell, octopus, penguin, sailor, or seahorse), the top card from the draw pile is added to their hand."));
+            case 12:
+                return "\n                <div><strong>".concat(_("The Coral Reef"), "</strong></div>\n                ").concat(_("A player may place a shell face down in front of them. If they do, they are immune to all attacks. But, that shell is worth no points."));
+        }
     };
     return EventCardManager;
 }(CardManager));
@@ -2418,6 +2438,9 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                     this.statusBar.addActionButton(_("Play selected cards"), function () { return _this.playSelectedCards(); }, { id: "playCards_button" });
                     if (playCardsArgs.hasFourMermaids) {
                         this.statusBar.addActionButton(_("Play the ${number} Mermaids").replace('${number}', '' + playCardsArgs.mermaidsToEndGame), function () { return _this.bgaPerformAction('actEndGameWithMermaids'); }, { color: 'alert' });
+                    }
+                    if (playCardsArgs.canShield) {
+                        this.statusBar.addActionButton(_("Place a shell face down"), function () { return _this.bgaPerformAction('actPlaceShellFaceDown'); }, { color: 'secondary' });
                     }
                     this.statusBar.addActionButton(_("End turn"), function () { return _this.bgaPerformAction('actEndTurn'); }, { autoclick: !playCardsArgs.canDoAction });
                     if (playCardsArgs.canCallEndRound) {

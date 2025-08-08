@@ -309,6 +309,9 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                     if (playCardsArgs.hasFourMermaids) {
                         this.statusBar.addActionButton(_("Play the ${number} Mermaids").replace('${number}', ''+playCardsArgs.mermaidsToEndGame), () => this.bgaPerformAction('actEndGameWithMermaids'), { color: 'alert' });
                     }
+                    if (playCardsArgs.canShield) {
+                        this.statusBar.addActionButton(_("Place a shell face down"), () => this.bgaPerformAction('actPlaceShellFaceDown'), { color: 'secondary' });
+                    }
                     this.statusBar.addActionButton(_("End turn"), () => this.bgaPerformAction('actEndTurn'), { autoclick: !playCardsArgs.canDoAction });
                     if (playCardsArgs.canCallEndRound) {
                         this.statusBar.addActionButton(_('End round') + ' ("' + _('LAST CHANCE') + '")', () => this.bgaPerformAction('actEndRound'), { id: `endRound_button`, color: 'alert' });

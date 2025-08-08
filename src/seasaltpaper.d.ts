@@ -103,6 +103,7 @@ interface EnteringPlayCardsArgs {
     mermaidsToEndGame: number;
     canCallEndRound: boolean;
     canStop: boolean;
+    canShield: boolean;
 }
 
 interface EnteringChooseOpponentArgs {

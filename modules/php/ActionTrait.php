@@ -232,7 +232,7 @@ trait ActionTrait {
             ]);
 
             if (!$this->pickTopCardFromDeck($playerId)) {
-                $this->notify->all('log', clienttranslate('Impossible to activate The Delphins effect, it is ignored'), []);
+                $this->notify->all('log', clienttranslate('Impossible to activate The Dolphins effect, it is ignored'), []);
             }
         }
     }
@@ -376,6 +376,17 @@ trait ActionTrait {
             case 3:
                 if (!$this->pickTopCardFromDeck($playerId)) {
                     $this->notify->all('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
+                } else {
+                    if ($this->eventCards->playerHasEffect($playerId, THE_SUNFISH)) {
+                        $this->notify->all('log', clienttranslate('${player_name} played a pair of fish and apply The Sunfish effect'), [
+                            'playerId' => $playerId,
+                            'player_name' => $this->getPlayerNameById($playerId),
+                        ]);
+
+                        if (!$this->pickTopCardFromDeck($playerId)) {
+                            $this->notify->all('log', clienttranslate('Impossible to activate The Sunfish effect, it is ignored'), []);
+                        }
+                    }
                 }
                 $this->gamestate->nextState('playCards');
                 break;
@@ -477,6 +488,10 @@ trait ActionTrait {
         $this->incStat(1, 'playedDuoCards', $playerId);*/ 
         
         $this->gamestate->nextState('playCards');
+    }
+
+    public function actPlaceShellFaceDown() {
+        $this->gamestate->nextState('placeShellFaceDown');
     }
 
     public function actEndTurn() {

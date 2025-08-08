@@ -564,6 +564,25 @@ class ItemManager {
         $this->db->sqlUpdate(implode(",", $changes), $this->db->sqlEqual($idField, $item));
     }
 
+    /**
+     * Update the DB value based on the Item fields.
+     * Set $fields to set which fields to update (all if null)
+     */
+    public function updateAllItems(string $fieldName, mixed $value) {
+
+        foreach ($this->fields as &$field) {
+            if ($field->name === $fieldName && $field->kind !== 'id') {
+                $changes[] = $this->db->sqlEqualValue($field, $value);
+            }
+        }
+
+        if (count($changes) === 0) {
+            return;
+        }
+
+        $this->db->sqlUpdate(implode(",", $changes), '1');
+    }
+
     protected function getItemField(string $name): ?ItemField {
         return array_find($this->fields, fn($field) => $field->name === $name);
     }

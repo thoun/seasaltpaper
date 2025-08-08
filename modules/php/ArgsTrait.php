@@ -2,6 +2,7 @@
 
 namespace Bga\Games\SeaSaltPaper;
 
+use Bga\GameFrameworkPrototype\Helpers\Arrays;
 use Bga\Games\SeaSaltPaper\Objects\Card;
 
 trait ArgsTrait {
@@ -65,14 +66,16 @@ trait ArgsTrait {
         $canStop = $canCallEndRound && !$this->eventCards->playerHasEffect($playerId, THE_DIODON_FISH);
         $mermaidsToEndGame = $this->mermaidsToEndGame($playerId);
         $hasFourMermaids = count($this->getPlayerMermaids($playerId)) == $mermaidsToEndGame;
+        $canShield = $this->eventCards->playerHasEffect($playerId, THE_CORAL_REEF) && Arrays::some($this->getPlayerCards($playerId, 'hand', false), fn($card) => $card->category === COLLECTION && $card->family === SHELL);
     
         return [
-            'canDoAction' => count($playableDuoCards) > 0 || $canCallEndRound || $hasFourMermaids,
+            'canDoAction' => count($playableDuoCards) > 0 || $canCallEndRound || $hasFourMermaids || $canShield,
             'playableDuoCards' => $playableDuoCards,
             'hasFourMermaids' => $hasFourMermaids,
             'mermaidsToEndGame' => $mermaidsToEndGame,
             'canCallEndRound' => $canCallEndRound,
             'canStop' => $canStop,
+            'canShield' => $canShield,
         ];
     }
 

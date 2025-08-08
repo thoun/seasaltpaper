@@ -239,6 +239,7 @@ trait StateTrait {
         if (!$lastRound) {
             $this->cards->moveAllItemsInLocation(null, 'deck');
             $this->cards->shuffle('deck');
+            $this->cards->updateAllItems('flipped', false); // so protective sheels get back to normal
         }
 
         $this->notify->all('endRound', '', [
