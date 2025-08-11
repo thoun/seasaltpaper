@@ -405,6 +405,10 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         return this.gamedatas.extraSaltExpansion;
     }
 
+    public isExtraPepperExpansion(): boolean {
+        return this.gamedatas.extraPepperExpansion;
+    }
+
     public getPlayerId(): number {
         return Number(this.player_id);
     }
@@ -623,6 +627,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         helpDialog.setTitle(_("Card details").toUpperCase());
 
         const extraSaltExpansion = this.isExtraSaltExpansion();
+        const extraPepperExpansion = this.isExtraPepperExpansion();
 
         const duoCardsNumbers = extraSaltExpansion ? [1, 2, 3, 4, 5, 6, 7] : [1, 2, 3, 4, 5];
         const multiplierNumbers = extraSaltExpansion ? [1, 2, 3, 4, 5] : [1, 2, 3, 4];
@@ -686,6 +691,21 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             `;
 
         }
+
+        if (extraPepperExpansion) {
+            const eventSection = Array.from(Array(12).keys()).map(key => `
+            <div class="help-section">
+                <div id="help-event-${key + 1}"></div>
+                <div>${this.eventCardManager.getTooltip(key + 1)}</div>
+            </div>
+            `).join('');
+            
+            html += `<br>
+                <h1>${_("Event cards")}</h1>
+                ${eventSection}
+            `;
+
+        }
         html += `
         </div>
         `;
@@ -707,6 +727,10 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         if (extraSaltExpansion) {
             // special
             [[1, 1], [2, 0]].forEach(([family, color]) => this.cardsManager.setForHelp({id: 1050 + family, category: 5, family, color } as any, `help-special-${family}`));
+        }
+
+        if (extraPepperExpansion) {
+            Array.from(Array(12).keys()).map(key => this.eventCardManager.setForHelp({id: 1100 + key, type: key + 1 } as any, `help-event-${key + 1}`));
         }
     }
 

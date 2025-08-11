@@ -74,5 +74,19 @@ class EventCardManager extends CardManager<EventCard> {
                 <div><strong>${_("The Coral Reef")}</strong></div>
                 ${_("A player may place a shell face down in front of them. If they do, they are immune to all attacks. But, that shell is worth no points.")}`;
         }
+    }
+    
+    public setForHelp(card: EventCard, divId: string): void {
+        const div = document.getElementById(divId);
+        div.classList.add('card', 'event-card');
+        div.dataset.side = 'front';
+        div.innerHTML = `
+        <div class="card-sides">
+            <div class="card-side front">
+            </div>
+            <div class="card-side back">
+            </div>
+        </div>`
+        this.setupFrontDiv(card, div.querySelector('.front'));
     }   
 }

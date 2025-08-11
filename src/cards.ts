@@ -133,7 +133,7 @@ class CardsManager extends CardManager<Card> {
     
     public setForHelp(card: Card, divId: string): void {
         const div = document.getElementById(divId);
-        div.classList.add('card');
+        div.classList.add('card', 'base-card');
         div.dataset.side = 'front';
         div.innerHTML = `
         <div class="card-sides">

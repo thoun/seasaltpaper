@@ -1791,7 +1791,7 @@ var CardsManager = /** @class */ (function (_super) {
     };
     CardsManager.prototype.setForHelp = function (card, divId) {
         var div = document.getElementById(divId);
-        div.classList.add('card');
+        div.classList.add('card', 'base-card');
         div.dataset.side = 'front';
         div.innerHTML = "\n        <div class=\"card-sides\">\n            <div class=\"card-side front\">\n            </div>\n            <div class=\"card-side back\">\n            </div>\n        </div>";
         this.setupFrontDiv(card, div.querySelector('.front'), true);
@@ -1868,6 +1868,13 @@ var EventCardManager = /** @class */ (function (_super) {
             case 12:
                 return "\n                <div><strong>".concat(_("The Coral Reef"), "</strong></div>\n                ").concat(_("A player may place a shell face down in front of them. If they do, they are immune to all attacks. But, that shell is worth no points."));
         }
+    };
+    EventCardManager.prototype.setForHelp = function (card, divId) {
+        var div = document.getElementById(divId);
+        div.classList.add('card', 'event-card');
+        div.dataset.side = 'front';
+        div.innerHTML = "\n        <div class=\"card-sides\">\n            <div class=\"card-side front\">\n            </div>\n            <div class=\"card-side back\">\n            </div>\n        </div>";
+        this.setupFrontDiv(card, div.querySelector('.front'));
     };
     return EventCardManager;
 }(CardManager));
@@ -2525,6 +2532,9 @@ var SeaSaltPaper = /** @class */ (function (_super) {
     SeaSaltPaper.prototype.isExtraSaltExpansion = function () {
         return this.gamedatas.extraSaltExpansion;
     };
+    SeaSaltPaper.prototype.isExtraPepperExpansion = function () {
+        return this.gamedatas.extraPepperExpansion;
+    };
     SeaSaltPaper.prototype.getPlayerId = function () {
         return Number(this.player_id);
     };
@@ -2713,6 +2723,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
         helpDialog.create('seasaltpaperHelpDialog');
         helpDialog.setTitle(_("Card details").toUpperCase());
         var extraSaltExpansion = this.isExtraSaltExpansion();
+        var extraPepperExpansion = this.isExtraPepperExpansion();
         var duoCardsNumbers = extraSaltExpansion ? [1, 2, 3, 4, 5, 6, 7] : [1, 2, 3, 4, 5];
         var multiplierNumbers = extraSaltExpansion ? [1, 2, 3, 4, 5] : [1, 2, 3, 4];
         var duoCards = duoCardsNumbers.map(function (family) { return "\n        <div class=\"help-section\">\n            <div id=\"help-pair-".concat(family, "\"></div>\n            <div>").concat(_this.cardsManager.getTooltip(2, family), "</div>\n        </div>\n        "); }).join('');
@@ -2724,6 +2735,10 @@ var SeaSaltPaper = /** @class */ (function (_super) {
         if (extraSaltExpansion) {
             var specialSection = [1, 2].map(function (family) { return "\n            <div class=\"help-section\">\n                <div id=\"help-special-".concat(family, "\"></div>\n                <div>").concat(_this.cardsManager.getTooltip(5, family), "</div>\n            </div>\n            "); }).join('');
             html += "\n                <h1>".concat(_("Special cards"), "</h1>\n                ").concat(specialSection, "\n            ");
+        }
+        if (extraPepperExpansion) {
+            var eventSection = Array.from(Array(12).keys()).map(function (key) { return "\n            <div class=\"help-section\">\n                <div id=\"help-event-".concat(key + 1, "\"></div>\n                <div>").concat(_this.eventCardManager.getTooltip(key + 1), "</div>\n            </div>\n            "); }).join('');
+            html += "<br>\n                <h1>".concat(_("Event cards"), "</h1>\n                ").concat(eventSection, "\n            ");
         }
         html += "\n        </div>\n        ";
         // Show the dialog
@@ -2750,6 +2765,9 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                 var family = _a[0], color = _a[1];
                 return _this.cardsManager.setForHelp({ id: 1050 + family, category: 5, family: family, color: color }, "help-special-".concat(family));
             });
+        }
+        if (extraPepperExpansion) {
+            Array.from(Array(12).keys()).map(function (key) { return _this.eventCardManager.setForHelp({ id: 1100 + key, type: key + 1 }, "help-event-".concat(key + 1)); });
         }
     };
     SeaSaltPaper.prototype.takeCardsFromDeck = function () {
