@@ -15,14 +15,14 @@ use Bga\Games\SeaSaltPaper\Objects\EventCard;
 
 const THE_HERMIT_CRAB = 1;
 const THE_SUNFISH = 2;
-const THE_WATER_RODEO = 3; // TODO
+const THE_WATER_RODEO = 3;
 const THE_DANCE_OF_THE_SHELLS = 4;
 const THE_KRAKEN = 5; 
 const THE_TORNADO = 6;
 const THE_DANCE_OF_THE_MERMAIDS = 7;
 const THE_TREASURE_CHEST = 8;
 const THE_DIODON_FISH = 9;
-const THE_ANGELFISH = 10; // TODO
+const THE_ANGELFISH = 10;
 const THE_DOLPHINS = 11;
 const THE_CORAL_REEF = 12;
 

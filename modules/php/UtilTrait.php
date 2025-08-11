@@ -68,8 +68,9 @@ trait UtilTrait {
     function isExtraSaltExpansion(): bool {
         return $this->tableOptions->get(EXTRA_SALT_EXPANSION) == 2;
     }
+
     function isExtraPepperExpansion(): bool {
-        return true;// TODO $this->tableOptions->get(EXTRA_PEPPER_EXPANSION) == 2;
+        return $this->tableOptions->get(EXTRA_PEPPER_EXPANSION) == 2;
     }
 
     function isDoublePoints() {
@@ -107,6 +108,9 @@ trait UtilTrait {
     // includeTableHandCards are cards from the hand that have been revealed on table, but never played
     function getPlayerCards(int $playerId, string $from /*'hand' | 'table'*/, bool $includeTableHandCards) {
         $cards = $this->cards->getItemsInLocation($from.$playerId);
+        if ($from === 'table') {
+            usort($cards, fn($a, $b) => $a->locationArg <=> $b->locationArg);
+        }
 
         if ($includeTableHandCards) {
             $cards = array_merge($cards, $this->cards->getItemsInLocation('tablehand'.$playerId));
@@ -197,6 +201,38 @@ trait UtilTrait {
         );
     }
 
+    function getPlayedPairs(int $playerId): array {
+        $playedCards = $this->getPlayerCards($playerId, 'table', false); // do not include card from call
+        $playedPairs = [];
+
+        foreach ($playedCards as $index => $card) {
+            $previousCard = $index > 0 ? $playedCards[$index - 1] : null;
+            $nextCard = $index < (count($playedCards) - 1) ? $playedCards[$index + 1] : null;
+            if (
+                $previousCard !== null 
+                && !Arrays::some($playedPairs, fn($playedPair) => Arrays::some($playedPair, fn($pc) => $previousCard->id == $pc->id))
+                && ($nextCard === null || $nextCard->category === PAIR)
+                && $previousCard->category === PAIR
+                && $card->category === PAIR
+            ) {
+                $playedPairs[] = [$previousCard, $card];
+            }
+        }
+
+        return $playedPairs;
+    }
+
+    function getPossibleOpponentsToStealFromTable(int $stealerId) {
+        $playersIds = $this->getPlayersIds();
+
+        return Arrays::filter($playersIds, fn($playerId) => 
+            $playerId != $stealerId && 
+            $this->cards->countItemsInLocation('tablehand'.$playerId) === 0 && // to make sure the player didn't made a call, you can't steal player who laid all their cards
+            count($this->getPlayedPairs($playerId)) > 0 &&
+            !$this->isProtected($playerId),
+        );
+    }
+
     function applySteal(int $stealerId, int $robbedPlayerId) {
 
         $cardsInHand = $this->getPlayerCards($robbedPlayerId, 'hand', false);
@@ -238,12 +274,16 @@ trait UtilTrait {
 
     function playableDuoCards(int $playerId) {
         $familyPairs = [];
+        $pairSwimmerAndSharks = $this->eventCards->playerHasEffect($playerId, THE_WATER_RODEO);
         $handCards = $this->getPlayerCards($playerId, 'hand', false);
         $pairCards = array_values(array_filter($handCards, fn($card) => $card->category == PAIR));
         for ($family = CRAB; $family <= LOBSTER; $family++) {
             $familyCards = array_values(array_filter($pairCards, fn($card) => $card->family == $family));
             if (count($familyCards) > 0) {
                 $matchFamilies = $familyCards[0]->matchFamilies;
+                if ($pairSwimmerAndSharks && in_array($family, [SWIMMER, SHARK])) {
+                    $matchFamilies[] = $family;
+                }
 
                 if ($this->array_some($matchFamilies, fn($matchFamily) => 
                     count(array_filter($pairCards, fn($card) => $card->family == $matchFamily)) >= ($matchFamily == $family ? 2 : 1)
@@ -254,6 +294,39 @@ trait UtilTrait {
         }
 
         return $familyPairs;
+    }
+
+    function getPossiblePairs(int $playerId) {
+        $possiblePairs = [
+            [CRAB, CRAB],
+            [CRAB, LOBSTER],
+            [BOAT, BOAT],
+            [FISH, FISH],
+            [SWIMMER, SHARK],
+            [SWIMMER, JELLYFISH],
+            [BOAT, BOAT],
+        ];
+        if ($this->eventCards->playerHasEffect($playerId, THE_WATER_RODEO)) {
+            $possiblePairs[] = [SWIMMER, SWIMMER];
+            $possiblePairs[] = [SHARK, SHARK];
+        }
+        
+        $pairCards = Arrays::filter(
+            $this->getPlayerCards($playerId, 'hand', false), 
+            fn($card) => $card->category == PAIR
+        );
+
+        $possiblePairs = Arrays::filter($possiblePairs, 
+            function($possiblePair) use ($pairCards) {
+                if ($possiblePair[0] === $possiblePair[1]) {
+                    return Arrays::count($pairCards, fn($card) => $card->family == $possiblePair[0]) >= 2;
+                } else {
+                    return Arrays::count($pairCards, fn($card) => $card->family == $possiblePair[0]) >= 1
+                        && Arrays::count($pairCards, fn($card) => $card->family == $possiblePair[1]) >= 1;
+                }
+            }
+        );
+        return $possiblePairs;
     }
 
     function getCardName(Card $card) {

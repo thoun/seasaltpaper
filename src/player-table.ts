@@ -65,7 +65,22 @@ class PlayerTable {
             wrap: this.currentPlayer ? 'wrap' : 'nowrap',
         });
         this.handCards.onCardClick = card => this.game.onCardClick(card);
-        this.tableCards = new LineStock<Card>(this.game.cardsManager, document.getElementById(`player-table-${this.playerId}-table-cards`), stockSettings);
+        this.tableCards = new LineStock<Card>(this.game.cardsManager, document.getElementById(`player-table-${this.playerId}-table-cards`), {
+            gap: '0px',
+            sort: (a: Card, b: Card) => {
+                if (a.location !== b.location) {
+                    return a.location.length - b.location.length;
+                }
+
+                // same location
+                if (a.location.startsWith('tablehand')) {
+                    return sortCards(a, b);
+                } else {
+                    return a.locationArg - b.locationArg; // sort by order of play, to see cards
+                }
+            },
+        });
+        this.tableCards.onCardClick = card => this.game.onTableCardClick(this.playerId, card);
 
         this.addCardsToHand(player.handCards);
         this.addCardsToTable(player.tableCards);
@@ -218,7 +233,7 @@ class PlayerTable {
         this.handCards.setSelectionMode(selectable ? 'multiple' : 'none');
     }
 
-    public updateDisabledPlayCards(selectedCards: Card[], selectedStarfishCards: Card[], playableDuoCardFamilies: number[]) {
+    public updateDisabledPlayCards(selectedCards: Card[], selectedStarfishCards: Card[], possiblePairs: number[][]) {
         if (!(this.game as any).isCurrentPlayerActive()) {
             return;
         }
@@ -227,17 +242,18 @@ class PlayerTable {
             let disabled = false;
             if (card.category != PAIR) {
                 if (card.category == SPECIAL && card.family == STARFISH) {
-                    disabled = !playableDuoCardFamilies.length || (selectedStarfishCards.length > 0 && !selectedStarfishCards.some(c => c.id == card.id));
+                    disabled = !possiblePairs.length || (selectedStarfishCards.length > 0 && !selectedStarfishCards.some(c => c.id == card.id));
                 } else {
                     disabled = true;
                 }
             } else {
-                if (playableDuoCardFamilies.includes(card.family)) {
+                if (possiblePairs.some(possiblePair => possiblePair.includes(card.family))) {
                     if (selectedCards.length >= 2) {
                         disabled = !selectedCards.some(c => c.id == card.id);
                     } else if (selectedCards.length == 1) {
-                        const matchFamilies = selectedCards[0].matchFamilies;
-                        disabled = card.id != selectedCards[0].id && !matchFamilies.includes(card.family);
+                        const remainingPossiblePairs = possiblePairs.filter(possiblePair => possiblePair.includes(selectedCards[0].family));
+                        const remainingPossibleFamilies = remainingPossiblePairs.map(possiblePair => possiblePair[0] === selectedCards[0].family ? possiblePair[1] : possiblePair[0]);
+                        disabled = card.id != selectedCards[0].id && !remainingPossibleFamilies.includes(card.family);
                     }
                 } else {
                     disabled = true;
@@ -259,5 +275,9 @@ class PlayerTable {
     
     public setSelectableCards(selectableCards: Card[]) {
         this.handCards.setSelectableCards(selectableCards);
+    }
+
+    public setPlayedCardsSelectable(selectable: boolean, selectableCards?: Card[][]) {
+        this.tableCards.setSelectionMode(selectable ? 'single' : 'none', selectableCards?.flat());
     }
 }

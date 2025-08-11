@@ -143,6 +143,9 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             case 'placeShellFaceDown':
                 this.onEnteringPlaceShellFaceDown(args.args);
                 break;
+            case 'stealPlayedPair':
+                this.onEnteringStealPlayedPair(args.args);
+                break;
         }
     }
     
@@ -211,6 +214,14 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         if (this.isCurrentPlayerActive()) {
             this.getCurrentPlayerTable().setSelectable(true);
             this.getCurrentPlayerTable().setSelectableCards(args.selectableCards);
+        }
+    }
+
+    private onEnteringStealPlayedPair(args: EnteringStealPlayedPairArgs) {
+        if (this.isCurrentPlayerActive()) {
+            args.opponentIds.forEach(opponentId => {
+                this.getPlayerTable(opponentId).setPlayedCardsSelectable(true, args.possiblePairs[opponentId] ?? []);
+            });
         }
     }
     
@@ -283,6 +294,9 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             case 'placeShellFaceDown':
                 this.onLeavingPlaceShellFaceDown();
                 break;
+            case 'stealPlayedPair':
+                this.onLeavingStealPlayedPair(this.gamedatas.gamestate.args);
+                break;
         }
     }
 
@@ -327,6 +341,14 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
     
     private onLeavingChooseKeptEventCard() {
         this.getCurrentPlayerTable()?.setEventCardsSelectable(false);
+    }
+
+    private onLeavingStealPlayedPair(args: EnteringStealPlayedPairArgs) {
+        if (this.isCurrentPlayerActive()) {
+            args.opponentIds.forEach(opponentId => {
+                this.getPlayerTable(opponentId).setPlayedCardsSelectable(false);
+            });
+        }
     }
 
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
@@ -497,7 +519,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
     }
 
     private updateDisabledPlayCards() {
-        this.getCurrentPlayerTable()?.updateDisabledPlayCards(this.selectedCards, this.selectedStarfishCards, this.gamedatas.gamestate.args.playableDuoCards);
+        this.getCurrentPlayerTable()?.updateDisabledPlayCards(this.selectedCards, this.selectedStarfishCards, this.gamedatas.gamestate.args.possiblePairs);
         document.getElementById(`playCards_button`)?.classList.toggle(`disabled`, this.selectedCards.length != 2 || this.selectedStarfishCards.length > 1);
     }
     
@@ -549,6 +571,20 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                 break;
             case 'placeShellFaceDown':
                 this.bgaPerformAction('actPlaceShellFaceDown', { id: card.id });
+                break;
+        }
+    }
+
+    public onTableCardClick(playerId: number, card: Card): void {
+        const cardDiv = document.getElementById(`card-${card.id}`) ?? document.getElementById(`ssp-card-${card.id}`);
+
+        if (cardDiv.classList.contains('bga-cards_disabled-card')) {
+            return;
+        }
+
+        switch (this.gamedatas.gamestate.name) {
+            case 'stealPlayedPair':
+                this.bgaPerformAction('actStealPlayedPair', { stolenPlayerId: playerId, id: card.id });
                 break;
         }
     }
@@ -815,6 +851,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             ['cardInDiscardFromPick', ANIMATION_MS],
             ['cardsInDeckFromPick', ANIMATION_MS],
             ['playCards', undefined],
+            ['stealPlayedPair', undefined],
             ['stealCard', undefined],
             ['revealHand', ANIMATION_MS * 2],
             ['announceEndRound', ANIMATION_MS * 2],
@@ -960,6 +997,13 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         const cards = args.cards;
         const playerTable = this.getPlayerTable(playerId);
         this.handCounters[playerId].incValue(-cards.length);
+        return playerTable.addCardsToTable(cards);
+    }
+
+    notif_stealPlayedPair(args: NotifPlayCardsArgs) {
+        const playerId = args.playerId;
+        const cards = args.cards;
+        const playerTable = this.getPlayerTable(playerId);
         return playerTable.addCardsToTable(cards);
     }
 

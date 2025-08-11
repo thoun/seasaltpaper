@@ -2016,7 +2016,22 @@ var PlayerTable = /** @class */ (function () {
         };
         this.handCards = new LineStock(this.game.cardsManager, document.getElementById("player-table-".concat(this.playerId, "-hand-cards")), __assign(__assign({}, stockSettings), { wrap: this.currentPlayer ? 'wrap' : 'nowrap' }));
         this.handCards.onCardClick = function (card) { return _this.game.onCardClick(card); };
-        this.tableCards = new LineStock(this.game.cardsManager, document.getElementById("player-table-".concat(this.playerId, "-table-cards")), stockSettings);
+        this.tableCards = new LineStock(this.game.cardsManager, document.getElementById("player-table-".concat(this.playerId, "-table-cards")), {
+            gap: '0px',
+            sort: function (a, b) {
+                if (a.location !== b.location) {
+                    return a.location.length - b.location.length;
+                }
+                // same location
+                if (a.location.startsWith('tablehand')) {
+                    return sortCards(a, b);
+                }
+                else {
+                    return a.locationArg - b.locationArg; // sort by order of play, to see cards
+                }
+            },
+        });
+        this.tableCards.onCardClick = function (card) { return _this.game.onTableCardClick(_this.playerId, card); };
         this.addCardsToHand(player.handCards);
         this.addCardsToTable(player.tableCards);
         if (player.endCall) {
@@ -2149,7 +2164,7 @@ var PlayerTable = /** @class */ (function () {
     PlayerTable.prototype.setSelectable = function (selectable) {
         this.handCards.setSelectionMode(selectable ? 'multiple' : 'none');
     };
-    PlayerTable.prototype.updateDisabledPlayCards = function (selectedCards, selectedStarfishCards, playableDuoCardFamilies) {
+    PlayerTable.prototype.updateDisabledPlayCards = function (selectedCards, selectedStarfishCards, possiblePairs) {
         if (!this.game.isCurrentPlayerActive()) {
             return;
         }
@@ -2157,20 +2172,21 @@ var PlayerTable = /** @class */ (function () {
             var disabled = false;
             if (card.category != PAIR) {
                 if (card.category == SPECIAL && card.family == STARFISH) {
-                    disabled = !playableDuoCardFamilies.length || (selectedStarfishCards.length > 0 && !selectedStarfishCards.some(function (c) { return c.id == card.id; }));
+                    disabled = !possiblePairs.length || (selectedStarfishCards.length > 0 && !selectedStarfishCards.some(function (c) { return c.id == card.id; }));
                 }
                 else {
                     disabled = true;
                 }
             }
             else {
-                if (playableDuoCardFamilies.includes(card.family)) {
+                if (possiblePairs.some(function (possiblePair) { return possiblePair.includes(card.family); })) {
                     if (selectedCards.length >= 2) {
                         disabled = !selectedCards.some(function (c) { return c.id == card.id; });
                     }
                     else if (selectedCards.length == 1) {
-                        var matchFamilies = selectedCards[0].matchFamilies;
-                        disabled = card.id != selectedCards[0].id && !matchFamilies.includes(card.family);
+                        var remainingPossiblePairs = possiblePairs.filter(function (possiblePair) { return possiblePair.includes(selectedCards[0].family); });
+                        var remainingPossibleFamilies = remainingPossiblePairs.map(function (possiblePair) { return possiblePair[0] === selectedCards[0].family ? possiblePair[1] : possiblePair[0]; });
+                        disabled = card.id != selectedCards[0].id && !remainingPossibleFamilies.includes(card.family);
                     }
                 }
                 else {
@@ -2194,6 +2210,9 @@ var PlayerTable = /** @class */ (function () {
     };
     PlayerTable.prototype.setSelectableCards = function (selectableCards) {
         this.handCards.setSelectableCards(selectableCards);
+    };
+    PlayerTable.prototype.setPlayedCardsSelectable = function (selectable, selectableCards) {
+        this.tableCards.setSelectionMode(selectable ? 'single' : 'none', selectableCards === null || selectableCards === void 0 ? void 0 : selectableCards.flat());
     };
     return PlayerTable;
 }());
@@ -2296,6 +2315,9 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             case 'placeShellFaceDown':
                 this.onEnteringPlaceShellFaceDown(args.args);
                 break;
+            case 'stealPlayedPair':
+                this.onEnteringStealPlayedPair(args.args);
+                break;
         }
     };
     SeaSaltPaper.prototype.setGamestateDescription = function (property) {
@@ -2359,6 +2381,15 @@ var SeaSaltPaper = /** @class */ (function (_super) {
         if (this.isCurrentPlayerActive()) {
             this.getCurrentPlayerTable().setSelectable(true);
             this.getCurrentPlayerTable().setSelectableCards(args.selectableCards);
+        }
+    };
+    SeaSaltPaper.prototype.onEnteringStealPlayedPair = function (args) {
+        var _this = this;
+        if (this.isCurrentPlayerActive()) {
+            args.opponentIds.forEach(function (opponentId) {
+                var _a;
+                _this.getPlayerTable(opponentId).setPlayedCardsSelectable(true, (_a = args.possiblePairs[opponentId]) !== null && _a !== void 0 ? _a : []);
+            });
         }
     };
     SeaSaltPaper.prototype.onEnteringChooseDiscardPile = function () {
@@ -2425,6 +2456,9 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             case 'placeShellFaceDown':
                 this.onLeavingPlaceShellFaceDown();
                 break;
+            case 'stealPlayedPair':
+                this.onLeavingStealPlayedPair(this.gamedatas.gamestate.args);
+                break;
         }
     };
     SeaSaltPaper.prototype.onLeavingTakeCards = function () {
@@ -2464,6 +2498,14 @@ var SeaSaltPaper = /** @class */ (function (_super) {
     SeaSaltPaper.prototype.onLeavingChooseKeptEventCard = function () {
         var _a;
         (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setEventCardsSelectable(false);
+    };
+    SeaSaltPaper.prototype.onLeavingStealPlayedPair = function (args) {
+        var _this = this;
+        if (this.isCurrentPlayerActive()) {
+            args.opponentIds.forEach(function (opponentId) {
+                _this.getPlayerTable(opponentId).setPlayedCardsSelectable(false);
+            });
+        }
     };
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
     //                        action status bar (ie: the HTML links in the status bar).
@@ -2604,7 +2646,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
     };
     SeaSaltPaper.prototype.updateDisabledPlayCards = function () {
         var _a, _b;
-        (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.updateDisabledPlayCards(this.selectedCards, this.selectedStarfishCards, this.gamedatas.gamestate.args.playableDuoCards);
+        (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.updateDisabledPlayCards(this.selectedCards, this.selectedStarfishCards, this.gamedatas.gamestate.args.possiblePairs);
         (_b = document.getElementById("playCards_button")) === null || _b === void 0 ? void 0 : _b.classList.toggle("disabled", this.selectedCards.length != 2 || this.selectedStarfishCards.length > 1);
     };
     SeaSaltPaper.prototype.onCardClick = function (card) {
@@ -2655,6 +2697,18 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                 break;
             case 'placeShellFaceDown':
                 this.bgaPerformAction('actPlaceShellFaceDown', { id: card.id });
+                break;
+        }
+    };
+    SeaSaltPaper.prototype.onTableCardClick = function (playerId, card) {
+        var _a;
+        var cardDiv = (_a = document.getElementById("card-".concat(card.id))) !== null && _a !== void 0 ? _a : document.getElementById("ssp-card-".concat(card.id));
+        if (cardDiv.classList.contains('bga-cards_disabled-card')) {
+            return;
+        }
+        switch (this.gamedatas.gamestate.name) {
+            case 'stealPlayedPair':
+                this.bgaPerformAction('actStealPlayedPair', { stolenPlayerId: playerId, id: card.id });
                 break;
         }
     };
@@ -2840,6 +2894,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             ['cardInDiscardFromPick', ANIMATION_MS],
             ['cardsInDeckFromPick', ANIMATION_MS],
             ['playCards', undefined],
+            ['stealPlayedPair', undefined],
             ['stealCard', undefined],
             ['revealHand', ANIMATION_MS * 2],
             ['announceEndRound', ANIMATION_MS * 2],
@@ -2965,6 +3020,12 @@ var SeaSaltPaper = /** @class */ (function (_super) {
         var cards = args.cards;
         var playerTable = this.getPlayerTable(playerId);
         this.handCounters[playerId].incValue(-cards.length);
+        return playerTable.addCardsToTable(cards);
+    };
+    SeaSaltPaper.prototype.notif_stealPlayedPair = function (args) {
+        var playerId = args.playerId;
+        var cards = args.cards;
+        var playerTable = this.getPlayerTable(playerId);
         return playerTable.addCardsToTable(cards);
     };
     SeaSaltPaper.prototype.notif_revealHand = function (args) {

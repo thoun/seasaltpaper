@@ -4,6 +4,8 @@
 
 interface Card {
     id: number;
+    location: string;
+    locationArg: number;
     category: number;
     family: number;
     color: number;
@@ -77,6 +79,7 @@ interface SeaSaltPaperGame extends GameGui {
     setTooltip(id: string, html: string): void;
     takeCardsFromDeck(): void;
     onCardClick(card: Card): void;
+    onTableCardClick(playerId: number, card: Card): void;
     onDiscardPileClick(discardNumber: number): void;
 }
 
@@ -98,7 +101,7 @@ interface EnteringChooseCardArgs {
 
 interface EnteringPlayCardsArgs {
     canDoAction: boolean;
-    playableDuoCards: number[];
+    possiblePairs: number[][];
     hasFourMermaids: boolean;
     mermaidsToEndGame: number;
     canCallEndRound: boolean;
@@ -204,4 +207,9 @@ interface NotifEventCardArgs {
 interface NotifCardArgs {
     playerId: number;
     card: Card;
+}
+
+interface EnteringStealPlayedPairArgs {
+    opponentIds: number[];
+    possiblePairs: { [playerId: number]: Card[][] };
 }

@@ -310,6 +310,9 @@ body > .card {
   height: 208px;
   margin: 5px;
   border-radius: 10px;
+  /*&.played-set-overlap {
+      margin-left: -20px;
+  }*/
 }
 .base-card .card-sides .card-side {
   border-radius: 8px;

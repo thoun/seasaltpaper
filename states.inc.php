@@ -156,6 +156,7 @@ $playerActionsGameStates = [
             "playCards" => ST_PLAYER_PLAY_CARDS,
             "placeShellFaceDown" => ST_PLAYER_PLACE_SHELL_FACE_DOWN,
             "pickFromDiscardPiles" => ST_PLAYER_CHOOSE_DISCARD_CARD,
+            "stealPlayedPair" => ST_PLAYER_STEAL_PLAYED_PAIR,
             "endTurn" => ST_NEXT_PLAYER,
             "mermaids" => ST_END_SCORE,
             "zombiePass" => ST_NEXT_PLAYER,
@@ -173,7 +174,22 @@ $playerActionsGameStates = [
             'actCancelPlaceShellFaceDown',
         ])
         ->transitions([
-            '' => ST_PLAYER_PLAY_CARDS,
+            'playCards' => ST_PLAYER_PLAY_CARDS,
+            'zombiePass' => ST_NEXT_PLAYER,
+        ])
+        ->build(),
+
+    ST_PLAYER_STEAL_PLAYED_PAIR => GameStateBuilder::create()
+        ->name('stealPlayedPair')
+        ->description(clienttranslate('${actplayer} must select a played pair to steal'))
+        ->descriptionMyTurn(clienttranslate('${you} must select a played pair to steal'))
+        ->type(StateType::ACTIVE_PLAYER)
+        ->args('argStealPlayedPair')
+        ->possibleActions([
+            'actStealPlayedPair',
+        ])
+        ->transitions([
+            'playCards' => ST_PLAYER_PLAY_CARDS,
             'zombiePass' => ST_NEXT_PLAYER,
         ])
         ->build(),

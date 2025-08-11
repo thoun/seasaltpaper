@@ -1,5 +1,10 @@
 {
     "table": {
+        "roundNumber": {
+            "id": 10,
+            "name": "Round number",
+            "type": "int"
+        },
         "turnsNumber": {
             "id": 11,
             "name": "Number of turns",
@@ -100,9 +105,14 @@
             "name": "Played duo crab\/lobster cards",
             "type": "int"
         },
-        "roundNumber": {
-            "id": 10,
-            "name": "Round number",
+        "playedDuoCards7": {
+            "id": 31,
+            "name": "Played duo swimmer\/swimmer cards",
+            "type": "int"
+        },
+        "playedDuoCards8": {
+            "id": 32,
+            "name": "Played duo shark\/shark cards",
             "type": "int"
         }
     },
@@ -205,6 +215,16 @@
         "playedDuoCards6": {
             "id": 30,
             "name": "Played duo crab\/lobster cards",
+            "type": "int"
+        },
+        "playedDuoCards7": {
+            "id": 31,
+            "name": "Played duo swimmer\/swimmer cards",
+            "type": "int"
+        },
+        "playedDuoCards8": {
+            "id": 32,
+            "name": "Played duo shark\/shark cards",
             "type": "int"
         }
     }

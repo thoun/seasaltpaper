@@ -61,7 +61,8 @@ trait ArgsTrait {
         $playerId = intval($this->getActivePlayerId());
 
         $totalPoints = $this->getCardsPoints($playerId)->totalPoints;
-        $playableDuoCards = $this->playableDuoCards($playerId);
+        $playableDuoCards = $this->playableDuoCards($playerId); // TODO remove
+        $possiblePairs = $this->getPossiblePairs($playerId);
         $canCallEndRound = $totalPoints >= $this->pointsToEndRound($playerId) && intval($this->getGameStateValue(END_ROUND_TYPE)) == 0;
         $canStop = $canCallEndRound && !$this->eventCards->playerHasEffect($playerId, THE_DIODON_FISH);
         $mermaidsToEndGame = $this->mermaidsToEndGame($playerId);
@@ -69,8 +70,9 @@ trait ArgsTrait {
         $canShield = $this->eventCards->playerHasEffect($playerId, THE_CORAL_REEF) && !$this->isProtected($playerId) && Arrays::some($this->getPlayerCards($playerId, 'hand', false), fn($card) => $card->category === COLLECTION && $card->family === SHELL);
     
         return [
-            'canDoAction' => count($playableDuoCards) > 0 || $canCallEndRound || $hasFourMermaids || $canShield,
-            'playableDuoCards' => $playableDuoCards,
+            'canDoAction' => count($possiblePairs) > 0 || $canCallEndRound || $hasFourMermaids || $canShield,
+            'playableDuoCards' => $playableDuoCards, // TODO remove
+            'possiblePairs' => $possiblePairs,
             'hasFourMermaids' => $hasFourMermaids,
             'mermaidsToEndGame' => $mermaidsToEndGame,
             'canCallEndRound' => $canCallEndRound,
@@ -132,5 +134,19 @@ trait ArgsTrait {
             '_no_notify' => !$canPlay,
         ];
     }
-    
+
+    function argStealPlayedPair(): array {
+        $playerId = intval($this->getActivePlayerId());
+
+        $opponentIds = $this->getPossibleOpponentsToStealFromTable($playerId);
+        $possiblePairs = [];
+        foreach ($opponentIds as $opponentId) {
+            $possiblePairs[$opponentId] = $this->getPlayedPairs($opponentId);
+        }
+
+        return [
+            'possiblePairs' => $possiblePairs,
+            'opponentIds' => Arrays::filter($this->getPlayersIds(), fn($pId) => $playerId != $pId),
+        ];
+    }
 }

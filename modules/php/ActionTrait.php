@@ -3,6 +3,7 @@
 namespace Bga\Games\SeaSaltPaper;
 
 use Bga\GameFramework\Actions\CheckAction;
+use Bga\GameFrameworkPrototype\Helpers\Arrays;
 use Bga\Games\SeaSaltPaper\Objects\Card;
 
 trait ActionTrait {
@@ -294,13 +295,18 @@ trait ActionTrait {
             throw new \BgaUserException("You must select Pair cards from your hand");
         }
 
-        if (!in_array($cards[1]->family, $cards[0]->matchFamilies)) {
+        $possiblePairs = $this->getPossiblePairs($playerId);
+        if (!Arrays::some($possiblePairs, 
+            fn($possiblePair) => ($cards[0]->family == $possiblePair[0] && $cards[1]->family == $possiblePair[1]) || ($cards[1]->family == $possiblePair[0] && $cards[0]->family == $possiblePair[1])
+        )) {
             throw new \BgaUserException("Invalid pair");
         }
 
         $count = $this->cards->countItemsInLocation('table'.$playerId);
-        foreach($cards as $card) {
-            $this->cards->moveItem($card, 'table'.$playerId, ++$count);
+        foreach($cards as &$card) {
+            $card->location = 'table'.$playerId;
+            $card->locationArg = ++$count;
+            $this->cards->moveItem($card, $card->location, $card->locationArg);
         }
 
         $families = array_map(fn($card) => $card->family, $cards);
@@ -330,6 +336,12 @@ trait ActionTrait {
                 if ($families[0] == SWIMMER && $families[1] == JELLYFISH) {
                     $action = clienttranslate('forces the opposing players to only draw the first card from the deck on their next turn');
                     $power = 5;
+                } else if ($families[0] == SWIMMER && $families[1] == SWIMMER) {
+                    $action = clienttranslate('swap a card with one from the hand of another player');
+                    $power = 7;
+                } else if ($families[0] == SHARK && $families[1] == SHARK) {
+                    $action = clienttranslate('steals a pair placed in front of an opponent');
+                    $power = 8;
                 } else {
                     $action = clienttranslate('steals a random card from another player');
                     $power = 4;
@@ -440,6 +452,26 @@ trait ActionTrait {
                     $this->gamestate->nextState('playCards');
                 }
                 break;
+            case 7:
+                $possibleOpponentsToSteal = $this->getPossibleOpponentsToSteal($playerId);
+
+                if (count($possibleOpponentsToSteal) > 0) {
+                    $this->gamestate->nextState('lookOpponentHand');
+                } else {
+                    $this->notify->all('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
+                    $this->gamestate->nextState('playCards');
+                }
+                break;
+            case 8:
+                $possibleOpponentsToSteal = $this->getPossibleOpponentsToStealFromTable($playerId);
+
+                if (count($possibleOpponentsToSteal) > 0) {
+                    $this->gamestate->nextState('stealPlayedPair');
+                } else {
+                    $this->notify->all('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
+                    $this->gamestate->nextState('playCards');
+                }
+                break;
         }
     }
 
@@ -468,8 +500,10 @@ trait ActionTrait {
         $allCards = array_merge($cards, [$starfishCard]);
 
         $count = $this->cards->countItemsInLocation('table'.$playerId);
-        foreach($allCards as $card) {
-            $this->cards->moveItem($card, 'table'.$playerId, ++$count);
+        foreach($allCards as &$card) {
+            $card->location = 'table'.$playerId;
+            $card->locationArg = ++$count;
+            $this->cards->moveItem($card, $card->location, $card->locationArg);
         }
 
         $this->notify->all('playCards', clienttranslate('${player_name} plays cards ${cardColor1} ${cardName1} and ${cardColor2} ${cardName2} with a ${cardColor3} ${cardName3}'), [
@@ -703,11 +737,11 @@ trait ActionTrait {
             'card' => $card,
         ]);
 
-        $this->gamestate->nextState('');
+        $this->gamestate->nextState('playCards');
     }
 
     public function actCancelPlaceShellFaceDown() {
-        $this->gamestate->nextState('');
+        $this->gamestate->nextState('playCards');
     }
 
     public function actTakeCardAngelfishPower(int $number) {
@@ -732,6 +766,43 @@ trait ActionTrait {
             'discardNumber' => $number,
             'newDiscardTopCard' => $this->cards->getDiscardTopCard($number),
             'remainingCardsInDiscard' => $this->getRemainingCardsInDiscard($number),
+            'preserve' => ['actionPlayerId'],
+            'actionPlayerId' => $playerId,
+        ]);
+
+        $this->updateCardsPoints($playerId);
+        $this->gamestate->nextState('playCards');
+    }
+
+    public function actStealPlayedPair(int $stolenPlayerId, int $id) {
+        $args = $this->argStealPlayedPair();
+        if (!array_key_exists($stolenPlayerId, $args['possiblePairs'])) {
+            throw new \BgaUserException("You can't steal a pair from this player");
+        }
+        $cards = Arrays::find($args['possiblePairs'][$stolenPlayerId], fn($possiblePair) => Arrays::some($possiblePair, fn($card) => $card->id === $id));
+        if ($cards === null) {
+            throw new \BgaUserException("Invalid pair");
+        }
+
+        $playerId = intval($this->getActivePlayerId());
+
+        $count = $this->cards->countItemsInLocation('table'.$playerId);
+        foreach($cards as &$card) {
+            $card->location = 'table'.$playerId;
+            $card->locationArg = ++$count;
+            $this->cards->moveItem($card, $card->location, $card->locationArg);
+        }
+
+        $this->notify->all('stealPlayedPair', clienttranslate('${player_name} steals cards ${cardColor1} ${cardName1} and ${cardColor2} ${cardName2} from ${player_name2}'), [
+            'playerId' => $playerId,
+            'player_name' => $this->getPlayerNameById($playerId),
+            'player_name2' => $this->getPlayerNameById($stolenPlayerId),
+            'cards' => $cards,
+            'cardName1' => $this->getCardName($cards[0]),
+            'cardName2' => $this->getCardName($cards[1]),
+            'cardColor1' => $this->COLORS[$cards[0]->color],
+            'cardColor2' => $this->COLORS[$cards[1]->color],
+            'i18n' => ['cardName1', 'cardName2', 'cardColor1', 'cardColor2'],
             'preserve' => ['actionPlayerId'],
             'actionPlayerId' => $playerId,
         ]);
