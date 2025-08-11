@@ -125,6 +125,9 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             case 'putDiscardPile':
                 this.onEnteringPutDiscardPile(args.args);
                 break;
+            case 'angelfishPower':
+                this.onEnteringAngelfishPower();
+                break;
             case 'playCards':
                 this.onEnteringPlayCards();
                 break;
@@ -182,6 +185,11 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         const currentPlayer = this.isCurrentPlayerActive();
         this.stacks.showPickCards(true, args._private?.cards ?? args.cards, currentPlayer);
         this.stacks.makeDiscardSelectable(currentPlayer);
+    }
+
+    private onEnteringAngelfishPower() {
+        this.stacks.showPickCards(false);
+        this.stacks.makeDiscardSelectable(this.isCurrentPlayerActive());
     }
 
     private onEnteringPlayCards() {
@@ -257,6 +265,9 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             case 'putDiscardPile':
                 this.onLeavingPutDiscardPile();
                 break;
+            case 'angelfishPower':
+                this.onLeavingAngelfishPower();
+                break;
             case 'playCards':
                 this.onLeavingPlayCards();
                 break;
@@ -282,6 +293,10 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
     
     private onLeavingChooseCard() {
         this.stacks.makePickSelectable(false);
+    }
+
+    private onLeavingAngelfishPower() {
+        this.stacks.makeDiscardSelectable(false);
     }
 
     private onLeavingPutDiscardPile() {
@@ -544,6 +559,9 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                 break;
             case 'chooseDiscardPile':
                 this.chooseDiscardPile(number);
+                break;
+            case 'angelfishPower':
+                this.bgaPerformAction('actTakeCardAngelfishPower', { number });
                 break;
         }
     }

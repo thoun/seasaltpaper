@@ -2271,6 +2271,9 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             case 'putDiscardPile':
                 this.onEnteringPutDiscardPile(args.args);
                 break;
+            case 'angelfishPower':
+                this.onEnteringAngelfishPower();
+                break;
             case 'playCards':
                 this.onEnteringPlayCards();
                 break;
@@ -2327,6 +2330,10 @@ var SeaSaltPaper = /** @class */ (function (_super) {
         var currentPlayer = this.isCurrentPlayerActive();
         this.stacks.showPickCards(true, (_b = (_a = args._private) === null || _a === void 0 ? void 0 : _a.cards) !== null && _b !== void 0 ? _b : args.cards, currentPlayer);
         this.stacks.makeDiscardSelectable(currentPlayer);
+    };
+    SeaSaltPaper.prototype.onEnteringAngelfishPower = function () {
+        this.stacks.showPickCards(false);
+        this.stacks.makeDiscardSelectable(this.isCurrentPlayerActive());
     };
     SeaSaltPaper.prototype.onEnteringPlayCards = function () {
         var _a;
@@ -2393,6 +2400,9 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             case 'putDiscardPile':
                 this.onLeavingPutDiscardPile();
                 break;
+            case 'angelfishPower':
+                this.onLeavingAngelfishPower();
+                break;
             case 'playCards':
                 this.onLeavingPlayCards();
                 break;
@@ -2416,6 +2426,9 @@ var SeaSaltPaper = /** @class */ (function (_super) {
     };
     SeaSaltPaper.prototype.onLeavingChooseCard = function () {
         this.stacks.makePickSelectable(false);
+    };
+    SeaSaltPaper.prototype.onLeavingAngelfishPower = function () {
+        this.stacks.makeDiscardSelectable(false);
     };
     SeaSaltPaper.prototype.onLeavingPutDiscardPile = function () {
         this.stacks.makeDiscardSelectable(false);
@@ -2645,6 +2658,9 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                 break;
             case 'chooseDiscardPile':
                 this.chooseDiscardPile(number);
+                break;
+            case 'angelfishPower':
+                this.bgaPerformAction('actTakeCardAngelfishPower', { number: number });
                 break;
         }
     };

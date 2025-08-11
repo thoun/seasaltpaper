@@ -57,6 +57,13 @@ trait StateTrait {
         }*/
     }
 
+    function stAngelfishPower() {
+        $args = $this->argAngelfishPower();
+        if ($args['_no_notify']) {
+            $this->gamestate->nextState('playCards');
+        }
+    }
+
     function stNextPlayer() {
         $playerId = intval($this->getActivePlayerId());
 

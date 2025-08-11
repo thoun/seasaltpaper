@@ -116,5 +116,21 @@ trait ArgsTrait {
             'selectableCards' => Arrays::filter($hand, fn($card) => $card->category === COLLECTION && $card->family === SHELL),
         ];
     }
+
+    function argAngelfishPower(): array {
+        $playerId = intval($this->getActivePlayerId());
+
+        $canPlay = false;
+        if ($this->eventCards->playerHasEffect($playerId, THE_ANGELFISH)) {
+            $cardInDiscard1 = $this->cards->getOnTop('discard1');
+            $cardInDiscard2 = $this->cards->getOnTop('discard2');
+
+            $canPlay = $cardInDiscard1 !== null && $cardInDiscard2 !== null && $cardInDiscard1->color === $cardInDiscard2->color;
+        }
+
+        return [
+            '_no_notify' => !$canPlay,
+        ];
+    }
     
 }

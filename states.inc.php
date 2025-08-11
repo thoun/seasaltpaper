@@ -78,7 +78,7 @@ $playerActionsGameStates = [
             "actTakeCardFromDiscard",
         ],
         "transitions" => [
-            "playCards" => ST_PLAYER_PLAY_CARDS,
+            "playCards" => ST_PLAYER_ANGELFISH_POWER,
             "chooseCard" => ST_PLAYER_CHOOSE_CARD,
             "zombiePass" => ST_NEXT_PLAYER,
         ]
@@ -95,7 +95,7 @@ $playerActionsGameStates = [
         ],
         "transitions" => [
             "putDiscardPile" => ST_PLAYER_PUT_DISCARD_PILE,
-            "playCards" => ST_PLAYER_PLAY_CARDS,
+            "playCards" => ST_PLAYER_ANGELFISH_POWER,
             "zombiePass" => ST_NEXT_PLAYER,
         ]
     ],
@@ -110,10 +110,26 @@ $playerActionsGameStates = [
             "actPutDiscardPile",
         ],
         "transitions" => [
-            "playCards" => ST_PLAYER_PLAY_CARDS,
+            "playCards" => ST_PLAYER_ANGELFISH_POWER,
             "zombiePass" => ST_NEXT_PLAYER,
         ]
     ],
+
+    ST_PLAYER_ANGELFISH_POWER => GameStateBuilder::create()
+        ->name('angelfishPower')
+        ->description(clienttranslate('${actplayer} must take one card from the discard (The Angelfish)'))
+        ->descriptionMyTurn(clienttranslate('${you} must take one card from the discard (The Angelfish)'))
+        ->type(StateType::ACTIVE_PLAYER)
+        ->args('argAngelfishPower')
+        ->action('stAngelfishPower')
+        ->possibleActions([
+            'actTakeCardAngelfishPower',
+        ])
+        ->transitions([
+            'playCards' => ST_PLAYER_PLAY_CARDS,
+            'zombiePass' => ST_PLAYER_PLAY_CARDS,
+        ])
+        ->build(),
 
     ST_PLAYER_PLAY_CARDS => [
         "name" => "playCards",
