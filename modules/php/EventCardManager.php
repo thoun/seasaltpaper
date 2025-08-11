@@ -24,7 +24,7 @@ const THE_TREASURE_CHEST = 8;
 const THE_DIODON_FISH = 9;
 const THE_ANGELFISH = 10; // TODO
 const THE_DOLPHINS = 11;
-const THE_CORAL_REEF = 12; // TODO
+const THE_CORAL_REEF = 12;
 
 class EventCardManager extends ItemManager {
     function __construct(
@@ -38,7 +38,7 @@ class EventCardManager extends ItemManager {
         );
     }
 
-    function setup() {
+    function setup(): void {
         $cards = [];
         for ($type = 1; $type < 12; $type++) {
             $cards[] = [ 'location' => 'deck', 'type' => $type, 'nbr' => 1 ];

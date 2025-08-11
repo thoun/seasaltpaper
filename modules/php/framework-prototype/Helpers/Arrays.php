@@ -13,6 +13,13 @@ class Arrays {
     public static function filter(array $array, callable $fn): array {
         return array_values(array_filter($array, $fn));
     }
+    
+    /**
+     * Count items in an array using the predicate function.
+     */
+    public static function count(array $array, callable $fn): int {
+        return count(array_filter($array, $fn));
+    }
 
     /**
      * Filter an array to remove duplicates, keys are not preserved (as opposed to PHP array_unique).

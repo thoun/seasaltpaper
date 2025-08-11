@@ -127,7 +127,7 @@ $playerActionsGameStates = [
             "actPlayCards",
             "actPlayCardsTrio",
             "actEndGameWithMermaids",
-            "actPlaceShellFaceDown",
+            "actSelectShellFaceDown",
             "actEndTurn",
             "actEndRound",
             "actImmediateEndRound",
@@ -144,6 +144,21 @@ $playerActionsGameStates = [
             "zombiePass" => ST_NEXT_PLAYER,
         ]
     ],
+
+    ST_PLAYER_PLACE_SHELL_FACE_DOWN => GameStateBuilder::create()
+        ->name('placeShellFaceDown')
+        ->description(clienttranslate('${actplayer} may play cards duo'))
+        ->descriptionMyTurn(clienttranslate('${you} can place a Shell face down to be immune to attacks'))
+        ->type(StateType::ACTIVE_PLAYER)
+        ->args('argPlaceShellFaceDown')
+        ->possibleActions([
+            'actPlaceShellFaceDown',
+            'actCancelPlaceShellFaceDown',
+        ])
+        ->transitions([
+            '' => ST_PLAYER_PLAY_CARDS,
+        ])
+        ->build(),
 
     ST_PLAYER_CHOOSE_DISCARD_PILE => [
         "name" => "chooseDiscardPile",

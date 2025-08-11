@@ -2,6 +2,7 @@
 
 namespace Bga\Games\SeaSaltPaper;
 
+use Bga\GameFrameworkPrototype\Helpers\Arrays;
 use Bga\Games\SeaSaltPaper\Objects\Card;
 
 trait UtilTrait {
@@ -182,12 +183,18 @@ trait UtilTrait {
         ] + $args);
     }
 
+    function isProtected(int $playerId): bool {
+        return Arrays::some($this->getPlayerCards($playerId, 'table', true), fn($card) => $card->flipped);
+    }
+
     function getPossibleOpponentsToSteal(int $stealerId) {
         $playersIds = $this->getPlayersIds();
 
-        return array_values(array_filter($playersIds, fn($playerId) => 
-            $playerId != $stealerId && $this->cards->countItemsInLocation('hand'.$playerId) > 0
-        ));
+        return Arrays::filter($playersIds, fn($playerId) => 
+            $playerId != $stealerId && 
+            $this->cards->countItemsInLocation('hand'.$playerId) > 0 &&
+            !$this->isProtected($playerId),
+        );
     }
 
     function applySteal(int $stealerId, int $robbedPlayerId) {

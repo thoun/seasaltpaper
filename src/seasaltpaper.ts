@@ -137,6 +137,9 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             case 'chooseOpponent':
                 this.onEnteringChooseOpponent(args.args);
                 break;
+            case 'placeShellFaceDown':
+                this.onEnteringPlaceShellFaceDown(args.args);
+                break;
         }
     }
     
@@ -189,6 +192,17 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         if (this.isCurrentPlayerActive()) {
             this.getCurrentPlayerTable()?.setSelectable(true);
             this.updateDisabledPlayCards();
+        }
+    }
+
+    private onEnteringPlaceShellFaceDown(args: EnteringPlaceShellFaceDownArgs) {
+        this.stacks.showPickCards(false);
+        this.selectedCards = [];
+        this.selectedStarfishCards = [];
+
+        if (this.isCurrentPlayerActive()) {
+            this.getCurrentPlayerTable().setSelectable(true);
+            this.getCurrentPlayerTable().setSelectableCards(args.selectableCards);
         }
     }
     
@@ -255,6 +269,9 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             case 'chooseKeptEventCard':
                 this.onLeavingChooseKeptEventCard();
                 break;
+            case 'placeShellFaceDown':
+                this.onLeavingPlaceShellFaceDown();
+                break;
         }
     }
 
@@ -272,6 +289,12 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
     }
 
     private onLeavingPlayCards() {
+        this.selectedCards = null;
+        this.selectedStarfishCards = null;
+        this.getCurrentPlayerTable()?.setSelectable(false);
+    }
+
+    private onLeavingPlaceShellFaceDown() {
         this.selectedCards = null;
         this.selectedStarfishCards = null;
         this.getCurrentPlayerTable()?.setSelectable(false);
@@ -310,7 +333,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                         this.statusBar.addActionButton(_("Play the ${number} Mermaids").replace('${number}', ''+playCardsArgs.mermaidsToEndGame), () => this.bgaPerformAction('actEndGameWithMermaids'), { color: 'alert' });
                     }
                     if (playCardsArgs.canShield) {
-                        this.statusBar.addActionButton(_("Place a shell face down"), () => this.bgaPerformAction('actPlaceShellFaceDown'), { color: 'secondary' });
+                        this.statusBar.addActionButton(_("Place a shell face down"), () => this.bgaPerformAction('actSelectShellFaceDown'), { color: 'secondary' });
                     }
                     this.statusBar.addActionButton(_("End turn"), () => this.bgaPerformAction('actEndTurn'), { autoclick: !playCardsArgs.canDoAction });
                     if (playCardsArgs.canCallEndRound) {
@@ -337,6 +360,9 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                         document.getElementById(`choosePlayer${playerId}-button`).style.border = `3px solid #${player.color}`;
                     });
                     break;*/
+                case 'placeShellFaceDown':
+                    this.statusBar.addActionButton(_("Cancel"), () => this.bgaPerformAction('actCancelPlaceShellFaceDown'), { color: 'secondary' });
+                    break;
                 case 'beforeEndRound':
                     this.statusBar.addActionButton(_("Seen"), () => this.bgaPerformAction('actSeen'));
                     break;
@@ -501,6 +527,9 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                         this.chooseOpponent(stealPlayerId);
                     }
                 }
+                break;
+            case 'placeShellFaceDown':
+                this.bgaPerformAction('actPlaceShellFaceDown', { id: card.id });
                 break;
         }
     }
@@ -757,6 +786,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             ['takeEventCard', undefined],
             ['discardEventCard', undefined],
             ['newTableEventCard', undefined],
+            ['placeShellFaceDown', undefined],
         ];
     
         notifs.forEach((notif) => {
@@ -959,6 +989,14 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
 
     async notif_newTableEventCard(args: NotifEventCardArgs) {
         await this.stacks.newTableEventCard(args.card);
+    }
+
+    async notif_placeShellFaceDown(args: NotifCardArgs) {
+        const playerId = args.playerId;
+        const card = args.card;
+        const playerTable = this.getPlayerTable(playerId);
+        this.handCounters[playerId].incValue(-1);
+        return playerTable.addCardsToTable([card]);
     }
 
     private clearLogs(activePlayer: string) {

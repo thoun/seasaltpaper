@@ -26,6 +26,7 @@ class PlayerCounter {
         }
 
         if (self::$tableExists === null) {
+            /** @disregard */
             self::$tableExists = (bool)\APP_DbObject::getUniqueValueFromDB("SHOW TABLES LIKE 'bga_player_counters'");
         }
         if (!self::$tableExists) {
@@ -35,9 +36,11 @@ class PlayerCounter {
                     PRIMARY KEY (`player_id`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
             SQL;
+            /** @disregard */
             \APP_DbObject::DbQuery( $sql );
 
             if (count($playersIds) > 0) {
+                /** @disregard */
                 \APP_DbObject::DbQuery(
                     sprintf(
                         "INSERT INTO `bga_player_counters` (`player_id`) VALUES %s",
@@ -49,10 +52,12 @@ class PlayerCounter {
             self::$tableExists = true;
         }
 
+        /** @disregard */
         \APP_DbObject::DbQuery("ALTER TABLE `bga_player_counters` ADD `{$this->dbField}` INT NOT NULL DEFAULT {$this->defaultValue}");
     }
 
     public function get(int $playerId): int {
+        /** @disregard */
         return (int)\APP_DbObject::getUniqueValueFromDB("SELECT `{$this->dbField}` FROM `{$this->getTable()}` WHERE `player_id` = $playerId");
     }
 
@@ -66,6 +71,7 @@ class PlayerCounter {
             $after = min($this->max, $after);
         }
 
+        /** @disregard */
         \APP_DbObject::DbQuery("UPDATE `{$this->getTable()}` SET `{$this->dbField}` = $after WHERE `player_id` = $playerId");
 
         if ($message !== null) {
@@ -99,12 +105,15 @@ class PlayerCounter {
     }
 
     public function getMin(): int {
+        /** @disregard */
         return (int)\APP_DbObject::getUniqueValueFromDB("SELECT MIN(`".$this->dbField."`) FROM `{$this->getTable()}`");
     }
     public function getMax(): int {
+        /** @disregard */
         return (int)\APP_DbObject::getUniqueValueFromDB("SELECT MAX(`".$this->dbField."`) FROM `{$this->getTable()}`");
     }
     public function getAll(): array {
+        /** @disregard */
         $values = \APP_DbObject::getCollectionFromDB("SELECT `player_id`, `{$this->dbField}` FROM `{$this->getTable()}`", true);
         return Arrays::map($values, fn($val) => (int)$val);
     }

@@ -256,4 +256,8 @@ class PlayerTable {
     public setEventCardsSelectable(selectable: boolean) {
         this.eventCards.setSelectionMode(selectable ? 'single' : 'none');
     }
+    
+    public setSelectableCards(selectableCards: Card[]) {
+        this.handCards.setSelectableCards(selectableCards);
+    }
 }

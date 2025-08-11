@@ -110,6 +110,10 @@ interface EnteringChooseOpponentArgs {
     playersIds: number[];
 }
 
+interface EnteringPlaceShellFaceDownArgs {
+    selectableCards: Card[];
+}
+
 interface NotifCardInDiscardFromDeckArgs {
     card: Card;
     discardId: number;
@@ -195,4 +199,9 @@ interface NotifReshuffleDeckArgs {
 interface NotifEventCardArgs {
     playerId: number;
     card: EventCard;
+}
+
+interface NotifCardArgs {
+    playerId: number;
+    card: Card;
 }

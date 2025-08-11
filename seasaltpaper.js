@@ -2185,6 +2185,9 @@ var PlayerTable = /** @class */ (function () {
     PlayerTable.prototype.setEventCardsSelectable = function (selectable) {
         this.eventCards.setSelectionMode(selectable ? 'single' : 'none');
     };
+    PlayerTable.prototype.setSelectableCards = function (selectableCards) {
+        this.handCards.setSelectableCards(selectableCards);
+    };
     return PlayerTable;
 }());
 var ANIMATION_MS = 500;
@@ -2280,6 +2283,9 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             case 'chooseOpponent':
                 this.onEnteringChooseOpponent(args.args);
                 break;
+            case 'placeShellFaceDown':
+                this.onEnteringPlaceShellFaceDown(args.args);
+                break;
         }
     };
     SeaSaltPaper.prototype.setGamestateDescription = function (property) {
@@ -2330,6 +2336,15 @@ var SeaSaltPaper = /** @class */ (function (_super) {
         if (this.isCurrentPlayerActive()) {
             (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setSelectable(true);
             this.updateDisabledPlayCards();
+        }
+    };
+    SeaSaltPaper.prototype.onEnteringPlaceShellFaceDown = function (args) {
+        this.stacks.showPickCards(false);
+        this.selectedCards = [];
+        this.selectedStarfishCards = [];
+        if (this.isCurrentPlayerActive()) {
+            this.getCurrentPlayerTable().setSelectable(true);
+            this.getCurrentPlayerTable().setSelectableCards(args.selectableCards);
         }
     };
     SeaSaltPaper.prototype.onEnteringChooseDiscardPile = function () {
@@ -2390,6 +2405,9 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             case 'chooseKeptEventCard':
                 this.onLeavingChooseKeptEventCard();
                 break;
+            case 'placeShellFaceDown':
+                this.onLeavingPlaceShellFaceDown();
+                break;
         }
     };
     SeaSaltPaper.prototype.onLeavingTakeCards = function () {
@@ -2403,6 +2421,12 @@ var SeaSaltPaper = /** @class */ (function (_super) {
         this.stacks.makeDiscardSelectable(false);
     };
     SeaSaltPaper.prototype.onLeavingPlayCards = function () {
+        var _a;
+        this.selectedCards = null;
+        this.selectedStarfishCards = null;
+        (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setSelectable(false);
+    };
+    SeaSaltPaper.prototype.onLeavingPlaceShellFaceDown = function () {
         var _a;
         this.selectedCards = null;
         this.selectedStarfishCards = null;
@@ -2440,7 +2464,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                         this.statusBar.addActionButton(_("Play the ${number} Mermaids").replace('${number}', '' + playCardsArgs.mermaidsToEndGame), function () { return _this.bgaPerformAction('actEndGameWithMermaids'); }, { color: 'alert' });
                     }
                     if (playCardsArgs.canShield) {
-                        this.statusBar.addActionButton(_("Place a shell face down"), function () { return _this.bgaPerformAction('actPlaceShellFaceDown'); }, { color: 'secondary' });
+                        this.statusBar.addActionButton(_("Place a shell face down"), function () { return _this.bgaPerformAction('actSelectShellFaceDown'); }, { color: 'secondary' });
                     }
                     this.statusBar.addActionButton(_("End turn"), function () { return _this.bgaPerformAction('actEndTurn'); }, { autoclick: !playCardsArgs.canDoAction });
                     if (playCardsArgs.canCallEndRound) {
@@ -2464,6 +2488,9 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                         document.getElementById(`choosePlayer${playerId}-button`).style.border = `3px solid #${player.color}`;
                     });
                     break;*/
+                case 'placeShellFaceDown':
+                    this.statusBar.addActionButton(_("Cancel"), function () { return _this.bgaPerformAction('actCancelPlaceShellFaceDown'); }, { color: 'secondary' });
+                    break;
                 case 'beforeEndRound':
                     this.statusBar.addActionButton(_("Seen"), function () { return _this.bgaPerformAction('actSeen'); });
                     break;
@@ -2602,6 +2629,9 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                         this.chooseOpponent(stealPlayerId);
                     }
                 }
+                break;
+            case 'placeShellFaceDown':
+                this.bgaPerformAction('actPlaceShellFaceDown', { id: card.id });
                 break;
         }
     };
@@ -2789,6 +2819,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             ['takeEventCard', undefined],
             ['discardEventCard', undefined],
             ['newTableEventCard', undefined],
+            ['placeShellFaceDown', undefined],
         ];
         notifs.forEach(function (notif) {
             dojo.subscribe(notif[0], _this, function (notifDetails) {
@@ -3003,6 +3034,18 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                         _a.sent();
                         return [2 /*return*/];
                 }
+            });
+        });
+    };
+    SeaSaltPaper.prototype.notif_placeShellFaceDown = function (args) {
+        return __awaiter(this, void 0, void 0, function () {
+            var playerId, card, playerTable;
+            return __generator(this, function (_a) {
+                playerId = args.playerId;
+                card = args.card;
+                playerTable = this.getPlayerTable(playerId);
+                this.handCounters[playerId].incValue(-1);
+                return [2 /*return*/, playerTable.addCardsToTable([card])];
             });
         });
     };

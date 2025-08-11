@@ -490,7 +490,7 @@ trait ActionTrait {
         $this->gamestate->nextState('playCards');
     }
 
-    public function actPlaceShellFaceDown() {
+    public function actSelectShellFaceDown() {
         $this->gamestate->nextState('placeShellFaceDown');
     }
 
@@ -662,6 +662,32 @@ trait ActionTrait {
 
         $this->eventCards->keepCard($playerId, $id);
 
+        $this->gamestate->nextState('');
+    }
+
+    public function actPlaceShellFaceDown(int $id) {
+        $playerId = intval($this->getActivePlayerId());
+        $card = $this->cards->getItemById($id);
+
+        if ($card->location != 'hand'.$playerId || $card->category != COLLECTION || $card->family != SHELL) {
+            throw new \BgaUserException("You must select a Shell card from your hand");
+        }
+
+        $count = $this->cards->countItemsInLocation('table'.$playerId);
+        $this->cards->moveItem($card, 'table'.$playerId, ++$count);
+        $card->flipped = true;
+        $this->cards->updateItem($card, ['flipped']);
+
+        $this->notify->all('placeShellFaceDown', clienttranslate('${player_name} places a Shell face down to be immune to attacks'), [
+            'playerId' => $playerId,
+            'player_name' => $this->getPlayerNameById($playerId),
+            'card' => $card,
+        ]);
+
+        $this->gamestate->nextState('');
+    }
+
+    public function actCancelPlaceShellFaceDown() {
         $this->gamestate->nextState('');
     }
 }

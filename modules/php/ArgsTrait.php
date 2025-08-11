@@ -66,7 +66,7 @@ trait ArgsTrait {
         $canStop = $canCallEndRound && !$this->eventCards->playerHasEffect($playerId, THE_DIODON_FISH);
         $mermaidsToEndGame = $this->mermaidsToEndGame($playerId);
         $hasFourMermaids = count($this->getPlayerMermaids($playerId)) == $mermaidsToEndGame;
-        $canShield = $this->eventCards->playerHasEffect($playerId, THE_CORAL_REEF) && Arrays::some($this->getPlayerCards($playerId, 'hand', false), fn($card) => $card->category === COLLECTION && $card->family === SHELL);
+        $canShield = $this->eventCards->playerHasEffect($playerId, THE_CORAL_REEF) && !$this->isProtected($playerId) && Arrays::some($this->getPlayerCards($playerId, 'hand', false), fn($card) => $card->category === COLLECTION && $card->family === SHELL);
     
         return [
             'canDoAction' => count($playableDuoCards) > 0 || $canCallEndRound || $hasFourMermaids || $canShield,
@@ -105,6 +105,15 @@ trait ArgsTrait {
 
         return [
             'playersIds' => $possibleOpponentsToSteal,
+        ];
+    }
+
+    function argPlaceShellFaceDown(): array {
+        $playerId = intval($this->getActivePlayerId());
+        $hand = $this->getPlayerCards($playerId, 'hand', false);
+
+        return [
+            'selectableCards' => Arrays::filter($hand, fn($card) => $card->category === COLLECTION && $card->family === SHELL),
         ];
     }
     
