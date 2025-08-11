@@ -327,6 +327,7 @@ class Game extends \Bga\GameFramework\Table {
         if ($state['type'] === "activeplayer") {
             switch ($statename) {
                 default:
+                    $this->globals->set(THE_HERMIT_CRAB_CURRENT_PILE, null); // make sure it's cleaned
                     $this->gamestate->nextState("zombiePass");
                 	break;
             }

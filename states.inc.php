@@ -139,6 +139,7 @@ $playerActionsGameStates = [
             "chooseCard" => ST_PLAYER_CHOOSE_CARD,
             "playCards" => ST_PLAYER_PLAY_CARDS,
             "placeShellFaceDown" => ST_PLAYER_PLACE_SHELL_FACE_DOWN,
+            "pickFromDiscardPiles" => ST_PLAYER_CHOOSE_DISCARD_CARD,
             "endTurn" => ST_NEXT_PLAYER,
             "mermaids" => ST_END_SCORE,
             "zombiePass" => ST_NEXT_PLAYER,
@@ -157,6 +158,7 @@ $playerActionsGameStates = [
         ])
         ->transitions([
             '' => ST_PLAYER_PLAY_CARDS,
+            'zombiePass' => ST_NEXT_PLAYER,
         ])
         ->build(),
 
@@ -184,6 +186,7 @@ $playerActionsGameStates = [
             "actChooseDiscardCard",
         ],
         "transitions" => [
+            'stay' => ST_PLAYER_CHOOSE_DISCARD_CARD,
             "playCards" => ST_PLAYER_PLAY_CARDS,
             "zombiePass" => ST_NEXT_PLAYER,
         ]

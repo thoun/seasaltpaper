@@ -82,7 +82,7 @@ trait ArgsTrait {
     function argChooseDiscardCard() {
         $playerId = intval($this->getActivePlayerId());
 
-        $discardNumber = $this->getGameStateValue(CHOSEN_DISCARD);
+        $discardNumber = $this->globals->get(THE_HERMIT_CRAB_CURRENT_PILE) ?? $this->getGameStateValue(CHOSEN_DISCARD);
         $cards = $this->cards->getItemsInLocation('discard'.$discardNumber);
         usort($cards, fn($a, $b) => $a->locationArg <=> $b->locationArg);
         $maskedCards = Card::onlyIds($cards);

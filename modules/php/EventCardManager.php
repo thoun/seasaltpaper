@@ -13,7 +13,7 @@ use Bga\GameFrameworkPrototype\Item\ItemLocation;
 use \Bga\GameFrameworkPrototype\Item\ItemManager;
 use Bga\Games\SeaSaltPaper\Objects\EventCard;
 
-const THE_HERMIT_CRAB = 1; // TODO
+const THE_HERMIT_CRAB = 1;
 const THE_SUNFISH = 2;
 const THE_WATER_RODEO = 3; // TODO
 const THE_DANCE_OF_THE_SHELLS = 4;

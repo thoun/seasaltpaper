@@ -359,7 +359,12 @@ trait ActionTrait {
         switch ($power) {
             case 1:
                 if (($this->cards->countItemsInLocation('discard1') + $this->cards->countItemsInLocation('discard2')) > 0) {
-                    $this->gamestate->nextState('chooseDiscardPile');
+                    if ($this->eventCards->playerHasEffect($playerId, THE_HERMIT_CRAB)) {
+                        $this->globals->set(THE_HERMIT_CRAB_CURRENT_PILE, $this->cards->countItemsInLocation('discard1') > 0 ? 1 : 2);
+                        $this->gamestate->nextState('pickFromDiscardPiles');
+                    } else {
+                        $this->gamestate->nextState('chooseDiscardPile');
+                    }
                 } else {
                     $this->notify->all('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
                     $this->gamestate->nextState('playCards');
@@ -603,7 +608,8 @@ trait ActionTrait {
     public function actChooseDiscardCard(int $id) {
 
         $card = $this->cards->getItemById($id);
-        $discardNumber = $this->getGameStateValue(CHOSEN_DISCARD);
+        $hermitCrabCurrentPile = $this->globals->get(THE_HERMIT_CRAB_CURRENT_PILE);
+        $discardNumber = $hermitCrabCurrentPile ?? $this->getGameStateValue(CHOSEN_DISCARD);
         if ($card == null || $card->location != 'discard'.$discardNumber) {
             throw new \BgaUserException("Invalid discard card");
         }
@@ -639,7 +645,20 @@ trait ActionTrait {
         ]);
 
         $this->updateCardsPoints($playerId);
-        $this->gamestate->nextState('playCards');
+
+        if ($hermitCrabCurrentPile === 1) {
+            $hermitCrabCurrentPile = $this->cards->countItemsInLocation('discard2') > 0 ? 2 : null;
+            $this->globals->set(THE_HERMIT_CRAB_CURRENT_PILE, $hermitCrabCurrentPile);
+        } else if ($hermitCrabCurrentPile === 2) {
+            $hermitCrabCurrentPile = null;
+            $this->globals->set(THE_HERMIT_CRAB_CURRENT_PILE, $hermitCrabCurrentPile);
+        }
+
+        if ($hermitCrabCurrentPile === null) {
+            $this->gamestate->nextState('playCards');            
+        } else {
+            $this->gamestate->nextState('stay');
+        }
     }
 
     public function actChooseOpponent(int $id) {
