@@ -97,6 +97,7 @@ interface EnteringChooseCardArgs {
     discardNumber?: number;
     deckTopCard?: Card;
     remainingCardsInDeck: number;
+    opponentId?: number;
 }
 
 interface EnteringPlayCardsArgs {

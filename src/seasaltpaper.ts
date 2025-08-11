@@ -143,6 +143,9 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             case 'placeShellFaceDown':
                 this.onEnteringPlaceShellFaceDown(args.args);
                 break;
+            case 'chooseOpponentCard':
+                this.onEnteringChooseOpponentCard(args.args);
+                break;
             case 'stealPlayedPair':
                 this.onEnteringStealPlayedPair(args.args);
                 break;
@@ -245,6 +248,26 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             this.discardStock.addCard(card, { fromStock: this.stacks.getDiscardDeck(args.discardNumber) });
         });
         if (currentPlayer) {
+            this.discardStock.setSelectionMode('single');
+        }
+    }
+    
+    private onEnteringChooseOpponentCard(args: EnteringChooseCardArgs) {
+        if (this.isCurrentPlayerActive()) {
+            const cards = args._private?.cards || args.cards;
+            const pickDiv = document.getElementById('discard-pick');
+            pickDiv.innerHTML = '';
+            pickDiv.dataset.visible = 'true';
+
+            if (!this.discardStock) {
+                this.discardStock = new LineStock<Card>(this.cardsManager, pickDiv, { gap: '0px' });
+                this.discardStock.onCardClick = card => this.bgaPerformAction('actChooseOpponentCard', { id: card.id });
+            }
+
+            cards?.forEach(card => {
+                this.discardStock.addCard(card, { fromElement: document.getElementById(`player-table-${args.opponentId}-hand-cards`) });
+            });
+        
             this.discardStock.setSelectionMode('single');
         }
     }

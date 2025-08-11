@@ -233,43 +233,45 @@ trait UtilTrait {
         );
     }
 
-    function applySteal(int $stealerId, int $robbedPlayerId) {
-
+    function applyStealRandomCard(int $stealerId, int $robbedPlayerId) {
         $cardsInHand = $this->getPlayerCards($robbedPlayerId, 'hand', false);
-        $card = null;
         $cardsNumber = count($cardsInHand);
         if ($cardsNumber > 0) {
-            $card = $cardsInHand[bga_rand(1, $cardsNumber) - 1];
-            $this->cards->moveItem($card, 'hand'.$stealerId);
-            $this->cardCollected($stealerId, $card);
-
-            $args = [
-                'playerId' => $stealerId,
-                'opponentId' => $robbedPlayerId,
-                'player_name' => $this->getPlayerNameById($stealerId),
-                'player_name2' => $this->getPlayerNameById($robbedPlayerId),
-                'preserve' => ['actionPlayerId'],
-                'actionPlayerId' => $stealerId,
-            ];
-            $argCardName = [
-                'cardName' => $this->getCardName($card),
-                'cardColor' => $this->COLORS[$card->color],
-                'i18n' => ['cardName', 'cardColor'],
-            ];
-            $argCard = [
-                'card' => $card,
-            ];
-            $argMaskedCard = [
-                'card' => Card::onlyId($card),
-            ];
-
-            $this->notify->all('stealCard', clienttranslate('${player_name} steals a card from ${player_name2} hand'), $args + $argMaskedCard);
-            $this->notifyPlayer($robbedPlayerId, 'stealCard', clienttranslate('Card ${cardColor} ${cardName} was stolen from your hand'), $args + $argCardName + $argMaskedCard);
-            $this->notifyPlayer($stealerId, 'stealCard', clienttranslate('Card ${cardColor} ${cardName} was picked from ${player_name2} hand'), $args + $argCardName + $argCard);
-
-            $this->updateCardsPoints($stealerId);
-            $this->updateCardsPoints($robbedPlayerId);
+            $randomCard = $cardsInHand[bga_rand(0, $cardsNumber - 1)];
+            $this->applyStealSpecificCard($stealerId, $robbedPlayerId, $randomCard);
         }
+    }
+
+    function applyStealSpecificCard(int $stealerId, int $robbedPlayerId, Card $card) {
+        $this->cards->moveItem($card, 'hand'.$stealerId);
+        $this->cardCollected($stealerId, $card);
+
+        $args = [
+            'playerId' => $stealerId,
+            'opponentId' => $robbedPlayerId,
+            'player_name' => $this->getPlayerNameById($stealerId),
+            'player_name2' => $this->getPlayerNameById($robbedPlayerId),
+            'preserve' => ['actionPlayerId'],
+            'actionPlayerId' => $stealerId,
+        ];
+        $argCardName = [
+            'cardName' => $this->getCardName($card),
+            'cardColor' => $this->COLORS[$card->color],
+            'i18n' => ['cardName', 'cardColor'],
+        ];
+        $argCard = [
+            'card' => $card,
+        ];
+        $argMaskedCard = [
+            'card' => Card::onlyId($card),
+        ];
+
+        $this->notify->all('stealCard', clienttranslate('${player_name} steals a card from ${player_name2} hand'), $args + $argMaskedCard);
+        $this->notifyPlayer($robbedPlayerId, 'stealCard', clienttranslate('Card ${cardColor} ${cardName} was stolen from your hand'), $args + $argCardName + $argMaskedCard);
+        $this->notifyPlayer($stealerId, 'stealCard', clienttranslate('Card ${cardColor} ${cardName} was picked from ${player_name2} hand'), $args + $argCardName + $argCard);
+
+        $this->updateCardsPoints($stealerId);
+        $this->updateCardsPoints($robbedPlayerId);
     }
 
     function playableDuoCards(int $playerId) {

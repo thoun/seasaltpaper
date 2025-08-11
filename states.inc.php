@@ -179,6 +179,21 @@ $playerActionsGameStates = [
         ])
         ->build(),
 
+    ST_PLAYER_CHOOSE_OPPONENT_CARD => GameStateBuilder::create()
+        ->name('chooseOpponentCard')
+        ->description(clienttranslate('${actplayer} must choose a card to steal'))
+        ->descriptionmyturn(clienttranslate('${you} must choose a card to steal'))
+        ->type(StateType::ACTIVE_PLAYER)
+        ->args('argChooseOpponentCard')
+        ->possibleActions([
+            'actChooseOpponentCard',
+        ])
+        ->transitions([
+            'playCards' => ST_PLAYER_PLAY_CARDS,
+            'zombiePass' => ST_NEXT_PLAYER,
+        ])
+        ->build(),
+
     ST_PLAYER_STEAL_PLAYED_PAIR => GameStateBuilder::create()
         ->name('stealPlayedPair')
         ->description(clienttranslate('${actplayer} must select a played pair to steal'))
@@ -234,6 +249,7 @@ $playerActionsGameStates = [
             "actChooseOpponent",
         ],
         "transitions" => [
+            "chooseOpponentCard" => ST_PLAYER_CHOOSE_OPPONENT_CARD,
             "playCards" => ST_PLAYER_PLAY_CARDS,
             "zombiePass" => ST_NEXT_PLAYER,
         ]

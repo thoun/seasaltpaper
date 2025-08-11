@@ -135,6 +135,25 @@ trait ArgsTrait {
         ];
     }
 
+    function argChooseOpponentCard(): array {
+        $playerId = intval($this->getActivePlayerId());
+        $opponentId = $this->globals->get(STOLEN_PLAYER);
+
+        $cards = $this->getPlayerCards($opponentId, 'hand', false);
+        usort($cards, fn($a, $b) => $a->locationArg <=> $b->locationArg);
+        $maskedCards = Card::onlyIds($cards);
+    
+        return [
+            'opponentId' => $opponentId,
+            '_private' => [
+                $playerId => [
+                    'cards' => $cards,
+                ]
+            ],
+            'cards' => $maskedCards,
+        ];
+    }
+
     function argStealPlayedPair(): array {
         $playerId = intval($this->getActivePlayerId());
 

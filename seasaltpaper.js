@@ -2315,6 +2315,9 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             case 'placeShellFaceDown':
                 this.onEnteringPlaceShellFaceDown(args.args);
                 break;
+            case 'chooseOpponentCard':
+                this.onEnteringChooseOpponentCard(args.args);
+                break;
             case 'stealPlayedPair':
                 this.onEnteringStealPlayedPair(args.args);
                 break;
@@ -2411,6 +2414,24 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             _this.discardStock.addCard(card, { fromStock: _this.stacks.getDiscardDeck(args.discardNumber) });
         });
         if (currentPlayer) {
+            this.discardStock.setSelectionMode('single');
+        }
+    };
+    SeaSaltPaper.prototype.onEnteringChooseOpponentCard = function (args) {
+        var _this = this;
+        var _a;
+        if (this.isCurrentPlayerActive()) {
+            var cards = ((_a = args._private) === null || _a === void 0 ? void 0 : _a.cards) || args.cards;
+            var pickDiv = document.getElementById('discard-pick');
+            pickDiv.innerHTML = '';
+            pickDiv.dataset.visible = 'true';
+            if (!this.discardStock) {
+                this.discardStock = new LineStock(this.cardsManager, pickDiv, { gap: '0px' });
+                this.discardStock.onCardClick = function (card) { return _this.bgaPerformAction('actChooseOpponentCard', { id: card.id }); };
+            }
+            cards === null || cards === void 0 ? void 0 : cards.forEach(function (card) {
+                _this.discardStock.addCard(card, { fromElement: document.getElementById("player-table-".concat(args.opponentId, "-hand-cards")) });
+            });
             this.discardStock.setSelectionMode('single');
         }
     };

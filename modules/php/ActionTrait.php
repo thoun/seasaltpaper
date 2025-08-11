@@ -411,6 +411,7 @@ trait ActionTrait {
                 $possibleOpponentsToSteal = $this->getPossibleOpponentsToSteal($playerId);
 
                 if (count($possibleOpponentsToSteal) > 0) {
+                    $this->globals->set(CAN_CHOOSE_CARD_TO_STEAL, false);
                     $this->gamestate->nextState('chooseOpponent');
                 } else {
                     $this->notify->all('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
@@ -421,7 +422,7 @@ trait ActionTrait {
                     $this->gamestate->nextState('chooseOpponent');
                 } else {
                     if (count($possibleOpponentsToSteal) == 1) {
-                        $this->applySteal($playerId, $possibleOpponentsToSteal[0]);
+                        $this->applyStealRandomCard($playerId, $possibleOpponentsToSteal[0]);
                     } else {
                         $this->notify->all('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
                     }
@@ -456,7 +457,8 @@ trait ActionTrait {
                 $possibleOpponentsToSteal = $this->getPossibleOpponentsToSteal($playerId);
 
                 if (count($possibleOpponentsToSteal) > 0) {
-                    $this->gamestate->nextState('lookOpponentHand');
+                    $this->globals->set(CAN_CHOOSE_CARD_TO_STEAL, true);
+                    $this->gamestate->nextState('chooseOpponent');
                 } else {
                     $this->notify->all('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
                     $this->gamestate->nextState('playCards');
@@ -699,9 +701,14 @@ trait ActionTrait {
 
         $playerId = intval($this->getActivePlayerId());
 
-        $this->applySteal($playerId, $id);
+        if ($this->globals->get(CAN_CHOOSE_CARD_TO_STEAL, false)) {
+            $this->globals->set(STOLEN_PLAYER, $id);
+            $this->gamestate->nextState('chooseOpponentCard');
+        } else {
+            $this->applyStealRandomCard($playerId, $id);
 
-        $this->gamestate->nextState('playCards');
+            $this->gamestate->nextState('playCards');
+        }
     }
 
     public function actSeen() {
@@ -771,6 +778,21 @@ trait ActionTrait {
         ]);
 
         $this->updateCardsPoints($playerId);
+        $this->gamestate->nextState('playCards');
+    }
+
+    public function actChooseOpponentCard(int $id) {
+        $playerId = intval($this->getActivePlayerId());
+        $opponentId = $this->globals->get(STOLEN_PLAYER);
+
+        $cards = $this->getPlayerCards($opponentId, 'hand', false);
+        $specificCard = Arrays::find($cards, fn($card) => $card->id === $id);
+        if ($specificCard === null) {
+            throw new \BgaUserException("Invalid card");
+        }
+
+        $this->applyStealSpecificCard($playerId, $opponentId, $specificCard);
+
         $this->gamestate->nextState('playCards');
     }
 
