@@ -38,3 +38,30 @@
         }
     }
 }
+
+.event-trophy-wrapper {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 48px;
+    height: 48px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.event-trophy {
+    width: 36px;
+    height: 36px;
+    background-image: url('img/event-trophies.png');
+    background-size: auto 100%;
+
+    &[data-for="bottom"] {
+        background-position-x: 0%;
+    }
+    &[data-for="top"] {
+        background-position-x: 100%;
+    }
+}

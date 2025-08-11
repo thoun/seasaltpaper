@@ -14,9 +14,27 @@ class EventCardManager extends CardManager<EventCard> {
     private setupFrontDiv(card: EventCard, div: HTMLElement) {
         div.style.setProperty('--index', `${card.type - 1}`);
         this.game.setTooltip(div.id, this.getTooltip(card.type));
+
+        if (!div.lastElementChild) {
+            div.innerHTML = `
+            <div class="event-trophy-wrapper">
+                <div class="event-trophy" data-for="${card.for}"></div>
+            </div>
+            `;
+        }
     }
 
     public getTooltip(type: number) {
+        const forText = [5, 6, 8, 9].includes(type) ? 
+            _('The player with the most points places the card in front of them.') :
+            _('The player with the fewest points places the card in front of them.');
+
+        return this.getPowerTooltip(type) + `
+        <br><br>
+        <i>${_('At the end of the round:')} ${forText}</i>`;
+    }
+
+    public getPowerTooltip(type: number) {
         switch(type) {
             case 1:
                 return `

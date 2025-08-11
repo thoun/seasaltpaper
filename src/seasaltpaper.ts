@@ -58,6 +58,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
 
         if (!gamedatas.extraPepperExpansion) {
             this.dontPreloadImage('event-cards.jpg');
+            this.dontPreloadImage('event-trophies.png');
         }
         
         this.gamedatas = gamedatas;

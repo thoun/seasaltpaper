@@ -1840,8 +1840,17 @@ var EventCardManager = /** @class */ (function (_super) {
     EventCardManager.prototype.setupFrontDiv = function (card, div) {
         div.style.setProperty('--index', "".concat(card.type - 1));
         this.game.setTooltip(div.id, this.getTooltip(card.type));
+        if (!div.lastElementChild) {
+            div.innerHTML = "\n            <div class=\"event-trophy-wrapper\">\n                <div class=\"event-trophy\" data-for=\"".concat(card.for, "\"></div>\n            </div>\n            ");
+        }
     };
     EventCardManager.prototype.getTooltip = function (type) {
+        var forText = [5, 6, 8, 9].includes(type) ?
+            _('The player with the most points places the card in front of them.') :
+            _('The player with the fewest points places the card in front of them.');
+        return this.getPowerTooltip(type) + "\n        <br><br>\n        <i>".concat(_('At the end of the round:'), " ").concat(forText, "</i>");
+    };
+    EventCardManager.prototype.getPowerTooltip = function (type) {
         switch (type) {
             case 1:
                 return "\n                <div><strong>".concat(_("The Hermit crab"), "</strong></div>\n                ").concat(_("When a pair of <strong>crabs</strong> is played, the player takes one card from each discard pile."));
@@ -2258,6 +2267,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
         }
         if (!gamedatas.extraPepperExpansion) {
             this.dontPreloadImage('event-cards.jpg');
+            this.dontPreloadImage('event-trophies.png');
         }
         this.gamedatas = gamedatas;
         log('gamedatas', gamedatas);
