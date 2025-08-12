@@ -2170,8 +2170,9 @@ var PlayerTable = /** @class */ (function () {
         bubble.innerHTML += scoreDetailStr + "</div>";
         bubble.dataset.visible = 'true';
     };
-    PlayerTable.prototype.setSelectable = function (selectable) {
-        this.handCards.setSelectionMode(selectable ? 'multiple' : 'none');
+    PlayerTable.prototype.setSelectable = function (selectable, single) {
+        if (single === void 0) { single = false; }
+        this.handCards.setSelectionMode(selectable ? (single ? 'single' : 'multiple') : 'none');
     };
     PlayerTable.prototype.updateDisabledPlayCards = function (selectedCards, selectedStarfishCards, possiblePairs) {
         if (!this.game.isCurrentPlayerActive()) {
@@ -2223,6 +2224,9 @@ var PlayerTable = /** @class */ (function () {
     PlayerTable.prototype.setPlayedCardsSelectable = function (selectable, selectableCards) {
         this.tableCards.setSelectionMode(selectable ? 'single' : 'none', selectableCards === null || selectableCards === void 0 ? void 0 : selectableCards.flat());
     };
+    PlayerTable.prototype.getHandSelection = function () {
+        return this.handCards.getSelection();
+    };
     return PlayerTable;
 }());
 var ANIMATION_MS = 500;
@@ -2240,6 +2244,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
         var _this = _super.call(this) || this;
         _this.playersTables = [];
         _this.handCounters = [];
+        _this.swapButton = null;
         _this.TOOLTIP_DELAY = document.body.classList.contains('touch-device') ? 1500 : undefined;
         return _this;
     }
@@ -2325,8 +2330,8 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             case 'placeShellFaceDown':
                 this.onEnteringPlaceShellFaceDown(args.args);
                 break;
-            case 'chooseOpponentCard':
-                this.onEnteringChooseOpponentCard(args.args);
+            case 'swapCard':
+                this.onEnteringSwapCard(args.args);
                 break;
             case 'stealPlayedPair':
                 this.onEnteringStealPlayedPair(args.args);
@@ -2427,7 +2432,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             this.discardStock.setSelectionMode('single');
         }
     };
-    SeaSaltPaper.prototype.onEnteringChooseOpponentCard = function (args) {
+    SeaSaltPaper.prototype.onEnteringSwapCard = function (args) {
         var _this = this;
         var _a;
         if (this.isCurrentPlayerActive()) {
@@ -2437,12 +2442,13 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             pickDiv.dataset.visible = 'true';
             if (!this.discardStock) {
                 this.discardStock = new LineStock(this.cardsManager, pickDiv, { gap: '0px' });
-                this.discardStock.onCardClick = function (card) { return _this.bgaPerformAction('actChooseOpponentCard', { id: card.id }); };
+                this.discardStock.onCardClick = function (card) { return _this.onSwapCardsSelectionChange(); };
             }
             cards === null || cards === void 0 ? void 0 : cards.forEach(function (card) {
                 _this.discardStock.addCard(card, { fromElement: document.getElementById("player-table-".concat(args.opponentId, "-hand-cards")) });
             });
             this.discardStock.setSelectionMode('single');
+            this.getCurrentPlayerTable().setSelectable(true, true);
         }
     };
     SeaSaltPaper.prototype.onEnteringChooseOpponent = function (args) {
@@ -2487,6 +2493,9 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             case 'placeShellFaceDown':
                 this.onLeavingPlaceShellFaceDown();
                 break;
+            case 'swapCard':
+                this.onLeavingSwapCard();
+                break;
             case 'stealPlayedPair':
                 this.onLeavingStealPlayedPair(this.gamedatas.gamestate.args);
                 break;
@@ -2530,6 +2539,13 @@ var SeaSaltPaper = /** @class */ (function (_super) {
         var _a;
         (_a = this.getCurrentPlayerTable()) === null || _a === void 0 ? void 0 : _a.setEventCardsSelectable(false);
     };
+    SeaSaltPaper.prototype.onLeavingSwapCard = function () {
+        var _a, _b;
+        var pickDiv = document.getElementById('discard-pick');
+        pickDiv.dataset.visible = 'false';
+        (_a = this.discardStock) === null || _a === void 0 ? void 0 : _a.removeAll();
+        (_b = this.getCurrentPlayerTable()) === null || _b === void 0 ? void 0 : _b.setSelectable(false);
+    };
     SeaSaltPaper.prototype.onLeavingStealPlayedPair = function (args) {
         var _this = this;
         if (this.isCurrentPlayerActive()) {
@@ -2572,17 +2588,23 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                         dojo.addClass(`immediateEndRound_button`, `disabled`);
                     }*/
                     break;
-                /*case 'chooseOpponent':
-                    const chooseOpponentArgs = args as EnteringChooseOpponentArgs;
-        
-                    chooseOpponentArgs.playersIds.forEach(playerId => {
-                        const player = this.getPlayer(playerId);
-                        this.statusBar.addActionButton(player.name, () => this.chooseOpponent(playerId), { id: `choosePlayer${playerId}-button` });
-                        document.getElementById(`choosePlayer${playerId}-button`).style.border = `3px solid #${player.color}`;
-                    });
-                    break;*/
                 case 'placeShellFaceDown':
                     this.statusBar.addActionButton(_("Cancel"), function () { return _this.bgaPerformAction('actCancelPlaceShellFaceDown'); }, { color: 'secondary' });
+                    break;
+                case 'chooseOpponentForSwap':
+                    var chooseOpponentArgs = args;
+                    chooseOpponentArgs.playersIds.forEach(function (playerId) {
+                        var player = _this.getPlayer(playerId);
+                        _this.statusBar.addActionButton(player.name, function () { return _this.chooseOpponent(playerId); }, { id: "choosePlayer".concat(playerId, "-button") });
+                        document.getElementById("choosePlayer".concat(playerId, "-button")).style.border = "3px solid #".concat(player.color);
+                    });
+                    break;
+                case 'swapCard':
+                    this.swapButton = this.statusBar.addActionButton(_("Swap selected cards"), function () { return _this.bgaPerformAction('actSwapCard', {
+                        playerCardId: _this.getCurrentPlayerTable().getHandSelection()[0].id,
+                        opponentCardId: _this.discardStock.getSelection()[0].id,
+                    }); }, { disabled: true });
+                    this.statusBar.addActionButton(_("Pass"), function () { return _this.bgaPerformAction('actPassSwapCard'); }, { color: 'secondary' });
                     break;
                 case 'beforeEndRound':
                     this.statusBar.addActionButton(_("Seen"), function () { return _this.bgaPerformAction('actSeen'); });
@@ -2728,6 +2750,9 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                 break;
             case 'placeShellFaceDown':
                 this.bgaPerformAction('actPlaceShellFaceDown', { id: card.id });
+                break;
+            case 'swapCard':
+                this.onSwapCardsSelectionChange();
                 break;
         }
     };
@@ -2901,6 +2926,12 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             id: id
         });
     };
+    SeaSaltPaper.prototype.onSwapCardsSelectionChange = function () {
+        var playerCardSelection = this.getCurrentPlayerTable().getHandSelection();
+        var opponentCardSelection = this.discardStock.getSelection();
+        var valid = playerCardSelection.length === 1 && opponentCardSelection.length === 1;
+        this.swapButton.disabled = !valid;
+    };
     ///////////////////////////////////////////////////
     //// Reaction to cometD notifications
     /*
@@ -2927,6 +2958,8 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             ['playCards', undefined],
             ['stealPlayedPair', undefined],
             ['stealCard', undefined],
+            ['swapCard', undefined],
+            ['passSwapCard', undefined],
             ['revealHand', ANIMATION_MS * 2],
             ['announceEndRound', ANIMATION_MS * 2],
             ['betResult', ANIMATION_MS * 2],
@@ -2960,6 +2993,9 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             return notif.args.playerId == _this.getPlayerId() && !notif.args.card.category;
         });
         this.notifqueue.setIgnoreNotificationCheck('stealCard', function (notif) {
+            return [notif.args.playerId, notif.args.opponentId].includes(_this.getPlayerId()) && !notif.args.cardName;
+        });
+        this.notifqueue.setIgnoreNotificationCheck('swapCard', function (notif) {
             return [notif.args.playerId, notif.args.opponentId].includes(_this.getPlayerId()) && !notif.args.cardName;
         });
         this.addLogClass();
@@ -3075,6 +3111,50 @@ var SeaSaltPaper = /** @class */ (function (_super) {
         this.handCounters[opponentId].incValue(-1);
         this.handCounters[stealerId].incValue(1);
         return this.getPlayerTable(stealerId).addStolenCard(card, stealerId, opponentId);
+    };
+    SeaSaltPaper.prototype.notif_swapCard = function (args) {
+        return __awaiter(this, void 0, void 0, function () {
+            var stealerId, opponentId, card, card2;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        stealerId = args.playerId;
+                        opponentId = args.opponentId;
+                        card = args.card;
+                        card2 = args.card2;
+                        if (!(stealerId == this.getPlayerId())) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.getPlayerTable(opponentId).addCardsToHand(args.opponentCards)];
+                    case 1:
+                        _a.sent();
+                        _a.label = 2;
+                    case 2: return [4 /*yield*/, Promise.all([
+                            this.getPlayerTable(stealerId).addStolenCard(card, stealerId, opponentId),
+                            this.getPlayerTable(opponentId).addStolenCard(card2, opponentId, stealerId),
+                        ])];
+                    case 3:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    SeaSaltPaper.prototype.notif_passSwapCard = function (args) {
+        return __awaiter(this, void 0, void 0, function () {
+            var stealerId, opponentId;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        stealerId = args.playerId;
+                        opponentId = args.opponentId;
+                        if (!(stealerId == this.getPlayerId())) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.getPlayerTable(opponentId).addCardsToHand(args.opponentCards)];
+                    case 1:
+                        _a.sent();
+                        _a.label = 2;
+                    case 2: return [2 /*return*/];
+                }
+            });
+        });
     };
     SeaSaltPaper.prototype.notif_announceEndRound = function (args) {
         this.getPlayerTable(args.playerId).showAnnouncement(args.announcement);

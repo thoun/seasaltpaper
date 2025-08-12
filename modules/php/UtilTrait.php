@@ -238,11 +238,11 @@ trait UtilTrait {
         $cardsNumber = count($cardsInHand);
         if ($cardsNumber > 0) {
             $randomCard = $cardsInHand[bga_rand(0, $cardsNumber - 1)];
-            $this->applyStealSpecificCard($stealerId, $robbedPlayerId, $randomCard);
+            $this->applyStealCard($stealerId, $robbedPlayerId, $randomCard);
         }
     }
 
-    function applyStealSpecificCard(int $stealerId, int $robbedPlayerId, Card $card) {
+    function applyStealCard(int $stealerId, int $robbedPlayerId, Card $card) {
         $this->cards->moveItem($card, 'hand'.$stealerId);
         $this->cardCollected($stealerId, $card);
 

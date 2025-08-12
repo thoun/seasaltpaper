@@ -26,6 +26,8 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
     private handCounters: Counter[] = [];
 
     private discardStock: LineStock<Card>;
+
+    private swapButton: HTMLButtonElement | null = null;
     
     private TOOLTIP_DELAY = document.body.classList.contains('touch-device') ? 1500 : undefined;
 
@@ -144,8 +146,8 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             case 'placeShellFaceDown':
                 this.onEnteringPlaceShellFaceDown(args.args);
                 break;
-            case 'chooseOpponentCard':
-                this.onEnteringChooseOpponentCard(args.args);
+            case 'swapCard':
+                this.onEnteringSwapCard(args.args);
                 break;
             case 'stealPlayedPair':
                 this.onEnteringStealPlayedPair(args.args);
@@ -253,7 +255,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         }
     }
     
-    private onEnteringChooseOpponentCard(args: EnteringChooseCardArgs) {
+    private onEnteringSwapCard(args: EnteringChooseCardArgs) {
         if (this.isCurrentPlayerActive()) {
             const cards = args._private?.cards || args.cards;
             const pickDiv = document.getElementById('discard-pick');
@@ -262,7 +264,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
 
             if (!this.discardStock) {
                 this.discardStock = new LineStock<Card>(this.cardsManager, pickDiv, { gap: '0px' });
-                this.discardStock.onCardClick = card => this.bgaPerformAction('actChooseOpponentCard', { id: card.id });
+                this.discardStock.onCardClick = card => this.onSwapCardsSelectionChange();
             }
 
             cards?.forEach(card => {
@@ -270,6 +272,8 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             });
         
             this.discardStock.setSelectionMode('single');
+
+            this.getCurrentPlayerTable().setSelectable(true, true);
         }
     }
     
@@ -317,6 +321,9 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                 break;
             case 'placeShellFaceDown':
                 this.onLeavingPlaceShellFaceDown();
+                break;
+            case 'swapCard':
+                this.onLeavingSwapCard();
                 break;
             case 'stealPlayedPair':
                 this.onLeavingStealPlayedPair(this.gamedatas.gamestate.args);
@@ -367,6 +374,14 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         this.getCurrentPlayerTable()?.setEventCardsSelectable(false);
     }
 
+    private onLeavingSwapCard() {
+        const pickDiv = document.getElementById('discard-pick');
+        pickDiv.dataset.visible = 'false';
+        this.discardStock?.removeAll();
+
+        this.getCurrentPlayerTable()?.setSelectable(false);
+    }
+
     private onLeavingStealPlayedPair(args: EnteringStealPlayedPairArgs) {
         if (this.isCurrentPlayerActive()) {
             args.opponentIds.forEach(opponentId => {
@@ -412,7 +427,10 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                         dojo.addClass(`immediateEndRound_button`, `disabled`);
                     }*/
                     break;
-                /*case 'chooseOpponent':
+                case 'placeShellFaceDown':
+                    this.statusBar.addActionButton(_("Cancel"), () => this.bgaPerformAction('actCancelPlaceShellFaceDown'), { color: 'secondary' });
+                    break;
+                case 'chooseOpponentForSwap':
                     const chooseOpponentArgs = args as EnteringChooseOpponentArgs;
         
                     chooseOpponentArgs.playersIds.forEach(playerId => {
@@ -420,9 +438,13 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                         this.statusBar.addActionButton(player.name, () => this.chooseOpponent(playerId), { id: `choosePlayer${playerId}-button` });
                         document.getElementById(`choosePlayer${playerId}-button`).style.border = `3px solid #${player.color}`;
                     });
-                    break;*/
-                case 'placeShellFaceDown':
-                    this.statusBar.addActionButton(_("Cancel"), () => this.bgaPerformAction('actCancelPlaceShellFaceDown'), { color: 'secondary' });
+                    break;
+                case 'swapCard':
+                    this.swapButton = this.statusBar.addActionButton(_("Swap selected cards"), () => this.bgaPerformAction('actSwapCard', {
+                        playerCardId: this.getCurrentPlayerTable().getHandSelection()[0].id,
+                        opponentCardId: this.discardStock.getSelection()[0].id,
+                    }), { disabled: true });
+                    this.statusBar.addActionButton(_("Pass"), () => this.bgaPerformAction('actPassSwapCard'), { color: 'secondary' });
                     break;
                 case 'beforeEndRound':
                     this.statusBar.addActionButton(_("Seen"), () => this.bgaPerformAction('actSeen'));
@@ -595,6 +617,9 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                 break;
             case 'placeShellFaceDown':
                 this.bgaPerformAction('actPlaceShellFaceDown', { id: card.id });
+                break;
+            case 'swapCard':
+                this.onSwapCardsSelectionChange();
                 break;
         }
     }
@@ -849,6 +874,15 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         });
     }
 
+    private onSwapCardsSelectionChange() {
+        const playerCardSelection = this.getCurrentPlayerTable().getHandSelection();
+        const opponentCardSelection = this.discardStock.getSelection();
+
+        const valid = playerCardSelection.length === 1 && opponentCardSelection.length === 1;
+
+        this.swapButton.disabled = !valid;
+    }
+
     ///////////////////////////////////////////////////
     //// Reaction to cometD notifications
 
@@ -877,6 +911,8 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             ['playCards', undefined],
             ['stealPlayedPair', undefined],
             ['stealCard', undefined],
+            ['swapCard', undefined],
+            ['passSwapCard', undefined],
             ['revealHand', ANIMATION_MS * 2],
             ['announceEndRound', ANIMATION_MS * 2],
             ['betResult', ANIMATION_MS * 2],
@@ -914,6 +950,9 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             notif.args.playerId == this.getPlayerId() && !notif.args.card.category
         );
         (this as any).notifqueue.setIgnoreNotificationCheck('stealCard', (notif: Notif<NotifStealCardArgs>) => 
+            [notif.args.playerId, notif.args.opponentId].includes(this.getPlayerId()) && !(notif.args as any).cardName
+        );
+        (this as any).notifqueue.setIgnoreNotificationCheck('swapCard', (notif: Notif<NotifStealCardArgs>) => 
             [notif.args.playerId, notif.args.opponentId].includes(this.getPlayerId()) && !(notif.args as any).cardName
         );
 
@@ -1049,6 +1088,31 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         this.handCounters[opponentId].incValue(-1);
         this.handCounters[stealerId].incValue(1);
         return this.getPlayerTable(stealerId).addStolenCard(card, stealerId, opponentId);
+    }
+
+    async notif_swapCard(args: NotifSwapCardArgs) {
+        const stealerId = args.playerId;
+        const opponentId = args.opponentId;
+        const card = args.card;
+        const card2 = args.card2;
+
+        if (stealerId == this.getPlayerId()) {
+            await this.getPlayerTable(opponentId).addCardsToHand(args.opponentCards);
+        }
+        
+        await Promise.all([
+            this.getPlayerTable(stealerId).addStolenCard(card, stealerId, opponentId),
+            this.getPlayerTable(opponentId).addStolenCard(card2, opponentId, stealerId),
+        ]);
+    }
+
+    async notif_passSwapCard(args: NotifSwapCardArgs) {
+        const stealerId = args.playerId;
+        const opponentId = args.opponentId;
+
+        if (stealerId == this.getPlayerId()) {
+            await this.getPlayerTable(opponentId).addCardsToHand(args.opponentCards);
+        }
     }
 
     notif_announceEndRound(args: NotifAnnounceEndRoundArgs) {

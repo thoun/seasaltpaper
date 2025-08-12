@@ -229,8 +229,8 @@ class PlayerTable {
         bubble.dataset.visible = 'true';
     }
     
-    public setSelectable(selectable: boolean) {
-        this.handCards.setSelectionMode(selectable ? 'multiple' : 'none');
+    public setSelectable(selectable: boolean, single: boolean = false) {
+        this.handCards.setSelectionMode(selectable ? (single ? 'single' : 'multiple') : 'none');
     }
 
     public updateDisabledPlayCards(selectedCards: Card[], selectedStarfishCards: Card[], possiblePairs: number[][]) {
@@ -279,5 +279,9 @@ class PlayerTable {
 
     public setPlayedCardsSelectable(selectable: boolean, selectableCards?: Card[][]) {
         this.tableCards.setSelectionMode(selectable ? 'single' : 'none', selectableCards?.flat());
+    }
+    
+    public getHandSelection(): Card[] {
+        return this.handCards.getSelection();
     }
 }

@@ -110,6 +110,16 @@ trait ArgsTrait {
         ];
     }
 
+    function argChooseOpponentForSwap() {
+        $playerId = intval($this->getActivePlayerId());
+
+        $possibleOpponentsToSteal = $this->getPossibleOpponentsToSteal($playerId);
+
+        return [
+            'playersIds' => $possibleOpponentsToSteal,
+        ];
+    }
+
     function argPlaceShellFaceDown(): array {
         $playerId = intval($this->getActivePlayerId());
         $hand = $this->getPlayerCards($playerId, 'hand', false);
@@ -135,7 +145,7 @@ trait ArgsTrait {
         ];
     }
 
-    function argChooseOpponentCard(): array {
+    function argSwapCard(): array {
         $playerId = intval($this->getActivePlayerId());
         $opponentId = $this->globals->get(STOLEN_PLAYER);
 

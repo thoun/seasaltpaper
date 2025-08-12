@@ -152,6 +152,7 @@ $playerActionsGameStates = [
             "chooseDiscardPile" => ST_PLAYER_CHOOSE_DISCARD_PILE,
             "newTurn" => ST_PLAYER_TAKE_CARDS,
             "chooseOpponent" => ST_PLAYER_CHOOSE_OPPONENT,
+            "chooseOpponentForSwap" => ST_PLAYER_CHOOSE_OPPONENT_FOR_SWAP,
             "chooseCard" => ST_PLAYER_CHOOSE_CARD,
             "playCards" => ST_PLAYER_PLAY_CARDS,
             "placeShellFaceDown" => ST_PLAYER_PLACE_SHELL_FACE_DOWN,
@@ -179,14 +180,15 @@ $playerActionsGameStates = [
         ])
         ->build(),
 
-    ST_PLAYER_CHOOSE_OPPONENT_CARD => GameStateBuilder::create()
-        ->name('chooseOpponentCard')
-        ->description(clienttranslate('${actplayer} must choose a card to steal'))
-        ->descriptionmyturn(clienttranslate('${you} must choose a card to steal'))
+    ST_PLAYER_SWAP_CARD => GameStateBuilder::create()
+        ->name('swapCard')
+        ->description(clienttranslate('${actplayer} can swap an opponent card with one of theirs'))
+        ->descriptionmyturn(clienttranslate('${you} can swap an opponent card with one of yours'))
         ->type(StateType::ACTIVE_PLAYER)
-        ->args('argChooseOpponentCard')
+        ->args('argSwapCard')
         ->possibleActions([
-            'actChooseOpponentCard',
+            'actSwapCard',
+            'actPassSwapCard',
         ])
         ->transitions([
             'playCards' => ST_PLAYER_PLAY_CARDS,
@@ -238,22 +240,44 @@ $playerActionsGameStates = [
             "zombiePass" => ST_NEXT_PLAYER,
         ]
     ],
-
-    ST_PLAYER_CHOOSE_OPPONENT => [
-        "name" => "chooseOpponent",
-        "description" => clienttranslate('${actplayer} must choose a card to steal'),
-        "descriptionmyturn" => clienttranslate('${you} must choose a card to steal'),
-        "type" => "activeplayer",
-        "args" => "argChooseOpponent", 
-        "possibleactions" => [ 
+    
+    ST_PLAYER_CHOOSE_OPPONENT => GameStateBuilder::create()
+        ->name('chooseOpponent')
+        ->description(clienttranslate('${actplayer} must choose a card to steal'))
+        ->descriptionMyTurn(clienttranslate('${you} must choose a card to steal'))
+        ->type(StateType::ACTIVE_PLAYER)
+        ->args('argChooseOpponent')
+        ->transitions([
+            "start" => ST_PLAYER_TAKE_CARDS,
+        ])
+        ->possibleActions([ 
             "actChooseOpponent",
-        ],
-        "transitions" => [
-            "chooseOpponentCard" => ST_PLAYER_CHOOSE_OPPONENT_CARD,
+        ])
+        ->transitions([
+            "swapCard" => ST_PLAYER_SWAP_CARD,
             "playCards" => ST_PLAYER_PLAY_CARDS,
             "zombiePass" => ST_NEXT_PLAYER,
-        ]
-    ],
+        ])
+        ->build(),
+
+    ST_PLAYER_CHOOSE_OPPONENT_FOR_SWAP => GameStateBuilder::create()
+        ->name('chooseOpponentForSwap')
+        ->description(clienttranslate('${actplayer} must choose an opponent to swap cards'))
+        ->descriptionMyTurn(clienttranslate('${you} must choose an opponent to swap cards'))
+        ->type(StateType::ACTIVE_PLAYER)
+        ->args('argChooseOpponentForSwap')
+        ->transitions([
+            "start" => ST_PLAYER_TAKE_CARDS,
+        ])
+        ->possibleActions([ 
+            "actChooseOpponent",
+        ])
+        ->transitions([
+            "swapCard" => ST_PLAYER_SWAP_CARD,
+            "playCards" => ST_PLAYER_PLAY_CARDS,
+            "zombiePass" => ST_NEXT_PLAYER,
+        ])
+        ->build(),
 ];
 
 $gameGameStates = [

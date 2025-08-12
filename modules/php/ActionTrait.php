@@ -458,7 +458,7 @@ trait ActionTrait {
 
                 if (count($possibleOpponentsToSteal) > 0) {
                     $this->globals->set(CAN_CHOOSE_CARD_TO_STEAL, true);
-                    $this->gamestate->nextState('chooseOpponent');
+                    $this->gamestate->nextState('chooseOpponentForSwap');
                 } else {
                     $this->notify->all('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
                     $this->gamestate->nextState('playCards');
@@ -703,7 +703,7 @@ trait ActionTrait {
 
         if ($this->globals->get(CAN_CHOOSE_CARD_TO_STEAL, false)) {
             $this->globals->set(STOLEN_PLAYER, $id);
-            $this->gamestate->nextState('chooseOpponentCard');
+            $this->gamestate->nextState('swapCard');
         } else {
             $this->applyStealRandomCard($playerId, $id);
 
@@ -781,17 +781,65 @@ trait ActionTrait {
         $this->gamestate->nextState('playCards');
     }
 
-    public function actChooseOpponentCard(int $id) {
+    public function actSwapCard(int $playerCardId, int $opponentCardId) {
         $playerId = intval($this->getActivePlayerId());
         $opponentId = $this->globals->get(STOLEN_PLAYER);
 
-        $cards = $this->getPlayerCards($opponentId, 'hand', false);
-        $specificCard = Arrays::find($cards, fn($card) => $card->id === $id);
-        if ($specificCard === null) {
+        $playerCard = Arrays::find($this->getPlayerCards($playerId, 'hand', false), fn($card) => $card->id === $playerCardId);
+        $opponentCard = Arrays::find($this->getPlayerCards($opponentId, 'hand', false), fn($card) => $card->id === $opponentCardId);
+        if ($playerCard === null || $opponentCard === null) {
             throw new \BgaUserException("Invalid card");
         }
 
-        $this->applyStealSpecificCard($playerId, $opponentId, $specificCard);
+        $this->cards->moveItem($opponentCard, 'hand'.$playerId);
+        $this->cardCollected($playerId, $opponentCard);
+        $this->cards->moveItem($playerCard, 'hand'.$opponentId);
+        $this->cardCollected($opponentId, $playerCard);
+
+        $args = [
+            'playerId' => $playerId,
+            'opponentId' => $opponentId,
+            'player_name' => $this->getPlayerNameById($playerId),
+            'player_name2' => $this->getPlayerNameById($opponentId),
+            'preserve' => ['actionPlayerId'],
+            'actionPlayerId' => $playerId,
+            'opponentCards' => Card::onlyIds($this->getPlayerCards($opponentId, 'hand', false)),
+        ];
+        $argCardName = [
+            'cardName' => $this->getCardName($playerCard),
+            'cardColor' => $this->COLORS[$playerCard->color],
+            'cardName2' => $this->getCardName($opponentCard),
+            'cardColor2' => $this->COLORS[$opponentCard->color],
+            'i18n' => ['cardName', 'cardColor', 'cardName2', 'cardColor2'],
+        ];
+        $argCard = [
+            'card' => $playerCard,
+            'card2' => $opponentCard,
+        ];
+        $argMaskedCard = [
+            'card' => Card::onlyId($playerCard),
+            'card2' => Card::onlyId($opponentCard),
+        ];
+
+        $this->notify->all('swapCard', clienttranslate('${player_name} swap a card with one from ${player_name2} hand'), $args + $argMaskedCard);
+        $this->notifyPlayer($opponentId, 'swapCard', clienttranslate('Card ${cardColor} ${cardName} was swapped with ${cardColor2} ${cardName2} from your hand'), $args + $argCardName + $argMaskedCard);
+        $this->notifyPlayer($playerId, 'swapCard', clienttranslate('Card ${cardColor} ${cardName} was swapped with ${cardColor2} ${cardName2} from ${player_name2} hand'), $args + $argCardName + $argCard);
+
+        $this->updateCardsPoints($playerId);
+        $this->updateCardsPoints($opponentId);
+
+        $this->gamestate->nextState('playCards');
+    }
+
+    public function actPassSwapCard() {
+        $playerId = intval($this->getActivePlayerId());
+        $opponentId = $this->globals->get(STOLEN_PLAYER);
+
+        $this->notifyPlayer($playerId, 'passSwapCard', '', [
+            'playerId' => $playerId,
+            'opponentId' => $opponentId,
+            'opponentCards' => Card::onlyIds($this->getPlayerCards($opponentId, 'hand', false)),
+        ]);
 
         $this->gamestate->nextState('playCards');
     }

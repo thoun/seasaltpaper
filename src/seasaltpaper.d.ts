@@ -196,6 +196,13 @@ interface NotifStealCardArgs {
     card: Card;
 }
 
+interface NotifSwapCardArgs {
+    playerId: number;
+    opponentId: number;
+    card: Card;
+    card2: Card;
+    opponentCards: Card[];
+}
 interface NotifReshuffleDeckArgs {
     deckTopCard: Card;
 }
