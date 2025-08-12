@@ -115,6 +115,7 @@ class EventCardManager extends ItemManager {
                 'card' => $card,
             ]);
         } else {
+            $this->moveItem($card, 'discard');
             $this->game->notify->all('discardEventCard', clienttranslate('No one take the event card'), [
                 'card' => $card,
             ]);
