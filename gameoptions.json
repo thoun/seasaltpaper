@@ -24,8 +24,7 @@
                 "name": "Enabled",
                 "tmdisplay": "Extra Pepper expansion",
                 "description": "Add the event cards",
-                "nobeginner": true,
-                "alpha": true
+                "nobeginner": true
             }
         },
         "default": 1
