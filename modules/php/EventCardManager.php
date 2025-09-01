@@ -40,7 +40,7 @@ class EventCardManager extends ItemManager {
 
     function setup(): void {
         $cards = [];
-        for ($type = 1; $type < 12; $type++) {
+        for ($type = 1; $type <= 12; $type++) {
             $cards[] = [ 'location' => 'deck', 'type' => $type, 'nbr' => 1 ];
         }
         $this->createItems($cards);
