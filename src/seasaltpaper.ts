@@ -26,6 +26,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
     private handCounters: Counter[] = [];
 
     private discardStock: LineStock<Card>;
+    private swapStock: LineStock<Card>;
 
     private swapButton: HTMLButtonElement | null = null;
     
@@ -262,16 +263,16 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             pickDiv.innerHTML = '';
             pickDiv.dataset.visible = 'true';
 
-            if (!this.discardStock) {
-                this.discardStock = new LineStock<Card>(this.cardsManager, pickDiv, { gap: '0px' });
-                this.discardStock.onCardClick = card => this.onSwapCardsSelectionChange();
+            if (!this.swapStock) {
+                this.swapStock = new LineStock<Card>(this.cardsManager, pickDiv, { gap: '0px' });
+                this.swapStock.onCardClick = card => this.onSwapCardsSelectionChange();
             }
 
             cards?.forEach(card => {
-                this.discardStock.addCard(card, { fromElement: document.getElementById(`player-table-${args.opponentId}-hand-cards`) });
+                this.swapStock.addCard(card, { fromElement: document.getElementById(`player-table-${args.opponentId}-hand-cards`) });
             });
         
-            this.discardStock.setSelectionMode('single');
+            this.swapStock.setSelectionMode('single');
 
             this.getCurrentPlayerTable().setSelectable(true, true);
         }
@@ -377,7 +378,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
     private onLeavingSwapCard() {
         const pickDiv = document.getElementById('discard-pick');
         pickDiv.dataset.visible = 'false';
-        this.discardStock?.removeAll();
+        this.swapStock?.removeAll();
 
         this.getCurrentPlayerTable()?.setSelectable(false);
     }
@@ -442,7 +443,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                 case 'swapCard':
                     this.swapButton = this.statusBar.addActionButton(_("Swap selected cards"), () => this.bgaPerformAction('actSwapCard', {
                         playerCardId: this.getCurrentPlayerTable().getHandSelection()[0].id,
-                        opponentCardId: this.discardStock.getSelection()[0].id,
+                        opponentCardId: this.swapStock.getSelection()[0].id,
                     }), { disabled: true });
                     this.statusBar.addActionButton(_("Pass"), () => this.bgaPerformAction('actPassSwapCard'), { color: 'secondary' });
                     break;
@@ -876,7 +877,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
 
     private onSwapCardsSelectionChange() {
         const playerCardSelection = this.getCurrentPlayerTable().getHandSelection();
-        const opponentCardSelection = this.discardStock.getSelection();
+        const opponentCardSelection = this.swapStock.getSelection();
 
         const valid = playerCardSelection.length === 1 && opponentCardSelection.length === 1;
 
@@ -1101,8 +1102,8 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         }
         
         await Promise.all([
-            this.getPlayerTable(stealerId).addStolenCard(card, stealerId, opponentId),
-            this.getPlayerTable(opponentId).addStolenCard(card2, opponentId, stealerId),
+            this.getPlayerTable(stealerId).addStolenCard(card2, stealerId, opponentId),
+            this.getPlayerTable(opponentId).addStolenCard(card, opponentId, stealerId),
         ]);
     }
 

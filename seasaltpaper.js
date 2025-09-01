@@ -2440,14 +2440,14 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             var pickDiv = document.getElementById('discard-pick');
             pickDiv.innerHTML = '';
             pickDiv.dataset.visible = 'true';
-            if (!this.discardStock) {
-                this.discardStock = new LineStock(this.cardsManager, pickDiv, { gap: '0px' });
-                this.discardStock.onCardClick = function (card) { return _this.onSwapCardsSelectionChange(); };
+            if (!this.swapStock) {
+                this.swapStock = new LineStock(this.cardsManager, pickDiv, { gap: '0px' });
+                this.swapStock.onCardClick = function (card) { return _this.onSwapCardsSelectionChange(); };
             }
             cards === null || cards === void 0 ? void 0 : cards.forEach(function (card) {
-                _this.discardStock.addCard(card, { fromElement: document.getElementById("player-table-".concat(args.opponentId, "-hand-cards")) });
+                _this.swapStock.addCard(card, { fromElement: document.getElementById("player-table-".concat(args.opponentId, "-hand-cards")) });
             });
-            this.discardStock.setSelectionMode('single');
+            this.swapStock.setSelectionMode('single');
             this.getCurrentPlayerTable().setSelectable(true, true);
         }
     };
@@ -2543,7 +2543,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
         var _a, _b;
         var pickDiv = document.getElementById('discard-pick');
         pickDiv.dataset.visible = 'false';
-        (_a = this.discardStock) === null || _a === void 0 ? void 0 : _a.removeAll();
+        (_a = this.swapStock) === null || _a === void 0 ? void 0 : _a.removeAll();
         (_b = this.getCurrentPlayerTable()) === null || _b === void 0 ? void 0 : _b.setSelectable(false);
     };
     SeaSaltPaper.prototype.onLeavingStealPlayedPair = function (args) {
@@ -2602,7 +2602,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                 case 'swapCard':
                     this.swapButton = this.statusBar.addActionButton(_("Swap selected cards"), function () { return _this.bgaPerformAction('actSwapCard', {
                         playerCardId: _this.getCurrentPlayerTable().getHandSelection()[0].id,
-                        opponentCardId: _this.discardStock.getSelection()[0].id,
+                        opponentCardId: _this.swapStock.getSelection()[0].id,
                     }); }, { disabled: true });
                     this.statusBar.addActionButton(_("Pass"), function () { return _this.bgaPerformAction('actPassSwapCard'); }, { color: 'secondary' });
                     break;
@@ -2928,7 +2928,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
     };
     SeaSaltPaper.prototype.onSwapCardsSelectionChange = function () {
         var playerCardSelection = this.getCurrentPlayerTable().getHandSelection();
-        var opponentCardSelection = this.discardStock.getSelection();
+        var opponentCardSelection = this.swapStock.getSelection();
         var valid = playerCardSelection.length === 1 && opponentCardSelection.length === 1;
         this.swapButton.disabled = !valid;
     };
@@ -3128,8 +3128,8 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                         _a.sent();
                         _a.label = 2;
                     case 2: return [4 /*yield*/, Promise.all([
-                            this.getPlayerTable(stealerId).addStolenCard(card, stealerId, opponentId),
-                            this.getPlayerTable(opponentId).addStolenCard(card2, opponentId, stealerId),
+                            this.getPlayerTable(stealerId).addStolenCard(card2, stealerId, opponentId),
+                            this.getPlayerTable(opponentId).addStolenCard(card, opponentId, stealerId),
                         ])];
                     case 3:
                         _a.sent();

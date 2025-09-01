@@ -822,7 +822,7 @@ trait ActionTrait {
         ];
 
         $this->notify->all('swapCard', clienttranslate('${player_name} swap a card with one from ${player_name2} hand'), $args + $argMaskedCard);
-        $this->notifyPlayer($opponentId, 'swapCard', clienttranslate('Card ${cardColor} ${cardName} was swapped with ${cardColor2} ${cardName2} from your hand'), $args + $argCardName + $argMaskedCard);
+        $this->notifyPlayer($opponentId, 'swapCard', clienttranslate('Card ${cardColor} ${cardName} was swapped with ${cardColor2} ${cardName2} from your hand'), $args + $argCardName + $argCard);
         $this->notifyPlayer($playerId, 'swapCard', clienttranslate('Card ${cardColor} ${cardName} was swapped with ${cardColor2} ${cardName2} from ${player_name2} hand'), $args + $argCardName + $argCard);
 
         $this->updateCardsPoints($playerId);

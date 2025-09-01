@@ -77,4 +77,8 @@ trait DebugUtilTrait {
     function debug_SetTableEventCard(int $type) {
         $this->DbQuery("UPDATE event_card SET `type` = $type WHERE `location` = 'table'" );
     }
+    
+    function debug_goToState(int $stateId = 3) {
+        $this->gamestate->jumpToState($stateId);
+    }
 }
