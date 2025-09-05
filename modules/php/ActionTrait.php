@@ -744,6 +744,8 @@ trait ActionTrait {
             'card' => $card,
         ]);
 
+        $this->updateCardsPoints($playerId);
+
         $this->gamestate->nextState('playCards');
     }
 

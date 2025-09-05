@@ -2115,7 +2115,7 @@ var PlayerTable = /** @class */ (function () {
     };
     PlayerTable.prototype.addCardsToTable = function (cards) {
         var _this = this;
-        cards.forEach(function (card) { return _this.game.cardsManager.setCardVisible(card, true, { updateData: true, updateFront: true, updateBack: false }); });
+        cards.forEach(function (card) { return _this.game.cardsManager.setCardVisible(card, !card.flipped, { updateData: true, updateFront: true, updateBack: false }); });
         var promise = this.tableCards.addCards(cards);
         return promise;
     };

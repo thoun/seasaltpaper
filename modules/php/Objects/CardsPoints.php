@@ -4,6 +4,8 @@ namespace Bga\Games\SeaSaltPaper\Objects;
 
 use Bga\GameFrameworkPrototype\Helpers\Arrays;
 
+use function Bga\Games\SeaSaltPaper\debug;
+
 use const Bga\Games\SeaSaltPaper\THE_DANCE_OF_THE_SHELLS;
 use const Bga\Games\SeaSaltPaper\THE_KRAKEN;
 use const Bga\Games\SeaSaltPaper\THE_TORNADO;
@@ -39,8 +41,9 @@ class CardsPoints {
     public int $colorBonus;
 
     public function __construct(array $tableCards, array $handCards, private array $eventEffets) {
+        $handCards = Arrays::filter($handCards, fn($card) => !$card->flipped); // ignore flipped cards
+        $tableCards = Arrays::filter($tableCards, fn($card) => !$card->flipped); // ignore flipped cards
         $cards = array_merge($tableCards, $handCards);
-        $cards = Arrays::filter($cards, fn($card) => !$card->flipped); // ignore flipped cards
 
         $numberByColor = [];
         foreach($cards as $card) {

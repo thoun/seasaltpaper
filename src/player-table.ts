@@ -158,7 +158,7 @@ class PlayerTable {
     }
 
     public addCardsToTable(cards: Card[]): Promise<any> {
-        cards.forEach(card => this.game.cardsManager.setCardVisible(card, true, { updateData: true, updateFront: true, updateBack: false }));
+        cards.forEach(card => this.game.cardsManager.setCardVisible(card, !card.flipped, { updateData: true, updateFront: true, updateBack: false }));
         const promise = this.tableCards.addCards(cards);
         return promise;
     }
