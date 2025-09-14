@@ -161,15 +161,7 @@ trait ActionTrait {
         }
     }
         
-    public function actPutDiscardPile(int $discardNumber) {
-        if (!in_array($discardNumber, [1, 2])) {
-            throw new \BgaUserException("Invalid discard number");
-        }
-
-        $this->applyPutDiscardPile($discardNumber);
-
-        $this->gamestate->nextState('playCards');
-    }
+    
 
     public function pickTopCardFromDeck(int $playerId): bool { // return if applied
         if ($this->cards->countItemsInLocation('deck') === 0) {

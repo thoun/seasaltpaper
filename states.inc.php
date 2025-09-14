@@ -100,7 +100,7 @@ $playerActionsGameStates = [
         ]
     ],*/
 
-    ST_PLAYER_PUT_DISCARD_PILE => [
+    /*ST_PLAYER_PUT_DISCARD_PILE => [
         "name" => "putDiscardPile",
         "description" => clienttranslate('${actplayer} must choose a discard pile for the other card'),
         "descriptionmyturn" => clienttranslate('${you} must choose a discard pile for the other card'),
@@ -113,7 +113,7 @@ $playerActionsGameStates = [
             "playCards" => ST_PLAYER_ANGELFISH_POWER,
             "zombiePass" => ST_NEXT_PLAYER,
         ]
-    ],
+    ],*/
 
     ST_PLAYER_ANGELFISH_POWER => GameStateBuilder::create()
         ->name('angelfishPower')

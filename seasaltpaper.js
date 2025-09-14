@@ -2309,7 +2309,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             case 'ChooseCard':
                 this.onEnteringChooseCard(args.args);
                 break;
-            case 'putDiscardPile':
+            case 'PutDiscardPile':
                 this.onEnteringPutDiscardPile(args.args);
                 break;
             case 'angelfishPower':
@@ -2472,7 +2472,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             case 'ChooseCard':
                 this.onLeavingChooseCard();
                 break;
-            case 'putDiscardPile':
+            case 'PutDiscardPile':
                 this.onLeavingPutDiscardPile();
                 break;
             case 'angelfishPower':
@@ -2773,7 +2773,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             case 'takeCards':
                 this.takeCardFromDiscard(number);
                 break;
-            case 'putDiscardPile':
+            case 'PutDiscardPile':
                 this.putDiscardPile(number);
                 break;
             case 'chooseDiscardPile':
