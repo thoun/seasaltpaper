@@ -38,24 +38,6 @@ trait ArgsTrait {
             'call' => in_array($endRound, [LAST_CHANCE, STOP]) ? $this->ANNOUNCEMENTS[$endRound] : '',
         ];
     }
-
-    function argChooseCard() {        
-        $playerId = intval($this->getActivePlayerId());
-
-        $cards = $this->cards->getItemsInLocation('pick');
-        $maskedCards = Card::onlyIds($cards);
-    
-        return [
-            '_private' => [
-                $playerId => [
-                    'cards' => $cards,
-                ]
-            ],
-            'cards' => $maskedCards,
-            'deckTopCard' => $this->cards->getDeckTopCard(),
-            'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
-        ];
-    }
    
     function argPlayCards() {
         $playerId = intval($this->getActivePlayerId());

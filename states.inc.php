@@ -84,7 +84,7 @@ $playerActionsGameStates = [
         ]
     ],
 
-    ST_PLAYER_CHOOSE_CARD => [
+    /*ST_PLAYER_CHOOSE_CARD => [
         "name" => "chooseCard",
         "description" => clienttranslate('${actplayer} must choose a card to keep'),
         "descriptionmyturn" => clienttranslate('${you} must choose a card to keep'),
@@ -98,7 +98,7 @@ $playerActionsGameStates = [
             "playCards" => ST_PLAYER_ANGELFISH_POWER,
             "zombiePass" => ST_NEXT_PLAYER,
         ]
-    ],
+    ],*/
 
     ST_PLAYER_PUT_DISCARD_PILE => [
         "name" => "putDiscardPile",
