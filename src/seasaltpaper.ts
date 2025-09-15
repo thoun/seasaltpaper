@@ -120,7 +120,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         log('Entering state: ' + stateName, args.args);
 
         switch (stateName) {
-            case 'takeCards':
+            case 'TakeCards':
                 this.onEnteringTakeCards(args);
                 break;
             case 'ChooseCard':
@@ -132,13 +132,13 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             case 'angelfishPower':
                 this.onEnteringAngelfishPower();
                 break;
-            case 'playCards':
+            case 'PlayCards':
                 this.onEnteringPlayCards();
                 break;
-            case 'chooseDiscardPile':
+            case 'ChooseDiscardPile':
                 this.onEnteringChooseDiscardPile();
                 break;
-            case 'chooseDiscardCard':
+            case 'ChooseDiscardCard':
                 this.onEnteringChooseDiscardCard(args.args);
                 break;
             case 'chooseOpponent':
@@ -156,11 +156,21 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         }
     }
     
-    private setGamestateDescription(property: string = '') {
-        const originalState = this.gamedatas.gamestates[this.gamedatas.gamestate.id];
-        this.gamedatas.gamestate.description = `${originalState['description' + property]}`; 
-        this.gamedatas.gamestate.descriptionmyturn = `${originalState['descriptionmyturn' + property]}`;
-        this.updatePageTitle();
+    private setGamestateDescription(property: string, args: any) {
+        switch(property) {
+            case 'NoDiscard':
+                this.statusBar.setTitle(this.isCurrentPlayerActive() ?
+                    _('${you} must take two cards from deck ${call}') :
+                    _('${actplayer} must take two cards from deck ${call}'),
+                args);
+                break;
+            case 'ForceTakeOne':
+                this.statusBar.setTitle(this.isCurrentPlayerActive() ?
+                    _('${you} must take the first card from deck ${call}') :
+                    _('${actplayer} must take the first card from deck ${call}'),
+                args);
+                break;
+        }
     }
     
     private onEnteringTakeCards(argsRoot: { args: EnteringTakeCardsArgs, active_player: string }) {
@@ -169,9 +179,9 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         this.clearLogs(argsRoot.active_player);
 
         if (args.forceTakeOne) {
-            this.setGamestateDescription('ForceTakeOne');
+            this.setGamestateDescription('ForceTakeOne', args);
         } else if (!args.canTakeFromDiscard.length) {
-            this.setGamestateDescription('NoDiscard');
+            this.setGamestateDescription('NoDiscard', args);
         }
 
         if (this.isCurrentPlayerActive()) {
@@ -296,7 +306,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         log( 'Leaving state: '+stateName );
 
         switch (stateName) {
-            case 'takeCards':
+            case 'TakeCards':
                 this.onLeavingTakeCards();
                 break;
             case 'ChooseCard':
@@ -308,10 +318,10 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             case 'angelfishPower':
                 this.onLeavingAngelfishPower();
                 break;
-            case 'playCards':
+            case 'PlayCards':
                 this.onLeavingPlayCards();
                 break;
-            case 'chooseDiscardCard':
+            case 'ChooseDiscardCard':
                 this.onLeavingChooseDiscardCard();
                 break;
             case 'chooseOpponent':
@@ -398,12 +408,12 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         if (this.isCurrentPlayerActive()) {
             switch (stateName) {
                 
-                case 'takeCards':
+                case 'TakeCards':
                     if (args.forceTakeOne) {
                         this.statusBar.addActionButton(_("Take the first card"), () => this.takeCardsFromDeck());
                     }
                     break;
-                case 'playCards':
+                case 'PlayCards':
                     const playCardsArgs = args as EnteringPlayCardsArgs;
                     this.statusBar.addActionButton(_("Play selected cards"), () => this.playSelectedCards(), { id: `playCards_button` });
                     if (playCardsArgs.hasFourMermaids) {
@@ -579,7 +589,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         }
 
         switch (this.gamedatas.gamestate.name) {
-            case 'takeCards':
+            case 'TakeCards':
                 if (parentDiv.dataset.discard) {
                     this.takeCardFromDiscard(Number(parentDiv.dataset.discard));
                 }
@@ -589,7 +599,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                     this.chooseCard(card.id);
                 }
                 break;
-            case 'playCards':
+            case 'PlayCards':
                 if (parentDiv.dataset.myHand == `true`) {
                     const array = card.category == SPECIAL && card.family == STARFISH ? this.selectedStarfishCards : this.selectedCards;
                     if (array.some(c => c.id == card.id)) {
@@ -602,7 +612,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                     this.updateDisabledPlayCards();
                 }
                 break;
-            case 'chooseDiscardCard':
+            case 'ChooseDiscardCard':
                 if (parentDiv.id == 'discard-pick') {
                     this.chooseDiscardCard(card.id);
                 }
@@ -641,13 +651,13 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
 
     public onDiscardPileClick(number: number): void {
         switch (this.gamedatas.gamestate.name) {
-            case 'takeCards':
+            case 'TakeCards':
                 this.takeCardFromDiscard(number);
                 break;
             case 'PutDiscardPile':
                 this.putDiscardPile(number);
                 break;
-            case 'chooseDiscardPile':
+            case 'ChooseDiscardPile':
                 this.chooseDiscardPile(number);
                 break;
             case 'angelfishPower':

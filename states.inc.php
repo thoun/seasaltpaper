@@ -62,59 +62,6 @@ $basicGameStates = [
 
 $playerActionsGameStates = [
 
-    ST_PLAYER_TAKE_CARDS => [
-        "name" => "takeCards",
-        "description" => clienttranslate('${actplayer} must take two cards from deck or one card from a discard pile ${call}'),
-        "descriptionmyturn" => clienttranslate('${you} must take two cards from deck or one card from a discard pile ${call}'),
-        "descriptionNoDiscard" => clienttranslate('${actplayer} must take two cards from deck ${call}'),
-        "descriptionmyturnNoDiscard" => clienttranslate('${you} must take two cards from deck ${call}'),
-        "descriptionForceTakeOne" => clienttranslate('${actplayer} must take the first card from deck ${call}'),
-        "descriptionmyturnForceTakeOne" => clienttranslate('${you} must take the first card from deck ${call}'),
-        "type" => "activeplayer",
-        "args" => "argTakeCards",
-        "updateGameProgression" => true,
-        "possibleactions" => [ 
-            "actTakeCardsFromDeck",
-            "actTakeCardFromDiscard",
-        ],
-        "transitions" => [
-            "playCards" => ST_PLAYER_ANGELFISH_POWER,
-            "chooseCard" => ST_PLAYER_CHOOSE_CARD,
-            "zombiePass" => ST_NEXT_PLAYER,
-        ]
-    ],
-
-    /*ST_PLAYER_CHOOSE_CARD => [
-        "name" => "chooseCard",
-        "description" => clienttranslate('${actplayer} must choose a card to keep'),
-        "descriptionmyturn" => clienttranslate('${you} must choose a card to keep'),
-        "type" => "activeplayer",
-        "args" => "argChooseCard",  
-        "possibleactions" => [ 
-            "actChooseCard",
-        ],
-        "transitions" => [
-            "putDiscardPile" => ST_PLAYER_PUT_DISCARD_PILE,
-            "playCards" => ST_PLAYER_ANGELFISH_POWER,
-            "zombiePass" => ST_NEXT_PLAYER,
-        ]
-    ],*/
-
-    /*ST_PLAYER_PUT_DISCARD_PILE => [
-        "name" => "putDiscardPile",
-        "description" => clienttranslate('${actplayer} must choose a discard pile for the other card'),
-        "descriptionmyturn" => clienttranslate('${you} must choose a discard pile for the other card'),
-        "type" => "activeplayer",
-        "args" => "argChooseCard",  
-        "possibleactions" => [ 
-            "actPutDiscardPile",
-        ],
-        "transitions" => [
-            "playCards" => ST_PLAYER_ANGELFISH_POWER,
-            "zombiePass" => ST_NEXT_PLAYER,
-        ]
-    ],*/
-
     ST_PLAYER_ANGELFISH_POWER => GameStateBuilder::create()
         ->name('angelfishPower')
         ->description(clienttranslate('${actplayer} must take one card from the discard (The Angelfish)'))
@@ -130,39 +77,6 @@ $playerActionsGameStates = [
             'zombiePass' => ST_PLAYER_PLAY_CARDS,
         ])
         ->build(),
-
-    ST_PLAYER_PLAY_CARDS => [
-        "name" => "playCards",
-        "description" => clienttranslate('${actplayer} may play cards duo'),
-        "descriptionmyturn" => clienttranslate('${you} may play cards duo'),
-        "type" => "activeplayer",    
-        "args" => "argPlayCards",     
-        "action" => "stPlayCards",
-        "updateGameProgression" => true,
-        "possibleactions" => [ 
-            "actPlayCards",
-            "actPlayCardsTrio",
-            "actEndGameWithMermaids",
-            "actSelectShellFaceDown",
-            "actEndTurn",
-            "actEndRound",
-            "actImmediateEndRound",
-        ],
-        "transitions" => [
-            "chooseDiscardPile" => ST_PLAYER_CHOOSE_DISCARD_PILE,
-            "newTurn" => ST_PLAYER_TAKE_CARDS,
-            "chooseOpponent" => ST_PLAYER_CHOOSE_OPPONENT,
-            "chooseOpponentForSwap" => ST_PLAYER_CHOOSE_OPPONENT_FOR_SWAP,
-            "chooseCard" => ST_PLAYER_CHOOSE_CARD,
-            "playCards" => ST_PLAYER_PLAY_CARDS,
-            "placeShellFaceDown" => ST_PLAYER_PLACE_SHELL_FACE_DOWN,
-            "pickFromDiscardPiles" => ST_PLAYER_CHOOSE_DISCARD_CARD,
-            "stealPlayedPair" => ST_PLAYER_STEAL_PLAYED_PAIR,
-            "endTurn" => ST_NEXT_PLAYER,
-            "mermaids" => ST_END_SCORE,
-            "zombiePass" => ST_NEXT_PLAYER,
-        ]
-    ],
 
     ST_PLAYER_PLACE_SHELL_FACE_DOWN => GameStateBuilder::create()
         ->name('placeShellFaceDown')
@@ -210,36 +124,6 @@ $playerActionsGameStates = [
             'zombiePass' => ST_NEXT_PLAYER,
         ])
         ->build(),
-
-    ST_PLAYER_CHOOSE_DISCARD_PILE => [
-        "name" => "chooseDiscardPile",
-        "description" => clienttranslate('${actplayer} must choose a discard pile'),
-        "descriptionmyturn" => clienttranslate('${you} must choose a discard pile'),
-        "type" => "activeplayer",
-        "possibleactions" => [ 
-            "actChooseDiscardPile",
-        ],
-        "transitions" => [
-            "chooseCard" => ST_PLAYER_CHOOSE_DISCARD_CARD,
-            "zombiePass" => ST_NEXT_PLAYER,
-        ]
-    ],
-
-    ST_PLAYER_CHOOSE_DISCARD_CARD => [
-        "name" => "chooseDiscardCard",
-        "description" => clienttranslate('${actplayer} must choose a card'),
-        "descriptionmyturn" => clienttranslate('${you} must choose a card'),
-        "type" => "activeplayer", 
-        "args" => "argChooseDiscardCard", 
-        "possibleactions" => [ 
-            "actChooseDiscardCard",
-        ],
-        "transitions" => [
-            'stay' => ST_PLAYER_CHOOSE_DISCARD_CARD,
-            "playCards" => ST_PLAYER_PLAY_CARDS,
-            "zombiePass" => ST_NEXT_PLAYER,
-        ]
-    ],
     
     ST_PLAYER_CHOOSE_OPPONENT => GameStateBuilder::create()
         ->name('chooseOpponent')

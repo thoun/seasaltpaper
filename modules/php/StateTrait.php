@@ -48,14 +48,7 @@ trait StateTrait {
         $this->gamestate->nextState('start');
     }    
 
-    function stPlayCards() {
-        /*$playerId = intval($this->getActivePlayerId());        
-
-        $mermaids = $this->getPlayerMermaids($playerId);
-        if (count($mermaids) == $this->mermaidsToEndGame($playerId)) {
-            $this->endGameWithMermaids($playerId);
-        }*/
-    }
+    
 
     function stAngelfishPower() {
         $args = $this->argAngelfishPower();

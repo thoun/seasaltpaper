@@ -415,24 +415,24 @@ var AnimationManager = /** @class */ (function () {
      * @returns the animation promise.
      */
     AnimationManager.prototype.play = function (animation) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
         return __awaiter(this, void 0, void 0, function () {
-            var settings, _r;
+            var settings, _a;
+            var _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r;
             return __generator(this, function (_s) {
                 switch (_s.label) {
                     case 0:
                         animation.played = animation.playWhenNoAnimation || this.animationsActive();
                         if (!animation.played) return [3 /*break*/, 2];
                         settings = animation.settings;
-                        (_a = settings.animationStart) === null || _a === void 0 ? void 0 : _a.call(settings, animation);
-                        (_b = settings.element) === null || _b === void 0 ? void 0 : _b.classList.add((_c = settings.animationClass) !== null && _c !== void 0 ? _c : 'bga-animations_animated');
-                        animation.settings = __assign(__assign({}, animation.settings), { duration: (_g = (_e = (_d = animation.settings) === null || _d === void 0 ? void 0 : _d.duration) !== null && _e !== void 0 ? _e : (_f = this.settings) === null || _f === void 0 ? void 0 : _f.duration) !== null && _g !== void 0 ? _g : 500, scale: (_l = (_j = (_h = animation.settings) === null || _h === void 0 ? void 0 : _h.scale) !== null && _j !== void 0 ? _j : (_k = this.zoomManager) === null || _k === void 0 ? void 0 : _k.zoom) !== null && _l !== void 0 ? _l : undefined });
-                        _r = animation;
+                        (_b = settings.animationStart) === null || _b === void 0 ? void 0 : _b.call(settings, animation);
+                        (_c = settings.element) === null || _c === void 0 ? void 0 : _c.classList.add((_d = settings.animationClass) !== null && _d !== void 0 ? _d : 'bga-animations_animated');
+                        animation.settings = __assign(__assign({}, animation.settings), { duration: (_h = (_f = (_e = animation.settings) === null || _e === void 0 ? void 0 : _e.duration) !== null && _f !== void 0 ? _f : (_g = this.settings) === null || _g === void 0 ? void 0 : _g.duration) !== null && _h !== void 0 ? _h : 500, scale: (_m = (_k = (_j = animation.settings) === null || _j === void 0 ? void 0 : _j.scale) !== null && _k !== void 0 ? _k : (_l = this.zoomManager) === null || _l === void 0 ? void 0 : _l.zoom) !== null && _m !== void 0 ? _m : undefined });
+                        _a = animation;
                         return [4 /*yield*/, animation.animationFunction(this, animation)];
                     case 1:
-                        _r.result = _s.sent();
-                        (_o = (_m = animation.settings).animationEnd) === null || _o === void 0 ? void 0 : _o.call(_m, animation);
-                        (_p = settings.element) === null || _p === void 0 ? void 0 : _p.classList.remove((_q = settings.animationClass) !== null && _q !== void 0 ? _q : 'bga-animations_animated');
+                        _a.result = _s.sent();
+                        (_p = (_o = animation.settings).animationEnd) === null || _p === void 0 ? void 0 : _p.call(_o, animation);
+                        (_q = settings.element) === null || _q === void 0 ? void 0 : _q.classList.remove((_r = settings.animationClass) !== null && _r !== void 0 ? _r : 'bga-animations_animated');
                         return [3 /*break*/, 3];
                     case 2: return [2 /*return*/, Promise.resolve(animation)];
                     case 3: return [2 /*return*/];
@@ -758,11 +758,11 @@ var CardStock = /** @class */ (function () {
      * @param settings a `AddCardSettings` object
      * @param shift if number, the number of milliseconds between each card. if true, chain animations
      */
-    CardStock.prototype.addCards = function (cards, animation, settings, shift) {
-        if (shift === void 0) { shift = false; }
-        return __awaiter(this, void 0, void 0, function () {
+    CardStock.prototype.addCards = function (cards_1, animation_1, settings_1) {
+        return __awaiter(this, arguments, void 0, function (cards, animation, settings, shift) {
             var promises, result, others, _loop_2, i, results;
             var _this = this;
+            if (shift === void 0) { shift = false; }
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -783,7 +783,9 @@ var CardStock = /** @class */ (function () {
                     case 4:
                         if (typeof shift === 'number') {
                             _loop_2 = function (i) {
-                                setTimeout(function () { return promises.push(_this.addCard(cards[i], animation, settings)); }, i * shift);
+                                promises.push(new Promise(function (resolve) {
+                                    setTimeout(function () { return _this.addCard(cards[i], animation, settings).then(function (result) { return resolve(result); }); }, i * shift);
+                                }));
                             };
                             for (i = 0; i < cards.length; i++) {
                                 _loop_2(i);
@@ -1032,9 +1034,9 @@ var CardStock = /** @class */ (function () {
      * @param fromElement The HTMLElement to animate from.
      */
     CardStock.prototype.animationFromElement = function (element, fromRect, settings) {
-        var _a;
         return __awaiter(this, void 0, void 0, function () {
             var side, cardSides_1, animation, result;
+            var _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -1137,9 +1139,8 @@ var SlideAndBackAnimation = /** @class */ (function (_super) {
 var Deck = /** @class */ (function (_super) {
     __extends(Deck, _super);
     function Deck(manager, element, settings) {
-        var _this = this;
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
-        _this = _super.call(this, manager, element) || this;
+        var _this = _super.call(this, manager, element) || this;
         _this.manager = manager;
         _this.element = element;
         element.classList.add('deck');
@@ -1254,9 +1255,9 @@ var Deck = /** @class */ (function (_super) {
         _super.prototype.cardRemoved.call(this, card, settings);
     };
     Deck.prototype.removeAll = function (settings) {
-        var _a, _b;
         return __awaiter(this, void 0, void 0, function () {
             var promise;
+            var _a, _b;
             return __generator(this, function (_c) {
                 promise = _super.prototype.removeAll.call(this, __assign(__assign({}, settings), { autoUpdateCardNumber: (_a = settings === null || settings === void 0 ? void 0 : settings.autoUpdateCardNumber) !== null && _a !== void 0 ? _a : false }));
                 if ((_b = settings === null || settings === void 0 ? void 0 : settings.autoUpdateCardNumber) !== null && _b !== void 0 ? _b : true) {
@@ -1278,10 +1279,10 @@ var Deck = /** @class */ (function (_super) {
      * @returns promise when animation ends
      */
     Deck.prototype.shuffle = function (settings) {
-        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function () {
             var animatedCardsMax, animatedCards, elements, getFakeCard, uid, i, newCard, newElement, pauseDelayAfterAnimation;
             var _this = this;
+            var _a, _b, _c;
             return __generator(this, function (_d) {
                 switch (_d.label) {
                     case 0:
@@ -1346,9 +1347,8 @@ var LineStock = /** @class */ (function (_super) {
      * @param settings a `LineStockSettings` object
      */
     function LineStock(manager, element, settings) {
-        var _this = this;
         var _a, _b, _c, _d;
-        _this = _super.call(this, manager, element, settings) || this;
+        var _this = _super.call(this, manager, element, settings) || this;
         _this.manager = manager;
         _this.element = element;
         element.classList.add('line-stock');
@@ -2303,7 +2303,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
     SeaSaltPaper.prototype.onEnteringState = function (stateName, args) {
         log('Entering state: ' + stateName, args.args);
         switch (stateName) {
-            case 'takeCards':
+            case 'TakeCards':
                 this.onEnteringTakeCards(args);
                 break;
             case 'ChooseCard':
@@ -2315,13 +2315,13 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             case 'angelfishPower':
                 this.onEnteringAngelfishPower();
                 break;
-            case 'playCards':
+            case 'PlayCards':
                 this.onEnteringPlayCards();
                 break;
-            case 'chooseDiscardPile':
+            case 'ChooseDiscardPile':
                 this.onEnteringChooseDiscardPile();
                 break;
-            case 'chooseDiscardCard':
+            case 'ChooseDiscardCard':
                 this.onEnteringChooseDiscardCard(args.args);
                 break;
             case 'chooseOpponent':
@@ -2338,21 +2338,28 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                 break;
         }
     };
-    SeaSaltPaper.prototype.setGamestateDescription = function (property) {
-        if (property === void 0) { property = ''; }
-        var originalState = this.gamedatas.gamestates[this.gamedatas.gamestate.id];
-        this.gamedatas.gamestate.description = "".concat(originalState['description' + property]);
-        this.gamedatas.gamestate.descriptionmyturn = "".concat(originalState['descriptionmyturn' + property]);
-        this.updatePageTitle();
+    SeaSaltPaper.prototype.setGamestateDescription = function (property, args) {
+        switch (property) {
+            case 'NoDiscard':
+                this.statusBar.setTitle(this.isCurrentPlayerActive() ?
+                    _('${you} must take two cards from deck ${call}') :
+                    _('${actplayer} must take two cards from deck ${call}'), args);
+                break;
+            case 'ForceTakeOne':
+                this.statusBar.setTitle(this.isCurrentPlayerActive() ?
+                    _('${you} must take the first card from deck ${call}') :
+                    _('${actplayer} must take the first card from deck ${call}'), args);
+                break;
+        }
     };
     SeaSaltPaper.prototype.onEnteringTakeCards = function (argsRoot) {
         var args = argsRoot.args;
         this.clearLogs(argsRoot.active_player);
         if (args.forceTakeOne) {
-            this.setGamestateDescription('ForceTakeOne');
+            this.setGamestateDescription('ForceTakeOne', args);
         }
         else if (!args.canTakeFromDiscard.length) {
-            this.setGamestateDescription('NoDiscard');
+            this.setGamestateDescription('NoDiscard', args);
         }
         if (this.isCurrentPlayerActive()) {
             this.stacks.makeDeckSelectable(args.canTakeFromDeck);
@@ -2466,7 +2473,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
     SeaSaltPaper.prototype.onLeavingState = function (stateName) {
         log('Leaving state: ' + stateName);
         switch (stateName) {
-            case 'takeCards':
+            case 'TakeCards':
                 this.onLeavingTakeCards();
                 break;
             case 'ChooseCard':
@@ -2478,10 +2485,10 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             case 'angelfishPower':
                 this.onLeavingAngelfishPower();
                 break;
-            case 'playCards':
+            case 'PlayCards':
                 this.onLeavingPlayCards();
                 break;
-            case 'chooseDiscardCard':
+            case 'ChooseDiscardCard':
                 this.onLeavingChooseDiscardCard();
                 break;
             case 'chooseOpponent':
@@ -2561,12 +2568,12 @@ var SeaSaltPaper = /** @class */ (function (_super) {
         var _this = this;
         if (this.isCurrentPlayerActive()) {
             switch (stateName) {
-                case 'takeCards':
+                case 'TakeCards':
                     if (args.forceTakeOne) {
                         this.statusBar.addActionButton(_("Take the first card"), function () { return _this.takeCardsFromDeck(); });
                     }
                     break;
-                case 'playCards':
+                case 'PlayCards':
                     var playCardsArgs = args;
                     this.statusBar.addActionButton(_("Play selected cards"), function () { return _this.playSelectedCards(); }, { id: "playCards_button" });
                     if (playCardsArgs.hasFourMermaids) {
@@ -2710,7 +2717,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             return;
         }
         switch (this.gamedatas.gamestate.name) {
-            case 'takeCards':
+            case 'TakeCards':
                 if (parentDiv.dataset.discard) {
                     this.takeCardFromDiscard(Number(parentDiv.dataset.discard));
                 }
@@ -2720,7 +2727,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                     this.chooseCard(card.id);
                 }
                 break;
-            case 'playCards':
+            case 'PlayCards':
                 if (parentDiv.dataset.myHand == "true") {
                     var array = card.category == SPECIAL && card.family == STARFISH ? this.selectedStarfishCards : this.selectedCards;
                     if (array.some(function (c) { return c.id == card.id; })) {
@@ -2734,7 +2741,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                     this.updateDisabledPlayCards();
                 }
                 break;
-            case 'chooseDiscardCard':
+            case 'ChooseDiscardCard':
                 if (parentDiv.id == 'discard-pick') {
                     this.chooseDiscardCard(card.id);
                 }
@@ -2770,13 +2777,13 @@ var SeaSaltPaper = /** @class */ (function (_super) {
     };
     SeaSaltPaper.prototype.onDiscardPileClick = function (number) {
         switch (this.gamedatas.gamestate.name) {
-            case 'takeCards':
+            case 'TakeCards':
                 this.takeCardFromDiscard(number);
                 break;
             case 'PutDiscardPile':
                 this.putDiscardPile(number);
                 break;
-            case 'chooseDiscardPile':
+            case 'ChooseDiscardPile':
                 this.chooseDiscardPile(number);
                 break;
             case 'angelfishPower':
@@ -3160,10 +3167,10 @@ var SeaSaltPaper = /** @class */ (function (_super) {
         this.getPlayerTable(args.playerId).showAnnouncement(args.announcement);
     };
     SeaSaltPaper.prototype.notif_endRound = function (args) {
-        var _a;
         return __awaiter(this, void 0, void 0, function () {
             var cards;
             var _this = this;
+            var _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:

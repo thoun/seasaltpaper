@@ -40,7 +40,7 @@ class PutDiscardPile extends GameState {
     }
 
     #[PossibleAction]
-    public function actPutDiscardPile(int $discardNumber, int $activePlayerId) {
+    public function actPutDiscardPile(int $discardNumber) {
         if (!in_array($discardNumber, [1, 2])) {
             throw new \BgaUserException("Invalid discard number");
         }
