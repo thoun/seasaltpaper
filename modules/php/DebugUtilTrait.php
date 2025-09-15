@@ -81,4 +81,14 @@ trait DebugUtilTrait {
     function debug_goToState(int $stateId = 3) {
         $this->gamestate->jumpToState($stateId);
     }
+   
+    function debug_playToEndGame() {
+      $count = 0;
+      while (intval($this->gamestate->state_id()) < ST_END_GAME && $count < 100) {
+        $count++;
+        foreach($this->gamestate->getActivePlayerList() as $playerId) {
+            $this->gamestate->runStateClassZombie($this->gamestate->getCurrentState((int)$playerId), (int)$playerId);
+        }
+      }
+    }
 }

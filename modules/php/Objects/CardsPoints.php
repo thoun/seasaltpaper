@@ -4,8 +4,6 @@ namespace Bga\Games\SeaSaltPaper\Objects;
 
 use Bga\GameFrameworkPrototype\Helpers\Arrays;
 
-use function Bga\Games\SeaSaltPaper\debug;
-
 use const Bga\Games\SeaSaltPaper\THE_DANCE_OF_THE_SHELLS;
 use const Bga\Games\SeaSaltPaper\THE_KRAKEN;
 use const Bga\Games\SeaSaltPaper\THE_TORNADO;
@@ -16,24 +14,6 @@ const COLLECTION_POINTS = [
     PENGUIN => [1, 3, 5],
     SAILOR => [0, 5],
 ];
-
-function array_find(array $array, callable $fn) {
-    foreach ($array as $value) {
-        if($fn($value)) {
-            return $value;
-        }
-    }
-    return null;
-}
-
-function array_find_key(array $array, callable $fn) {
-    foreach ($array as $key => $value) {
-        if($fn($value)) {
-            return $key;
-        }
-    }
-    return null;
-}
 
 class CardsPoints {
     public array $detailledPoints;
@@ -102,7 +82,7 @@ class CardsPoints {
                 $maxColor = count($numberByColor) > 0 ? max($numberByColor) : 0;
                 $mermaidPoints += $maxColor;
 
-                $maxColorIndex = array_find_key($numberByColor, fn($val) => $val == $maxColor);
+                $maxColorIndex = Arrays::findKey($numberByColor, fn($val) => $val == $maxColor);
                 unset($numberByColor[$maxColorIndex]);
 
                 $mermaidCount--;
@@ -117,7 +97,7 @@ class CardsPoints {
             $card = $remainingPairCards[0];
             $matchingCard = null;
             foreach ($card->matchFamilies as $matchFamily) {
-                $matchingCard = array_find($remainingPairCards, fn($c) => $c->family == $matchFamily && $c->id != $card->id);
+                $matchingCard = Arrays::find($remainingPairCards, fn($c) => $c->family == $matchFamily && $c->id != $card->id);
                 if ($matchingCard != null) {
                     break;
                 }

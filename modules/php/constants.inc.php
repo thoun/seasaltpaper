@@ -34,7 +34,6 @@ const ST_MULTIPLAYER_CHOOSE_KEPT_EVENT_CARD = 81;
 const ST_END_SCORE = 90;
 
 const ST_END_GAME = 99;
-const END_SCORE = 100;
 
 /*
  * Constants

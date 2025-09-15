@@ -16,18 +16,19 @@ class ChooseDiscardCard extends GameState {
             type: StateType::ACTIVE_PLAYER,
             description: clienttranslate('${actplayer} must choose a card'),
             descriptionMyTurn: clienttranslate('${you} must choose a card'),
-            transitions: [
-                'stay' => ST_PLAYER_CHOOSE_DISCARD_CARD,
-                "playCards" => ST_PLAYER_PLAY_CARDS,
-                "zombiePass" => ST_NEXT_PLAYER,
-            ],
         );
+    }
+
+    function getDiscardCards(): array {
+        $discardNumber = $this->globals->get(THE_HERMIT_CRAB_CURRENT_PILE) ?? $this->game->getGameStateValue(CHOSEN_DISCARD);
+        $cards = $this->game->cards->getItemsInLocation('discard'.$discardNumber);
+        usort($cards, fn($a, $b) => $a->locationArg <=> $b->locationArg);
+        return $cards;
     }
 
     function getArgs(int $activePlayerId) {
         $discardNumber = $this->globals->get(THE_HERMIT_CRAB_CURRENT_PILE) ?? $this->game->getGameStateValue(CHOSEN_DISCARD);
-        $cards = $this->game->cards->getItemsInLocation('discard'.$discardNumber);
-        usort($cards, fn($a, $b) => $a->locationArg <=> $b->locationArg);
+        $cards = $this->getDiscardCards();
         $maskedCards = Card::onlyIds($cards);
     
         return [
@@ -90,13 +91,15 @@ class ChooseDiscardCard extends GameState {
         }
 
         if ($hermitCrabCurrentPile === null) {
-            $this->gamestate->nextState('playCards');            
+            return PlayCards::class;
         } else {
-            $this->gamestate->nextState('stay');
+            return ChooseDiscardCard::class;
         }
     }
 
     function zombie(int $playerId) {
-    	return 'zombiePass';
+        $cards = $this->getDiscardCards();
+        $zombieChoice = $cards[bga_rand(0, count($cards) - 1)]; // random choice over possible moves
+    	return $this->actChooseDiscardCard($zombieChoice->id, $playerId);
     }
 }

@@ -111,6 +111,8 @@ class ChooseCard extends GameState {
     }
 
     function zombie(int $playerId) {
-    	return 'zombiePass';
+        $cards = $this->game->cards->getItemsInLocation('pick');
+        $zombieChoice = $cards[bga_rand(0, count($cards) - 1)]; // random choice over possible moves
+    	return $this->actChooseCard($zombieChoice->id, $playerId);
     }
 }

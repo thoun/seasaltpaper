@@ -17,10 +17,6 @@ class TakeCards extends GameState {
             description: clienttranslate('${actplayer} must take two cards from deck or one card from a discard pile ${call}'),
             descriptionMyTurn: clienttranslate('${you} must take two cards from deck or one card from a discard pile ${call}'),
             updateGameProgression: true,
-            transitions: [
-                "chooseCard" => ST_PLAYER_CHOOSE_CARD,
-                "zombiePass" => ST_NEXT_PLAYER,
-            ],
         );
     }
 
@@ -70,7 +66,7 @@ class TakeCards extends GameState {
         $this->game->incStat(1, 'takeCardFromDeck');
         $this->game->incStat(1, 'takeCardFromDeck', $activePlayerId);
 
-        $this->gamestate->nextState('chooseCard');
+        return ChooseCard::class;
     }
 
     #[PossibleAction]
@@ -113,7 +109,21 @@ class TakeCards extends GameState {
     }
 
     function zombie(int $playerId) {
-    	return 'zombiePass';
+        $args = $this->getArgs();
+        $fromDeck = true;
+        if ($args['canTakeFromDeck'] && count($args['canTakeFromDiscard']) > 0) {
+            $fromDeck = bga_rand(1, 3) < 3;
+        } else if (!$args['canTakeFromDeck']) {
+            $fromDeck = false;
+        }
+
+        if ($fromDeck) {
+            return $this->actTakeCardsFromDeck($playerId);
+        } else {
+            $possibleMoves = $args['canTakeFromDiscard'];
+            $zombieChoice = $possibleMoves[bga_rand(0, count($possibleMoves) - 1)]; // random choice over possible moves
+            return $this->actTakeCardFromDiscard($zombieChoice, $playerId);
+        }
     }
 
     public function takeFirstCardFromDeck(int $playerId) {

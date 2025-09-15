@@ -34,7 +34,7 @@ class AngelfishPower extends GameState {
         ];
     }
 
-    function stAngelfishPower(array $args) {
+    function onEnteringState(array $args) {
         if ($args['_no_notify']) {
             return PlayCards::class;
         }
@@ -70,6 +70,6 @@ class AngelfishPower extends GameState {
     }
 
     function zombie(int $playerId) {
-    	return PlayCards::class;
+    	return $this->actTakeCardAngelfishPower(bga_rand(1,2), $playerId);
     }
 }

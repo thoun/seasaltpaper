@@ -2324,16 +2324,16 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             case 'ChooseDiscardCard':
                 this.onEnteringChooseDiscardCard(args.args);
                 break;
-            case 'chooseOpponent':
+            case 'ChooseOpponent':
                 this.onEnteringChooseOpponent(args.args);
                 break;
-            case 'placeShellFaceDown':
+            case 'PlaceShellFaceDown':
                 this.onEnteringPlaceShellFaceDown(args.args);
                 break;
-            case 'swapCard':
+            case 'SwapCard':
                 this.onEnteringSwapCard(args.args);
                 break;
-            case 'stealPlayedPair':
+            case 'StealPlayedPair':
                 this.onEnteringStealPlayedPair(args.args);
                 break;
         }
@@ -2491,19 +2491,19 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             case 'ChooseDiscardCard':
                 this.onLeavingChooseDiscardCard();
                 break;
-            case 'chooseOpponent':
+            case 'ChooseOpponent':
                 this.onLeavingChooseOpponent();
                 break;
-            case 'chooseKeptEventCard':
+            case 'ChooseKeptEventCard':
                 this.onLeavingChooseKeptEventCard();
                 break;
-            case 'placeShellFaceDown':
+            case 'PlaceShellFaceDown':
                 this.onLeavingPlaceShellFaceDown();
                 break;
-            case 'swapCard':
+            case 'SwapCard':
                 this.onLeavingSwapCard();
                 break;
-            case 'stealPlayedPair':
+            case 'StealPlayedPair':
                 this.onLeavingStealPlayedPair(this.gamedatas.gamestate.args);
                 break;
         }
@@ -2595,7 +2595,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                         dojo.addClass(`immediateEndRound_button`, `disabled`);
                     }*/
                     break;
-                case 'placeShellFaceDown':
+                case 'PlaceShellFaceDown':
                     this.statusBar.addActionButton(_("Cancel"), function () { return _this.bgaPerformAction('actCancelPlaceShellFaceDown'); }, { color: 'secondary' });
                     break;
                 case 'chooseOpponentForSwap':
@@ -2606,17 +2606,17 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                         document.getElementById("choosePlayer".concat(playerId, "-button")).style.border = "3px solid #".concat(player.color);
                     });
                     break;
-                case 'swapCard':
+                case 'SwapCard':
                     this.swapButton = this.statusBar.addActionButton(_("Swap selected cards"), function () { return _this.bgaPerformAction('actSwapCard', {
                         playerCardId: _this.getCurrentPlayerTable().getHandSelection()[0].id,
                         opponentCardId: _this.swapStock.getSelection()[0].id,
                     }); }, { disabled: true });
                     this.statusBar.addActionButton(_("Pass"), function () { return _this.bgaPerformAction('actPassSwapCard'); }, { color: 'secondary' });
                     break;
-                case 'beforeEndRound':
+                case 'BeforeEndRound':
                     this.statusBar.addActionButton(_("Seen"), function () { return _this.bgaPerformAction('actSeen'); });
                     break;
-                case 'chooseKeptEventCard':
+                case 'ChooseKeptEventCard':
                     this.onEnteringChooseKeptEventCard(args);
                     break;
             }
@@ -2746,7 +2746,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                     this.chooseDiscardCard(card.id);
                 }
                 break;
-            case 'chooseOpponent':
+            case 'ChooseOpponent':
                 var chooseOpponentArgs = this.gamedatas.gamestate.args;
                 if (parentDiv.dataset.currentPlayer == 'false') {
                     var stealPlayerId = Number(parentDiv.dataset.playerId);
@@ -2755,10 +2755,10 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                     }
                 }
                 break;
-            case 'placeShellFaceDown':
+            case 'PlaceShellFaceDown':
                 this.bgaPerformAction('actPlaceShellFaceDown', { id: card.id });
                 break;
-            case 'swapCard':
+            case 'SwapCard':
                 this.onSwapCardsSelectionChange();
                 break;
         }
@@ -2770,7 +2770,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             return;
         }
         switch (this.gamedatas.gamestate.name) {
-            case 'stealPlayedPair':
+            case 'StealPlayedPair':
                 this.bgaPerformAction('actStealPlayedPair', { stolenPlayerId: playerId, id: card.id });
                 break;
         }

@@ -15,15 +15,11 @@ class ChooseDiscardPile extends GameState {
             type: StateType::ACTIVE_PLAYER,
             description: clienttranslate('${actplayer} must choose a discard pile'),
             descriptionMyTurn: clienttranslate('${you} must choose a discard pile'),
-            transitions: [
-                "chooseCard" => ST_PLAYER_CHOOSE_DISCARD_CARD,
-                "zombiePass" => ST_NEXT_PLAYER,
-            ],
         );
     }
 
     #[PossibleAction]
-    public function actChooseDiscardPile(int $discardNumber, int $activePlayerId) {
+    public function actChooseDiscardPile(int $discardNumber) {
         if (!in_array($discardNumber, [1, 2])) {
             throw new \BgaUserException("Invalid discard number");
         }
@@ -39,10 +35,10 @@ class ChooseDiscardPile extends GameState {
 
         $this->game->setGameStateValue(CHOSEN_DISCARD, $discardNumber);
 
-        $this->gamestate->nextState('chooseCard');
+        return ChooseDiscardCard::class;
     }
 
     function zombie(int $playerId) {
-    	return 'zombiePass';
+    	return $this->actChooseDiscardPile(bga_rand(1, 2));
     }
 }

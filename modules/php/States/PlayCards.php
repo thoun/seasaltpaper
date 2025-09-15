@@ -13,6 +13,8 @@ use const Bga\Games\SeaSaltPaper\THE_CORAL_REEF;
 use const Bga\Games\SeaSaltPaper\THE_DIODON_FISH;
 use const Bga\Games\SeaSaltPaper\THE_HERMIT_CRAB;
 use const Bga\Games\SeaSaltPaper\THE_SUNFISH;
+use const Bga\Games\SeaSaltPaper\THE_TREASURE_CHEST;
+use const Bga\Games\SeaSaltPaper\THE_WATER_RODEO;
 
 class PlayCards extends GameState {
     public function __construct(protected Game $game)
@@ -23,29 +25,15 @@ class PlayCards extends GameState {
             description: clienttranslate('${actplayer} may play cards duo'),
             descriptionMyTurn: clienttranslate('${you} may play cards duo'),
             updateGameProgression: true,
-            transitions: [
-                "chooseDiscardPile" => ST_PLAYER_CHOOSE_DISCARD_PILE,
-                "newTurn" => ST_PLAYER_TAKE_CARDS,
-                "chooseOpponent" => ST_PLAYER_CHOOSE_OPPONENT,
-                "chooseOpponentForSwap" => ST_PLAYER_CHOOSE_OPPONENT_FOR_SWAP,
-                "chooseCard" => ST_PLAYER_CHOOSE_CARD,
-                "playCards" => ST_PLAYER_PLAY_CARDS,
-                "placeShellFaceDown" => ST_PLAYER_PLACE_SHELL_FACE_DOWN,
-                "pickFromDiscardPiles" => ST_PLAYER_CHOOSE_DISCARD_CARD,
-                "stealPlayedPair" => ST_PLAYER_STEAL_PLAYED_PAIR,
-                "endTurn" => ST_NEXT_PLAYER,
-                "mermaids" => ST_END_SCORE,
-                "zombiePass" => ST_NEXT_PLAYER,
-            ],
         );
     }
 
     function getArgs(int $activePlayerId) {
 
         $totalPoints = $this->game->getCardsPoints($activePlayerId)->totalPoints;
-        $playableDuoCards = $this->game->playableDuoCards($activePlayerId); // TODO remove
-        $possiblePairs = $this->game->getPossiblePairs($activePlayerId);
-        $canCallEndRound = $totalPoints >= $this->game->pointsToEndRound($activePlayerId) && intval($this->game->getGameStateValue(END_ROUND_TYPE)) == 0;
+        $playableDuoCards = $this->playableDuoCards($activePlayerId); // TODO remove
+        $possiblePairs = $this->getPossiblePairs($activePlayerId);
+        $canCallEndRound = $totalPoints >= $this->pointsToEndRound($activePlayerId) && intval($this->game->getGameStateValue(END_ROUND_TYPE)) == 0;
         $canStop = $canCallEndRound && !$this->game->eventCards->playerHasEffect($activePlayerId, THE_DIODON_FISH);
         $mermaidsToEndGame = $this->game->mermaidsToEndGame($activePlayerId);
         $hasFourMermaids = count($this->game->getPlayerMermaids($activePlayerId)) == $mermaidsToEndGame;
@@ -82,7 +70,7 @@ class PlayCards extends GameState {
             throw new \BgaUserException("You must select Pair cards from your hand");
         }
 
-        $possiblePairs = $this->game->getPossiblePairs($activePlayerId);
+        $possiblePairs = $this->getPossiblePairs($activePlayerId);
         if (!Arrays::some($possiblePairs, 
             fn($possiblePair) => ($cards[0]->family == $possiblePair[0] && $cards[1]->family == $possiblePair[1]) || ($cards[1]->family == $possiblePair[0] && $cards[0]->family == $possiblePair[1])
         )) {
@@ -160,21 +148,21 @@ class PlayCards extends GameState {
                 if (($this->game->cards->countItemsInLocation('discard1') + $this->game->cards->countItemsInLocation('discard2')) > 0) {
                     if ($this->game->eventCards->playerHasEffect($activePlayerId, THE_HERMIT_CRAB)) {
                         $this->globals->set(THE_HERMIT_CRAB_CURRENT_PILE, $this->game->cards->countItemsInLocation('discard1') > 0 ? 1 : 2);
-                        $this->gamestate->nextState('pickFromDiscardPiles');
+                        return ChooseDiscardCard::class;
                     } else {
-                        $this->gamestate->nextState('chooseDiscardPile');
+                        return ChooseDiscardPile::class;
                     }
                 } else {
                     $this->notify->all('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
-                    $this->gamestate->nextState('playCards');
+                    return PlayCards::class;
                 }
                 break;
             case 2:
                 if (($this->game->cards->countItemsInLocation('deck') + $this->game->cards->countItemsInLocation('discard1') + $this->game->cards->countItemsInLocation('discard2')) > 0) {
-                    $this->gamestate->nextState('newTurn');
+                    return TakeCards::class;
                 } else {
                     $this->notify->all('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
-                    $this->gamestate->nextState('playCards');
+                    return PlayCards::class;
                 }
                 break;
             case 3:
@@ -192,34 +180,32 @@ class PlayCards extends GameState {
                         }
                     }
                 }
-                $this->gamestate->nextState('playCards');
-                break;
+                return PlayCards::class;
             case 4:
                 $possibleOpponentsToSteal = $this->game->getPossibleOpponentsToSteal($activePlayerId);
 
                 if (count($possibleOpponentsToSteal) > 0) {
                     $this->globals->set(CAN_CHOOSE_CARD_TO_STEAL, false);
-                    $this->gamestate->nextState('chooseOpponent');
+                    return ChooseOpponent::class;
                 } else {
                     $this->notify->all('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
-                    $this->gamestate->nextState('playCards');
+                    return PlayCards::class;
                 }
 
                 /*if (count($possibleOpponentsToSteal) > 1) {
-                    $this->gamestate->nextState('chooseOpponent');
+                    return ChooseOpponent::class;
                 } else {
                     if (count($possibleOpponentsToSteal) == 1) {
                         $this->applyStealRandomCard($playerId, $possibleOpponentsToSteal[0]);
                     } else {
                         $this->notify->all('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
                     }
-                    $this->gamestate->nextState('playCards');
+                    return PlayCards::class;
                 }*/
                 break;
             case 5:
                 $this->game->setGameStateValue(FORCE_TAKE_ONE, $activePlayerId);
-                $this->gamestate->nextState('playCards');
-                break;
+                return PlayCards::class;
             case 6:
                 if ($this->game->cards->countItemsInLocation('deck') > 0) {
                     $this->game->setGameStateValue(LOBSTER_POWER, 1);
@@ -234,10 +220,10 @@ class PlayCards extends GameState {
                         'actionPlayerId' => $activePlayerId,
                     ]);
 
-                    $this->gamestate->nextState('chooseCard');
+                    return ChooseCard::class;
                 } else {
                     $this->notify->all('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
-                    $this->gamestate->nextState('playCards');
+                    return PlayCards::class;
                 }
                 break;
             case 7:
@@ -245,20 +231,20 @@ class PlayCards extends GameState {
 
                 if (count($possibleOpponentsToSteal) > 0) {
                     $this->globals->set(CAN_CHOOSE_CARD_TO_STEAL, true);
-                    $this->gamestate->nextState('chooseOpponentForSwap');
+                    return ChooseOpponentForSwap::class;
                 } else {
                     $this->notify->all('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
-                    $this->gamestate->nextState('playCards');
+                    return PlayCards::class;
                 }
                 break;
             case 8:
                 $possibleOpponentsToSteal = $this->game->getPossibleOpponentsToStealFromTable($activePlayerId);
 
                 if (count($possibleOpponentsToSteal) > 0) {
-                    $this->gamestate->nextState('stealPlayedPair');
+                    return StealPlayedPair::class;
                 } else {
                     $this->notify->all('log', clienttranslate('Impossible to activate Pair effect, it is ignored'), []);
-                    $this->gamestate->nextState('playCards');
+                    return PlayCards::class;
                 }
                 break;
         }
@@ -314,7 +300,7 @@ class PlayCards extends GameState {
         /*$this->incStat(1, 'playedDuoCards');
         $this->incStat(1, 'playedDuoCards', $playerId);*/ 
         
-        return 'playCards';
+        return PlayCards::class;
     }
 
     #[PossibleAction]
@@ -325,7 +311,7 @@ class PlayCards extends GameState {
 
     #[PossibleAction]
     public function actSelectShellFaceDown(int $activePlayerId) {
-        return 'placeShellFaceDown';
+        return PlaceShellFaceDown::class;
     }
 
     #[PossibleAction]
@@ -336,7 +322,7 @@ class PlayCards extends GameState {
             return;
         }
         
-        return 'endTurn';
+        return NextPlayer::class;
     }
 
     #[PossibleAction]
@@ -346,7 +332,7 @@ class PlayCards extends GameState {
         $this->game->incStat(1, 'announceLastChance');
         $this->game->incStat(1, 'announceLastChance', $activePlayerId);
 
-        $this->applyEndRound(LAST_CHANCE, $this->game->ANNOUNCEMENTS[LAST_CHANCE], $activePlayerId);
+        return $this->applyEndRound(LAST_CHANCE, $this->game->ANNOUNCEMENTS[LAST_CHANCE], $activePlayerId);
     }
 
     #[PossibleAction]
@@ -358,11 +344,18 @@ class PlayCards extends GameState {
 
         $this->game->setGameStateValue(STOP_CALLER, $activePlayerId);
 
-        $this->applyEndRound(STOP, $this->game->ANNOUNCEMENTS[STOP], $activePlayerId);
+        return $this->applyEndRound(STOP, $this->game->ANNOUNCEMENTS[STOP], $activePlayerId);
     }
 
     function zombie(int $playerId) {
-    	return 'zombiePass';
+    	$args = $this->getArgs($playerId);
+        if ($args['canStop']) {
+            return $this->actImmediateEndRound($playerId);
+        } else if ($args['canCallEndRound']) {
+            return $this->actEndRound($playerId);
+        } else {
+            return $this->actEndTurn($playerId); // TODO try to play pairs if possible
+        }
     }
 
     public function applyEndRound(int $type, string $announcement, int $activePlayerId) {
@@ -381,7 +374,7 @@ class PlayCards extends GameState {
             'i18n' => ['announcement'],
         ]);
         
-        $this->gamestate->nextState('endTurn');
+        return NextPlayer::class;
     }
 
     public function endGameWithMermaids(int $playerId) {
@@ -397,9 +390,70 @@ class PlayCards extends GameState {
                 'cards' => $mermaids,
             ]);
 
-            $this->gamestate->nextState('mermaids');
+            return EndScore::class;
         } else {
             throw new \BgaUserException("You need the four Mermaids");
         }
+    }
+
+    function getPossiblePairs(int $playerId) {
+        $possiblePairs = [
+            [CRAB, CRAB],
+            [CRAB, LOBSTER],
+            [BOAT, BOAT],
+            [FISH, FISH],
+            [SWIMMER, SHARK],
+            [SWIMMER, JELLYFISH],
+            [BOAT, BOAT],
+        ];
+        if ($this->game->eventCards->playerHasEffect($playerId, THE_WATER_RODEO)) {
+            $possiblePairs[] = [SWIMMER, SWIMMER];
+            $possiblePairs[] = [SHARK, SHARK];
+        }
+        
+        $pairCards = Arrays::filter(
+            $this->game->getPlayerCards($playerId, 'hand', false), 
+            fn($card) => $card->category == PAIR
+        );
+
+        $possiblePairs = Arrays::filter($possiblePairs, 
+            function($possiblePair) use ($pairCards) {
+                if ($possiblePair[0] === $possiblePair[1]) {
+                    return Arrays::count($pairCards, fn($card) => $card->family == $possiblePair[0]) >= 2;
+                } else {
+                    return Arrays::count($pairCards, fn($card) => $card->family == $possiblePair[0]) >= 1
+                        && Arrays::count($pairCards, fn($card) => $card->family == $possiblePair[1]) >= 1;
+                }
+            }
+        );
+        return $possiblePairs;
+    }
+
+    function playableDuoCards(int $playerId) {
+        $familyPairs = [];
+        $pairSwimmerAndSharks = $this->game->eventCards->playerHasEffect($playerId, THE_WATER_RODEO);
+        $handCards = $this->game->getPlayerCards($playerId, 'hand', false);
+        $pairCards = array_values(array_filter($handCards, fn($card) => $card->category == PAIR));
+        for ($family = CRAB; $family <= LOBSTER; $family++) {
+            $familyCards = array_values(array_filter($pairCards, fn($card) => $card->family == $family));
+            if (count($familyCards) > 0) {
+                $matchFamilies = $familyCards[0]->matchFamilies;
+                if ($pairSwimmerAndSharks && in_array($family, [SWIMMER, SHARK])) {
+                    $matchFamilies[] = $family;
+                }
+
+                if (Arrays::some($matchFamilies, fn($matchFamily) => 
+                    count(array_filter($pairCards, fn($card) => $card->family == $matchFamily)) >= ($matchFamily == $family ? 2 : 1)
+                )) {
+                    $familyPairs[] = $family;
+                }
+            }
+        }
+
+        return $familyPairs;
+    }
+
+    function pointsToEndRound(int $playerId): int {
+        return $this->game->eventCards->playerHasEffect($playerId, THE_TREASURE_CHEST) ? 10 : 7;
     }
 }

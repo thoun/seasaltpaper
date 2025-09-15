@@ -19,6 +19,7 @@
 namespace Bga\Games\SeaSaltPaper;
 
 use Bga\GameFrameworkPrototype\Counters\PlayerCounter;
+use Bga\GameFrameworkPrototype\Helpers\Arrays;
 use Bga\Games\SeaSaltPaper\Objects\Card;
 
 require_once(__DIR__.'/framework-prototype/Helpers/Arrays.php');
@@ -31,10 +32,6 @@ require_once(__DIR__.'/framework-prototype/item/item-manager.php');
 require_once('constants.inc.php');
 
 class Game extends \Bga\GameFramework\Table {
-    use UtilTrait;
-    use ActionTrait;
-    use StateTrait;
-    use ArgsTrait;
     use DebugUtilTrait;
 
     public CardManager $cards;
@@ -304,45 +301,305 @@ class Game extends \Bga\GameFramework\Table {
         return min(100, 100 * $topScore / $maxScore);
     }
 
-//////////////////////////////////////////////////////////////////////////////
-//////////// Zombie
-////////////
+    function isLastRound() {
+        $maxScore = $this->getMaxScore();
+        $topScore = $this->score->getMax();
 
-    /*
-        zombieTurn:
-        
-        This method is called each time it is the turn of a player who has quit the game (= "zombie" player).
-        You can do whatever you want in order to make sure the turn of this player ends appropriately
-        (ex: pass).
-        
-        Important: your zombie code will be called when the player leaves the game. This action is triggered
-        from the main site and propagated to the gameserver from a server, not from a browser.
-        As a consequence, there is no current player associated to this action. In your zombieTurn function,
-        you must _never_ use getCurrentPlayerId() or getCurrentPlayerName(), otherwise it will fail with a "Not logged" error message. 
-    */
+        return $topScore >= $maxScore;
+    }
 
-    function zombieTurn($state, $active_player): void {
-    	$statename = $state['name'];
-    	
-        if ($state['type'] === "activeplayer") {
-            switch ($statename) {
-                default:
-                    $this->globals->delete(THE_HERMIT_CRAB_CURRENT_PILE, CAN_CHOOSE_CARD_TO_STEAL); // make sure it's cleaned
-                    $this->gamestate->nextState("zombiePass");
-                	break;
+
+
+    function getPlayersIds() {
+        return array_keys($this->loadPlayersBasicInfos());
+    }
+
+    function isExtraSaltExpansion(): bool {
+        return $this->tableOptions->get(EXTRA_SALT_EXPANSION) == 2;
+    }
+
+    function isExtraPepperExpansion(): bool {
+        return $this->tableOptions->get(EXTRA_PEPPER_EXPANSION) == 2;
+    }
+
+    function isDoublePoints() {
+        return $this->tableOptions->get(DOUBLE_POINTS) == 2;
+    }
+
+    function mermaidsToEndGame(int $playerId): int {
+        return $this->eventCards->playerHasEffect($playerId, THE_DANCE_OF_THE_MERMAIDS) ? 3 : 4;
+    }
+
+    function getMaxScore() {
+        $END_GAME_POINTS = [
+            2 => 40,
+            3 => 35,
+            4 => 30,
+        ];
+
+        $maxScore = $END_GAME_POINTS[count($this->getPlayersIds())];
+
+        if ($this->isDoublePoints()) {
+            $maxScore *= 2;
+        }
+
+        return $maxScore;
+    }
+
+    // includeTableHandCards are cards from the hand that have been revealed on table, but never played
+    function getPlayerCards(int $playerId, string $from /*'hand' | 'table'*/, bool $includeTableHandCards) {
+        $cards = $this->cards->getItemsInLocation($from.$playerId);
+        if ($from === 'table') {
+            usort($cards, fn($a, $b) => $a->locationArg <=> $b->locationArg);
+        }
+
+        if ($includeTableHandCards) {
+            $cards = array_merge($cards, $this->cards->getItemsInLocation('tablehand'.$playerId));
+        }
+
+        return $cards;
+    }
+
+    function getCardsPoints(int $playerId) {
+        $tableCards = $this->getPlayerCards($playerId, 'table', false);
+        $handCards = $this->getPlayerCards($playerId, 'hand', true);
+
+        $cardsScore = new Objects\CardsPoints($tableCards, $handCards, $this->eventCards->getPlayerEffects($playerId));
+        return $cardsScore;
+    }
+
+    function updateCardsPoints(int $playerId) {
+        $cardsPointsObj = $this->getCardsPoints($playerId);
+        $this->notifyPlayer($playerId, 'updateCardsPoints', '', [
+            'cardsPoints' => $cardsPointsObj->totalPoints,
+            'detailledPoints' => $cardsPointsObj->detailledPoints,
+        ]);
+    }
+
+    function getPlayerMermaids(int $playerId) {
+        $tableCards = $this->getPlayerCards($playerId, 'table', false);
+        $handCards = $this->getPlayerCards($playerId, 'hand', true);
+        $playerCards = array_merge($tableCards, $handCards);
+        $mermaidCards = array_values(array_filter($playerCards, fn($card) => $card->category == MERMAID));
+
+        return $mermaidCards;
+    }
+
+    function isProtected(int $playerId): bool {
+        return Arrays::some($this->getPlayerCards($playerId, 'table', true), fn($card) => $card->flipped);
+    }
+
+    function getPossibleOpponentsToSteal(int $stealerId) {
+        $playersIds = $this->getPlayersIds();
+
+        return Arrays::filter($playersIds, fn($playerId) => 
+            $playerId != $stealerId && 
+            $this->cards->countItemsInLocation('hand'.$playerId) > 0 &&
+            !$this->isProtected($playerId),
+        );
+    }
+
+    function getPlayedPairs(int $playerId): array {
+        $playedCards = $this->getPlayerCards($playerId, 'table', false); // do not include card from call
+        $playedPairs = [];
+
+        foreach ($playedCards as $index => $card) {
+            $previousCard = $index > 0 ? $playedCards[$index - 1] : null;
+            $nextCard = $index < (count($playedCards) - 1) ? $playedCards[$index + 1] : null;
+            if (
+                $previousCard !== null 
+                && !Arrays::some($playedPairs, fn($playedPair) => Arrays::some($playedPair, fn($pc) => $previousCard->id == $pc->id))
+                && ($nextCard === null || $nextCard->category === PAIR)
+                && $previousCard->category === PAIR
+                && $card->category === PAIR
+            ) {
+                $playedPairs[] = [$previousCard, $card];
             }
-
-            return;
         }
 
-        if ($state['type'] === "multipleactiveplayer") {
-            // Make sure player is in a non blocking status for role turn
-            $this->gamestate->setPlayerNonMultiactive( $active_player, '' );
-            
-            return;
+        return $playedPairs;
+    }
+
+    function getPossibleOpponentsToStealFromTable(int $stealerId) {
+        $playersIds = $this->getPlayersIds();
+
+        return Arrays::filter($playersIds, fn($playerId) => 
+            $playerId != $stealerId && 
+            $this->cards->countItemsInLocation('tablehand'.$playerId) === 0 && // to make sure the player didn't made a call, you can't steal player who laid all their cards
+            count($this->getPlayedPairs($playerId)) > 0 &&
+            !$this->isProtected($playerId),
+        );
+    }
+
+    function applyStealRandomCard(int $stealerId, int $robbedPlayerId) {
+        $cardsInHand = $this->getPlayerCards($robbedPlayerId, 'hand', false);
+        $cardsNumber = count($cardsInHand);
+        if ($cardsNumber > 0) {
+            $randomCard = $cardsInHand[bga_rand(0, $cardsNumber - 1)];
+            $this->applyStealCard($stealerId, $robbedPlayerId, $randomCard);
+        }
+    }
+
+    function applyStealCard(int $stealerId, int $robbedPlayerId, Card $card) {
+        $this->cards->moveItem($card, 'hand'.$stealerId);
+        $this->cardCollected($stealerId, $card);
+
+        $args = [
+            'playerId' => $stealerId,
+            'opponentId' => $robbedPlayerId,
+            'player_name' => $this->getPlayerNameById($stealerId),
+            'player_name2' => $this->getPlayerNameById($robbedPlayerId),
+            'preserve' => ['actionPlayerId'],
+            'actionPlayerId' => $stealerId,
+        ];
+        $argCardName = [
+            'cardName' => $this->getCardName($card),
+            'cardColor' => $this->COLORS[$card->color],
+            'i18n' => ['cardName', 'cardColor'],
+        ];
+        $argCard = [
+            'card' => $card,
+        ];
+        $argMaskedCard = [
+            'card' => Card::onlyId($card),
+        ];
+
+        $this->notify->all('stealCard', clienttranslate('${player_name} steals a card from ${player_name2} hand'), $args + $argMaskedCard);
+        $this->notifyPlayer($robbedPlayerId, 'stealCard', clienttranslate('Card ${cardColor} ${cardName} was stolen from your hand'), $args + $argCardName + $argMaskedCard);
+        $this->notifyPlayer($stealerId, 'stealCard', clienttranslate('Card ${cardColor} ${cardName} was picked from ${player_name2} hand'), $args + $argCardName + $argCard);
+
+        $this->updateCardsPoints($stealerId);
+        $this->updateCardsPoints($robbedPlayerId);
+    }
+
+    function getCardName(Card $card) {
+        switch ($card->category) {
+            case MERMAID: return clienttranslate('Mermaid');
+            case PAIR:
+                switch ($card->family) {
+                    case CRAB: return clienttranslate('Crab');
+                    case BOAT: return clienttranslate('Boat');
+                    case FISH: return clienttranslate('Fish');
+                    case SWIMMER: return clienttranslate('Swimmer');
+                    case SHARK: return clienttranslate('Shark');
+                    case JELLYFISH: return clienttranslate('Jellyfish');
+                    case LOBSTER: return clienttranslate('Lobster');
+                }
+                break;
+            case COLLECTION:
+                switch ($card->family) {
+                    case SHELL: return clienttranslate('Shell');
+                    case OCTOPUS: return clienttranslate('Octopus');
+                    case PENGUIN: return clienttranslate('Penguin');
+                    case SAILOR: return clienttranslate('Sailor');
+                }
+                break;
+            case MULTIPLIER:
+                switch ($card->family) {
+                    case LIGHTHOUSE: return clienttranslate('The lighthouse');
+                    case SHOAL_FISH: return clienttranslate('The shoal of fish');
+                    case PENGUIN_COLONY: return clienttranslate('The penguin colony');
+                    case CAPTAIN: return clienttranslate('The captain');
+                    case CAST_CRAB: return clienttranslate('The cast of crabs');
+                }
+                break;
+            case SPECIAL:
+                switch ($card->family) {
+                    case STARFISH: return clienttranslate('Starfish');
+                    case SEAHORSE: return clienttranslate('Seahorse');
+                }
+                break;
         }
 
-        throw new \feException( "Zombie mode not supported at this game state: ".$statename );
+        return '';
+    }
+
+    function getRemainingCardsInDeck() {
+        return $this->cards->countItemsInLocation('deck');
+    }
+
+    function getRemainingCardsInDiscard(int $number) {
+        return $this->cards->countItemsInLocation('discard'.$number);
+    }
+
+    function cardCollected(int $playerId, Card $card) {
+        $number = $card->category;
+        if ($number <= 4) {
+            $this->incStat(1, 'cardsCollected'.$number);
+            $this->incStat(1, 'cardsCollected'.$number, $playerId);
+        }
+    }
+
+    public function applyPutDiscardPile(int $discardNumber) {        
+        $playerId = intval($this->getActivePlayerId());
+
+        $card = $this->cards->getItemsInLocation('pick')[0];
+        if ($card == null) {
+            throw new \BgaUserException("No card in pick");
+        }
+
+        $location = 'discard'.$discardNumber;
+        $maxLocationArg = intval($this->getUniqueValueFromDB("SELECT max(card_location_arg) FROM card where `card_location` = '$location'"));
+        $this->cards->moveItem($card, $location, $maxLocationArg + 1);
+
+        $this->notify->all('cardInDiscardFromPick', clienttranslate('${player_name} puts ${cardColor} ${cardName} to discard pile ${discardNumber}'), [
+            'playerId' => $playerId,
+            'player_name' => $this->getPlayerNameById($playerId),
+            'card' => $card,
+            'cardName' => $this->getCardName($card),
+            'cardColor' => $this->COLORS[$card->color],
+            'i18n' => ['cardName', 'cardColor'],
+            'discardId' => $discardNumber,
+            'discardNumber' => $discardNumber,
+            'remainingCardsInDiscard' => $this->getRemainingCardsInDiscard($discardNumber),
+            'preserve' => ['actionPlayerId'],
+            'actionPlayerId' => $playerId,
+        ]);
+
+        if (($card->category === COLLECTION || ($card->category === SPECIAL && $card->family === SEAHORSE)) && $this->eventCards->playerHasEffect($playerId, THE_DOLPHINS)) {
+            $this->notify->all('log', clienttranslate('${player_name} discarded a collection card and apply The Delphins effect'), [
+                'playerId' => $playerId,
+                'player_name' => $this->getPlayerNameById($playerId),
+            ]);
+
+            if (!$this->pickTopCardFromDeck($playerId)) {
+                $this->notify->all('log', clienttranslate('Impossible to activate The Dolphins effect, it is ignored'), []);
+            }
+        }
+    }
+
+    public function pickTopCardFromDeck(int $playerId): bool { // return if applied
+        if ($this->cards->countItemsInLocation('deck') === 0) {
+            return false;
+        }
+
+        $card = $this->cards->pickItemForLocation('deck', null, 'hand'.$playerId);
+        $this->cardCollected($playerId, $card);
+
+        $this->notify->player($playerId, 'cardInHandFromDeck', clienttranslate('You take ${cardColor} ${cardName} card from deck'), [
+            'playerId' => $playerId,
+            'player_name' => $this->getPlayerNameById($playerId),
+            'card' => $card,
+            'cardName' => $this->getCardName($card),
+            'cardColor' => $this->COLORS[$card->color],
+            'i18n' => ['cardName', 'cardColor'],
+            'preserve' => ['actionPlayerId'],
+            'actionPlayerId' => $playerId,
+            'deckTopCard' => $this->cards->getDeckTopCard(),
+            'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
+        ]);
+        $this->notify->all('cardInHandFromDeck', clienttranslate('${player_name} took a card from deck'), [
+            'playerId' => $playerId,
+            'player_name' => $this->getPlayerNameById($playerId),
+            'card' => Card::onlyId($card),
+            'preserve' => ['actionPlayerId'],
+            'actionPlayerId' => $playerId,
+            'deckTopCard' => $this->cards->getDeckTopCard(),
+            'remainingCardsInDeck' => $this->getRemainingCardsInDeck(),
+        ]);
+        
+        $this->updateCardsPoints($playerId);
+        return true;
     }
     
 ///////////////////////////////////////////////////////////////////////////////////:

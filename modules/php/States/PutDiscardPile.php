@@ -16,9 +16,6 @@ class PutDiscardPile extends GameState {
             type: StateType::ACTIVE_PLAYER,
             description: clienttranslate('${actplayer} must choose a discard pile for the other card'),
             descriptionMyTurn: clienttranslate('${you} must choose a discard pile for the other card'),
-            transitions: [
-                "zombiePass" => ST_NEXT_PLAYER,
-            ],
         );
     }
 
@@ -50,6 +47,6 @@ class PutDiscardPile extends GameState {
     }
 
     function zombie(int $playerId) {
-    	return 'zombiePass';
+    	return $this->actPutDiscardPile(bga_rand(1, 2));
     }
 }
