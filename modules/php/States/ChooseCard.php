@@ -9,7 +9,7 @@ use Bga\Games\SeaSaltPaper\Game;
 use Bga\Games\SeaSaltPaper\Objects\Card;
 
 class ChooseCard extends GameState {
-    public function __construct(/*protected*/ Game $game)
+    public function __construct(protected Game $game)
     {
         parent::__construct($game,
             id: ST_PLAYER_CHOOSE_CARD,
