@@ -46,15 +46,6 @@ trait StateTrait {
         ]);
 
         $this->gamestate->nextState('start');
-    }    
-
-    
-
-    function stAngelfishPower() {
-        $args = $this->argAngelfishPower();
-        if ($args['_no_notify']) {
-            $this->gamestate->nextState('playCards');
-        }
     }
 
     function stNextPlayer() {

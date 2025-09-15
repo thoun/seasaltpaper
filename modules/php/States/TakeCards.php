@@ -18,7 +18,6 @@ class TakeCards extends GameState {
             descriptionMyTurn: clienttranslate('${you} must take two cards from deck or one card from a discard pile ${call}'),
             updateGameProgression: true,
             transitions: [
-                "playCards" => ST_PLAYER_ANGELFISH_POWER,
                 "chooseCard" => ST_PLAYER_CHOOSE_CARD,
                 "zombiePass" => ST_NEXT_PLAYER,
             ],
@@ -110,7 +109,7 @@ class TakeCards extends GameState {
         $this->game->incStat(1, 'takeFromDiscard', $activePlayerId);
 
         $this->game->updateCardsPoints($activePlayerId);
-        $this->gamestate->nextState('playCards');
+        return AngelfishPower::class;
     }
 
     function zombie(int $playerId) {

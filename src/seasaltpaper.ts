@@ -129,7 +129,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             case 'PutDiscardPile':
                 this.onEnteringPutDiscardPile(args.args);
                 break;
-            case 'angelfishPower':
+            case 'AngelfishPower':
                 this.onEnteringAngelfishPower();
                 break;
             case 'PlayCards':
@@ -315,7 +315,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             case 'PutDiscardPile':
                 this.onLeavingPutDiscardPile();
                 break;
-            case 'angelfishPower':
+            case 'AngelfishPower':
                 this.onLeavingAngelfishPower();
                 break;
             case 'PlayCards':
@@ -660,7 +660,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             case 'ChooseDiscardPile':
                 this.chooseDiscardPile(number);
                 break;
-            case 'angelfishPower':
+            case 'AngelfishPower':
                 this.bgaPerformAction('actTakeCardAngelfishPower', { number });
                 break;
         }

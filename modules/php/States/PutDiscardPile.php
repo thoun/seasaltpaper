@@ -17,7 +17,6 @@ class PutDiscardPile extends GameState {
             description: clienttranslate('${actplayer} must choose a discard pile for the other card'),
             descriptionMyTurn: clienttranslate('${you} must choose a discard pile for the other card'),
             transitions: [
-                "playCards" => ST_PLAYER_ANGELFISH_POWER,
                 "zombiePass" => ST_NEXT_PLAYER,
             ],
         );
@@ -47,7 +46,7 @@ class PutDiscardPile extends GameState {
 
         $this->game->applyPutDiscardPile($discardNumber);
 
-        $this->gamestate->nextState('playCards');
+        return AngelfishPower::class;
     }
 
     function zombie(int $playerId) {

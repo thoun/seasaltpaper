@@ -2312,7 +2312,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             case 'PutDiscardPile':
                 this.onEnteringPutDiscardPile(args.args);
                 break;
-            case 'angelfishPower':
+            case 'AngelfishPower':
                 this.onEnteringAngelfishPower();
                 break;
             case 'PlayCards':
@@ -2482,7 +2482,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             case 'PutDiscardPile':
                 this.onLeavingPutDiscardPile();
                 break;
-            case 'angelfishPower':
+            case 'AngelfishPower':
                 this.onLeavingAngelfishPower();
                 break;
             case 'PlayCards':
@@ -2786,7 +2786,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             case 'ChooseDiscardPile':
                 this.chooseDiscardPile(number);
                 break;
-            case 'angelfishPower':
+            case 'AngelfishPower':
                 this.bgaPerformAction('actTakeCardAngelfishPower', { number: number });
                 break;
         }

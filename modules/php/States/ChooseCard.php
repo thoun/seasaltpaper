@@ -16,11 +16,6 @@ class ChooseCard extends GameState {
             type: StateType::ACTIVE_PLAYER,
             description: clienttranslate('${actplayer} must choose a card to keep'),
             descriptionMyTurn: clienttranslate('${you} must choose a card to keep'),
-            transitions: [
-                "putDiscardPile" => ST_PLAYER_PUT_DISCARD_PILE,
-                "playCards" => ST_PLAYER_ANGELFISH_POWER,
-                "zombiePass" => ST_NEXT_PLAYER,
-            ],
         );
     }
 
@@ -72,8 +67,7 @@ class ChooseCard extends GameState {
         
         $remainingCardsInPick = $this->game->cards->countItemsInLocation('pick');
         if ($remainingCardsInPick == 0) {
-            $this->gamestate->nextState('playCards');
-            return;
+            return PlayCards::class;
         }
 
         if (boolval($this->game->getGameStateValue(LOBSTER_POWER))) {
@@ -99,19 +93,19 @@ class ChooseCard extends GameState {
                 ]);
             }
 
-            $this->gamestate->nextState('playCards');
+            return PlayCards::class;
         } else {
             $remainingCardsInDiscard1 = $this->game->cards->countItemsInLocation('discard1');
             $remainingCardsInDiscard2 = $this->game->cards->countItemsInLocation('discard2');
 
             if ($remainingCardsInDiscard1 == 0) {
                 $this->game->applyPutDiscardPile(1);
-                $this->gamestate->nextState('playCards');
+                return PlayCards::class;
             } else if ($remainingCardsInDiscard2 == 0) {
                 $this->game->applyPutDiscardPile(2);
-                $this->gamestate->nextState('playCards');
+                return PlayCards::class;
             } else {
-                $this->gamestate->nextState('putDiscardPile');
+                return PutDiscardPile::class;
             }
         }
     }

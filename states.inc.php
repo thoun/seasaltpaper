@@ -61,23 +61,6 @@ $basicGameStates = [
 ];
 
 $playerActionsGameStates = [
-
-    ST_PLAYER_ANGELFISH_POWER => GameStateBuilder::create()
-        ->name('angelfishPower')
-        ->description(clienttranslate('${actplayer} must take one card from the discard (The Angelfish)'))
-        ->descriptionMyTurn(clienttranslate('${you} must take one card from the discard (The Angelfish)'))
-        ->type(StateType::ACTIVE_PLAYER)
-        ->args('argAngelfishPower')
-        ->action('stAngelfishPower')
-        ->possibleActions([
-            'actTakeCardAngelfishPower',
-        ])
-        ->transitions([
-            'playCards' => ST_PLAYER_PLAY_CARDS,
-            'zombiePass' => ST_PLAYER_PLAY_CARDS,
-        ])
-        ->build(),
-
     ST_PLAYER_PLACE_SHELL_FACE_DOWN => GameStateBuilder::create()
         ->name('placeShellFaceDown')
         ->description(clienttranslate('${actplayer} may play cards duo'))

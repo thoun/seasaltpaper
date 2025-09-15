@@ -151,36 +151,6 @@ trait ActionTrait {
         $this->gamestate->nextState('playCards');
     }
 
-    public function actTakeCardAngelfishPower(int $number) {
-        $card = $this->cards->getDiscardTopCard($number);
-        if ($card == null) {
-            throw new \BgaUserException("No card in that discard");
-        }
-
-        $playerId = intval($this->getActivePlayerId());
-
-        $this->cards->moveItem($card, 'hand'.$playerId);
-        $this->cardCollected($playerId, $card);
-
-        $this->notify->all('cardInHandFromDiscard', clienttranslate('${player_name} takes ${cardColor} ${cardName} from discard pile ${discardNumber} (The angelfish power)'), [
-            'playerId' => $playerId,
-            'player_name' => $this->getPlayerNameById($playerId),
-            'card' => $card,
-            'cardName' => $this->getCardName($card),
-            'cardColor' => $this->COLORS[$card->color],
-            'i18n' => ['cardName', 'cardColor'],
-            'discardId' => $number,
-            'discardNumber' => $number,
-            'newDiscardTopCard' => $this->cards->getDiscardTopCard($number),
-            'remainingCardsInDiscard' => $this->getRemainingCardsInDiscard($number),
-            'preserve' => ['actionPlayerId'],
-            'actionPlayerId' => $playerId,
-        ]);
-
-        $this->updateCardsPoints($playerId);
-        $this->gamestate->nextState('playCards');
-    }
-
     public function actSwapCard(int $playerCardId, int $opponentCardId) {
         $playerId = intval($this->getActivePlayerId());
         $opponentId = $this->globals->get(STOLEN_PLAYER);
