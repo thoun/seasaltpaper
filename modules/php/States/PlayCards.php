@@ -55,7 +55,7 @@ class PlayCards extends GameState {
     function onEnteringState(int $activePlayerId) {
         /*$mermaids = $this->getPlayerMermaids($activePlayerId);
         if (count($mermaids) == $this->mermaidsToEndGame($activePlayerId)) {
-            $this->endGameWithMermaids($activePlayerId);
+            return $this->endGameWithMermaids($activePlayerId);
         }*/
     }
 
@@ -307,7 +307,7 @@ class PlayCards extends GameState {
     #[PossibleAction]
     #[CheckAction(false)]
     public function actEndGameWithMermaids(int $activePlayerId) {
-        $this->endGameWithMermaids($activePlayerId);
+        return $this->endGameWithMermaids($activePlayerId);
     }
 
     #[PossibleAction]
@@ -319,8 +319,7 @@ class PlayCards extends GameState {
     public function actEndTurn(int $activePlayerId) {
         $mermaids = $this->game->getPlayerMermaids($activePlayerId);
         if (count($mermaids) == $this->game->mermaidsToEndGame($activePlayerId)) {
-            $this->endGameWithMermaids($activePlayerId);
-            return;
+            return $this->endGameWithMermaids($activePlayerId);
         }
         
         return NextPlayer::class;
@@ -362,8 +361,7 @@ class PlayCards extends GameState {
     public function applyEndRound(int $type, string $announcement, int $activePlayerId) {
         $mermaids = $this->game->getPlayerMermaids($activePlayerId);
         if (count($mermaids) == $this->game->mermaidsToEndGame($activePlayerId)) {
-            $this->endGameWithMermaids($activePlayerId);
-            return;
+            return $this->endGameWithMermaids($activePlayerId);
         }
 
         $this->game->setGameStateValue(END_ROUND_TYPE, $type);
