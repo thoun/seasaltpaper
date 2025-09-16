@@ -46,8 +46,7 @@ class TakeCards extends GameState {
         $args = $this->getArgs($activePlayerId);
 
         if ($args['forceTakeOne']) {
-            $this->takeFirstCardFromDeck($activePlayerId);
-            return;
+            return $this->takeFirstCardFromDeck($activePlayerId);
         }
 
         if (!$args['canTakeFromDeck']) {
@@ -156,8 +155,7 @@ class TakeCards extends GameState {
 
             $this->game->updateCardsPoints($playerId);
         }
-            
-        $this->gamestate->nextState('zombiePass');
 
+        return AngelfishPower::class;
     }
 }
