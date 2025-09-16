@@ -156,6 +156,6 @@ class TakeCards extends GameState {
             $this->game->updateCardsPoints($playerId);
         }
 
-        return AngelfishPower::class;
+        return NextPlayer::class;
     }
 }
