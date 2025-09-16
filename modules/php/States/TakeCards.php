@@ -14,6 +14,7 @@ class TakeCards extends GameState {
         parent::__construct($game,
             id: ST_PLAYER_TAKE_CARDS,
             type: StateType::ACTIVE_PLAYER,
+            name: 'takeCards',
             description: clienttranslate('${actplayer} must take two cards from deck or one card from a discard pile ${call}'),
             descriptionMyTurn: clienttranslate('${you} must take two cards from deck or one card from a discard pile ${call}'),
             updateGameProgression: true,

@@ -13,6 +13,7 @@ class ChooseKeptEventCard extends GameState {
         parent::__construct($game,
             id: ST_MULTIPLAYER_CHOOSE_KEPT_EVENT_CARD,
             type: StateType::MULTIPLE_ACTIVE_PLAYER,
+            name: 'chooseKeptEventCard',
             description: clienttranslate('A player must choose the event card to keep'),
             descriptionMyTurn: clienttranslate('${you} must choose the event card to keep'),
         );

@@ -14,6 +14,7 @@ class PutDiscardPile extends GameState {
         parent::__construct($game,
             id: ST_PLAYER_PUT_DISCARD_PILE,
             type: StateType::ACTIVE_PLAYER,
+            name: 'putDiscardPile',
             description: clienttranslate('${actplayer} must choose a discard pile for the other card'),
             descriptionMyTurn: clienttranslate('${you} must choose a discard pile for the other card'),
         );

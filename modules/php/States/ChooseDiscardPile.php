@@ -13,6 +13,7 @@ class ChooseDiscardPile extends GameState {
         parent::__construct($game,
             id: ST_PLAYER_CHOOSE_DISCARD_PILE,
             type: StateType::ACTIVE_PLAYER,
+            name: 'chooseDiscardPile',
             description: clienttranslate('${actplayer} must choose a discard pile'),
             descriptionMyTurn: clienttranslate('${you} must choose a discard pile'),
         );

@@ -120,37 +120,37 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         log('Entering state: ' + stateName, args.args);
 
         switch (stateName) {
-            case 'TakeCards':
+            case 'takeCards':
                 this.onEnteringTakeCards(args);
                 break;
-            case 'ChooseCard':
+            case 'chooseCard':
                 this.onEnteringChooseCard(args.args);
                 break;
-            case 'PutDiscardPile':
+            case 'putDiscardPile':
                 this.onEnteringPutDiscardPile(args.args);
                 break;
-            case 'AngelfishPower':
+            case 'angelfishPower':
                 this.onEnteringAngelfishPower();
                 break;
-            case 'PlayCards':
+            case 'playCards':
                 this.onEnteringPlayCards();
                 break;
-            case 'ChooseDiscardPile':
+            case 'chooseDiscardPile':
                 this.onEnteringChooseDiscardPile();
                 break;
-            case 'ChooseDiscardCard':
+            case 'chooseDiscardCard':
                 this.onEnteringChooseDiscardCard(args.args);
                 break;
-            case 'ChooseOpponent':
+            case 'chooseOpponent':
                 this.onEnteringChooseOpponent(args.args);
                 break;
-            case 'PlaceShellFaceDown':
+            case 'placeShellFaceDown':
                 this.onEnteringPlaceShellFaceDown(args.args);
                 break;
-            case 'SwapCard':
+            case 'swapCard':
                 this.onEnteringSwapCard(args.args);
                 break;
-            case 'StealPlayedPair':
+            case 'stealPlayedPair':
                 this.onEnteringStealPlayedPair(args.args);
                 break;
         }
@@ -306,37 +306,37 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         log( 'Leaving state: '+stateName );
 
         switch (stateName) {
-            case 'TakeCards':
+            case 'takeCards':
                 this.onLeavingTakeCards();
                 break;
-            case 'ChooseCard':
+            case 'chooseCard':
                 this.onLeavingChooseCard();
                 break;
-            case 'PutDiscardPile':
+            case 'putDiscardPile':
                 this.onLeavingPutDiscardPile();
                 break;
-            case 'AngelfishPower':
+            case 'angelfishPower':
                 this.onLeavingAngelfishPower();
                 break;
-            case 'PlayCards':
+            case 'playCards':
                 this.onLeavingPlayCards();
                 break;
-            case 'ChooseDiscardCard':
+            case 'chooseDiscardCard':
                 this.onLeavingChooseDiscardCard();
                 break;
-            case 'ChooseOpponent':
+            case 'chooseOpponent':
                 this.onLeavingChooseOpponent();
                 break;
-            case 'ChooseKeptEventCard':
+            case 'chooseKeptEventCard':
                 this.onLeavingChooseKeptEventCard();
                 break;
-            case 'PlaceShellFaceDown':
+            case 'placeShellFaceDown':
                 this.onLeavingPlaceShellFaceDown();
                 break;
-            case 'SwapCard':
+            case 'swapCard':
                 this.onLeavingSwapCard();
                 break;
-            case 'StealPlayedPair':
+            case 'stealPlayedPair':
                 this.onLeavingStealPlayedPair(this.gamedatas.gamestate.args);
                 break;
         }
@@ -408,12 +408,12 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         if (this.isCurrentPlayerActive()) {
             switch (stateName) {
                 
-                case 'TakeCards':
+                case 'takeCards':
                     if (args.forceTakeOne) {
                         this.statusBar.addActionButton(_("Take the first card"), () => this.takeCardsFromDeck());
                     }
                     break;
-                case 'PlayCards':
+                case 'playCards':
                     const playCardsArgs = args as EnteringPlayCardsArgs;
                     this.statusBar.addActionButton(_("Play selected cards"), () => this.playSelectedCards(), { id: `playCards_button` });
                     if (playCardsArgs.hasFourMermaids) {
@@ -438,7 +438,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                         dojo.addClass(`immediateEndRound_button`, `disabled`);
                     }*/
                     break;
-                case 'PlaceShellFaceDown':
+                case 'placeShellFaceDown':
                     this.statusBar.addActionButton(_("Cancel"), () => this.bgaPerformAction('actCancelPlaceShellFaceDown'), { color: 'secondary' });
                     break;
                 case 'chooseOpponentForSwap':
@@ -450,17 +450,17 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                         document.getElementById(`choosePlayer${playerId}-button`).style.border = `3px solid #${player.color}`;
                     });
                     break;
-                case 'SwapCard':
+                case 'swapCard':
                     this.swapButton = this.statusBar.addActionButton(_("Swap selected cards"), () => this.bgaPerformAction('actSwapCard', {
                         playerCardId: this.getCurrentPlayerTable().getHandSelection()[0].id,
                         opponentCardId: this.swapStock.getSelection()[0].id,
                     }), { disabled: true });
                     this.statusBar.addActionButton(_("Pass"), () => this.bgaPerformAction('actPassSwapCard'), { color: 'secondary' });
                     break;
-                case 'BeforeEndRound':
+                case 'beforeEndRound':
                     this.statusBar.addActionButton(_("Seen"), () => this.bgaPerformAction('actSeen'));
                     break;
-                case 'ChooseKeptEventCard':
+                case 'chooseKeptEventCard':
                     this.onEnteringChooseKeptEventCard(args);
                     break;
             }
@@ -589,17 +589,17 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         }
 
         switch (this.gamedatas.gamestate.name) {
-            case 'TakeCards':
+            case 'takeCards':
                 if (parentDiv.dataset.discard) {
                     this.takeCardFromDiscard(Number(parentDiv.dataset.discard));
                 }
                 break;
-            case 'ChooseCard':
+            case 'chooseCard':
                 if (parentDiv.id == 'pick') {
                     this.chooseCard(card.id);
                 }
                 break;
-            case 'PlayCards':
+            case 'playCards':
                 if (parentDiv.dataset.myHand == `true`) {
                     const array = card.category == SPECIAL && card.family == STARFISH ? this.selectedStarfishCards : this.selectedCards;
                     if (array.some(c => c.id == card.id)) {
@@ -612,12 +612,12 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                     this.updateDisabledPlayCards();
                 }
                 break;
-            case 'ChooseDiscardCard':
+            case 'chooseDiscardCard':
                 if (parentDiv.id == 'discard-pick') {
                     this.chooseDiscardCard(card.id);
                 }
                 break;
-            case 'ChooseOpponent':
+            case 'chooseOpponent':
                 const chooseOpponentArgs = this.gamedatas.gamestate.args as EnteringChooseOpponentArgs;
                 if (parentDiv.dataset.currentPlayer == 'false') {
                     const stealPlayerId = Number(parentDiv.dataset.playerId);
@@ -626,10 +626,10 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                     }
                 }
                 break;
-            case 'PlaceShellFaceDown':
+            case 'placeShellFaceDown':
                 this.bgaPerformAction('actPlaceShellFaceDown', { id: card.id });
                 break;
-            case 'SwapCard':
+            case 'swapCard':
                 this.onSwapCardsSelectionChange();
                 break;
         }
@@ -643,7 +643,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         }
 
         switch (this.gamedatas.gamestate.name) {
-            case 'StealPlayedPair':
+            case 'stealPlayedPair':
                 this.bgaPerformAction('actStealPlayedPair', { stolenPlayerId: playerId, id: card.id });
                 break;
         }
@@ -651,16 +651,16 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
 
     public onDiscardPileClick(number: number): void {
         switch (this.gamedatas.gamestate.name) {
-            case 'TakeCards':
+            case 'takeCards':
                 this.takeCardFromDiscard(number);
                 break;
-            case 'PutDiscardPile':
+            case 'putDiscardPile':
                 this.putDiscardPile(number);
                 break;
-            case 'ChooseDiscardPile':
+            case 'chooseDiscardPile':
                 this.chooseDiscardPile(number);
                 break;
-            case 'AngelfishPower':
+            case 'angelfishPower':
                 this.bgaPerformAction('actTakeCardAngelfishPower', { number });
                 break;
         }

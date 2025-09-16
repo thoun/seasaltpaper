@@ -14,6 +14,7 @@ class ChooseOpponentForSwap extends GameState
         parent::__construct($game,
             id: ST_PLAYER_CHOOSE_OPPONENT_FOR_SWAP,
             type: StateType::ACTIVE_PLAYER,
+            name: 'chooseOpponentForSwap',
             description: clienttranslate('${actplayer} must choose an opponent to swap cards'),
             descriptionMyTurn: clienttranslate('${you} must choose an opponent to swap cards'),
         );

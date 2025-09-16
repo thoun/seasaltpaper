@@ -15,6 +15,7 @@ class StealPlayedPair extends GameState
         parent::__construct($game,
             id: ST_PLAYER_STEAL_PLAYED_PAIR,
             type: StateType::ACTIVE_PLAYER,
+            name: 'stealPlayedPair',
             description: clienttranslate('${actplayer} must select a played pair to steal'),
             descriptionMyTurn: clienttranslate('${you} must select a played pair to steal'),
         );

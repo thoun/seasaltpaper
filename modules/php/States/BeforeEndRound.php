@@ -13,6 +13,7 @@ class BeforeEndRound extends GameState {
         parent::__construct($game,
             id: ST_MULTIPLAYER_BEFORE_END_ROUND,
             type: StateType::MULTIPLE_ACTIVE_PLAYER,
+            name: 'beforeEndRound',
             description: clienttranslate('Some players are seeing end round result'),
             descriptionMyTurn: clienttranslate('End round result'),
             transitions: [

@@ -16,6 +16,7 @@ class PlaceShellFaceDown extends GameState
         parent::__construct($game,
             id: ST_PLAYER_PLACE_SHELL_FACE_DOWN,
             type: StateType::ACTIVE_PLAYER,
+            name: 'placeShellFaceDown',
             description: clienttranslate('${actplayer} may play cards duo'),
             descriptionMyTurn: clienttranslate('${you} can place a Shell face down to be immune to attacks'),
         );

@@ -15,6 +15,7 @@ class AngelfishPower extends GameState {
         parent::__construct($game,
             id: ST_PLAYER_ANGELFISH_POWER,
             type: StateType::ACTIVE_PLAYER,
+            name: 'angelfishPower',
             description: clienttranslate('${actplayer} must take one card from the discard (The Angelfish)'),
             descriptionMyTurn: clienttranslate('${you} must take one card from the discard (The Angelfish)'),
         );

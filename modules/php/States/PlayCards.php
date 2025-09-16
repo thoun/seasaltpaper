@@ -22,6 +22,7 @@ class PlayCards extends GameState {
         parent::__construct($game,
             id: ST_PLAYER_PLAY_CARDS,
             type: StateType::ACTIVE_PLAYER,
+            name: 'playCards',
             description: clienttranslate('${actplayer} may play cards duo'),
             descriptionMyTurn: clienttranslate('${you} may play cards duo'),
             updateGameProgression: true,

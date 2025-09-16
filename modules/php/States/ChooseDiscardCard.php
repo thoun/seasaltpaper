@@ -14,6 +14,7 @@ class ChooseDiscardCard extends GameState {
         parent::__construct($game,
             id: ST_PLAYER_CHOOSE_DISCARD_CARD,
             type: StateType::ACTIVE_PLAYER,
+            name: 'chooseDiscardCard',
             description: clienttranslate('${actplayer} must choose a card'),
             descriptionMyTurn: clienttranslate('${you} must choose a card'),
         );

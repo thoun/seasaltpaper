@@ -16,6 +16,7 @@ class SwapCard extends GameState
         parent::__construct($game,
             id: ST_PLAYER_SWAP_CARD,
             type: StateType::ACTIVE_PLAYER,
+            name: 'swapCard',
             description: clienttranslate('${actplayer} can swap an opponent card with one of theirs'),
             descriptionMyTurn: clienttranslate('${you} can swap an opponent card with one of yours'),
         );

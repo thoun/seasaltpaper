@@ -14,6 +14,7 @@ class ChooseOpponent extends GameState
         parent::__construct($game,
             id: ST_PLAYER_CHOOSE_OPPONENT,
             type: StateType::ACTIVE_PLAYER,
+            name: 'chooseOpponent',
             description: clienttranslate('${actplayer} must choose a card to steal'),
             descriptionMyTurn: clienttranslate('${you} must choose a card to steal'),
         );

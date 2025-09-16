@@ -2303,37 +2303,37 @@ var SeaSaltPaper = /** @class */ (function (_super) {
     SeaSaltPaper.prototype.onEnteringState = function (stateName, args) {
         log('Entering state: ' + stateName, args.args);
         switch (stateName) {
-            case 'TakeCards':
+            case 'takeCards':
                 this.onEnteringTakeCards(args);
                 break;
-            case 'ChooseCard':
+            case 'chooseCard':
                 this.onEnteringChooseCard(args.args);
                 break;
-            case 'PutDiscardPile':
+            case 'putDiscardPile':
                 this.onEnteringPutDiscardPile(args.args);
                 break;
-            case 'AngelfishPower':
+            case 'angelfishPower':
                 this.onEnteringAngelfishPower();
                 break;
-            case 'PlayCards':
+            case 'playCards':
                 this.onEnteringPlayCards();
                 break;
-            case 'ChooseDiscardPile':
+            case 'chooseDiscardPile':
                 this.onEnteringChooseDiscardPile();
                 break;
-            case 'ChooseDiscardCard':
+            case 'chooseDiscardCard':
                 this.onEnteringChooseDiscardCard(args.args);
                 break;
-            case 'ChooseOpponent':
+            case 'chooseOpponent':
                 this.onEnteringChooseOpponent(args.args);
                 break;
-            case 'PlaceShellFaceDown':
+            case 'placeShellFaceDown':
                 this.onEnteringPlaceShellFaceDown(args.args);
                 break;
-            case 'SwapCard':
+            case 'swapCard':
                 this.onEnteringSwapCard(args.args);
                 break;
-            case 'StealPlayedPair':
+            case 'stealPlayedPair':
                 this.onEnteringStealPlayedPair(args.args);
                 break;
         }
@@ -2473,37 +2473,37 @@ var SeaSaltPaper = /** @class */ (function (_super) {
     SeaSaltPaper.prototype.onLeavingState = function (stateName) {
         log('Leaving state: ' + stateName);
         switch (stateName) {
-            case 'TakeCards':
+            case 'takeCards':
                 this.onLeavingTakeCards();
                 break;
-            case 'ChooseCard':
+            case 'chooseCard':
                 this.onLeavingChooseCard();
                 break;
-            case 'PutDiscardPile':
+            case 'putDiscardPile':
                 this.onLeavingPutDiscardPile();
                 break;
-            case 'AngelfishPower':
+            case 'angelfishPower':
                 this.onLeavingAngelfishPower();
                 break;
-            case 'PlayCards':
+            case 'playCards':
                 this.onLeavingPlayCards();
                 break;
-            case 'ChooseDiscardCard':
+            case 'chooseDiscardCard':
                 this.onLeavingChooseDiscardCard();
                 break;
-            case 'ChooseOpponent':
+            case 'chooseOpponent':
                 this.onLeavingChooseOpponent();
                 break;
-            case 'ChooseKeptEventCard':
+            case 'chooseKeptEventCard':
                 this.onLeavingChooseKeptEventCard();
                 break;
-            case 'PlaceShellFaceDown':
+            case 'placeShellFaceDown':
                 this.onLeavingPlaceShellFaceDown();
                 break;
-            case 'SwapCard':
+            case 'swapCard':
                 this.onLeavingSwapCard();
                 break;
-            case 'StealPlayedPair':
+            case 'stealPlayedPair':
                 this.onLeavingStealPlayedPair(this.gamedatas.gamestate.args);
                 break;
         }
@@ -2568,12 +2568,12 @@ var SeaSaltPaper = /** @class */ (function (_super) {
         var _this = this;
         if (this.isCurrentPlayerActive()) {
             switch (stateName) {
-                case 'TakeCards':
+                case 'takeCards':
                     if (args.forceTakeOne) {
                         this.statusBar.addActionButton(_("Take the first card"), function () { return _this.takeCardsFromDeck(); });
                     }
                     break;
-                case 'PlayCards':
+                case 'playCards':
                     var playCardsArgs = args;
                     this.statusBar.addActionButton(_("Play selected cards"), function () { return _this.playSelectedCards(); }, { id: "playCards_button" });
                     if (playCardsArgs.hasFourMermaids) {
@@ -2595,7 +2595,7 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                         dojo.addClass(`immediateEndRound_button`, `disabled`);
                     }*/
                     break;
-                case 'PlaceShellFaceDown':
+                case 'placeShellFaceDown':
                     this.statusBar.addActionButton(_("Cancel"), function () { return _this.bgaPerformAction('actCancelPlaceShellFaceDown'); }, { color: 'secondary' });
                     break;
                 case 'chooseOpponentForSwap':
@@ -2606,17 +2606,17 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                         document.getElementById("choosePlayer".concat(playerId, "-button")).style.border = "3px solid #".concat(player.color);
                     });
                     break;
-                case 'SwapCard':
+                case 'swapCard':
                     this.swapButton = this.statusBar.addActionButton(_("Swap selected cards"), function () { return _this.bgaPerformAction('actSwapCard', {
                         playerCardId: _this.getCurrentPlayerTable().getHandSelection()[0].id,
                         opponentCardId: _this.swapStock.getSelection()[0].id,
                     }); }, { disabled: true });
                     this.statusBar.addActionButton(_("Pass"), function () { return _this.bgaPerformAction('actPassSwapCard'); }, { color: 'secondary' });
                     break;
-                case 'BeforeEndRound':
+                case 'beforeEndRound':
                     this.statusBar.addActionButton(_("Seen"), function () { return _this.bgaPerformAction('actSeen'); });
                     break;
-                case 'ChooseKeptEventCard':
+                case 'chooseKeptEventCard':
                     this.onEnteringChooseKeptEventCard(args);
                     break;
             }
@@ -2717,17 +2717,17 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             return;
         }
         switch (this.gamedatas.gamestate.name) {
-            case 'TakeCards':
+            case 'takeCards':
                 if (parentDiv.dataset.discard) {
                     this.takeCardFromDiscard(Number(parentDiv.dataset.discard));
                 }
                 break;
-            case 'ChooseCard':
+            case 'chooseCard':
                 if (parentDiv.id == 'pick') {
                     this.chooseCard(card.id);
                 }
                 break;
-            case 'PlayCards':
+            case 'playCards':
                 if (parentDiv.dataset.myHand == "true") {
                     var array = card.category == SPECIAL && card.family == STARFISH ? this.selectedStarfishCards : this.selectedCards;
                     if (array.some(function (c) { return c.id == card.id; })) {
@@ -2741,12 +2741,12 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                     this.updateDisabledPlayCards();
                 }
                 break;
-            case 'ChooseDiscardCard':
+            case 'chooseDiscardCard':
                 if (parentDiv.id == 'discard-pick') {
                     this.chooseDiscardCard(card.id);
                 }
                 break;
-            case 'ChooseOpponent':
+            case 'chooseOpponent':
                 var chooseOpponentArgs = this.gamedatas.gamestate.args;
                 if (parentDiv.dataset.currentPlayer == 'false') {
                     var stealPlayerId = Number(parentDiv.dataset.playerId);
@@ -2755,10 +2755,10 @@ var SeaSaltPaper = /** @class */ (function (_super) {
                     }
                 }
                 break;
-            case 'PlaceShellFaceDown':
+            case 'placeShellFaceDown':
                 this.bgaPerformAction('actPlaceShellFaceDown', { id: card.id });
                 break;
-            case 'SwapCard':
+            case 'swapCard':
                 this.onSwapCardsSelectionChange();
                 break;
         }
@@ -2770,23 +2770,23 @@ var SeaSaltPaper = /** @class */ (function (_super) {
             return;
         }
         switch (this.gamedatas.gamestate.name) {
-            case 'StealPlayedPair':
+            case 'stealPlayedPair':
                 this.bgaPerformAction('actStealPlayedPair', { stolenPlayerId: playerId, id: card.id });
                 break;
         }
     };
     SeaSaltPaper.prototype.onDiscardPileClick = function (number) {
         switch (this.gamedatas.gamestate.name) {
-            case 'TakeCards':
+            case 'takeCards':
                 this.takeCardFromDiscard(number);
                 break;
-            case 'PutDiscardPile':
+            case 'putDiscardPile':
                 this.putDiscardPile(number);
                 break;
-            case 'ChooseDiscardPile':
+            case 'chooseDiscardPile':
                 this.chooseDiscardPile(number);
                 break;
-            case 'AngelfishPower':
+            case 'angelfishPower':
                 this.bgaPerformAction('actTakeCardAngelfishPower', { number: number });
                 break;
         }
