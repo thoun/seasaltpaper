@@ -5,6 +5,7 @@ namespace Bga\Games\SeaSaltPaper\States;
 use Bga\GameFramework\States\GameState;
 use Bga\GameFramework\States\PossibleAction;
 use Bga\GameFramework\StateType;
+use Bga\GameFrameworkPrototype\Helpers\Arrays;
 use Bga\Games\SeaSaltPaper\Game;
 
 class ChooseKeptEventCard extends GameState {
@@ -42,7 +43,7 @@ class ChooseKeptEventCard extends GameState {
 
     function zombie(int $playerId) {
     	$cards = $this->game->eventCards->getPlayer($playerId);
-        $zombieChoice = $cards[bga_rand(0, count($cards) - 1)]; // random choice over possible moves
-    	return $this->actChooseKeptEventCard($zombieChoice->id, $playerId);
+        $zombieChoice = $this->getRandomZombieChoice(Arrays::map($cards, fn($card) => $card->id)); // random choice over possible moves
+    	return $this->actChooseKeptEventCard($zombieChoice, $playerId);
     }
 }

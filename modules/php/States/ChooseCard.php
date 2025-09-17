@@ -7,6 +7,7 @@ use Bga\GameFramework\States\PossibleAction;
 use Bga\GameFramework\StateType;
 use Bga\Games\SeaSaltPaper\Game;
 use Bga\Games\SeaSaltPaper\Objects\Card;
+use Bga\Games\SeaSaltPaper\Objects\CardsPoints;
 
 class ChooseCard extends GameState {
     public function __construct(protected Game $game)
@@ -113,7 +114,16 @@ class ChooseCard extends GameState {
 
     function zombie(int $playerId) {
         $cards = $this->game->cards->getItemsInLocation('pick');
-        $zombieChoice = $cards[bga_rand(0, count($cards) - 1)]; // random choice over possible moves
-    	return $this->actChooseCard($zombieChoice->id, $playerId);
+
+        $tableCards = $this->game->getPlayerCards($playerId, 'table', false);
+        $handCards = $this->game->getPlayerCards($playerId, 'hand', false);
+
+        $possibleAnswerPoints = [];
+        foreach ($cards as $card) {
+            $possibleAnswerPoints[$card->id] = (new CardsPoints($tableCards, array_merge($handCards, [$card]), $this->game->eventCards->getPlayerEffects($playerId)))->totalPoints;
+        }
+
+        $zombieChoice = $this->getBestZombieChoice($possibleAnswerPoints); // get top choice over possible moves
+    	return $this->actChooseCard($zombieChoice, $playerId);
     }
 }

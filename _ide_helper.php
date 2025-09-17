@@ -114,6 +114,27 @@ namespace Bga\GameFramework\States {
             $this->userPreferences = $game->userPreferences;
             $this->gamestate = $game->gamestate;
         }
+
+        /**
+         * Returns a random choice from an array of possible choices, for Zombie Mode level 1.
+         * 
+         * @param array $choices an of $choiceKey
+         * @return bool a random $choiceKey
+         */
+        public function getRandomZombieChoice(array $choices): mixed {
+            return null;
+        }
+
+        /**
+         * Returns a random top choice from an array of possible choices, for Zombie Mode level 2
+         * 
+         * @param array $choices an associative array of $choiceKey => $associatedPoints.
+         * @param bool $reversed if the least points would be the best answer, instead of the top points
+         * @return bool the best $choiceKey
+         */
+        public function getBestZombieChoice(array $choices, bool $reversed = false): mixed {
+            return null;
+        }
     }
 }
 
@@ -524,8 +545,18 @@ namespace Bga\GameFramework {
 
         /**
          * Return true if we are in multipleactiveplayer state, false otherwise.
+         * 
+         * @deprecated use isMultiactiveState
          */
         final public function isMutiactiveState(): bool
+        {
+            return false;
+        }
+
+        /**
+         * Return true if we are in multipleactiveplayer state, false otherwise.
+         */
+        final public function isMultiactiveState(): bool
         {
             return false;
         }
@@ -694,6 +725,8 @@ namespace Bga\GameFramework {
         /**
          * Get the id of the current game state (rarely useful, it's best to use name, unless you use constants for
          * state ids).
+         * 
+         * @deprecated use getCurrentMainStateId() or getCurrentStateId(int $playerId)
          */
         final public function state_id(): string|int
         {
@@ -774,9 +807,23 @@ namespace Bga\GameFramework {
         }
 
         /**
+         * Returns the current state id for a player. If the player is in private parallel state, it means the current private state for this player.
+         */
+        public function getCurrentStateId(?int $playerId): ?int {
+            return null;
+        }
+
+        /**
          * Returns the current main state, ignoring private parallel states.
          */
         public function getCurrentMainState(): ?GameState {
+            return null;
+        }
+
+        /**
+         * Returns the current main state id, ignoring private parallel states.
+         */
+        public function getCurrentMainStateId(): ?int {
             return null;
         }
     }
@@ -1663,7 +1710,7 @@ namespace Bga\GameFramework {
          * @param int $active_player
          * @return void
          */
-        protected function zombieTurn(array $state, int $active_player): void {}
+        //abstract protected function zombieTurn(array $state, int $active_player): void;
 
         /**
          * To get a Deck instance with `$this->getNew("module.common.deck")`

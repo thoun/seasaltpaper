@@ -2,6 +2,8 @@
 
 namespace Bga\Games\SeaSaltPaper;
 
+use Exception;
+
 function debug(...$debugData) {
     if (Game::getBgaEnvironment() != 'studio') { 
         return;
@@ -88,7 +90,11 @@ trait DebugUtilTrait {
             $count++;
             foreach($this->gamestate->getActivePlayerList() as $playerId) {
                 $playerId = (int)$playerId;
-                $this->gamestate->runStateClassZombie($this->gamestate->getCurrentState($playerId), $playerId);
+                try {
+                    $this->gamestate->runStateClassZombie($this->gamestate->getCurrentState($playerId), $playerId);
+                } catch (\Throwable $e) {
+                    $count = 999;
+                }
             }
         }
     }

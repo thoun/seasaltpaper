@@ -45,9 +45,13 @@ class ChooseOpponentForSwap extends GameState
     function zombie(int $playerId)
     {
         $args = $this->getArgs($playerId);
-        $possibleMoves = $args['playersIds'];
-        $zombieChoice = $possibleMoves[bga_rand(0, count($possibleMoves) - 1)]; // random choice over possible moves
 
-        return $this->actChooseOpponent($zombieChoice, $playerId);
+        $possibleAnswerPoints = [];
+        foreach ($args['playersIds'] as $playerId) {
+            $possibleAnswerPoints[$playerId] = count($this->game->getPlayerCards($playerId, 'hand', false));
+        }
+
+        $zombieChoice = $this->getBestZombieChoice($possibleAnswerPoints); // get top choice over possible moves
+    	return $this->actChooseOpponent($zombieChoice, $playerId);
     }
 }

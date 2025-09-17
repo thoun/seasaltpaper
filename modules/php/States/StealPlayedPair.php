@@ -75,10 +75,10 @@ class StealPlayedPair extends GameState
     {
         $args = $this->getArgs($playerId);
         $possibleMoves = $args['opponentIds'];
-        $opponentId = $possibleMoves[bga_rand(0, count($possibleMoves) - 1)]; // random choice over possible moves
+        $opponentId = $this->getRandomZombieChoice($possibleMoves); // random choice over possible moves
 
         $possibleMoves = $args['possiblePairs'][$opponentId];
-        $pair = $possibleMoves[bga_rand(0, count($possibleMoves) - 1)]; // random choice over possible moves
+        $pair = $this->getRandomZombieChoice($possibleMoves); // random choice over possible moves
 
         return $this->actStealPlayedPair($opponentId, $pair[0]->id, $playerId, $args);
     }

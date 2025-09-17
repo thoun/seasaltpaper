@@ -40,6 +40,12 @@ class ChooseDiscardPile extends GameState {
     }
 
     function zombie(int $playerId) {
-    	return $this->actChooseDiscardPile(bga_rand(1, 2));
+        $sizes = [
+            1 => $this->game->cards->countItemsInLocation('discard1'),
+            2 => $this->game->cards->countItemsInLocation('discard2'),
+        ];
+
+        $zombieChoice = $this->getBestZombieChoice($sizes); // get top choice over possible moves
+    	return $this->actChooseDiscardPile($zombieChoice);
     }
 }

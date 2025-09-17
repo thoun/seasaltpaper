@@ -6,6 +6,7 @@ use Bga\GameFramework\States\GameState;
 use Bga\GameFramework\States\PossibleAction;
 use Bga\GameFramework\StateType;
 use Bga\Games\SeaSaltPaper\Game;
+use Bga\Games\SeaSaltPaper\Objects\CardsPoints;
 
 use const Bga\Games\SeaSaltPaper\THE_ANGELFISH;
 
@@ -71,6 +72,20 @@ class AngelfishPower extends GameState {
     }
 
     function zombie(int $playerId) {
-    	return $this->actTakeCardAngelfishPower(bga_rand(1,2), $playerId);
+        $cardsInDiscard = [
+            1 => $this->game->cards->getOnTop('discard1'),
+            2 => $this->game->cards->getOnTop('discard2'),
+        ];
+
+        $tableCards = $this->game->getPlayerCards($playerId, 'table', false);
+        $handCards = $this->game->getPlayerCards($playerId, 'hand', false);
+
+        $possibleAnswerPoints = [];
+        foreach ($cardsInDiscard as $choice => $card) {
+            $possibleAnswerPoints[$choice] = (new CardsPoints($tableCards, array_merge($handCards, [$card]), $this->game->eventCards->getPlayerEffects($playerId)))->totalPoints;
+        }
+
+        $zombieChoice = $this->getBestZombieChoice($possibleAnswerPoints); // get top choice over possible moves
+    	return $this->actTakeCardAngelfishPower($zombieChoice, $playerId);
     }
 }

@@ -7,6 +7,7 @@ use Bga\GameFramework\States\PossibleAction;
 use Bga\GameFramework\StateType;
 use Bga\Games\SeaSaltPaper\Game;
 use Bga\Games\SeaSaltPaper\Objects\Card;
+use Bga\Games\SeaSaltPaper\Objects\CardsPoints;
 
 class TakeCards extends GameState {
     public function __construct(protected Game $game)
@@ -109,10 +110,31 @@ class TakeCards extends GameState {
     }
 
     function zombie(int $playerId) {
+        $args = $this->getArgs();      
+
+        if ($args['forceTakeOne']) {
+            return $this->takeFirstCardFromDeck($playerId);
+        }
+
+        $possibleDiscardPiles = $args['canTakeFromDiscard'];
+        $cardsInDiscard = [];
+        foreach ($possibleDiscardPiles as $number) {
+            $cardsInDiscard[$number] = $this->game->cards->getOnTop('discard'.$number);
+        }
+
+        $tableCards = $this->game->getPlayerCards($playerId, 'table', false);
+        $handCards = $this->game->getPlayerCards($playerId, 'hand', false);
+
+        $possibleAnswerPoints = [];
+        foreach ($cardsInDiscard as $choice => $card) {
+            $possibleAnswerPoints[$choice] = (new CardsPoints($tableCards, array_merge($handCards, [$card]), $this->game->eventCards->getPlayerEffects($playerId)))->totalPoints;
+        }
+        $discardZombieChoice = $this->getBestZombieChoice($possibleAnswerPoints);
+
         $args = $this->getArgs();
         $fromDeck = true;
-        if ($args['canTakeFromDeck'] && count($args['canTakeFromDiscard']) > 0) {
-            $fromDeck = bga_rand(1, 3) < 3;
+        if ($args['canTakeFromDeck'] && $discardZombieChoice !== null) {
+            $fromDeck = $possibleAnswerPoints[$discardZombieChoice] < 1;
         } else if (!$args['canTakeFromDeck']) {
             $fromDeck = false;
         }
@@ -120,9 +142,7 @@ class TakeCards extends GameState {
         if ($fromDeck) {
             return $this->actTakeCardsFromDeck($playerId);
         } else {
-            $possibleMoves = $args['canTakeFromDiscard'];
-            $zombieChoice = $possibleMoves[bga_rand(0, count($possibleMoves) - 1)]; // random choice over possible moves
-            return $this->actTakeCardFromDiscard($zombieChoice, $playerId);
+            return $this->actTakeCardFromDiscard($discardZombieChoice, $playerId);
         }
     }
 

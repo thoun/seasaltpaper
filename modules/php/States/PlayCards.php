@@ -9,6 +9,8 @@ use Bga\GameFramework\StateType;
 use Bga\GameFrameworkPrototype\Helpers\Arrays;
 use Bga\Games\SeaSaltPaper\Game;
 
+use function Bga\Games\SeaSaltPaper\debug;
+
 use const Bga\Games\SeaSaltPaper\THE_CORAL_REEF;
 use const Bga\Games\SeaSaltPaper\THE_DIODON_FISH;
 use const Bga\Games\SeaSaltPaper\THE_HERMIT_CRAB;
@@ -352,13 +354,34 @@ class PlayCards extends GameState {
 
     function zombie(int $playerId) {
     	$args = $this->getArgs($playerId);
-        if ($args['canStop']) {
-            return $this->actImmediateEndRound($playerId);
-        } else if ($args['canCallEndRound']) {
-            return $this->actEndRound($playerId);
-        } else {
-            return $this->actEndTurn($playerId); // TODO try to play pairs if possible
+
+        // try to play a pair
+        if (count($args['possiblePairs']) > 0) {
+            $pairToPlay = $this->getRandomZombieChoice($args['possiblePairs']);            
+        
+            $pairCards = Arrays::filter(
+                $this->game->getPlayerCards($playerId, 'hand', false), 
+                fn($card) => $card->category == PAIR
+            );
+            $card1 = Arrays::find($pairCards, fn($card) => $card->family === $pairToPlay[0]);
+            $card2 = Arrays::find($pairCards, fn($card) => $card->family === $pairToPlay[1] && $card->id !== $card1->id);
+            
+            return $this->actPlayCards($card1->id, $card2->id, $playerId);
         }
+
+        // else try to end round
+        $possibleStops = [];
+        if ($args['canCallEndRound']) {
+            $possibleStops[] = 'actEndRound';
+            if ($args['canStop']) {
+                $possibleStops[] = 'actImmediateEndRound';
+            }
+            $method = $this->getRandomZombieChoice($possibleStops);
+            return $this->$method($playerId);
+        }
+        
+        // else end turn
+        return $this->actEndTurn($playerId);
     }
 
     public function applyEndRound(int $type, string $announcement, int $activePlayerId) {
