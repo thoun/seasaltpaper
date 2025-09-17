@@ -83,12 +83,13 @@ trait DebugUtilTrait {
     }
    
     function debug_playToEndGame() {
-      $count = 0;
-      while (intval($this->gamestate->getCurrentMainStateId()) < ST_END_GAME && $count < 100) {
-        $count++;
-        foreach($this->gamestate->getActivePlayerList() as $playerId) {
-            $this->gamestate->runStateClassZombie($this->gamestate->getCurrentState((int)$playerId), (int)$playerId);
+        $count = 0;
+        while ($this->gamestate->getCurrentMainStateId() < ST_END_GAME && $count < 100) {
+            $count++;
+            foreach($this->gamestate->getActivePlayerList() as $playerId) {
+                $playerId = (int)$playerId;
+                $this->gamestate->runStateClassZombie($this->gamestate->getCurrentState($playerId), $playerId);
+            }
         }
-      }
     }
 }

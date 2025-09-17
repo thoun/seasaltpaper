@@ -263,7 +263,10 @@ class PlayCards extends GameState {
             throw new \BgaUserException("You must select Pair cards from your hand");
         }
 
-        if (!in_array($cards[1]->family, $cards[0]->matchFamilies)) {
+        $possiblePairs = $this->getPossiblePairs($activePlayerId);
+        if (!Arrays::some($possiblePairs, 
+            fn($possiblePair) => ($cards[0]->family == $possiblePair[0] && $cards[1]->family == $possiblePair[1]) || ($cards[1]->family == $possiblePair[0] && $cards[0]->family == $possiblePair[1])
+        )) {
             throw new \BgaUserException("Invalid pair");
         }
 
