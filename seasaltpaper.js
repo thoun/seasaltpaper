@@ -2368,11 +2368,14 @@ var SeaSaltPaper = /** @class */ (function (_super) {
     };
     SeaSaltPaper.prototype.onEnteringChooseCard = function (args) {
         var _this = this;
-        var _a, _b;
+        var _a, _b, _c;
         var currentPlayer = this.isCurrentPlayerActive();
         this.stacks.showPickCards(true, (_b = (_a = args._private) === null || _a === void 0 ? void 0 : _a.cards) !== null && _b !== void 0 ? _b : args.cards, currentPlayer);
         if (currentPlayer) {
             setTimeout(function () { return _this.stacks.makePickSelectable(true); }, 500);
+            if (!((_c = args._private) === null || _c === void 0 ? void 0 : _c.cards)) {
+                this.showMessage('BGA Error: please <a href="javascript:window.location.reload()">Refresh the page</a>', 'error');
+            }
         }
         else {
             this.stacks.makePickSelectable(false);

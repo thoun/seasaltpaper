@@ -195,6 +195,10 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         this.stacks.showPickCards(true, args._private?.cards ?? args.cards, currentPlayer);
         if (currentPlayer) {
             setTimeout(() => this.stacks.makePickSelectable(true), 500);
+
+            if (!args._private?.cards) {
+                this.showMessage('BGA Error: please <a href="javascript:window.location.reload()">Refresh the page</a>', 'error');
+            }
         } else {
             this.stacks.makePickSelectable(false);
         }        
