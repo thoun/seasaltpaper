@@ -12,9 +12,6 @@ class EndScore extends GameState {
         parent::__construct($game,
             id: ST_END_SCORE,
             type: StateType::GAME,
-            transitions: [
-                'endGame' => ST_END_GAME
-            ]
         );
     }
 
@@ -33,7 +30,7 @@ class EndScore extends GameState {
             }
         }
 
-        return 'endGame';
+        return ST_END_GAME;
     }
 
     function setPlayerScore(int $playerId, int $amount, $message = '', $args = []) {
