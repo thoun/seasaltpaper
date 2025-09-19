@@ -97,18 +97,7 @@ class ChooseCard extends GameState {
 
             return PlayCards::class;
         } else {
-            $remainingCardsInDiscard1 = $this->game->cards->countItemsInLocation('discard1');
-            $remainingCardsInDiscard2 = $this->game->cards->countItemsInLocation('discard2');
-
-            if ($remainingCardsInDiscard1 == 0) {
-                $this->game->applyPutDiscardPile(1);
-                return PlayCards::class;
-            } else if ($remainingCardsInDiscard2 == 0) {
-                $this->game->applyPutDiscardPile(2);
-                return PlayCards::class;
-            } else {
-                return PutDiscardPile::class;
-            }
+            return PutDiscardPile::class;
         }
     }
 

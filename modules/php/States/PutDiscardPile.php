@@ -23,6 +23,12 @@ class PutDiscardPile extends GameState {
     function getArgs(int $activePlayerId) {
         $cards = $this->game->cards->getItemsInLocation('pick');
         $maskedCards = Card::onlyIds($cards);
+        $possibleDiscardPiles = [];
+        foreach ([1, 2] as $number) {
+            if ($this->game->cards->countItemsInLocation('discard'.$number) > 0) {
+                $possibleDiscardPiles[] = $number;
+            }
+        }
 
         return [
             '_private' => [
@@ -33,7 +39,19 @@ class PutDiscardPile extends GameState {
             'cards' => $maskedCards,
             'deckTopCard' => $this->game->cards->getDeckTopCard(),
             'remainingCardsInDeck' => $this->game->getRemainingCardsInDeck(),
+            'possibleDiscardPiles' => $possibleDiscardPiles,
+            '_no_notify' => count($possibleDiscardPiles) < 2,
         ];
+    }
+
+    public function onEnteringState(array $args) {
+        $possibleDiscardPiles = $args['possibleDiscardPiles'];
+        if (count($possibleDiscardPiles) === 0) {
+            return $this->actPutDiscardPile(1);
+        } else if (count($possibleDiscardPiles) === 1) {
+            $emptyPile = 3 - $possibleDiscardPiles[0];
+            return $this->actPutDiscardPile($emptyPile);
+        }
     }
 
     #[PossibleAction]
@@ -48,6 +66,8 @@ class PutDiscardPile extends GameState {
     }
 
     function zombie(int $playerId) {
-    	return $this->actPutDiscardPile(bga_rand(1, 2));
+        $args = $this->getArgs($playerId);
+        $zombieChoice = $this->getRandomZombieChoice($args['possibleDiscardPiles']);
+    	return $this->actPutDiscardPile($zombieChoice);
     }
 }
