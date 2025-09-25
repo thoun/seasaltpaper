@@ -22,8 +22,8 @@ class TakeCards extends GameState {
         );
     }
 
-    function getArgs() {
-        $forceTakeOne = intval($this->game->getGameStateValue(FORCE_TAKE_ONE)) > 0;
+    function getArgs(int $activePlayerId) {
+        $forceTakeOne = intval($this->game->getGameStateValue(FORCE_TAKE_ONE)) > 0 && !$this->game->isProtected($activePlayerId);
 
         $canTakeFromDeck = $this->game->cards->countItemsInLocation('deck') > 0;
         $canTakeFromDiscard = [];
@@ -109,9 +109,7 @@ class TakeCards extends GameState {
         return AngelfishPower::class;
     }
 
-    function zombie(int $playerId) {
-        $args = $this->getArgs();      
-
+    function zombie(int $playerId, array $args) {
         if ($args['forceTakeOne']) {
             return $this->takeFirstCardFromDeck($playerId);
         }
@@ -131,7 +129,6 @@ class TakeCards extends GameState {
         }
         $discardZombieChoice = $this->getBestZombieChoice($possibleAnswerPoints);
 
-        $args = $this->getArgs();
         $fromDeck = true;
         if ($args['canTakeFromDeck'] && $discardZombieChoice !== null) {
             $fromDeck = $possibleAnswerPoints[$discardZombieChoice] < 1;
