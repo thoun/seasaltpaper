@@ -69,7 +69,7 @@ class CardsPoints {
         $pairTableCards = array_values(array_filter($tableCards, fn($card) => $card->category == PAIR));
         $collectionCards = array_values(array_filter($cards, fn($card) => $card->category == COLLECTION));
         $multiplierCards = array_values(array_filter($cards, fn($card) => $card->category == MULTIPLIER));
-        $specialCardsInTable = array_values(array_filter($tableCards, fn($card) => $card->category == SPECIAL));
+        $specialCards = array_values(array_filter($cards, fn($card) => $card->category == SPECIAL));
 
         // Mermaids
         if (!in_array(THE_TORNADO, $this->eventEffets)) {
@@ -136,7 +136,9 @@ class CardsPoints {
         }
         
         // Special
-        $pairPoints += count(array_filter($specialCardsInTable, fn($card) => $card->family == STARFISH)) * 2;
+        $starfishCardCount = Arrays::count($specialCards, fn($card) => $card->family == STARFISH);
+        $validatedStarfishCardCount = min($pairPoints, $starfishCardCount); // cannot have more than the number of (socred pairs)
+        $pairPoints += $validatedStarfishCardCount * 2;
 
         return [$mermaidPoints, $pairPoints, $collectorPoints, $multiplierPoints];
     }
