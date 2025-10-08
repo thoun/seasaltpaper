@@ -69,7 +69,6 @@ class CardsPoints {
         $pairTableCards = array_values(array_filter($tableCards, fn($card) => $card->category == PAIR));
         $collectionCards = array_values(array_filter($cards, fn($card) => $card->category == COLLECTION));
         $multiplierCards = array_values(array_filter($cards, fn($card) => $card->category == MULTIPLIER));
-        $specialCards = array_values(array_filter($cards, fn($card) => $card->category == SPECIAL));
 
         // Mermaids
         if (!in_array(THE_TORNADO, $this->eventEffets)) {
@@ -92,6 +91,7 @@ class CardsPoints {
         $pairPoints += floor(count($pairTableCards) / 2);
 
         $remainingPairCards = $pairHandCards; // copy
+        $validPairsInHand = 0;
         usort($remainingPairCards, fn($a, $b) => $b->family - $a->family); // so a pair of crabs & a pair of lobster would be match lobster+crab * 2 instead of 2 crabs & 2 lone lobsters
         while (count($remainingPairCards) > 0) {
             $card = $remainingPairCards[0];
@@ -104,6 +104,7 @@ class CardsPoints {
             }
             if ($matchingCard !== null) {
                 $pairPoints += 1;
+                $validPairsInHand++;
             }
             $remainingPairCards = array_values(array_filter($remainingPairCards, fn($c) => $c->id != $card->id && ($matchingCard == null || $matchingCard->id != $c->id)));
         }
@@ -136,9 +137,11 @@ class CardsPoints {
         }
         
         // Special
-        $starfishCardCount = Arrays::count($specialCards, fn($card) => $card->family == STARFISH);
-        $validatedStarfishCardCount = min($pairPoints, $starfishCardCount); // cannot have more than the number of (socred pairs)
-        $pairPoints += $validatedStarfishCardCount * 2;
+        $tableStarfishCardCount = Arrays::count($tableCards, fn($card) => $card->category == SPECIAL && $card->family == STARFISH);
+        $pairPoints += $tableStarfishCardCount * 2;
+        $handStarfishCardCount = Arrays::count($handCards, fn($card) => $card->category == SPECIAL && $card->family == STARFISH);
+        $validatedHandStarfishCardCount = min($validPairsInHand, $handStarfishCardCount); // cannot have more than the number of valid pairs in hand
+        $pairPoints += $validatedHandStarfishCardCount * 2;
 
         return [$mermaidPoints, $pairPoints, $collectorPoints, $multiplierPoints];
     }
