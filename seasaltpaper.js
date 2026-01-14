@@ -2293,6 +2293,21 @@ var SeaSaltPaper = /** @class */ (function (_super) {
         });
         this.setupNotifications();
         this.addHelp();
+        if (this.bgaInternal.flags['ingame_player_panels']) {
+            setTimeout(function () {
+                Object.keys(gamedatas.players).forEach(function (playerId) {
+                    var playerPanel = document.getElementById("overall_player_board_".concat(playerId));
+                    var playerTable = document.getElementById("player-table-".concat(playerId)).querySelector('.name');
+                    playerTable.innerHTML = '';
+                    playerTable.insertAdjacentElement('beforeend', playerPanel);
+                    playerTable.style.color = 'black';
+                    playerTable.style.fontWeight = 'inherit';
+                    playerTable.style.fontSize = 'inherit';
+                    playerTable.style.minWidth = '280px';
+                    //playerTable.style.textAlign = 'inherit';
+                });
+            });
+        }
         log("Ending game setup");
     };
     ///////////////////////////////////////////////////

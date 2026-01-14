@@ -107,6 +107,22 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         this.setupNotifications();
         this.addHelp();
 
+        if ((this as any).bgaInternal.flags['ingame_player_panels']) {
+            setTimeout(() => {
+                Object.keys(gamedatas.players).forEach(playerId => {
+                    const playerPanel = document.getElementById(`overall_player_board_${playerId}`)
+                    const playerTable = document.getElementById(`player-table-${playerId}`).querySelector('.name') as HTMLDivElement;
+                    playerTable.innerHTML = '';
+                    playerTable.insertAdjacentElement('beforeend', playerPanel);
+                    playerTable.style.color = 'black';
+                    playerTable.style.fontWeight = 'inherit';
+                    playerTable.style.fontSize = 'inherit';
+                    playerTable.style.minWidth = '280px';
+                    //playerTable.style.textAlign = 'inherit';
+                });
+            });
+        }
+
         log( "Ending game setup" );
     }
 

@@ -21,6 +21,7 @@ namespace Bga\Games\SeaSaltPaper;
 use Bga\GameFrameworkPrototype\Counters\PlayerCounter;
 use Bga\GameFrameworkPrototype\Helpers\Arrays;
 use Bga\Games\SeaSaltPaper\Objects\Card;
+use Bga\Games\SeaSaltPaper\States\NewRound;
 
 require_once(__DIR__.'/framework-prototype/Helpers/Arrays.php');
 require_once(__DIR__.'/framework-prototype/counters/player-counter.php');
@@ -162,7 +163,7 @@ class Game extends \Bga\GameFramework\Table {
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
 
-        /************ End of the game initialization *****/
+        return NewRound::class;
     }
 
     /*
