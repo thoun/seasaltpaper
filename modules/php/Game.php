@@ -18,13 +18,11 @@
 
 namespace Bga\Games\SeaSaltPaper;
 
-use Bga\GameFrameworkPrototype\Counters\PlayerCounter;
 use Bga\GameFrameworkPrototype\Helpers\Arrays;
 use Bga\Games\SeaSaltPaper\Objects\Card;
 use Bga\Games\SeaSaltPaper\States\NewRound;
 
 require_once(__DIR__.'/framework-prototype/Helpers/Arrays.php');
-require_once(__DIR__.'/framework-prototype/counters/player-counter.php');
 require_once(__DIR__.'/framework-prototype/item/item.php');
 require_once(__DIR__.'/framework-prototype/item/item-field.php');
 require_once(__DIR__.'/framework-prototype/item/item-location.php');
@@ -37,7 +35,6 @@ class Game extends \Bga\GameFramework\Table {
 
     public CardManager $cards;
     public EventCardManager $eventCards;
-    public PlayerCounter $score;
 
     public array $ANNOUNCEMENTS;
     public array $COLORS;
@@ -83,7 +80,6 @@ class Game extends \Bga\GameFramework\Table {
 
         $this->cards = new CardManager($this);
         $this->eventCards = new EventCardManager($this);
-        $this->score = new PlayerCounter($this, 'player_score', 'score');
 	}
 
     /*
@@ -297,14 +293,14 @@ class Game extends \Bga\GameFramework\Table {
     */
     function getGameProgression() {
         $maxScore = $this->getMaxScore();
-        $topScore = $this->score->getMax();
+        $topScore = $this->playerScore->getMax();
 
         return min(100, 100 * $topScore / $maxScore);
     }
 
     function isLastRound() {
         $maxScore = $this->getMaxScore();
-        $topScore = $this->score->getMax();
+        $topScore = $this->playerScore->getMax();
 
         return $topScore >= $maxScore;
     }

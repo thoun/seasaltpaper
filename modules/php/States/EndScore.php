@@ -34,7 +34,7 @@ class EndScore extends GameState {
     }
 
     function setPlayerScore(int $playerId, int $amount, $message = '', $args = []) {
-        $this->game->DbQuery("UPDATE player SET `player_score` = $amount WHERE player_id = $playerId");
+        $this->bga->playerScore->set($playerId, $amount, null);
             
         $this->notify->all('score', $message, [
             'playerId' => $playerId,

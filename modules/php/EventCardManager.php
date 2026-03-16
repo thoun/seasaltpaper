@@ -61,7 +61,7 @@ class EventCardManager extends ItemManager {
         
         $maxScorePlayerId = null;
         $minScorePlayerId = null;
-        $scores = $this->game->score->getAll();
+        $scores = $this->game->playerScore->getAll();
 
         $valuesCount = array_count_values($scores);
 

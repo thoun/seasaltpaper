@@ -151,7 +151,8 @@ class BeforeEndRound extends GameState {
     }
 
     function incPlayerScore(int $playerId, int $roundScore, $message = '', $args = []) {
-        $this->game->DbQuery("UPDATE player SET `player_score` = `player_score` + $roundScore,  `player_score_aux` = $roundScore WHERE player_id = $playerId");
+        $this->bga->playerScore->inc($playerId, $roundScore, null);
+        $this->bga->playerScoreAux->set($playerId, $roundScore, null);
             
         $this->notify->all('score', $message, [
             'playerId' => $playerId,
