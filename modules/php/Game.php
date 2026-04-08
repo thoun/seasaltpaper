@@ -80,6 +80,8 @@ class Game extends \Bga\GameFramework\Table {
 
         $this->cards = new CardManager($this);
         $this->eventCards = new EventCardManager($this);
+
+        $this->bga->notify->alwaysMergePrivate();
 	}
 
     /*

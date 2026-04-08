@@ -2,7 +2,7 @@
 
 namespace Bga\Games\SeaSaltPaper;
 
-use Exception;
+use Bga\GameFramework\Actions\Debug;
 
 function debug(...$debugData) {
     if (Game::getBgaEnvironment() != 'studio') { 
@@ -11,11 +11,13 @@ function debug(...$debugData) {
 }
 
 trait DebugUtilTrait {
+    public \Bga\GameFramework\Bga $bga;
 
 //////////////////////////////////////////////////////////////////////////////
 //////////// Utility functions
 ////////////
 
+    #[Debug(true)]
     function debug_SetMermaids() {
         $playerId = 2343492;
         $number = $this->mermaidsToEndGame($playerId);
@@ -23,10 +25,12 @@ trait DebugUtilTrait {
         $this->cards->moveCards(array_map(fn($card) => $card->id, $cards), 'hand'.$playerId, 99);
     }
 
+    #[Debug(true)]
     function debug_SetMermaidOnDeckTop() {
         $this->DbQuery("UPDATE card SET card_location_arg=1000 WHERE card_type = 10 AND card_location = 'deck' LIMIT 1" );
     }
 
+    #[Debug(true)]
     function debug_SetMermaidsOnDeckTop() {
         $this->DbQuery("UPDATE card SET card_location_arg=1000 WHERE card_type = 10 AND card_location = 'deck'" );
     }
@@ -35,21 +39,25 @@ trait DebugUtilTrait {
         return $this->cards->getCardsOfType($category * 10 + $family, $color * 10 + $index)[0];
     }
 
+    #[Debug(true)]
     private function debug_SetCardInHand($playerId, $category, $family, $color, $index = 0) {
         $card = $this->debug_GetCardByTypes($category, $family, $color, $index);
         $this->cards->moveCard($card->id, 'hand'.$playerId);
     }
 
+    #[Debug(true)]
     function debug_EmptyDeck() {
         $leave = 2;
         $move = intval($this->cards->countCardInLocation('deck')) - $leave;
         $this->cards->pickCardsForLocation($move, 'deck', 'discard');
     }
 
+    #[Debug(true)]
     function debug_fillHand(int $playerId, int $number = 12) {
         $this->cards->pickItemsForLocation($number, 'deck', null, 'hand'.$playerId);
     }
 
+    #[Debug(true)]
     function debug_fillHands(int $number = 12) {
         $playerIds = $this->getPlayersIds();
         foreach ($playerIds as $playerId) {
@@ -57,6 +65,7 @@ trait DebugUtilTrait {
         }
     }
 
+    #[Debug(true)]
     function debug_FillTable() {
         $number = 10;
         $playersIds = $this->getPlayersIds();
@@ -65,6 +74,7 @@ trait DebugUtilTrait {
         }
     }
 
+    #[Debug(true)]
     function debug_FillDiscards() {
         $number = 10;
         foreach([1, 2] as $pile) {
@@ -73,9 +83,10 @@ trait DebugUtilTrait {
     }
 
     function debug_SetPlayerScore(int $playerId, int $score = 30) {
-        $this->DbQuery("UPDATE `player` SET player_score = $score WHERE player_id = $playerId" );
+        $this->bga->playerScore->set($playerId, $score);
     }
 
+    #[Debug(true)]
     function debug_SetTableEventCard(int $type) {
         $this->DbQuery("UPDATE event_card SET `type` = $type WHERE `location` = 'table'" );
     }

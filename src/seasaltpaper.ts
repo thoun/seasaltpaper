@@ -175,13 +175,13 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
     private setGamestateDescription(property: string, args: any) {
         switch(property) {
             case 'NoDiscard':
-                this.statusBar.setTitle(this.isCurrentPlayerActive() ?
+                this.statusBar.setTitle(this.bga.players.isCurrentPlayerActive() ?
                     _('${you} must take two cards from deck ${call}') :
                     _('${actplayer} must take two cards from deck ${call}'),
                 args);
                 break;
             case 'ForceTakeOne':
-                this.statusBar.setTitle(this.isCurrentPlayerActive() ?
+                this.statusBar.setTitle(this.bga.players.isCurrentPlayerActive() ?
                     _('${you} must take the first card from deck ${call}') :
                     _('${actplayer} must take the first card from deck ${call}'),
                 args);
@@ -200,21 +200,17 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
             this.setGamestateDescription('NoDiscard', args);
         }
 
-        if (this.isCurrentPlayerActive()) {
+        if (this.bga.players.isCurrentPlayerActive()) {
             this.stacks.makeDeckSelectable(args.canTakeFromDeck);
             this.stacks.makeDiscardSelectable(!args.forceTakeOne);
         }
     }
     
     private onEnteringChooseCard(args: EnteringChooseCardArgs) {
-        const currentPlayer = this.isCurrentPlayerActive();
-        this.stacks.showPickCards(true, args._private?.cards ?? args.cards, currentPlayer);
+        const currentPlayer = this.bga.players.isCurrentPlayerActive();
+        this.stacks.showPickCards(true, args.cards, currentPlayer);
         if (currentPlayer) {
             setTimeout(() => this.stacks.makePickSelectable(true), 500);
-
-            if (!args._private?.cards) {
-                this.showMessage('BGA Error: please <a href="javascript:window.location.reload()">Refresh the page</a>', 'error');
-            }
         } else {
             this.stacks.makePickSelectable(false);
         }        
@@ -222,14 +218,14 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
     }
     
     private onEnteringPutDiscardPile(args: EnteringChooseCardArgs) {
-        const currentPlayer = this.isCurrentPlayerActive();
-        this.stacks.showPickCards(true, args._private?.cards ?? args.cards, currentPlayer);
+        const currentPlayer = this.bga.players.isCurrentPlayerActive();
+        this.stacks.showPickCards(true, args.cards, currentPlayer);
         this.stacks.makeDiscardSelectable(currentPlayer);
     }
 
     private onEnteringAngelfishPower() {
         this.stacks.showPickCards(false);
-        this.stacks.makeDiscardSelectable(this.isCurrentPlayerActive());
+        this.stacks.makeDiscardSelectable(this.bga.players.isCurrentPlayerActive());
     }
 
     private onEnteringPlayCards() {
@@ -237,7 +233,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         this.selectedCards = [];
         this.selectedStarfishCards = [];
 
-        if (this.isCurrentPlayerActive()) {
+        if (this.bga.players.isCurrentPlayerActive()) {
             this.getCurrentPlayerTable()?.setSelectable(true);
             this.updateDisabledPlayCards();
         }
@@ -248,14 +244,14 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
         this.selectedCards = [];
         this.selectedStarfishCards = [];
 
-        if (this.isCurrentPlayerActive()) {
+        if (this.bga.players.isCurrentPlayerActive()) {
             this.getCurrentPlayerTable().setSelectable(true);
             this.getCurrentPlayerTable().setSelectableCards(args.selectableCards);
         }
     }
 
     private onEnteringStealPlayedPair(args: EnteringStealPlayedPairArgs) {
-        if (this.isCurrentPlayerActive()) {
+        if (this.bga.players.isCurrentPlayerActive()) {
             args.opponentIds.forEach(opponentId => {
                 this.getPlayerTable(opponentId).setPlayedCardsSelectable(true, args.possiblePairs[opponentId] ?? []);
             });
@@ -263,12 +259,12 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
     }
     
     private onEnteringChooseDiscardPile() {
-        this.stacks.makeDiscardSelectable(this.isCurrentPlayerActive());
+        this.stacks.makeDiscardSelectable(this.bga.players.isCurrentPlayerActive());
     }
     
     private onEnteringChooseDiscardCard(args: EnteringChooseCardArgs) {
-        const currentPlayer = this.isCurrentPlayerActive();
-        const cards = args._private?.cards || args.cards;
+        const currentPlayer = this.bga.players.isCurrentPlayerActive();
+        const cards = args.cards;
         const pickDiv = document.getElementById('discard-pick');
         pickDiv.innerHTML = '';
         pickDiv.dataset.visible = 'true';
@@ -287,8 +283,8 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
     }
     
     private onEnteringSwapCard(args: EnteringChooseCardArgs) {
-        if (this.isCurrentPlayerActive()) {
-            const cards = args._private?.cards || args.cards;
+        if (this.bga.players.isCurrentPlayerActive()) {
+            const cards = args.cards;
             const pickDiv = document.getElementById('discard-pick');
             pickDiv.innerHTML = '';
             pickDiv.dataset.visible = 'true';
@@ -309,7 +305,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
     }
     
     private onEnteringChooseOpponent(args: EnteringChooseOpponentArgs) {
-        if (this.isCurrentPlayerActive()) {
+        if (this.bga.players.isCurrentPlayerActive()) {
             args.playersIds.forEach(playerId => 
                 document.getElementById(`player-table-${playerId}-hand-cards`).dataset.canSteal = 'true'
             );
@@ -317,7 +313,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
     }
     
     private onEnteringChooseKeptEventCard(args: any) {
-        if (this.isCurrentPlayerActive()) {
+        if (this.bga.players.isCurrentPlayerActive()) {
             this.getCurrentPlayerTable().setEventCardsSelectable(true);
         }
     }
@@ -414,7 +410,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
     }
 
     private onLeavingStealPlayedPair(args: EnteringStealPlayedPairArgs) {
-        if (this.isCurrentPlayerActive()) {
+        if (this.bga.players.isCurrentPlayerActive()) {
             args.opponentIds.forEach(opponentId => {
                 this.getPlayerTable(opponentId).setPlayedCardsSelectable(false);
             });
@@ -425,7 +421,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
     //                        action status bar (ie: the HTML links in the status bar).
     //
     public onUpdateActionButtons(stateName: string, args: any) {
-        if (this.isCurrentPlayerActive()) {
+        if (this.bga.players.isCurrentPlayerActive()) {
             switch (stateName) {
                 
                 case 'takeCards':
@@ -437,15 +433,15 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                     const playCardsArgs = args as EnteringPlayCardsArgs;
                     this.statusBar.addActionButton(_("Play selected cards"), () => this.playSelectedCards(), { id: `playCards_button` });
                     if (playCardsArgs.hasFourMermaids) {
-                        this.statusBar.addActionButton(_("Play the ${number} Mermaids").replace('${number}', ''+playCardsArgs.mermaidsToEndGame), () => this.bgaPerformAction('actEndGameWithMermaids'), { color: 'alert' });
+                        this.statusBar.addActionButton(_("Play the ${number} Mermaids").replace('${number}', ''+playCardsArgs.mermaidsToEndGame), () => this.bga.actions.performAction('actEndGameWithMermaids'), { color: 'alert' });
                     }
                     if (playCardsArgs.canShield) {
-                        this.statusBar.addActionButton(_("Place a shell face down"), () => this.bgaPerformAction('actSelectShellFaceDown'), { color: 'secondary' });
+                        this.statusBar.addActionButton(_("Place a shell face down"), () => this.bga.actions.performAction('actSelectShellFaceDown'), { color: 'secondary' });
                     }
-                    this.statusBar.addActionButton(_("End turn"), () => this.bgaPerformAction('actEndTurn'), { autoclick: !playCardsArgs.canDoAction });
+                    this.statusBar.addActionButton(_("End turn"), () => this.bga.actions.performAction('actEndTurn'), { autoclick: !playCardsArgs.canDoAction });
                     if (playCardsArgs.canCallEndRound) {
-                        this.statusBar.addActionButton(_('End round') + ' ("' + _('LAST CHANCE') + '")', () => this.bgaPerformAction('actEndRound'), { id: `endRound_button`, color: 'alert' });
-                        this.statusBar.addActionButton(_('End round') + ' ("' + _('STOP') + '")', () => this.bgaPerformAction('actImmediateEndRound'), { id: `immediateEndRound_button`, color: 'alert', disabled: !playCardsArgs.canStop });
+                        this.statusBar.addActionButton(_('End round') + ' ("' + _('LAST CHANCE') + '")', () => this.bga.actions.performAction('actEndRound'), { id: `endRound_button`, color: 'alert' });
+                        this.statusBar.addActionButton(_('End round') + ' ("' + _('STOP') + '")', () => this.bga.actions.performAction('actImmediateEndRound'), { id: `immediateEndRound_button`, color: 'alert', disabled: !playCardsArgs.canStop });
 
                         this.setTooltip(`endRound_button`, `${_("Say <strong>LAST CHANCE</strong> if you are willing to take the bet of having the most points at the end of the round. The other players each take a final turn (take a card + play cards) which they complete by revealing their hand, which is now protected from attacks. Then, all players count the points on their cards (in their hand and in front of them).")}<br><br>
                         ${_("If your hand is higher or equal to that of your opponents, bet won! You score the points for your cards + the color bonus (1 point per card of the color they have the most of). Your opponents only score their color bonus.")}<br><br>
@@ -459,7 +455,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                     }*/
                     break;
                 case 'placeShellFaceDown':
-                    this.statusBar.addActionButton(_("Cancel"), () => this.bgaPerformAction('actCancelPlaceShellFaceDown'), { color: 'secondary' });
+                    this.statusBar.addActionButton(_("Cancel"), () => this.bga.actions.performAction('actCancelPlaceShellFaceDown'), { color: 'secondary' });
                     break;
                 case 'chooseOpponentForSwap':
                     const chooseOpponentArgs = args as EnteringChooseOpponentArgs;
@@ -471,14 +467,14 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                     });
                     break;
                 case 'swapCard':
-                    this.swapButton = this.statusBar.addActionButton(_("Swap selected cards"), () => this.bgaPerformAction('actSwapCard', {
+                    this.swapButton = this.statusBar.addActionButton(_("Swap selected cards"), () => this.bga.actions.performAction('actSwapCard', {
                         playerCardId: this.getCurrentPlayerTable().getHandSelection()[0].id,
                         opponentCardId: this.swapStock.getSelection()[0].id,
                     }), { disabled: true });
-                    this.statusBar.addActionButton(_("Pass"), () => this.bgaPerformAction('actPassSwapCard'), { color: 'secondary' });
+                    this.statusBar.addActionButton(_("Pass"), () => this.bga.actions.performAction('actPassSwapCard'), { color: 'secondary' });
                     break;
                 case 'beforeEndRound':
-                    this.statusBar.addActionButton(_("Seen"), () => this.bgaPerformAction('actSeen'));
+                    this.statusBar.addActionButton(_("Seen"), () => this.bga.actions.performAction('actSeen'));
                     break;
                 case 'chooseKeptEventCard':
                     this.onEnteringChooseKeptEventCard(args);
@@ -647,7 +643,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                 }
                 break;
             case 'placeShellFaceDown':
-                this.bgaPerformAction('actPlaceShellFaceDown', { id: card.id });
+                this.bga.actions.performAction('actPlaceShellFaceDown', { id: card.id });
                 break;
             case 'swapCard':
                 this.onSwapCardsSelectionChange();
@@ -664,7 +660,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
 
         switch (this.gamedatas.gamestate.name) {
             case 'stealPlayedPair':
-                this.bgaPerformAction('actStealPlayedPair', { stolenPlayerId: playerId, id: card.id });
+                this.bga.actions.performAction('actStealPlayedPair', { stolenPlayerId: playerId, id: card.id });
                 break;
         }
     }
@@ -681,7 +677,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
                 this.chooseDiscardPile(number);
                 break;
             case 'angelfishPower':
-                this.bgaPerformAction('actTakeCardAngelfishPower', { number });
+                this.bga.actions.performAction('actTakeCardAngelfishPower', { number });
                 break;
         }
     }
@@ -851,36 +847,36 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
     }
 
     public takeCardsFromDeck() {
-        this.bgaPerformAction('actTakeCardsFromDeck');
+        this.bga.actions.performAction('actTakeCardsFromDeck');
     }
 
     public takeCardFromDiscard(discardNumber: number) {
-        this.bgaPerformAction('actTakeCardFromDiscard', {
+        this.bga.actions.performAction('actTakeCardFromDiscard', {
             discardNumber
         });
     }
 
     public chooseCard(id: number) {
-        this.bgaPerformAction('actChooseCard', {
+        this.bga.actions.performAction('actChooseCard', {
             id
         });
     }
 
     public putDiscardPile(discardNumber: number) {
-        this.bgaPerformAction('actPutDiscardPile', {
+        this.bga.actions.performAction('actPutDiscardPile', {
             discardNumber
         });
     }
 
     public playCards(ids: number[]) {
-        this.bgaPerformAction('actPlayCards', {
+        this.bga.actions.performAction('actPlayCards', {
             'id1': ids[0],
             'id2': ids[1],
         });
     }
 
     public playCardsTrio(ids: number[], starfishId: number) {
-        this.bgaPerformAction('actPlayCardsTrio', {
+        this.bga.actions.performAction('actPlayCardsTrio', {
             'id1': ids[0],
             'id2': ids[1],
             'starfishId': starfishId
@@ -888,19 +884,19 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
     }
 
     public chooseDiscardPile(discardNumber: number) {
-        this.bgaPerformAction('actChooseDiscardPile', {
+        this.bga.actions.performAction('actChooseDiscardPile', {
             discardNumber
         });
     }
 
     public chooseDiscardCard(id: number) {
-        this.bgaPerformAction('actChooseDiscardCard', {
+        this.bga.actions.performAction('actChooseDiscardCard', {
             id
         });
     }
 
     public chooseOpponent(id: number) {
-        this.bgaPerformAction('actChooseOpponent', {
+        this.bga.actions.performAction('actChooseOpponent', {
             id
         });
     }
@@ -1073,7 +1069,7 @@ class SeaSaltPaper extends GameGui<SeaSaltPaperGamedatas> implements SeaSaltPape
 
     notif_score(args: NotifScoreArgs) {
         const playerId = args.playerId;
-        this.scoreCtrl[playerId]?.toValue(args.newScore);
+        this.bga.playerPanels.getScoreCounter(playerId).toValue(args.newScore);
 
         const incScore = args.incScore;
         if (incScore != null && incScore !== undefined) {

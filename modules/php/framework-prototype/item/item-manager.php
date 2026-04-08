@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace Bga\GameFrameworkPrototype\Item;
 
+use Bga\GameFramework\SystemException;
+use Bga\GameFramework\Table;
+
 function array_find(array $array, callable $fn) {
     foreach ($array as $value) {
         if($fn($value)) {
@@ -21,7 +24,7 @@ function array_shuffle_bga_rand(array &$array): void {
     }
 }
 
-class ItemManagerConfigurationException extends \BgaSystemException {}
+class ItemManagerConfigurationException extends SystemException {}
 
 class ItemManagerDbService {
     public function __construct(
@@ -29,23 +32,19 @@ class ItemManagerDbService {
     ) {}
 
     public function sqlCreate(string $columns) {
-        /** @disregard */
-        \APP_DbObject::DbQuery("CREATE TABLE `{$this->tableName}` ($columns) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;");
+        Table::DbQuery("CREATE TABLE `{$this->tableName}` ($columns) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;");
     }
 
     public function sqlInsert(string $columns, string $values) {
-        /** @disregard */
-        \APP_DbObject::DbQuery("INSERT INTO `{$this->tableName}` ($columns) VALUES $values");
+        Table::DbQuery("INSERT INTO `{$this->tableName}` ($columns) VALUES $values");
     }
 
     public function sqlUpdate(string $updates, string $condition) {
-        /** @disregard */
-        \APP_DbObject::DbQuery("UPDATE `{$this->tableName}` SET $updates WHERE $condition");
+        Table::DbQuery("UPDATE `{$this->tableName}` SET $updates WHERE $condition");
     }
 
     public function sqlGetValue(string $column, string $condition) {
-        /** @disregard */
-        return \APP_DbObject::getUniqueValueFromDB("SELECT $column FROM `{$this->tableName}` WHERE $condition");
+        return Table::getUniqueValueFromDB("SELECT $column FROM `{$this->tableName}` WHERE $condition");
     }
 
     public function sqlGetList(string $columns = '*', ?string $condition = null, ?string $orderBy = null, ?int $limit = null) {
@@ -59,8 +58,7 @@ class ItemManagerDbService {
         if ($limit !== null) {
             $sql .= " LIMIT $limit";
         }
-        /** @disregard */
-        return \APP_DbObject::getCollectionFromDb($sql);
+        return Table::getCollectionFromDb($sql);
     }
 
     public function sqlEqual(ItemField $field, mixed $item): string {

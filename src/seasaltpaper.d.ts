@@ -90,9 +90,6 @@ interface EnteringTakeCardsArgs {
 }
 
 interface EnteringChooseCardArgs {
-    _private?: {
-        cards: Card[];
-    }
     cards: Card[];
     discardNumber?: number;
     deckTopCard?: Card;

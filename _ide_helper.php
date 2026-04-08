@@ -82,6 +82,7 @@ namespace Bga\GameFramework\Actions\Types {
             ?string $name = null,
             public ?bool $associative = true,
             public ?bool $alphanum = true, 
+            public ?string $class = null,
         ) {}
     
         public function getValue(string $paramName): mixed { return []; }    
@@ -325,7 +326,7 @@ namespace Bga\GameFramework {
          * @param callable $fn The decorator function. Expected signature: `function(string $message, array $args): array`
          * @return void
          */
-        public function addDecorator(callable $fn) {
+        public function addDecorator(callable $fn): void {
            //
         }
 
@@ -351,6 +352,12 @@ namespace Bga\GameFramework {
         public function all(string $notifName, string | NotificationMessage $message = '', array $args = []): void {
             //
         }
+
+        /**
+         * If called, all _private informations sent to the front will be merged to the args (if not called, they will stay into args._private).
+         * If you want to only merge some _private, add `_merge_private => true` to the relevant args instead.
+         */
+        public function alwaysMergePrivate(): void {}
     }
 
     abstract class Logs {

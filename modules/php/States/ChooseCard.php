@@ -5,6 +5,7 @@ namespace Bga\Games\SeaSaltPaper\States;
 use Bga\GameFramework\States\GameState;
 use Bga\GameFramework\States\PossibleAction;
 use Bga\GameFramework\StateType;
+use Bga\GameFramework\UserException;
 use Bga\Games\SeaSaltPaper\Game;
 use Bga\Games\SeaSaltPaper\Objects\Card;
 use Bga\Games\SeaSaltPaper\Objects\CardsPoints;
@@ -41,7 +42,7 @@ class ChooseCard extends GameState {
     public function actChooseCard(int $id, int $activePlayerId) {
         $card = $this->game->cards->getItemById($id);
         if ($card->location != 'pick') {
-            throw new \BgaUserException("Cannot pick this card");
+            throw new UserException("Cannot pick this card");
         }
 
         $this->game->cards->moveItem($card, 'hand'.$activePlayerId);
