@@ -98,4 +98,5 @@ $gameinfos = [
     'min' => 670,
 ],
 
+'exception_on_warning' => true,
 ];

@@ -775,11 +775,8 @@ html.expansion #table-center #pick[data-visible=true]::before {
   top: unset;
 }
 
-.player-board {
-  background-color: white;
-}
-.player-board.spectator-mode * {
-  background: white !important;
+html[data-theme=light] .player-board {
+  --game-bga-player-panel-background: white;
 }
 
 .end-game-points {
@@ -815,6 +812,7 @@ html.expansion #table-center #pick[data-visible=true]::before {
 .player-table .name-wrapper {
   position: relative;
   display: flex;
+  color: black;
   background: rgba(255, 255, 255, 0.6666666667);
   padding: 5px;
   justify-content: center;
@@ -1005,6 +1003,10 @@ html.expansion #table-center #pick[data-visible=true]::before {
   max-width: 100vw;
   max-height: 80vh;
   overflow: hidden;
+}
+
+html[data-theme=dark] #popin_seasaltpaperHelpDialog {
+  background: var(--game-palette-bga-gray-244);
 }
 
 #help-popin {

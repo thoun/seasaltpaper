@@ -2653,11 +2653,11 @@ namespace Bga\GameFramework\Components\Counters {
         }
     }
 
-    abstract class OutOfRangeCounterException extends \BgaSystemException
+    abstract class OutOfRangeCounterException extends \Bga\GameFramework\SystemException
     {
     }
     
-    abstract class UnknownPlayerException extends \BgaSystemException
+    abstract class UnknownPlayerException extends \Bga\GameFramework\SystemException
     {
     }
 

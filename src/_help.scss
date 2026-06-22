@@ -114,6 +114,12 @@
     overflow: hidden;
 }
 
+html[data-theme="dark"] {
+    #popin_seasaltpaperHelpDialog {
+        background: var(--game-palette-bga-gray-244);
+    }
+}
+
 #help-popin {
     width: 520px;
     max-width: 35rem;
